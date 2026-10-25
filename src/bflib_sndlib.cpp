@@ -583,6 +583,50 @@ void print_device_info() {
 	LbJustLog("\n");
 }
 
+const char * output_mode_str(ALCint mode) {
+	switch (mode) {
+		case ALC_ANY_SOFT: return "any";
+		case ALC_STEREO_BASIC_SOFT: return "stereo (basic)";
+		case ALC_STEREO_UHJ_SOFT: return "stereo (UHJ)";
+		case ALC_STEREO_HRTF_SOFT: return "stereo (HRTF)";
+		case ALC_SURROUND_5_1_SOFT: return "5.1 surround";
+		case ALC_SURROUND_6_1_SOFT: return "6.1 surround";
+		case ALC_SURROUND_7_1_SOFT: return "7.1 surround";
+	}
+	return "unknown";
+}
+
+const char * hrtf_status_str(ALCint status) {
+	switch (status) {
+		case ALC_HRTF_DISABLED_SOFT: return "disabled";
+		case ALC_HRTF_ENABLED_SOFT: return "enabled";
+		case ALC_HRTF_DENIED_SOFT: return "denied (unsupported by device)";
+		case ALC_HRTF_REQUIRED_SOFT: return "required by device";
+		case ALC_HRTF_HEADPHONES_DETECTED_SOFT: return "enabled (headphones detected)";
+		case ALC_HRTF_UNSUPPORTED_FORMAT_SOFT: return "unsupported format";
+	}
+	return "unknown";
+}
+
+void log_openal_status(ALCdevice * device) {
+	LbJustLog("OpenAL version: %s, vendor: %s, renderer: %s\n",
+		alGetString(AL_VERSION), alGetString(AL_VENDOR), alGetString(AL_RENDERER));
+	const char * device_name = alcIsExtensionPresent(device, "ALC_ENUMERATE_ALL_EXT")
+		? alcGetString(device, ALC_ALL_DEVICES_SPECIFIER)
+		: alcGetString(device, ALC_DEVICE_SPECIFIER);
+	LbJustLog("OpenAL device in use: %s\n", (device_name != nullptr) ? device_name : "unknown");
+	if (alcIsExtensionPresent(device, "ALC_SOFT_output_mode")) {
+		ALCint mode = 0;
+		alcGetIntegerv(device, ALC_OUTPUT_MODE_SOFT, 1, &mode);
+		LbJustLog("OpenAL output mode: %s\n", output_mode_str(mode));
+	}
+	if (alcIsExtensionPresent(device, "ALC_SOFT_HRTF")) {
+		ALCint status = 0;
+		alcGetIntegerv(device, ALC_HRTF_STATUS_SOFT, 1, &status);
+		LbJustLog("OpenAL HRTF status: %s\n", hrtf_status_str(status));
+	}
+}
+
 // The currently-playing streamed speech sample (played on g_speech_track).
 __attribute__((unused)) MIX_Audio * g_streamed_sample = nullptr;
 std::mutex g_mix_mutex;
@@ -979,13 +1023,24 @@ extern "C" void MonitorStreamedSoundTrack() {
 	KFX_PLOT("Audio drops: tick gate", g_drops_tick_gate);
 	KFX_PLOT("Audio drops: stack cap", g_drops_stack_cap);
 	KFX_PLOT("Audio drops: no voice", g_drops_no_voice);
-	if (g_drops_tick_gate || g_drops_stack_cap || g_drops_no_voice) {
-		SYNCDBG(7, "Audio sample drops this tick: tick-gate %u, stack-cap %u, no-voice %u",
-			g_drops_tick_gate, g_drops_stack_cap, g_drops_no_voice);
+	KFX_PLOT("Audio drops: S3D priority", S3DDropsPriority);
+	KFX_PLOT("Audio drops: S3D eviction", S3DDropsEviction);
+	KFX_PLOT("Audio drops: S3D volume zero", S3DDropsVolumeZero);
+	KFX_PLOT("Audio drops: S3D out of range", S3DDropsOutOfRange);
+	if (g_drops_tick_gate || g_drops_stack_cap || g_drops_no_voice
+	 || S3DDropsPriority || S3DDropsEviction || S3DDropsVolumeZero || S3DDropsOutOfRange) {
+		SYNCDBG(7, "Audio sample drops this tick: tick-gate %u, stack-cap %u, no-voice %u, "
+			"S3D priority %lu, S3D eviction %lu, S3D volume-zero %lu, S3D out-of-range %lu",
+			g_drops_tick_gate, g_drops_stack_cap, g_drops_no_voice,
+			S3DDropsPriority, S3DDropsEviction, S3DDropsVolumeZero, S3DDropsOutOfRange);
 	}
 	g_drops_tick_gate = 0;
 	g_drops_stack_cap = 0;
 	g_drops_no_voice = 0;
+	S3DDropsPriority = 0;
+	S3DDropsEviction = 0;
+	S3DDropsVolumeZero = 0;
+	S3DDropsOutOfRange = 0;
 }
 
 extern "C" void * GetSoundDriver() {
@@ -1041,6 +1096,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		} else if (!alcMakeContextCurrent(context.get())) {
 			throw openal_error("Cannot make context current");
 		}
+		log_openal_status(device.get());
 		if (alIsExtensionPresent("AL_SOFT_deferred_updates")) {
 			g_al_defer_updates = reinterpret_cast<LPALDEFERUPDATESSOFT>(alGetProcAddress("alDeferUpdatesSOFT"));
 			g_al_process_updates = reinterpret_cast<LPALPROCESSUPDATESSOFT>(alGetProcAddress("alProcessUpdatesSOFT"));

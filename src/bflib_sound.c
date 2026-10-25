@@ -55,6 +55,10 @@ long MaxSoundDistance;
 struct SoundReceiver Receiver;
 long Non3DEmitter;
 long SpeechEmitter;
+unsigned long S3DDropsPriority = 0;
+unsigned long S3DDropsEviction = 0;
+unsigned long S3DDropsVolumeZero = 0;
+unsigned long S3DDropsOutOfRange = 0;
 /******************************************************************************/
 // Internal routines
 SoundEmitterID allocate_free_sound_emitter(void);
@@ -596,8 +600,10 @@ short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax)
     }
     if (spcval >= spcmax)
     {
+        S3DDropsPriority++;
         return -1;
     }
+    S3DDropsEviction++;
     kick_out_sample(min_sample_id);
     return min_sample_id;
 }
@@ -778,9 +784,16 @@ TbBool process_sound_samples(void)
             }
             if (sample->emit_ptr != NULL)
             {
-              if ( (sample->volume == 0) ||
-                 ( ((sample->emit_ptr->emitter_flags & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
-                kick_out_sample(i);
+              if (sample->volume == 0)
+              {
+                  S3DDropsVolumeZero++;
+                  kick_out_sample(i);
+              }
+              else if ( ((sample->emit_ptr->emitter_flags & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) )
+              {
+                  S3DDropsOutOfRange++;
+                  kick_out_sample(i);
+              }
             }
         }
     }

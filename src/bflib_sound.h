@@ -114,6 +114,12 @@ extern long MaxSoundDistance;
 extern struct SoundReceiver Receiver;
 extern long Non3DEmitter;
 extern long SpeechEmitter;
+// S3D-level sample drops (observability only; read and reset once per tick by
+// MonitorStreamedSoundTrack in bflib_sndlib.cpp).
+extern unsigned long S3DDropsPriority;
+extern unsigned long S3DDropsEviction;
+extern unsigned long S3DDropsVolumeZero;
+extern unsigned long S3DDropsOutOfRange;
 #pragma pack()
 /******************************************************************************/
 // Exported functions
