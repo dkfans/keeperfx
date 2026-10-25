@@ -75,6 +75,7 @@ extern "C" {
 #define LOBBY_NUMBER_TEXT_LENGTH 12
 #define LOBBY_PALETTE_MAX_INTENSITY 63
 #define LOBBY_SECTION_TEXT_INDENT 20
+#define LOBBY_SELECTOR_TEXT_RIGHT_INSET 8
 #define LOBBY_ROW_HEIGHT 26
 #define LOBBY_PANEL_PADDING 4
 #define LOBBY_SCROLL_BUTTON_HEIGHT 14
@@ -648,14 +649,22 @@ static const unsigned char *lobby_panel_sprite_remap(TbBool highlighted)
     return remaps[highlighted];
 }
 
-static void draw_mappack_selector(struct GuiButton *gbtn)
+static struct GuiButton mappack_selector_text_area(struct GuiButton *gbtn)
 {
     int scale = lobby_menu_scale(gbtn);
-    int indent = LOBBY_SECTION_TEXT_INDENT * scale / 16;
+    struct GuiButton text_area = *gbtn;
+    text_area.scr_pos_x += LOBBY_SECTION_TEXT_INDENT * scale / 16;
+    text_area.width -= (LOBBY_SECTION_TEXT_INDENT + LOBBY_SELECTOR_TEXT_RIGHT_INSET) * scale / 16;
+    return text_area;
+}
+
+static void draw_mappack_selector(struct GuiButton *gbtn)
+{
     RendererSetDrawFlags(0);
     frontnet_draw_scroll_selection_box(gbtn, 0, NULL);
     int font_index = lobby_font(gbtn, net_lobby_mappack_list_open || (frontend_mouse_over_button == gbtn->content.lval));
-    draw_lobby_text(gbtn->scr_pos_x + indent, gbtn->scr_pos_y, gbtn->width - 2 * indent, gbtn->height, font_index, 0, 0, campaign.display_name);
+    struct GuiButton text_area = mappack_selector_text_area(gbtn);
+    draw_lobby_text(text_area.scr_pos_x, text_area.scr_pos_y, text_area.width, text_area.height, font_index, 0, 0, campaign.display_name);
 }
 
 static struct GuiButton *mappack_selector_button;
