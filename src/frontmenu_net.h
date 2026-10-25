@@ -98,6 +98,7 @@ void frontnet_draw_sessions_scroll_tab(struct GuiButton *gbtn);
 void frontnet_draw_session_selected(struct GuiButton *gbtn);
 void frontnet_draw_session_button(struct GuiButton *gbtn);
 void frontnet_draw_lobby_panel(struct GuiButton *gbtn);
+void frontnet_draw_lobby_panel_without_scrollbar(struct GuiButton *gbtn);
 void frontnet_draw_tab_bar(struct GuiButton *gbtn);
 void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, const char *text);
 void frontnet_players_up(struct GuiButton *gbtn);

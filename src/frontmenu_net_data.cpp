@@ -133,7 +133,7 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
 struct GuiButtonInit frontend_net_start_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,   NULL,                    0, 999,  12, 999,  12, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,  {11},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, 10,  60, 10,  60, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET, 26, frontnet_draw_lobby_players_header, 0, GUIStr_Empty, 0, {31},    0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10,  86,  10,  86, LOBBY_LEFT_WIDTH,190, frontnet_draw_lobby_panel,         0, GUIStr_Empty, 0,   {0},    0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10,  86,  10,  86, LOBBY_LEFT_WIDTH,190, frontnet_draw_lobby_panel_without_scrollbar,         0, GUIStr_Empty, 0,   {0},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_player_setting,frontnet_change_player_setting,frontend_over_button,0,  10,  90,  10,  90, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET,104, frontnet_draw_net_start_players,   0, GUIStr_Empty, 0,  {21},    0, frontnet_maintain_net_start_players },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, LOBBY_RIGHT_X,  60, LOBBY_RIGHT_X,  60, LOBBY_RIGHT_WIDTH - LOBBY_HEADER_INSET, 26, frontnet_draw_lobby_section_header, 0, GUIStr_Empty, 0, {117},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, LOBBY_RIGHT_X,  86, LOBBY_RIGHT_X,  86, LOBBY_RIGHT_WIDTH,190, frontnet_draw_lobby_panel,         0, GUIStr_Empty, 0,   {0},    0, NULL },
@@ -434,10 +434,15 @@ static int lobby_menu_scale(struct GuiButton *gbtn)
     return gmnu->width * 16 / gmnu->menu_init->width;
 }
 
+void frontnet_draw_lobby_panel_without_scrollbar(struct GuiButton *gbtn)
+{
+    draw_lobby_panel(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, lobby_menu_scale(gbtn));
+}
+
 void frontnet_draw_lobby_panel(struct GuiButton *gbtn)
 {
+    frontnet_draw_lobby_panel_without_scrollbar(gbtn);
     int scale = lobby_menu_scale(gbtn);
-    draw_lobby_panel(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, scale);
     const struct TbSprite *top = get_frontend_sprite(GFS_scrollbar_toparrow_std);
     const struct TbSprite *middle = get_frontend_sprite(GFS_scrollbar_vert_ct_long);
     const struct TbSprite *bottom = get_frontend_sprite(GFS_scrollbar_btmarrow_std);
