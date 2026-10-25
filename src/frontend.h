@@ -35,7 +35,7 @@ extern "C" {
 #define MENU_LIST_ITEMS_COUNT       52
 #define FRONTEND_BUTTON_INFO_COUNT 118
 #define NET_MESSAGES_COUNT           8
-#define NET_MESSAGE_LEN             100
+#define NET_MESSAGE_LEN             192
 // Sprite limits
 #define PANEL_SPRITES_COUNT 514
 #define FRONTEND_FONTS_COUNT 4
