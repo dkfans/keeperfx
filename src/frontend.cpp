@@ -3586,30 +3586,14 @@ void load_game_update(void)
 
 void gui_set_autopilot(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  int ntype;
-  if (game.comp_player_aggressive)
+  do_sound_button_click(gbtn);
+  uint8_t kind = gbtn->btype_value + 1;
+  if (!replay.load_enable)
   {
-    ntype = 1;
-  } else
-  if (game.comp_player_defensive)
-  {
-    ntype = 2;
-  } else
-  if (game.comp_player_construct)
-  {
-    ntype = 3;
-  } else
-  if (game.comp_player_creatrsonly)
-  {
-    ntype = 4;
-  } else
-  {
-    ERRORLOG("Illegal Autopilot type, resetting to default");
-    ntype = 1;
+    settings.computer_assistant_kind = kind;
+    save_settings();
   }
-  set_players_packet_action(player, PckA_SetComputerKind, ntype, 0, 0, 0);
+  set_players_packet_action(get_my_player(), PckA_SetComputerKind, kind, 0, 0, 0);
 }
 
 void set_level_objective(PlayerNumber plyr_idx, const char *msg_text)
