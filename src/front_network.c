@@ -104,7 +104,7 @@ static TbClockMSec last_sent_screen_packet_time;
 }
 #endif
 /******************************************************************************/
-#define RANDOM_TEAMS_COUNT 2
+#define MINIMUM_RANDOM_TEAMS 2
 
 struct NetPlayerSetting {
     int8_t *values;
@@ -193,21 +193,39 @@ static char alliances_from_teams(const int8_t teams[MAX_NET_USERS])
 
 static void resolve_random_teams(int8_t teams[MAX_NET_USERS])
 {
+    int8_t team_sizes[NET_TEAM_COUNT];
     int8_t random_slots[MAX_NET_USERS];
+    int8_t candidate_teams[MAX_NET_USERS];
     int32_t random_count = 0;
+    int32_t candidates_count = 0;
+    memset(team_sizes, 0, sizeof(team_sizes));
     for (PlayerNumber slot = 0; slot < MAX_NET_USERS; slot++) {
         if (teams[slot] == NET_TEAM_RANDOM) {
             random_slots[random_count] = slot;
             random_count++;
+        } else if (teams[slot] >= 0) {
+            if (team_sizes[teams[slot]] == 0) {
+                candidate_teams[candidates_count] = teams[slot];
+                candidates_count++;
+            }
+            team_sizes[teams[slot]]++;
         }
     }
     shuffle_values(random_slots, random_count);
+    shuffle_values(candidate_teams, candidates_count);
     for (int32_t i = 0; i < random_count; i++) {
-        if (i < RANDOM_TEAMS_COUNT) {
-            teams[random_slots[i]] = first_unused_value(teams);
-        } else {
-            teams[random_slots[i]] = teams[random_slots[i - RANDOM_TEAMS_COUNT]];
+        if (candidates_count < MINIMUM_RANDOM_TEAMS) {
+            candidate_teams[candidates_count] = first_unused_value(teams);
+            candidates_count++;
         }
+        int8_t smallest = candidate_teams[0];
+        for (int32_t k = 1; k < candidates_count; k++) {
+            if (team_sizes[candidate_teams[k]] < team_sizes[smallest]) {
+                smallest = candidate_teams[k];
+            }
+        }
+        teams[random_slots[i]] = smallest;
+        team_sizes[smallest]++;
     }
 }
 
