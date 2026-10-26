@@ -45,6 +45,7 @@
 #include "front_simple.h"
 #include "net_game.h"
 #include "net_lobby.h"
+#include "player_data.h"
 #include "sprites.h"
 #include "custom_sprites.h"
 #include "bflib_inputctrl.h"
