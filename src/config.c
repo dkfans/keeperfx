@@ -2289,7 +2289,7 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
     if (mod_state->cmpg_lvls)
     {
         char map_fname[DISKPATH_SIZE] = "";
-        snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_selected_level_number(), conf_fname);
+        snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_level_number(), conf_fname);
         prepare_file_path_buf_mod(fname, sizeof(fname), mod_dir, FGrp_CmpgLvls, map_fname);
         if (strlen(fname) > 0)
         {
@@ -2343,7 +2343,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     }
 
     char map_fname[DISKPATH_SIZE] = "";
-    snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_selected_level_number(), conf_fname);
+    snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_level_number(), conf_fname);
     prepare_file_path_buf(fname, sizeof(fname), FGrp_CmpgLvls, map_fname);
     if (strlen(fname) > 0)
     {
