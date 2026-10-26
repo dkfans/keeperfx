@@ -166,11 +166,10 @@ void frontnet_session_set_player_name(struct GuiButton *gbtn)
     net_write_config_file();
 }
 
-static void draw_tiled_bar(struct GuiButton *gbtn, int left_index, int middle_index, int right_index)
+static void draw_tiled_bar(struct GuiButton *gbtn, int left_index, int first_middle_index, int middle_count, int right_index)
 {
-    int scale = simple_frontend_sprite_height_units_per_px(gbtn, middle_index, 100);
+    int scale = simple_frontend_sprite_height_units_per_px(gbtn, first_middle_index, 100);
     const struct TbSprite *left = get_frontend_sprite(left_index);
-    const struct TbSprite *middle = get_frontend_sprite(middle_index);
     const struct TbSprite *right = get_frontend_sprite(right_index);
     int left_width = left->SWidth * scale / 16;
     int right_width = right->SWidth * scale / 16;
@@ -180,16 +179,18 @@ static void draw_tiled_bar(struct GuiButton *gbtn, int left_index, int middle_in
     struct GraphicsWindow window;
     LbScreenStoreGraphicsWindow(&window);
     LbScreenSetGraphicsWindow(gbtn->scr_pos_x + left_width, gbtn->scr_pos_y, middle_width, gbtn->height);
-    int tile_width = max(1, middle->SWidth * scale / 16);
-    for (int x = 0; x < middle_width; x += tile_width) {
+    int x = 0;
+    for (int tile = 0; x < middle_width; tile++) {
+        const struct TbSprite *middle = get_frontend_sprite(first_middle_index + tile % middle_count);
         LbSpriteDrawResized(x, 0, scale, middle);
+        x += max(1, middle->SWidth * scale / 16);
     }
     LbScreenLoadGraphicsWindow(&window);
 }
 
 void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
-    draw_tiled_bar(gbtn, GFS_largearea_nx1_cor_l, GFS_largearea_nx1_tx5_c, GFS_largearea_nx1_cor_r);
+    draw_tiled_bar(gbtn, GFS_largearea_nx1_cor_l, GFS_largearea_nx1_tx5_c, 1, GFS_largearea_nx1_cor_r);
 }
 
 void frontnet_session_up(struct GuiButton *gbtn)
@@ -357,7 +358,7 @@ void frontnet_messages_down(struct GuiButton *gbtn)
 
 void frontnet_draw_tab_bar(struct GuiButton *gbtn)
 {
-    draw_tiled_bar(gbtn, GFS_hugearea_thc_cor_tl, GFS_hugearea_thc_tx1_tc, GFS_hugearea_thc_cor_tr);
+    draw_tiled_bar(gbtn, GFS_hugearea_thc_cor_tl, GFS_hugearea_thc_tx1_tc, 1, GFS_hugearea_thc_cor_tr);
 }
 
 void frontnet_messages_scroll(struct GuiButton *gbtn)
@@ -375,7 +376,7 @@ void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, c
     unsigned char height;
     const struct TbSprite *spr = get_frontend_sprite(GFS_largearea_xts_cor_l);
     int fs_units_per_px = gbtn->height * 16 / spr->SHeight;
-    draw_tiled_bar(gbtn, GFS_largearea_xts_cor_l, GFS_largearea_xts_tx1_c, GFS_largearea_xts_cor_r);
+    draw_tiled_bar(gbtn, GFS_largearea_xts_cor_l, GFS_largearea_xts_tx1_c, GFS_largearea_xts_cor_r - GFS_largearea_xts_tx1_c, GFS_largearea_xts_cor_r);
 
     if (text != NULL)
     {

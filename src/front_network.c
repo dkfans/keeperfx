@@ -256,15 +256,10 @@ TbBool net_lobby_computer_player(NetUserId user)
     return fe_computer_players == 1 && user < net_lobby_max_players && net_player_colour[user] < 0;
 }
 
-static TbBool net_lobby_user_has_team(NetUserId user)
-{
-    return net_player_colour[user] >= 0 || net_lobby_computer_player(user);
-}
-
 static void clear_teamless_users(void)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (!net_lobby_user_has_team(user)) {
+        if (net_player_colour[user] < 0 && !net_lobby_computer_player(user)) {
             net_player_team[user] = -1;
         }
     }
@@ -282,7 +277,7 @@ static void host_update_players(void)
         if (network_user_active(user) && net_player_colour[user] < 0) {
             net_player_colour[user] = first_unused_value(net_player_colour);
         }
-        if (net_lobby_user_has_team(user) && net_player_team[user] < 0) {
+        if ((net_player_colour[user] >= 0 || net_lobby_computer_player(user)) && net_player_team[user] < 0) {
             net_player_team[user] = first_unused_value(net_player_team);
         }
     }

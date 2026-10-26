@@ -48,7 +48,6 @@ void frontnet_draw_lobby_columns(struct GuiButton *gbtn);
 void frontnet_draw_lobby_tooltip(struct GuiButton *gbtn);
 void frontnet_draw_lobby_option(struct GuiButton *gbtn);
 void frontnet_change_lobby_option(struct GuiButton *gbtn);
-void frontnet_maintain_mappack_selector(struct GuiButton *gbtn);
 void frontnet_draw_lobby_settings_panel(struct GuiButton *gbtn);
 void frontnet_open_mappack_list(struct GuiButton *gbtn);
 void frontnet_draw_mappack_list(struct GuiButton *gbtn);

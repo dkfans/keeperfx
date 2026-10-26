@@ -658,19 +658,22 @@ void maintain_error_message_scroll(struct GuiButton *gbtn)
 static int32_t error_box_thumb_height(struct GuiButton *gbtn)
 {
     int32_t thumb_h = gbtn->height * error_box_visible_height / (error_box_visible_height + error_box_overflow);
-    if (thumb_h < gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR)
+    if (thumb_h < gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR) {
         thumb_h = gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR;
+    }
     return thumb_h;
 }
 
 void gui_error_message_scroll_drag(struct GuiButton *gbtn)
 {
-    if (error_box_overflow <= 0)
+    if (error_box_overflow <= 0) {
         return;
+    }
     const int32_t thumb_h = error_box_thumb_height(gbtn);
     const int32_t travel = gbtn->height - thumb_h;
-    if (travel <= 0)
+    if (travel <= 0) {
         return;
+    }
     error_box_scroll_y = (GetMouseY() - gbtn->scr_pos_y - thumb_h / 2) * error_box_overflow / travel;
     error_message_scroll_by(0);
 }

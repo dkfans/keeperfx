@@ -83,6 +83,8 @@ extern "C" {
 #define LOBBY_SCROLL_BUTTON_OVERLAP 13
 #define LOBBY_OPTION_TEXT_GAP 6
 #define LOBBY_MAPPACK_Y 274
+#define LOBBY_MAPPACK_SELECTOR_ID 56
+#define BID_LOBBY_MAPPACK_SELECTOR (BID_ASSIST + 1)
 #define LOBBY_MAPPACK_LIST_Y 86
 #define LOBBY_MAPPACK_LIST_HEIGHT 190
 #define LOBBY_MAPPACK_LIST_MAX_ROWS ((LOBBY_MAPPACK_LIST_HEIGHT - 2 * LOBBY_PANEL_PADDING) / LOBBY_ROW_HEIGHT)
@@ -137,14 +139,14 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10,  86,  10,  86, LOBBY_LEFT_WIDTH,190, frontnet_draw_lobby_panel_without_scrollbar,         0, GUIStr_Empty, 0,   {0},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_player_setting,frontnet_change_player_setting,frontend_over_button,0,  10,  90,  10,  90, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET,104, frontnet_draw_net_start_players,   0, GUIStr_Empty, 0,  {21},    0, frontnet_maintain_net_start_players },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, LOBBY_RIGHT_X,  60, LOBBY_RIGHT_X,  60, LOBBY_RIGHT_WIDTH - LOBBY_HEADER_INSET, 26, frontnet_draw_lobby_settings_header, 0, GUIStr_Empty, 0, {117},    0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_open_mappack_list,frontnet_open_mappack_list,frontend_over_button,0, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_WIDTH, 26, NULL, 0, GUIStr_Empty, 0, {56},    0, frontnet_maintain_mappack_selector },
+  { LbBtnT_NormalBtn,  BID_LOBBY_MAPPACK_SELECTOR, 0, 0, frontnet_open_mappack_list,frontnet_open_mappack_list,frontend_over_button,0, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_WIDTH, LOBBY_ROW_HEIGHT, NULL, 0, GUIStr_Empty, 0, {LOBBY_MAPPACK_SELECTOR_ID},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, LOBBY_RIGHT_X,  86, LOBBY_RIGHT_X,  86, LOBBY_RIGHT_WIDTH,LOBBY_MAPPACK_LIST_HEIGHT, frontnet_draw_lobby_settings_panel,       0, GUIStr_Empty, 0,   {0},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,0, LOBBY_OPTION_X,  90, LOBBY_OPTION_X,  90, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {45},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,1, LOBBY_OPTION_X, 116, LOBBY_OPTION_X, 116, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {46},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,2, LOBBY_OPTION_X, 142, LOBBY_OPTION_X, 142, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {47},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,3, LOBBY_OPTION_X, 168, LOBBY_OPTION_X, 168, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {48},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,4, LOBBY_OPTION_X, 194, LOBBY_OPTION_X, 194, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {49},    0, frontnet_maintain_host_setting },
-  { LbBtnT_EditBox, -1,-1, 0, frontnet_session_set_lobby_name, NULL, frontend_over_button,     45, LOBBY_OPTION_X + LOBBY_OPTION_WIDTH / 2,  90, LOBBY_OPTION_X + LOBBY_OPTION_WIDTH / 2,  90, LOBBY_OPTION_WIDTH / 2, 26, frontnet_draw_lobby_name,          0, GUIStr_Empty, 0, {.str = net_lobby_settings.net_lobby_name}, sizeof(net_lobby_settings.net_lobby_name) - 1, frontnet_maintain_host_setting },
+  { LbBtnT_EditBox, -1,-1, 0, frontnet_session_set_lobby_name, NULL, frontend_over_button,     45, LOBBY_OPTION_X,  90, LOBBY_OPTION_X,  90, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_name,          0, GUIStr_Empty, 0, {.str = net_lobby_settings.net_lobby_name}, sizeof(net_lobby_settings.net_lobby_name) - 1, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, 10, 278, 10, 278, LOBBY_LEFT_WIDTH, 26, frontnet_draw_lobby_section_header, 0, GUIStr_Empty, 0, {34},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10, 304,  10, 304, LOBBY_MESSAGES_WIDTH, 86, frontnet_draw_lobby_panel,         0, GUIStr_Empty, 0,   {0},    0, frontnet_messages_wheel_maintain },
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_messages_up,NULL,  frontend_over_button,    0, 10 + LOBBY_MESSAGES_WIDTH, 303, 10 + LOBBY_MESSAGES_WIDTH, 303,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {38},    0, frontnet_messages_up_maintain },
@@ -643,7 +645,7 @@ void frontnet_draw_lobby_name(struct GuiButton *gbtn)
     }
     char text[sizeof(net_lobby_settings.net_lobby_name) + 1];
     snprintf(text, sizeof(text), "%s%s", gbtn->content.str, cursor);
-    draw_lobby_text_right_aligned(gbtn->scr_pos_x + gbtn->width, gbtn->scr_pos_y, gbtn->width, gbtn->height, font_index, gbtn == input_button, text);
+    draw_lobby_text_right_aligned(gbtn->scr_pos_x + gbtn->width, gbtn->scr_pos_y, gbtn->width / 2, gbtn->height, font_index, gbtn == input_button, text);
 }
 
 static const unsigned char *lobby_highlight_remap(TbBool highlighted)
@@ -680,19 +682,9 @@ static void draw_mappack_selector(struct GuiButton *gbtn)
     draw_lobby_text(text_area.scr_pos_x, text_area.scr_pos_y, text_area.width, text_area.height, font_index, 0, 0, campaign.display_name);
 }
 
-static struct GuiButton *mappack_selector_button;
-
-void frontnet_maintain_mappack_selector(struct GuiButton *gbtn)
-{
-    frontnet_maintain_host_setting(gbtn);
-    mappack_selector_button = gbtn;
-}
-
 void frontnet_draw_lobby_settings_panel(struct GuiButton *gbtn)
 {
-    if (mappack_selector_button != NULL) {
-        draw_mappack_selector(mappack_selector_button);
-    }
+    draw_mappack_selector(get_gui_button(BID_LOBBY_MAPPACK_SELECTOR));
     frontnet_draw_lobby_panel(gbtn);
 }
 
@@ -804,8 +796,11 @@ static TbBool lobby_player_cell_editable(NetUserId user, int32_t column)
 
 static NetUserId lobby_editable_player_at_mouse(struct GuiButton *gbtn)
 {
+    if (!mouse_is_over_lobby_area(gbtn, false)) {
+        return -1;
+    }
     NetUserId user = (GetMouseY() - gbtn->scr_pos_y) * 16 / (LOBBY_ROW_HEIGHT * lobby_menu_scale(gbtn));
-    if (user < 0 || user >= net_lobby_max_players || !lobby_player_cell_editable(user, lobby_player_column_at_mouse(gbtn))) {
+    if (user >= net_lobby_max_players || !lobby_player_cell_editable(user, lobby_player_column_at_mouse(gbtn))) {
         return -1;
     }
     return user;
@@ -987,8 +982,9 @@ void frontnet_draw_lobby_tooltips(struct GuiButton *gbtn)
     if (mouse_is_over_lobby_area(gbtn, false)) {
         draw_lobby_tooltip(gbtn, net_lobby_settings.net_lobby_name);
     }
-    if ((mappack_selector_button != NULL) && mouse_is_over_lobby_area(mappack_selector_button, false)) {
-        struct GuiButton text_area = mappack_selector_text_area(mappack_selector_button);
+    struct GuiButton *selector = get_gui_button(BID_LOBBY_MAPPACK_SELECTOR);
+    if (mouse_is_over_lobby_area(selector, false)) {
+        struct GuiButton text_area = mappack_selector_text_area(selector);
         draw_lobby_tooltip(&text_area, campaign.display_name);
     }
 }
