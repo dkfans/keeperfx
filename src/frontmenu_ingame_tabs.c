@@ -2392,11 +2392,39 @@ void maintain_creature_button(struct GuiButton* gbtn)
     }
 }
 
+static int get_active_computer_assist_slot(void)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (!player_exists(player))
+        return -1;
+
+    // return slot corresponding to the player's synced preference, or if that
+    // doesn't match the active kind, then go with the first slot that does.
+    // (matters only if the mod maps multiple slots to the same kind)
+    struct Computer2* comp = get_computer_player(player->id_number);
+    if (computer_player_invalid(comp) || dungeon_invalid(comp->dungeon))
+        return -1;
+    const struct UserState* ustate = get_player_user_state(player);
+    uint32_t preferred_kind = user_state_invalid(ustate) ? 0 : ustate->prefs[UPref_StartingComputerAssistantKind];
+    int first_match = -1;
+    for (int i = 0; i < COMPUTER_ASSIST_TYPES_COUNT; i++)
+    {
+        if (comp_player_conf.computer_assist_types[i] != comp->model)
+            continue;
+        if (i + 1 == preferred_kind)
+            return i;
+        if (first_match < 0)
+            first_match = i;
+    }
+    return first_match;
+}
+
 void maintain_compsetting_button(struct GuiButton* gbtn)
 {
     struct ComputerType* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
     gbtn->tooltip_stridx = cpt->tooltip_stridx;
     gbtn->sprite_idx = cpt->sprite_idx;
+    gbtn->button_state_left_pressed = gbtn->btype_value == get_active_computer_assist_slot();
 }
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)

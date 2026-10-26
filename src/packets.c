@@ -1064,7 +1064,11 @@ TbBool process_user_global_packet_action(NetUserId user)
       output_message(SMsg_EnemyHarassments+pckt->actn_par1, 0);
       return 0;
   case PckA_SetComputerKind:
+      if (pckt->actn_par1 < 1 || pckt->actn_par1 > COMPUTER_ASSIST_TYPES_COUNT)
+          return 0;
       set_autopilot_type(plyr_idx, pckt->actn_par1);
+      if (!user_state_invalid(ustate))
+          ustate->prefs[UPref_StartingComputerAssistantKind] = pckt->actn_par1;
       return 0;
   case PckA_GoSpectator:
       level_lost_go_first_person(plyr_idx);

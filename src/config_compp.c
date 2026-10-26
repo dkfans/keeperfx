@@ -74,7 +74,6 @@ static const struct NamedField compp_common_named_fields[] = {
   {"ComputerAssists",        3, field_a(struct ComputerPlayerConfig, computer_assist_types, 3), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
   {"SkirmishFirst",          0, field_t(struct ComputerPlayerConfig, skirmish_first),           0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
   {"SkirmishLast",           0, field_t(struct ComputerPlayerConfig, skirmish_last),            0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
-  {"DefaultComputerAssist",  0, field_t(struct ComputerPlayerConfig, player_assist_default),    0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
   {NULL},
 };
 
