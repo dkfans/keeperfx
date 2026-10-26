@@ -611,6 +611,8 @@ static TbBool replay_has_remote_humans(void)
 static void replace_network_player_with_ai(struct PlayerInfo *player)
 {
     player->allocflags |= PlaF_CompCtrl | PlaF_Placeholder;
+    // TODO: if we add reconnect, remember to undo this
+    setup_a_computer_player(player->id_number, get_random_skirmish_computer_model());
     toggle_computer_player(player->id_number);
     message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
     JUSTLOG("p:%d computer took over", player->id_number);

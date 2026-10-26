@@ -108,6 +108,13 @@ int32_t get_computer_assist_model(uint8_t aptype)
     return comp_player_conf.computer_assist_types[aptype-1];
 }
 
+int32_t get_random_skirmish_computer_model(void)
+{
+    int minSkirmishAI = comp_player_conf.skirmish_first;
+    int maxSkirmishAI = comp_player_conf.skirmish_last;
+    return GAME_RANDOM(maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
+}
+
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
 {
     setup_a_computer_player(plyr_idx, get_computer_assist_model(aptype));
@@ -1605,12 +1612,7 @@ void setup_computer_players2(void)
       player = get_player(i);
       if (is_active_keeper(player))
       {
-        // The range from which the computer model is selected
-        // is between minSkirmishAI and maxSkirmishAI, inclusive of both. User defined in keepcompp.cfg
-        int minSkirmishAI = comp_player_conf.skirmish_first;
-        int maxSkirmishAI = comp_player_conf.skirmish_last;
-
-        int skirmish_AI_type = GAME_RANDOM(maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
+        int skirmish_AI_type = get_random_skirmish_computer_model();
         const struct UserState *ustate = get_player_user_state(player);
         if (!user_state_invalid(ustate))
         {
