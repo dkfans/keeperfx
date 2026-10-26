@@ -32,7 +32,7 @@ extern "C" {
 /******************************************************************************/
 #define NET_SERVICE_LEN 64
 #define NET_PLAYER_COLOUR_RANDOM MAX_NET_USERS
-#define NET_TEAM_COUNT 8
+#define NET_TEAM_COUNT 4
 #define NET_TEAM_RANDOM NET_TEAM_COUNT
 
 enum NetPlayerSettingKind {
