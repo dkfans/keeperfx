@@ -601,6 +601,7 @@ static void finish_resync(const struct Packet *saved_packets)
     recall_localised_game_structure();
     reinit_level_after_load();
     light_import_system_state(&game.lightst);
+    light_rebuild_after_load();
     if (network_is_active() && net_join_role == NetRole_Spectator) {
         reinitialise_eye_lens(game.applied_lens_type);
     }

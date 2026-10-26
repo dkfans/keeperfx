@@ -2610,7 +2610,6 @@ void set_gui_visible(TbBool visible)
         break;
     }
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-    observer_snap_view_camera();
 }
 
 void toggle_gui(void)
