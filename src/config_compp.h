@@ -41,6 +41,7 @@ extern "C" {
 #define COMPUTER_MODELS_COUNT        64
 
 #define COMPUTER_ASSIST_TYPES_COUNT 4
+#define DEFAULT_COMPUTER_ASSIST 2
 
 struct ComputerProcess {
   char name[COMMAND_WORD_LEN];
@@ -121,7 +122,6 @@ struct ComputerPlayerConfig {
   struct ComputerType computer_types[COMPUTER_MODELS_COUNT];
   long skirmish_first;
   long skirmish_last;
-  long player_assist_default;
   unsigned char computer_assist_types[COMPUTER_ASSIST_TYPES_COUNT];
 
 };

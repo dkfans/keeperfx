@@ -103,9 +103,9 @@ GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
 
 int32_t get_computer_assist_model(uint8_t aptype)
 {
-    if (aptype >= 1 && aptype <= COMPUTER_ASSIST_TYPES_COUNT)
-        return comp_player_conf.computer_assist_types[aptype-1];
-    return comp_player_conf.player_assist_default;
+    if (aptype < 1 || aptype > COMPUTER_ASSIST_TYPES_COUNT)
+        aptype = DEFAULT_COMPUTER_ASSIST;
+    return comp_player_conf.computer_assist_types[aptype-1];
 }
 
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)

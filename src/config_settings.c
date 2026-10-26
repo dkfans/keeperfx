@@ -385,7 +385,7 @@ void setup_default_settings(void)
     settings.mentor_volume                 = 127;
     settings.isometric_tilt                = CAMERA_TILT_DEFAULT;
     settings.highlight_mode                = false;
-    settings.computer_assistant_kind       = 0;
+    settings.computer_assistant_kind       = DEFAULT_COMPUTER_ASSIST;
 
     for (int i = 0; i < GAME_KEYS_COUNT; i++)
     {
