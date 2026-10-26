@@ -282,10 +282,6 @@ void init_keeper(void)
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     RendererSetDrawColour(colours[15][15][15]);
-    game.comp_player_aggressive  = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[0]);
-    game.comp_player_defensive   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[1]);
-    game.comp_player_construct   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[2]);
-    game.comp_player_creatrsonly = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[3]);
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     local_state.show_panel = true;

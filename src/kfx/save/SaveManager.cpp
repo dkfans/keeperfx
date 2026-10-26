@@ -208,8 +208,8 @@ static TbBool apply_game_kfxs(const char *fname, struct LoadedSave *loaded_save,
     *centry = loaded_save->centry;
     // Config loading reads the level numbers, and writes into parts of game (slab sets, research, ...)
     // that the save replaces afterwards, so the save goes in only after it.
-    game.loaded_level_number = loaded_save->game->loaded_level_number;
-    game.selected_level_number = loaded_save->game->selected_level_number;
+    game.loaded_level_number = centry->level_num;
+    game.selected_level_number = centry->level_num;
     if (!change_campaign(CampgnT_Default, centry->campaign_fname))
     {
         SAVEERR("can't load campaign \"%s\" for \"%s\"", centry->campaign_fname, fname);
@@ -239,7 +239,8 @@ static TbBool apply_game_kfxs(const char *fname, struct LoadedSave *loaded_save,
     // Refuses if a used index no longer names the same config entry in this build.
     if (save_names_check(read_result->nams_data, read_result->nams_len, &game, &err) != SVR_Ok)
     {
-        SAVEWARN("\"%s\" refused: %s", fname, err.message);
+        SAVEWARN("\"%s\" refused: %s (level %d of campaign \"%s\")", fname, err.message,
+            (int)centry->level_num, centry->campaign_fname);
         return false;
     }
     if (read_result->lua_len > 0)

@@ -48,10 +48,6 @@ extern "C" {
 
 struct Boing {
   unsigned char active_panel_menu_index;
-  unsigned char comp_player_aggressive;
-  unsigned char comp_player_defensive;
-  unsigned char comp_player_construct;
-  unsigned char comp_player_creatrsonly;
   unsigned char creatures_tend_imprison;
   unsigned char creatures_tend_flee;
   unsigned short hand_over_subtile_x;
@@ -124,10 +120,6 @@ void animate_resync_progress_bar(int current_phase, int total_phases)
 void store_localised_game_structure(void)
 {
     boing.active_panel_menu_index = game.active_panel_mnu_idx;
-    boing.comp_player_aggressive = game.comp_player_aggressive;
-    boing.comp_player_defensive = game.comp_player_defensive;
-    boing.comp_player_construct = game.comp_player_construct;
-    boing.comp_player_creatrsonly = game.comp_player_creatrsonly;
     boing.creatures_tend_imprison = game.creatures_tend_imprison;
     boing.creatures_tend_flee = game.creatures_tend_flee;
     boing.hand_over_subtile_x = game.hand_over_subtile_x;
@@ -148,10 +140,6 @@ void store_localised_game_structure(void)
 void recall_localised_game_structure(void)
 {
     game.active_panel_mnu_idx = boing.active_panel_menu_index;
-    game.comp_player_aggressive = boing.comp_player_aggressive;
-    game.comp_player_defensive = boing.comp_player_defensive;
-    game.comp_player_construct = boing.comp_player_construct;
-    game.comp_player_creatrsonly = boing.comp_player_creatrsonly;
     game.creatures_tend_imprison = boing.creatures_tend_imprison;
     game.creatures_tend_flee = boing.creatures_tend_flee;
     game.hand_over_subtile_x = boing.hand_over_subtile_x;
@@ -601,6 +589,7 @@ static void finish_resync(const struct Packet *saved_packets)
     recall_localised_game_structure();
     reinit_level_after_load();
     light_import_system_state(&game.lightst);
+    light_rebuild_after_load();
     if (network_is_active() && net_join_role == NetRole_Spectator) {
         reinitialise_eye_lens(game.applied_lens_type);
     }

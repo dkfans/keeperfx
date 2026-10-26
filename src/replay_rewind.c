@@ -54,7 +54,6 @@ struct MemSpanChunkAligned {
     unsigned char *ptr;
     size_t len;
     size_t snapshot_offset;
-    TbBool kernel_tracked;
     size_t first_chunk;
 };
 
@@ -97,8 +96,11 @@ static size_t snapshot_size;
 // offset of the start of the MemFragment section of snapshots.
 static size_t snapshot_fragments_start;
 
-// kernel_memtracker init'd successfully
+// kernel_memtracker init'd
 static TbBool kernel_tracking;
+
+// set on any rewind-related failure (until the next replay_rewind_reset)
+static TbBool rewind_disabled;
 
 // one bool8 per chunk to filter out large unchanged regions before diffing
 static unsigned char *chunk_dirty;
@@ -137,6 +139,12 @@ extern char __stop_kfx_rwd[];
 #endif
 /******************************************************************************/
 
+static void disable_rewind(void)
+{
+    replay_rewind_reset();
+    rewind_disabled = true;
+}
+
 static void add_fragment(unsigned char *ptr, size_t len)
 {
     if (len == 0)
@@ -152,9 +160,9 @@ static void register_memtracker(void *ptr, size_t len)
     if ((spans_count >= REWIND_MAX_SECTIONS) || (fragments_count + 2 > REWIND_MAX_SECTIONS * 2))
     {
         ERRORLOG("Too many tracked memory sections");
+        kernel_tracking = false;
         return;
     }
-    if (!kernel_tracking) kernel_tracking = kernel_memtracker_init();
     const size_t align = kernel_memtracker_chunk_size();
 
     // pull out the juicy `MemSpanChunkAligned` and deal with whatever `MemFragment`s remain separately
@@ -174,7 +182,7 @@ static void register_memtracker(void *ptr, size_t len)
     span->len = mid_end - mid_start;
     span->snapshot_offset = snapshot_size;
     span->first_chunk = kernel_memtracker_get_chunk_count();
-    span->kernel_tracked = kernel_tracking && kernel_memtracker_add(span->ptr, span->len);
+    kernel_tracking = kernel_tracking && kernel_memtracker_add(span->ptr, span->len);
     snapshot_size += span->len;
 }
 
@@ -184,9 +192,12 @@ static TbBool init_buffers(void)
         return true;
     if (snapshot_size == 0)
     {
+        kernel_tracking = kernel_memtracker_init();
         register_memtracker(&game, sizeof(game));
         register_memtracker(Triangles, sizeof(Triangles));
         register_memtracker(rwd_start, rwd_end - rwd_start);
+        if (!kernel_tracking)
+            WARNLOG("Kernel memory tracking is unavailable; replay rewind disabled");
 
         // add the fragments to the snapshot size
         snapshot_fragments_start = snapshot_size;
@@ -197,7 +208,7 @@ static TbBool init_buffers(void)
         }
         snapshot_size = (snapshot_size + REWIND_PAGE_SIZE - 1) / REWIND_PAGE_SIZE * REWIND_PAGE_SIZE;
     }
-    if (snapshot_size == 0) return false;
+    if (!kernel_tracking || (snapshot_size == 0)) return false;
 
     snapshot = (unsigned char *)calloc(1, snapshot_size);
     fragment_stage = (unsigned char *)calloc(1, snapshot_size - snapshot_fragments_start);
@@ -207,7 +218,7 @@ static TbBool init_buffers(void)
     if ((snapshot == NULL) || (fragment_stage == NULL) || (chunk_dirty == NULL) || (ring == NULL))
     {
         ERRORLOG("Cannot allocate replay rewind buffers");
-        replay_rewind_reset();
+        disable_rewind();
         return false;
     }
     return true;
@@ -364,7 +375,8 @@ static TbBool diff_page(uint32_t pg, unsigned char *old_page, const unsigned cha
 // add to ring: diff of last full snapshot against the current state
 static TbBool diff_snapshot_against_live(void)
 {
-    const TbBool use_dirty = kernel_tracking && kernel_memtracker_collect(chunk_dirty);
+    if (!kernel_memtracker_collect(chunk_dirty))
+        return false;
     const size_t pages_per_chunk = kernel_memtracker_chunk_size() / REWIND_PAGE_SIZE;
     for (int i = 0; i < spans_count; i++)
     {
@@ -372,7 +384,7 @@ static TbBool diff_snapshot_against_live(void)
         const uint32_t first_page = span->snapshot_offset / REWIND_PAGE_SIZE;
         for (size_t p = 0; p < span->len / REWIND_PAGE_SIZE; p++)
         {
-            if (use_dirty && span->kernel_tracked && !chunk_dirty[span->first_chunk + p / pages_per_chunk])
+            if (!chunk_dirty[span->first_chunk + p / pages_per_chunk])
                 continue;
             if (!diff_page(first_page + p, snapshot + span->snapshot_offset + p * REWIND_PAGE_SIZE, span->ptr + p * REWIND_PAGE_SIZE))
                 return false;
@@ -503,7 +515,7 @@ static TbBool move_snapshot_to(struct RewindKeyframe *target)
 
 void replay_rewind_capture(void)
 {
-    if (!replay.load_enable || (replay_rewind_buffer_kb == 0))
+    if (!replay.load_enable || (replay_rewind_buffer_kb == 0) || rewind_disabled)
         return;
     const GameTurn turn = get_gameturn();
     if ((turn % REWIND_LOG_INTERVAL == 0) && (keyframes_count > 0))
@@ -525,14 +537,14 @@ void replay_rewind_capture(void)
     else if (!move_snapshot_to(newest))
     {
         ERRORLOG("Cannot rebuild replay rewind keyframe; rewind disabled");
-        replay_rewind_reset();
+        disable_rewind();
         return;
     }
     struct RewindKeyframe *kf = (struct RewindKeyframe *)ring_alloc(KEYFRAME_HEADER_SIZE, true);
     if (kf == NULL)
     {
         ERRORLOG("Replay rewind buffer is too small for a keyframe; rewind disabled");
-        replay_rewind_reset();
+        disable_rewind();
         return;
     }
     memset(kf, 0, sizeof(*kf));
@@ -549,7 +561,7 @@ void replay_rewind_capture(void)
     if (trailer == NULL)
     {
         ERRORLOG("Cannot store replay rewind keyframe; rewind disabled");
-        replay_rewind_reset();
+        disable_rewind();
         return;
     }
     *trailer = (unsigned char *)kf - ring;
@@ -572,7 +584,7 @@ void replay_rewind_step(void)
     if (!move_snapshot_to(kf))
     {
         ERRORLOG("Cannot rebuild replay rewind keyframe; rewind disabled");
-        replay_rewind_reset();
+        disable_rewind();
         return;
     }
     restore_snapshot(snapshot);
@@ -585,7 +597,7 @@ void replay_rewind_step(void)
     {
         ERRORLOG("Cannot restore replay rewind keyframe; rewind disabled");
         set_flag_value(game.operation_flags, GOF_Paused, paused);
-        replay_rewind_reset();
+        disable_rewind();
         return;
     }
     clear_flag(game.operation_flags, GOF_Paused);
@@ -620,6 +632,7 @@ size_t replay_rewind_buffer_used(void)
 
 void replay_rewind_reset(void)
 {
+    rewind_disabled = false;
     newest = NULL;
     keyframes_count = 0;
     free(ring);
