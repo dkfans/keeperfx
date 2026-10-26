@@ -22,6 +22,7 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
