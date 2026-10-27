@@ -76,7 +76,7 @@ void message_draw(void)
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
             RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
             int text_offset = 32 * units_per_pixel / 16;
-            if ((game.messages[i].type == MsgType_Player) || (game.messages[i].type == MsgType_Spectator)) {
+            if ((game.messages[i].type == MsgType_Player) || (game.messages[i].type == MsgType_Spectator) || (game.messages[i].type == MsgType_Local)) {
                 text_offset = text_offset * icon_units_per_px / ps_units_per_px;
             }
             LbTextDrawResized(x + text_offset, y, tx_units_per_px, game.messages[i].text);
@@ -146,6 +146,7 @@ void message_draw(void)
                     break;
                 }
                 case MsgType_Blank:
+                case MsgType_Local:
                 {
                     break;
                 }
@@ -330,13 +331,13 @@ void show_game_time_taken(unsigned long fps, unsigned long turns)
     struct GameTime gt;
     get_game_time(&gt, turns, fps);
     struct PlayerInfo* player = get_my_player();
-    targeted_message_add(MsgType_Player, player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld", get_string(GUIStr_Time), gt.Hours, gt.Minutes, gt.Seconds);
+    targeted_message_add(MsgType_Local, player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld", get_string(GUIStr_Time), gt.Hours, gt.Minutes, gt.Seconds);
 }
 
 void show_real_time_taken(void)
 {
     update_time();
     struct PlayerInfo* player = get_my_player();
-    targeted_message_add(MsgType_Player, player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld:%03ld", get_string(GUIStr_Time), Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+    targeted_message_add(MsgType_Local, player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld:%03ld", get_string(GUIStr_Time), Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
 }
 /******************************************************************************/

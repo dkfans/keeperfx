@@ -453,7 +453,7 @@ static short get_players_message_inputs(void)
             cmd_exec(PLAYER_NEUTRAL, text + 1, cursor_x, cursor_y, true);
         } else if (replay.load_enable) {
             if (text[0] != '\0') {
-                message_add(MsgType_Player, player->id_number, text);
+                message_add(MsgType_Local, player->id_number, text);
             }
         } else {
             if (network_is_active()) {

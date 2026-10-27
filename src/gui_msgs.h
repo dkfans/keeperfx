@@ -41,6 +41,7 @@ enum MessageTypes {
     MsgType_CreatureInstance,
     MsgType_Custom,
     MsgType_Spectator,
+    MsgType_Local,
 };
 /******************************************************************************/
 #pragma pack(1)

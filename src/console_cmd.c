@@ -507,7 +507,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
         int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr1_str, pr1_len, args_size-(pr1_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
             if (ret == AUTO_COMP_RET_AMBIGUOUS)
-                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible creature model: %s", poss_str);
+                targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible creature model: %s", poss_str);
             free(poss_str);
             return;
         }
@@ -515,7 +515,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
         if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE)
             return;
         if (ret == AUTO_COMP_RET_NOT_FOUND) {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported creature model");
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported creature model");
             return;
         }
         if (ret < 0)
@@ -528,7 +528,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
     (void)pr2_len;
 
     if (pr3_str == NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Auto completion for magic shot is not supported");
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Auto completion for magic shot is not supported");
         return;
     }
 
@@ -547,7 +547,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
         int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr3_str, pr3_len, args_size-(pr3_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
             if (ret == AUTO_COMP_RET_AMBIGUOUS)
-                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 3: Possible magic instance: %s", poss_str);
+                targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 3: Possible magic instance: %s", poss_str);
             free(poss_str);
             return;
         }
@@ -555,7 +555,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
         if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
             return;
         if (ret == AUTO_COMP_RET_NOT_FOUND) {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 3: Unsupported magic instance");
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 3: Unsupported magic instance");
             return;
         }
         if (ret < 0)
@@ -566,13 +566,13 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
     if (pr4_str == NULL)
         return;
 
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for the first 3 parameters now");
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for the first 3 parameters now");
 }
 
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", turns_per_second, fps_limit_current);
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", turns_per_second, fps_limit_current);
     return true;
 }
 
@@ -581,7 +581,7 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
     char * pr1str = strsep_param_with_space(&args);
     if (pr1str == NULL) {
         turns_per_second = start_params.num_fps;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", turns_per_second);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", turns_per_second);
     } else {
         turns_per_second = atoi(pr1str);
     }
@@ -666,7 +666,7 @@ TbBool cmd_timer_switch(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_turn(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", get_gameturn());
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", get_gameturn());
     return true;
 }
 
@@ -754,10 +754,10 @@ TbBool cmd_game_check(PlayerNumber plyr_idx, char * args)
         enum SaveCheckResult chk = SaveManager_Verify((int)slot_num, detail, sizeof(detail));
         if (chk == SvChk_Loadable)
         {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d is fine", (int)slot_num);
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d is fine", (int)slot_num);
             return true;
         }
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d: %s (%s)", (int)slot_num,
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d: %s (%s)", (int)slot_num,
             get_string(SaveManager_CheckMessage(chk)), detail);
         return false;
     }
@@ -774,10 +774,10 @@ TbBool cmd_game_check(PlayerNumber plyr_idx, char * args)
             continue;
         problems++;
         if (problems <= 5) // the rest is in the log
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d: %s (%s)", (int)slot_num,
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d: %s (%s)", (int)slot_num,
                 get_string(SaveManager_CheckMessage(chk)), detail);
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%d saves, %d can't be loaded", checked, problems);
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%d saves, %d can't be loaded", checked, problems);
     return (problems == 0);
 }
 
@@ -789,13 +789,13 @@ TbBool cmd_cls(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_ver(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, PRODUCT_VERSION);
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, PRODUCT_VERSION);
     return true;
 }
 
 TbBool cmd_volume(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.music_volume);
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.music_volume);
     return true;
 }
 
@@ -855,10 +855,10 @@ TbBool cmd_compuchat(PlayerNumber plyr_idx, char * args)
         }
         game.computer_chat_flags = CChat_TasksScarce;
     } else if ((strcasecmp(pr1str, "frequent") == 0) || (strcasecmp(pr1str, "2") == 0)) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", pr1str);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", pr1str);
         game.computer_chat_flags = CChat_TasksScarce | CChat_TasksFrequent;
     } else {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "none");
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "none");
         game.computer_chat_flags = CChat_None;
     }
     return true;
@@ -1008,7 +1008,7 @@ TbBool cmd_player_score(PlayerNumber plyr_idx, char * args)
         show_command_failure("dungeon is invalid");
         return false;
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d score: %ld", id,
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d score: %ld", id,
                             dungeon->total_score);
     return true;
 }
@@ -1030,7 +1030,7 @@ TbBool cmd_player_flag(PlayerNumber plyr_idx, char * args)
     }
     char * pr3str = strsep_param_with_space(&args);
     if (pr3str == NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id,
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id,
                                 flg_id, dungeon->script_flags[flg_id]);
     } else {
         dungeon->script_flags[flg_id] = atoi(pr3str);
@@ -1049,7 +1049,7 @@ TbBool cmd_comp_me(PlayerNumber plyr_idx, char * args)
         show_command_failure("unable to set assistant");
         return false;
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "computer assistant is %d", atoi(pr1str));
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "computer assistant is %d", atoi(pr1str));
     return true;
 }
 
@@ -1066,7 +1066,7 @@ TbBool cmd_give_trap(PlayerNumber plyr_idx, char * args)
     unsigned char num = (pr2str != NULL) ? atoi(pr2str) : 1;
     set_trap_buildable_and_add_to_amount(plyr_idx, id, 1, num);
     update_trap_tab_to_config();
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "done!");
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "done!");
     return true;
 }
 
@@ -1088,7 +1088,7 @@ TbBool cmd_give_door(PlayerNumber plyr_idx, char * args)
     unsigned char num = (pr2str != NULL) ? atoi(pr2str) : 1;
     set_door_buildable_and_add_to_amount(plyr_idx, id, 1, num);
     update_trap_tab_to_config();
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "done!");
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "done!");
     return true;
 }
 
@@ -1112,10 +1112,10 @@ TbBool cmd_map_pool(PlayerNumber plyr_idx, char * args)
     }
     char * pr2str = strsep_param_with_space(&args);
     if (pr2str == NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Pool count %s: %d", pr1str, game.pool.crtr_kind[kind]);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Pool count %s: %d", pr1str, game.pool.crtr_kind[kind]);
         return true;
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Set %s pool count: %d", pr1str, atoi(pr2str));
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Set %s pool count: %d", pr1str, atoi(pr2str));
     return script_set_pool(plyr_idx, pr1str, pr2str);
 }
 
@@ -1447,7 +1447,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
     TbBool is_pr1_num = parameter_is_number(str_buf);
     if (pr2_str == NULL) {
         if (is_pr1_num) {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Auto completion for numeric thing class is not supported");
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Auto completion for numeric thing class is not supported");
             return;
         }
     }
@@ -1461,7 +1461,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr1_str, pr1_len, args_size-(pr1_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
             if (ret == AUTO_COMP_RET_AMBIGUOUS)
-                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible thing class: %s", poss_str);
+                targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible thing class: %s", poss_str);
             free(poss_str);
             return;
         }
@@ -1469,7 +1469,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
             return;
         if (ret == AUTO_COMP_RET_NOT_FOUND) {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported thing class");
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported thing class");
             return;
         }
         if (ret < 0)
@@ -1547,7 +1547,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         model_command = shot_desc;
         break;
     default:
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unknown thing class");
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unknown thing class");
         return;
     }
 
@@ -1565,7 +1565,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
     TbBool is_pr2_num = parameter_is_number(str_buf);
     if (pr3_str == NULL) {
         if (is_pr2_num) {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Auto completion for numeric thing model is not supported");
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Auto completion for numeric thing model is not supported");
             return;
         }
     }
@@ -1580,7 +1580,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         }
         if (poss_str != NULL) {
             if (ret == AUTO_COMP_RET_AMBIGUOUS)
-                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Possible thing model: %s", poss_str);
+                targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Possible thing model: %s", poss_str);
             free(poss_str);
             return;
         }
@@ -1588,7 +1588,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
             return;
         if (ret == AUTO_COMP_RET_NOT_FOUND) {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Unsupported thing model");
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Unsupported thing model");
             return;
         }
         if (ret < 0)
@@ -1599,7 +1599,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         return;
     }
 
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for the first 2 parameters now");
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for the first 2 parameters now");
 }
 
 
@@ -1750,7 +1750,7 @@ TbBool cmd_player_heart_health(PlayerNumber plyr_idx, char * args)
     char * pr2str = strsep_param_with_space(&args);
     if (pr2str == NULL) {
         float percent = ((float) thing->health / (float)objst->health) * 100;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
                                 "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
         return true;
     }
@@ -1834,7 +1834,7 @@ TbBool cmd_send_digger_to(PlayerNumber plyr_idx, char * args)
     if (thing_is_creature(thing)) {
         if (thing->model == model) {
             if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos)) {
-                targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,"%s %d will dig to %s", thing_model_name(thing), thing->index, player_code_name(id));
+                targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,"%s %d will dig to %s", thing_model_name(thing), thing->index, player_code_name(id));
                 return send_tunneller_to_point_in_dungeon(thing, id, &pos);
             }
         }
@@ -1845,7 +1845,7 @@ TbBool cmd_send_digger_to(PlayerNumber plyr_idx, char * args)
         return false;
     }
     if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos)) {
-        targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %d will dig to %s", thing_model_name(thing),thing->index, player_code_name(id));
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %d will dig to %s", thing_model_name(thing),thing->index, player_code_name(id));
         return send_tunneller_to_point_in_dungeon(thing, id, &pos);
     }
     return false;
@@ -1936,12 +1936,12 @@ TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
     struct Map * block = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
     short thing_id = (short) get_mapwho_thing_index(block);
     struct Thing * thing = thing_get(thing_id);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "first_thing:%d %s", thing_id,
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "first_thing:%d %s", thing_id,
                             thing_class_and_model_name(thing->class_id, thing->model));
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "flags: %02x,filled: %d, wib: %d, col: %04ld", block->flags,
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "flags: %02x,filled: %d, wib: %d, col: %04ld", block->flags,
                             block->filled_subtiles, block->wibble_value, block->col_idx);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "mapwho: %04ld, rev: %d", block->mapwho, block->revealed);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "stl_x: %d, stl_y:%d", pos.x.stl.num,
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "mapwho: %04ld, rev: %d", block->mapwho, block->revealed);
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "stl_x: %d, stl_y:%d", pos.x.stl.num,
                             pos.y.stl.num);
     return true;
 }
@@ -1953,13 +1953,13 @@ TbBool cmd_thing_info(PlayerNumber plyr_idx, char * args)
         show_command_failure("no thing selected or thing is invalid");
         return false;
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "next_on_map: %d, next_of_class: %d",
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "next_on_map: %d, next_of_class: %d",
                             thing->next_on_mapblk, thing->next_of_class);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "health: %d", thing->health);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "pos: %d %d %d", thing->mappos.x.stl.num,
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "health: %d", thing->health);
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "pos: %d %d %d", thing->mappos.x.stl.num,
                             thing->mappos.y.stl.num,
                             thing->mappos.z.stl.num);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s",
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s",
                             thing_class_and_model_name(thing->class_id, thing->model));
     return true;
 }
@@ -2014,7 +2014,7 @@ TbBool cmd_cursor_pos(PlayerNumber plyr_idx, char * args)
     pos.x.val = cursor_x;
     pos.y.val = cursor_y;
     pos.z.val = get_floor_height_at(&pos);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cursor at %d, %d, %d",
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cursor at %d, %d, %d",
                             (int) pos.x.stl.num, (int) pos.y.stl.num, (int) pos.z.stl.num);
     return true;
 }
@@ -2033,7 +2033,7 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
         show_command_failure("thing is invalid");
         return false;
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got thing ID %d %s",
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got thing ID %d %s",
                             thing->index,
                             thing_class_and_model_name(thing->class_id, thing->model));
     struct UserState *ustate = get_player_user_state(player);
@@ -2062,7 +2062,7 @@ TbBool cmd_thing_health(PlayerNumber plyr_idx, char * args)
     if (pr1str != NULL) {
         thing->health = atoi(pr1str);
     } else {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Thing ID: %d health: %d", thing->index, thing->health);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Thing ID: %d health: %d", thing->index, thing->health);
     }
     return true;
 }
@@ -2127,7 +2127,7 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
         show_command_failure("room no exist");
         return false;
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got room ID %d", room->index);
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got room ID %d", room->index);
     struct UserState *ustate = get_player_user_state(player);
     if (user_state_invalid(ustate))
         return false;
@@ -2144,7 +2144,7 @@ TbBool cmd_room_health(PlayerNumber plyr_idx, char * args)
         show_command_failure("no thing selected or not room");
         return false;
     } else if (pr1str == NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Room ID %d health: %d", room->index, room->health);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Room ID %d health: %d", room->index, room->health);
         return true;
     }
     room-> health = atoi(pr1str);
@@ -2164,7 +2164,7 @@ TbBool cmd_slab_health(PlayerNumber plyr_idx, char * args)
         show_command_failure("slabmap block is invalid");
         return false;
     } else if (pr1str == NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Slab health: %d", slb->health);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Slab health: %d", slb->health);
         return true;
     }
     slb->health = atoi(pr1str);
@@ -2327,7 +2327,7 @@ TbBool cmd_toggle_classic_bug(PlayerNumber plyr_idx, char * args)
     }
     unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
     toggle_flag(game.conf.rules[plyr_idx].gameplay.classic_bugs_flags, flg);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules[plyr_idx].gameplay.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules[plyr_idx].gameplay.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
     return true;
 }
 
@@ -2345,7 +2345,7 @@ TbBool cmd_get_action_point_pos(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct ActionPoint * actionpt = action_point_get(idx);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Action Point idx: %ld num: %ld X: %d Y: %d", idx, num, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Action Point idx: %ld num: %ld X: %d Y: %d", idx, num, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
     return true;
 }
 
@@ -2500,7 +2500,7 @@ TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
 TbBool cmd_toggle_tooltip_land_coord(PlayerNumber plyr_idx, char * args)
 {
     tool_tip_dbg.land_coord = !tool_tip_dbg.land_coord;
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "tooltip_land_coord is turned %s", tool_tip_dbg.land_coord ? "on" : "off");
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "tooltip_land_coord is turned %s", tool_tip_dbg.land_coord ? "on" : "off");
     return true;
 }
 
@@ -2958,13 +2958,13 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
     char *pr1_str = args_str + strspn(args_str, " ");
     char *pr2_str = strchr(pr1_str, ' ');
     if (pr2_str != NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for parameter 1 as %s", desc_str);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for parameter 1 as %s", desc_str);
         return;
     }
 
     size_t pr1_len = strlen(pr1_str);
     if (parameter_is_number(pr1_str)) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Auto completion for numeric %s is not supported", desc_str);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Auto completion for numeric %s is not supported", desc_str);
         return;
     }
 
@@ -2998,13 +2998,13 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
 
     if (poss_str != NULL) {
         if (ret == AUTO_COMP_RET_AMBIGUOUS)
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible %s: %s", desc_str, poss_str);
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible %s: %s", desc_str, poss_str);
         free(poss_str);
     }
     if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
         return;
     if (ret == AUTO_COMP_RET_NOT_FOUND) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported %s", desc_str);
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported %s", desc_str);
         return;
     }
 }
@@ -3040,13 +3040,13 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
 
     if (poss_str != NULL) {
         if (ret == AUTO_COMP_RET_AMBIGUOUS)
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Possible commands: %s", poss_str);
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Possible commands: %s", poss_str);
         free(poss_str);
     }
     if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
         return;
     if (ret == AUTO_COMP_RET_NOT_FOUND) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unsupported command");
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unsupported command");
         return;
     }
     if (ret >= 0) {
@@ -3054,7 +3054,7 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
         if (suggested_commands[ret]->param_auto_completion != NULL) {
             suggested_commands[ret]->param_auto_completion(plyr_idx, space+1, cmd_size-(space+1-cmd_str));
         } else {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Command '%s' does not support parameter auto completion", suggested_commands[ret]->name);
+            targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Command '%s' does not support parameter auto completion", suggested_commands[ret]->name);
         }
     }
 }
