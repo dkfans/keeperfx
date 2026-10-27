@@ -28,6 +28,8 @@ public:
 
     void KeepFullscreenWindowComposited(SDL_Window* window) override;
     void LogDisplayDiagnostics(SDL_Window* window) override;
+
+    bool IsModifierKeyHeld(TbKeyCode key) const override;
 };
 
 #endif // PLATFORM_WINDOWS_H

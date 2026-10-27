@@ -136,6 +136,24 @@ void PlatformWindows::LogDisplayDiagnostics(SDL_Window* window)
     WinLogDisplayDiagnostics(window);
 }
 
+bool PlatformWindows::IsModifierKeyHeld(TbKeyCode key) const
+{
+    if (GetWineVersion() != nullptr)
+        return true;
+    int virtual_key;
+    switch (key) {
+    case KC_LSHIFT:   virtual_key = VK_LSHIFT;   break;
+    case KC_RSHIFT:   virtual_key = VK_RSHIFT;   break;
+    case KC_LCONTROL: virtual_key = VK_LCONTROL; break;
+    case KC_RCONTROL: virtual_key = VK_RCONTROL; break;
+    case KC_LALT:     virtual_key = VK_LMENU;    break;
+    case KC_RALT:     virtual_key = VK_RMENU;    break;
+    default:
+        return true;
+    }
+    return (GetAsyncKeyState(virtual_key) & 0x8000) != 0;
+}
+
 bool PlatformWindows::VideoInit()
 {
     // SDL disables the screensaver by default, which can disrupt the HDR

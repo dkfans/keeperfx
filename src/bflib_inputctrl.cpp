@@ -28,6 +28,7 @@
 #include "bflib_joyst.h"
 #include "bflib_video.h"
 #include "kfx/platform/WindowSystemSDL.h"
+#include "kfx/platform/IPlatform.h"
 #include "bflib_planar.h"
 #include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
@@ -529,6 +530,18 @@ static void process_event(const SDL_Event *ev)
     }
 }
 
+static void release_stuck_modifier_keys(void)
+{
+    static const TbKeyCode modifier_keys[] = {KC_LSHIFT, KC_RSHIFT, KC_LCONTROL, KC_RCONTROL, KC_LALT, KC_RALT};
+    for (int i = 0; i < (int)(sizeof(modifier_keys) / sizeof(modifier_keys[0])); i++) {
+        if (lbKeyOn[modifier_keys[i]] && !GetPlatform()->IsModifierKeyHeld(modifier_keys[i])) {
+            lbKeyOn[modifier_keys[i]] = 0;
+            SDL_ResetKeyboard();
+            return;
+        }
+    }
+}
+
 /******************************************************************************/
 TbBool LbPollInputs(void)
 {
@@ -537,7 +550,7 @@ TbBool LbPollInputs(void)
     while (SDL_PollEvent(&ev)) {
         process_event(&ev);
     }
-
+    release_stuck_modifier_keys();
     return (lbUserQuit < 1);
 }
 

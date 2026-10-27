@@ -3,6 +3,7 @@
 
 #include "bflib_basics.h" // TbBool
 #include "bflib_sound.h"  // SoundVolume
+#include "bflib_keybrd.h" // TbKeyCode
 
 class IWindowSystem;
 class IFileSystem;
@@ -67,6 +68,8 @@ public:
 
     /** Log display and HDR details for the game window. */
     virtual void LogDisplayDiagnostics(SDL_Window* /*window*/) {}
+
+    virtual bool IsModifierKeyHeld(TbKeyCode /*key*/) const { return true; }
 };
 
 /** The platform implementation selected for this build target. */
