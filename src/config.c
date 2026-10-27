@@ -781,7 +781,7 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
             *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
-        /* these need to stay LONG_MIN and MAX, as they arrive at this path trough generics */
+        /* these need to stay LONG_MIN and MAX, as they arrive at this path trough generics so on windows int32_t might arrive here, on linux int64_t might*/
         if (value < LONG_MIN || value > LONG_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
         else
