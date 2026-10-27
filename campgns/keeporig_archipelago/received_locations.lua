@@ -495,21 +495,37 @@ end
 --hand size, portal speed, starting imps, progressive unlocks (gonna be a pain)
 
 function CheckForMiscUnlocks()
-      for itemid = 401, 403 do -- if you are playing where you don't have hand, slap or possession available from start...
-            if not ReceivedLocationsTable.Has(itemid) then
-                  if PLAYER0.available("PLAYER0", ChecksTable[itemid].internal_name) == 0 then -- and don't own them (not sure how you could have the spellbooks!)
-                        MagicAvailable("PLAYER0",ChecksTable[itemid].internal_name,false,false) -- then disable them (they are always on by default otherwise)
-                  end
+    --if option is set to 2, unlock all of them immediately.
+    if APSettings.PositiveRecipes == 2 then
+        for itemid = 601, 607 do
+            RunDKScriptCommand("SET_SACRIFICE_RECIPE(" .. ChecksTable[itemid].internal_name .. ")")
+        end
+    end
+    if APSettings.NegativeRecipes == 2 then
+        for itemid = 609, 613 do
+            RunDKScriptCommand("SET_SACRIFICE_RECIPE(" .. ChecksTable[itemid].internal_name .. ")")
+        end
+    end
+    if APSettings.KeeperFXRecipes == 2 then
+        for itemid = 615, 625 do
+            RunDKScriptCommand("SET_SACRIFICE_RECIPE(" .. ChecksTable[itemid].internal_name .. ")")
+        end
+    end
+    for itemid = 401, 403 do -- if you are playing where you don't have hand, slap or possession available from start...
+         if not ReceivedLocationsTable.Has(itemid) then
+            if PLAYER0.available("PLAYER0", ChecksTable[itemid].internal_name) == 0 then -- and don't own them (not sure how you could have the spellbooks!)
+                MagicAvailable("PLAYER0",ChecksTable[itemid].internal_name,false,false) -- then disable them (they are always on by default otherwise)
+                end
+        end
+    end
+    for itemid = 101, 200 do -- for all rooms
+        if ReceivedLocationsTable.Has(itemid) then -- if player has unlocked this room (is researchable)
+            if PLAYER0[ChecksTable[itemid].internal_name] > 0 then -- and owns it on map start
+            --101-105, 108, 114
+                RoomAvailable("PLAYER0",ChecksTable[itemid].internal_name,2,true) -- then it's available.
             end
-      end
-      for itemid = 101, 200 do -- for all rooms
-            if ReceivedLocationsTable.Has(itemid) then -- if player has unlocked this room (is researchable)
-                  if PLAYER0[ChecksTable[itemid].internal_name] > 0 then -- and owns it on map start
-                  --101-105, 108, 114
-                        RoomAvailable("PLAYER0",ChecksTable[itemid].internal_name,2,true) -- then it's available.
-                  end
-            end
-      end
+        end
+    end
 end
 
 return ReceivedLocations
