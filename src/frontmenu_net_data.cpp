@@ -870,16 +870,17 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         int name_x = column_x[LobbyPlayerColumn_Name] + icon_width;
         draw_lobby_text(name_x, y, column_x[LobbyPlayerColumn_Team] - name_x - text_gap, height, name_font, draw_flags, 0, name);
         draw_lobby_text(column_x[LobbyPlayerColumn_Ping], y, column_x[LobbyPlayerColumn_Count] - column_x[LobbyPlayerColumn_Ping] - text_gap, height, font, draw_flags, 0, ping);
-        RendererSetDrawFlags(0);
         if (net_player_team[user] >= 0) {
             const struct TbSprite *team_icon = get_frontend_sprite(GFS_random_team);
             if (net_player_team[user] < NET_TEAM_RANDOM) {
                 team_icon = get_frontend_sprite(GFS_team_1 + net_player_team[user]);
             }
+            RendererSetDrawFlags(draw_flags);
             int team_x = (column_x[LobbyPlayerColumn_Team] + column_x[LobbyPlayerColumn_Ping]) / 2 - text_gap - team_icon->SWidth * team_scale / 32;
             int team_y = y + (height - team_icon->SHeight * team_scale / 16) / 2;
             LbSpriteDrawResizedRemap(team_x, team_y, team_scale, team_icon, lobby_highlight_remap(user == user_at_mouse && column_at_mouse == LobbyPlayerColumn_Team));
         }
+        RendererSetDrawFlags(0);
     }
     lbDisplay.GlassMap = previous_glass_map;
     render_ghost = previous_render_ghost;
