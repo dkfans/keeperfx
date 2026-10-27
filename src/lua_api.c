@@ -277,6 +277,9 @@ static int lua_ap_get_slot_data(lua_State *L)
     lua_pushinteger(L, slot_data.KeeperFXTraps);
     lua_setfield(L, -2, "KeeperFXTraps");
 
+    lua_pushinteger(L, slot_data.PositiveRecipes);
+    lua_setfield(L, -2, "PositiveRecipes");
+
     lua_pushinteger(L, slot_data.NegativeRecipes);
     lua_setfield(L, -2, "NegativeRecipes");
 
