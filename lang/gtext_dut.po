@@ -7377,8 +7377,8 @@ msgstr "Max. spelers"
 #: guitext:1134
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow observers"
-msgstr "Waarnemers toestaan"
+msgid "Allow spectators"
+msgstr "Toeschouwers toestaan"
 
 #: guitext:1135
 #, fuzzy
@@ -7534,3 +7534,21 @@ msgstr "%s heeft de verbinding verloren (time-out)."
 msgctxt "Network game message"
 msgid "%s has become a spectator."
 msgstr "%s is nu toeschouwer."
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Team"
+msgstr "Team"
+
+#: guitext:1162
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Ping"
+msgstr "Ping"
+
+#: guitext:1163
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Add computer players"
+msgstr "Computerspelers toevoegen"

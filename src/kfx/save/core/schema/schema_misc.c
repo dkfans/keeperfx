@@ -41,6 +41,7 @@ SAVE_STRUCT(ConfigInfo, struct ConfigInfo,
     SAVE_FIELD(struct ConfigInfo, max_players, SV_U8),
     SAVE_FIELD(struct ConfigInfo, spectators_enabled, SV_U8),
     SAVE_FIELD(struct ConfigInfo, spectator_chat, SV_U8),
+    SAVE_FIELD(struct ConfigInfo, computer_players, SV_U8),
 );
 
 SAVE_STRUCT(ContinueData, struct ContinueData,

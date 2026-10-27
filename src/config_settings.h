@@ -57,6 +57,7 @@ struct GameSettings {
     long mentor_volume;
     int isometric_tilt;
     TbBool highlight_mode;
+    uint8_t computer_assistant_kind;
     };
 #pragma pack()
 /******************************************************************************/

@@ -820,18 +820,6 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
         height_lines = 3;
         draw_scrollbar = false;
         break;
-      case 90:
-        height_lines = 4;
-        draw_scrollbar = false;
-        break;
-      case 91:
-        height_lines = 4;
-        draw_scrollbar = true;
-        break;
-      case 92:
-        height_lines = 6;
-        draw_scrollbar = false;
-        break;
       case 94:
         height_lines = 10;
         draw_scrollbar = true;
@@ -846,37 +834,22 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
 
 void frontend_draw_slider_button(struct GuiButton *gbtn)
 {
-    long spr_idx;
-    long btn_id;
-    if ((gbtn->flags & LbBtnF_Enabled) != 0)
-    {
-        btn_id = gbtn->content.lval;
-        if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
-        {
-            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
-                spr_idx = GFS_scrollbar_toparrow_act;
-            } else {
-                spr_idx = GFS_scrollbar_btmarrow_act;
-            }
-        } else
-        {
-            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
-                spr_idx = GFS_scrollbar_toparrow_std;
-            } else {
-                spr_idx = GFS_scrollbar_btmarrow_std;
-            }
-        }
-    } else
-    {
-      spr_idx = 0;
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
+        return;
     }
-    if (spr_idx > 0)
-    {
-        // Detect scaling factor
-        int units_per_px;
-        units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, spr_idx, 100);
-        draw_frontend_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr_idx);
+    int32_t btn_id = gbtn->content.lval;
+    TbBool hovered = (btn_id != 0) && (frontend_mouse_over_button == btn_id);
+    TbBool points_up = (btn_id == 17) || (btn_id == 36) || (btn_id == 38) || (btn_id == 54);
+    int32_t spr_idx = GFS_scrollbar_btmarrow_std;
+    if (points_up && hovered) {
+        spr_idx = GFS_scrollbar_toparrow_act;
+    } else if (points_up) {
+        spr_idx = GFS_scrollbar_toparrow_std;
+    } else if (hovered) {
+        spr_idx = GFS_scrollbar_btmarrow_act;
     }
+    int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, spr_idx, 100);
+    draw_frontend_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr_idx);
 }
 
 void gui_area_null(struct GuiButton *gbtn)
