@@ -538,10 +538,10 @@ enum LobbyOption {
     LobbyOption_LobbyName = 0,
     LobbyOption_MaximumPlayers,
     LobbyOption_ComputerPlayers,
+    LobbyOption_ComputerAssistant,
+    LobbyOption_Cheats,
     LobbyOption_OpenToSpectators,
     LobbyOption_ShowSpectatorChat,
-    LobbyOption_Cheats,
-    LobbyOption_ComputerAssistant,
     LobbyOption_Count,
 };
 
@@ -554,10 +554,10 @@ static const enum GUIStrings lobby_option_labels[] = {
     GUIStr_NetLobbyName,
     GUIStr_NetMaximumPlayers,
     GUIStr_NetFillEmptySlots,
+    GUIStr_NetAllowAssistant,
+    GUIStr_NetAllowCheats,
     GUIStr_NetOpenToSpectators,
     GUIStr_NetShowSpectatorChat,
-    GUIStr_NetAllowCheats,
-    GUIStr_NetAllowAssistant,
 };
 
 int32_t net_lobby_mappack_scroll_offset;
