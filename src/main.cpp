@@ -1801,8 +1801,7 @@ static short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
-          // Todo : Renable this feature, right now, it looks like it's doing a full buffer resample which is dog slow.
-          // smooth_on = true;
+          WARNLOG("The -%s commandline parameter is no longer functional.", parstr); //todo remove once it's no longer in the launcher
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
