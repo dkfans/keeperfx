@@ -7221,5 +7221,5 @@ msgstr "允許作弊"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "允許輔助"
+msgid "Allow computer assistant"
+msgstr "允許電腦輔助"

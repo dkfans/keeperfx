@@ -7850,5 +7850,5 @@ msgstr "Autoriser les triches"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
+msgid "Allow computer assistant"
 msgstr "Autoriser l'assistant"

@@ -7623,5 +7623,5 @@ msgstr "Tillåt fusk"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "Tillåt assistent"
+msgid "Allow computer assistant"
+msgstr "Tillåt datorhjälp"

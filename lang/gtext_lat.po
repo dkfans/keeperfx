@@ -7625,5 +7625,5 @@ msgstr "Fraudes permittere"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "Adiumentum permittere"
+msgid "Allow computer assistant"
+msgstr "Adiumentum sinere"

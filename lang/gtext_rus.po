@@ -6960,5 +6960,5 @@ msgstr "Разрешить читы"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "Разрешить помощника"
+msgid "Allow computer assistant"
+msgstr "Разрешить ИИ-помощь"

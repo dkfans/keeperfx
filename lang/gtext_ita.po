@@ -7727,5 +7727,5 @@ msgstr "Consenti trucchi"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
+msgid "Allow computer assistant"
 msgstr "Consenti assistente"

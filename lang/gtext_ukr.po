@@ -7676,5 +7676,5 @@ msgstr "Дозволити чити"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "Дозволити помічника"
+msgid "Allow computer assistant"
+msgstr "Дозволити асистента"

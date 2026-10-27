@@ -7611,5 +7611,5 @@ msgstr "치트 허용"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "보조 허용"
+msgid "Allow computer assistant"
+msgstr "컴퓨터 보조 허용"

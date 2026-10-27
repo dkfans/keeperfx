@@ -7562,5 +7562,5 @@ msgstr "Cheats toestaan"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "Assistent toestaan"
+msgid "Allow computer assistant"
+msgstr "Computerhulp toestaan"

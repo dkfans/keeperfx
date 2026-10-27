@@ -7560,5 +7560,5 @@ msgstr "チートを許可"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "アシスタントを許可"
+msgid "Allow computer assistant"
+msgstr "CPU補助を許可"

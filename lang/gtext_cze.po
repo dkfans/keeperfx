@@ -7596,5 +7596,5 @@ msgstr "Povolit cheaty"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
+msgid "Allow computer assistant"
 msgstr "Povolit asistenta"

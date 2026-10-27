@@ -7712,5 +7712,5 @@ msgstr "Zezwól na kody"
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow assistant"
-msgstr "Zezwól na pomocnika"
+msgid "Allow computer assistant"
+msgstr "Zezwól na asystenta"
