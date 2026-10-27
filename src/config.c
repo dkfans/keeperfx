@@ -422,7 +422,7 @@ static int64_t get_datatype_max(uchar type)
         case dt_long:
             return LONG_MAX;
         case dt_ulong:
-            return ULONG_MAX;
+            return ULONG_MAX > INT64_MAX ? INT64_MAX : (int64_t)ULONG_MAX;
         case dt_longlong:
             return LLONG_MAX;
         case dt_ulonglong:
