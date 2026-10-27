@@ -2643,7 +2643,7 @@ struct ConsoleCommand {
 
 static const struct ConsoleCommand console_commands[] = {
     { "stats", cmd_stats, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
-    { "fps", cmd_fps_turn, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_Unrestricted },
+    { "fps", cmd_fps_turn, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
     { "fps.draw", cmd_fps_draw, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "frametime", cmd_frametime, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "ft", cmd_frametime, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
@@ -2655,10 +2655,10 @@ static const struct ConsoleCommand console_commands[] = {
     { "timer.toggle", cmd_timer_toggle, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "timer.switch", cmd_timer_switch, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "turn", cmd_turn, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
-    { "pause", cmd_pause, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_Unrestricted },
-    { "step", cmd_step, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_Unrestricted },
+    { "pause", cmd_pause, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
+    { "step", cmd_step, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
     { "game.save", cmd_game_save, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
-    { "game.load", cmd_game_load, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_Unrestricted },
+    { "game.load", cmd_game_load, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
     { "game.check", cmd_game_check, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "cls", cmd_cls, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "ver", cmd_ver, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
@@ -2668,9 +2668,9 @@ static const struct ConsoleCommand console_commands[] = {
     { "volume.music", cmd_volume_music, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "volume.soundtrack", cmd_volume_music, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "compuchat", cmd_compuchat, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "comp.procs", cmd_comp_procs, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+    { "comp.procs", cmd_comp_procs, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
     { "comp.events", cmd_comp_events, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "comp.checks", cmd_comp_checks, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+    { "comp.checks", cmd_comp_checks, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
     { "reveal", cmd_reveal, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "conceal", cmd_conceal, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "comp.kill", cmd_comp_kill, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
@@ -3061,20 +3061,20 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
 
 
 
-TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord cursor_y, TbBool issued_here)
+enum ConsoleCommandResult cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord cursor_y, TbBool issued_here)
 {
     SYNCDBG(2, "Command (player %d): %s",(int)plyr_idx, args);
     console_cmd_cursor_x = cursor_x;
     console_cmd_cursor_y = cursor_y;
     if (!player_exists(console_cmd_player(plyr_idx))) {
         WARNLOG("Command for non-existent player %d ignored: %s", (int)plyr_idx, args);
-        return false;
+        return CmdR_Failed;
     }
     console_cmd_issued_here = issued_here;
     const char * command = strsep_param_with_space(&args);
     if (command == NULL) {
         show_command_failure("command is empty");
-        return false;
+        return CmdR_Unrecognised;
     }
     // NOTE: execution can be optimized by pre-sorting commands by name and performing binary search
     for (int i = 0; i < console_command_count; ++i) {
@@ -3083,17 +3083,20 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord 
             continue;
         }
         if ((entry->scope == CmdS_Personal) && !console_cmd_issued_here) {
-            return false;
+            return CmdR_Failed;
         }
         const char *refusal = console_command_refusal(plyr_idx, entry);
         if (refusal != NULL) {
             show_command_failure("%s", refusal);
-            return false;
+            return CmdR_Failed;
         }
-        return entry->function(plyr_idx, args);
+        if (!entry->function(plyr_idx, args)) {
+            return CmdR_Failed;
+        }
+        return CmdR_Succeeded;
     }
     show_command_failure("unsupported command");
-    return false;
+    return CmdR_Unrecognised;
 }
 
 static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const char *str_num)

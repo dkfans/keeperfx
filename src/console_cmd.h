@@ -28,8 +28,14 @@ extern "C" {
 
 struct PlayerInfo;
 
+enum ConsoleCommandResult {
+    CmdR_Unrecognised = 0,
+    CmdR_Failed,
+    CmdR_Succeeded,
+};
+
 void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size);
-TbBool cmd_exec(PlayerNumber plyr_idx, char *msg, MapCoord cursor_x, MapCoord cursor_y, TbBool issued_here);
+enum ConsoleCommandResult cmd_exec(PlayerNumber plyr_idx, char *msg, MapCoord cursor_x, MapCoord cursor_y, TbBool issued_here);
 void console_cmd_default_cursor(const struct PlayerInfo *player, MapCoord *x, MapCoord *y);
 
 #ifdef __cplusplus

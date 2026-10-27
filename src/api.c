@@ -1339,7 +1339,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         MapCoord cursor_x;
         MapCoord cursor_y;
         console_cmd_default_cursor(get_player(player_id), &cursor_x, &cursor_y);
-        if (cmd_exec(player_id, console_command, cursor_x, cursor_y, is_my_player_number(player_id)))
+        if (cmd_exec(player_id, console_command, cursor_x, cursor_y, true) == CmdR_Succeeded)
         {
             api_ok(ack_id);
         }
