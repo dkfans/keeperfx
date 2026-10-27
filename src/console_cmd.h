@@ -31,6 +31,7 @@ struct PlayerInfo;
 enum ConsoleCommandResult {
     CmdR_Unrecognised = 0,
     CmdR_Failed,
+    CmdR_SucceededLocally,
     CmdR_Succeeded,
 };
 

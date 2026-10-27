@@ -3093,6 +3093,9 @@ enum ConsoleCommandResult cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord 
         if (!entry->function(plyr_idx, args)) {
             return CmdR_Failed;
         }
+        if (entry->scope == CmdS_Personal) {
+            return CmdR_SucceededLocally;
+        }
         return CmdR_Succeeded;
     }
     show_command_failure("unsupported command");

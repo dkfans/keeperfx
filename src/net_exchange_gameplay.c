@@ -217,13 +217,18 @@ void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord
         copy_chat_message(text, message);
         lua_on_chatmsg(plyr_idx, text);
         TbBool shown = true;
+        char message_type = MsgType_Player;
         if (text[0] == cmd_char) {
             const TbBool issued_here = (user == get_local_user()) && !replay.load_enable;
             const enum ConsoleCommandResult result = cmd_exec(plyr_idx, text + 1, cursor_x, cursor_y, issued_here);
-            shown = (result == CmdR_Unrecognised) || ((result == CmdR_Succeeded) && network_is_active());
+            const TbBool succeeded = (result == CmdR_Succeeded) || (result == CmdR_SucceededLocally);
+            shown = (result == CmdR_Unrecognised) || (succeeded && network_is_active());
+            if (result == CmdR_SucceededLocally) {
+                message_type = MsgType_Blank;
+            }
         }
         if (shown) {
-            message_add(MsgType_Player, plyr_idx, text);
+            message_add(message_type, plyr_idx, text);
             play_non_3d_sample(snd_chat_message[user == get_local_user()]);
         }
     }
