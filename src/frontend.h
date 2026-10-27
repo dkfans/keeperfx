@@ -35,7 +35,7 @@ extern "C" {
 #define MENU_LIST_ITEMS_COUNT       52
 #define FRONTEND_BUTTON_INFO_COUNT 118
 #define NET_MESSAGES_COUNT           8
-#define NET_MESSAGE_LEN             64
+#define NET_MESSAGE_LEN             192
 // Sprite limits
 #define PANEL_SPRITES_COUNT 514
 #define FRONTEND_FONTS_COUNT 4
@@ -244,7 +244,7 @@ struct DemoItem { //sizeof = 5
     };
 };
 
-struct NetMessage { // sizeof = 0x45
+struct NetMessage {
   unsigned char plyr_idx;
   uint32_t connection_id;
   char text[NET_MESSAGE_LEN];
@@ -355,6 +355,7 @@ void gui_area_error_message(struct GuiButton *gbtn);
 void maintain_error_message(struct GuiButton *gbtn);
 void gui_error_message_scroll_up(struct GuiButton *gbtn);
 void gui_error_message_scroll_down(struct GuiButton *gbtn);
+void gui_error_message_scroll_drag(struct GuiButton *gbtn);
 void maintain_error_message_scroll(struct GuiButton *gbtn);
 void gui_area_error_scrollbar(struct GuiButton *gbtn);
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
@@ -396,8 +397,6 @@ void frontend_change_state(struct GuiButton *gbtn);
 void frontend_draw_enter_text(struct GuiButton *gbtn);
 void frontend_draw_small_menu_button(struct GuiButton *gbtn);
 void frontend_toggle_computer_players(struct GuiButton *gbtn);
-void frontend_draw_computer_players(struct GuiButton *gbtn);
-void frontend_draw_mp_mappack(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
 void draw_scrolling_text_at(long pos_x, long pos_y, long width, long height, struct TextScrollWindow *scrollwnd, const char *text);
@@ -416,7 +415,6 @@ void frontend_draw_campaign_menu_button(struct GuiButton *gbtn);
 TbBool frontend_register_click(void);
 void frontend_campaign_menu_button_maintain(struct GuiButton *gbtn);
 void frontend_load_mappacks(struct GuiButton *gbtn);
-void frontend_load_mp_mappacks(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);
 short frontend_save_continue_game(short allow_lvnum_grow);
 void frontend_continue_game_maintain(struct GuiButton *gbtn);
@@ -432,7 +430,6 @@ void init_video_menu(struct GuiMenu *gmnu);
 void init_audio_menu(struct GuiMenu *gmnu);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
 TbBool frontend_is_player_allied(long idx1, long idx2);
-void frontend_set_alliance(long idx1, long idx2);
 char update_menu_fade_level(struct GuiMenu *gmnu);
 void draw_menu_buttons(struct GuiMenu *gmnu);
 MenuNumber create_menu(struct GuiMenu *mnu);

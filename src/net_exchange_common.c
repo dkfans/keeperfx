@@ -395,6 +395,8 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
         return process_network_spectator_notice(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_CONVERSION:
         return process_network_spectator_conversion(source, read_pos, payload_size);
+    case NETMSG_LOBBY_SETTINGS:
+        return process_lobby_settings_message(source, read_pos, payload_size);
     default:
         return Lb_OK;
     }
