@@ -63,7 +63,7 @@ public:
 
     /** Size of the shared scratch allocation (bytes). Platforms with tight
      *  RAM budgets (e.g. consoles) can return a smaller value. */
-    virtual size_t GetScratchSize() const { return sizeof(4 * 1024 * 1024) ; }
+    virtual size_t GetScratchSize() const { return kScratchMemorySize; }
 
     /** Adjust a desktop-fullscreen window so the OS compositor keeps compositing
      *  it, rather than letting the driver present it straight to the display. */
@@ -71,6 +71,9 @@ public:
 
     /** Log display and HDR details for the game window. */
     virtual void LogDisplayDiagnostics(SDL_Window* /*window*/) {}
+
+private:
+    constexpr size_t kScratchMemorySize = 4 * 1024 * 1024;
 };
 
 /** The platform implementation selected for this build target. */
