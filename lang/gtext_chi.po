@@ -7219,11 +7219,11 @@ msgstr "添加电脑玩家"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "作弊"
+msgid "Allow cheats"
+msgstr "允许作弊"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "计算机助手"
+msgid "Allow assistant"
+msgstr "允许助手"

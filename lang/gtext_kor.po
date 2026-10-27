@@ -7605,11 +7605,11 @@ msgstr "컴퓨터 플레이어 추가"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "치트"
+msgid "Allow cheats"
+msgstr "치트 허용"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "컴퓨터 보조"
+msgid "Allow assistant"
+msgstr "보조 허용"

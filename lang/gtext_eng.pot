@@ -6151,10 +6151,10 @@ msgstr "Add computer players"
 
 #: guitext:1164
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Cheats"
+msgid "Allow cheats"
+msgstr "Allow cheats"
 
 #: guitext:1165
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Computer assistant"
+msgid "Allow assistant"
+msgstr "Allow assistant"

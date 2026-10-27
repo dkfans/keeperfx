@@ -7844,11 +7844,11 @@ msgstr "Ajouter des joueurs IA"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Triches"
+msgid "Allow cheats"
+msgstr "Autoriser les triches"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Assistant"
+msgid "Allow assistant"
+msgstr "Autoriser l'assistant"

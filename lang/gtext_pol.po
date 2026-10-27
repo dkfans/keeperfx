@@ -7706,11 +7706,11 @@ msgstr "Dodaj komputery"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Kody"
+msgid "Allow cheats"
+msgstr "Zezwól na kody"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Pomocnik komputerowy"
+msgid "Allow assistant"
+msgstr "Zezwól na pomocnika"

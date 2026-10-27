@@ -7721,11 +7721,11 @@ msgstr "Aggiungi computer"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Trucchi"
+msgid "Allow cheats"
+msgstr "Consenti trucchi"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Assistenza del Computer"
+msgid "Allow assistant"
+msgstr "Consenti assistente"

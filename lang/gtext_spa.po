@@ -7851,11 +7851,11 @@ msgstr "Añadir ordenadores"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Trucos"
+msgid "Allow cheats"
+msgstr "Permitir trucos"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Asistencia por ordenador"
+msgid "Allow assistant"
+msgstr "Permitir asistente"

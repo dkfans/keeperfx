@@ -7820,11 +7820,11 @@ msgstr "Adicionar computador"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Batotas"
+msgid "Allow cheats"
+msgstr "Permitir batotas"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Assistência do Computador"
+msgid "Allow assistant"
+msgstr "Permitir assistente"

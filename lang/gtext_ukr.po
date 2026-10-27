@@ -7670,11 +7670,11 @@ msgstr "Додати комп'ютери"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Чити"
+msgid "Allow cheats"
+msgstr "Дозволити чити"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Комп'ютерний помічник"
+msgid "Allow assistant"
+msgstr "Дозволити помічника"

@@ -7872,11 +7872,11 @@ msgstr "Computer-Spieler hinzufügen"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Cheats"
+msgid "Allow cheats"
+msgstr "Cheats erlauben"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Computer-Hilfe"
+msgid "Allow assistant"
+msgstr "Assistent erlauben"

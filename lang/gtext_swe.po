@@ -7617,11 +7617,11 @@ msgstr "Lägg till datorspelare"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "Fusk"
+msgid "Allow cheats"
+msgstr "Tillåt fusk"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "Datorhjälp"
+msgid "Allow assistant"
+msgstr "Tillåt assistent"

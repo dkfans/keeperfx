@@ -7554,11 +7554,11 @@ msgstr "コンピュータを追加"
 #: guitext:1164
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Cheats"
-msgstr "チート"
+msgid "Allow cheats"
+msgstr "チートを許可"
 
 #: guitext:1165
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Computer assistant"
-msgstr "コンピューター補助"
+msgid "Allow assistant"
+msgstr "アシスタントを許可"

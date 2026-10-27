@@ -556,8 +556,8 @@ static const enum GUIStrings lobby_option_labels[] = {
     GUIStr_NetFillEmptySlots,
     GUIStr_NetOpenToSpectators,
     GUIStr_NetShowSpectatorChat,
-    GUIStr_NetCheats,
-    GUIStr_NetComputerAssistant,
+    GUIStr_NetAllowCheats,
+    GUIStr_NetAllowAssistant,
 };
 
 int32_t net_lobby_mappack_scroll_offset;
