@@ -28,6 +28,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "kfx_memory.h"
 #include "bflib_sndlib.h"
 #include "bflib_cpu.h"
 #include "bflib_crash.h"
@@ -1971,6 +1972,25 @@ static short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.config_file, pr2str);
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
+      }
+      else if (strcasecmp(parstr, "cfg") == 0)
+      {
+        if (pr2str[0])
+        {
+            // append line to config_overrides
+            const char *line = argv[narg + 1];
+            size_t old_len = start_params.config_overrides ? strlen(start_params.config_overrides) : 0;
+            size_t add_len = strlen(line);
+            start_params.config_overrides = (char *)KfxRealloc(start_params.config_overrides, old_len + add_len + 2);
+            memcpy(start_params.config_overrides + old_len, line, add_len);
+            start_params.config_overrides[old_len + add_len] = '\n';
+            start_params.config_overrides[old_len + add_len + 1] = '\0';
+            narg++;
+        }
+        else
+        {
+            WARNMSG("No KEY=VALUE given after -cfg");
+        }
       }
       else if ( strcasecmp(parstr,"Bullfrog") == 0 ) // force playing the Bullfrog video
       {
