@@ -1378,7 +1378,7 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
     if (crconf->gold_hold > spdigtng->creature.gold_carried)
     {
         MapSubtlCoord stl_x, stl_y;
-        if (user_controls_thing(ANY_USER, spdigtng, UCT_Direct | UCT_IncludeEntryZoom))
+        if (user_controls_thing(ANY_USER, spdigtng, UCT_Direct | UCT_PossessionEntryZoom))
         {
             struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);
             struct Thing *goldtng = thing_get(cctrl->pickup_object_id);
@@ -2069,7 +2069,7 @@ short creature_arms_trap(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_IncludeEntryZoom))
+    if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom))
     {
         return creature_arms_trap_first_person(thing);
     }

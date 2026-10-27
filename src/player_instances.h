@@ -70,8 +70,8 @@ enum UserControllingThing {
     UCT_Direct           = 0x01, /* user is possessing the creature normally */
     UCT_Passenger        = 0x02, /* possession, but unable to control */
     UCT_Other            = 0x04, /* mainly for intro heart zoom-in and post-defeat spectating in multiplayer */
-    UCT_Selected         = 0x08, /* misc. for querying, cheat menu, etc. */
-    UCT_IncludeEntryZoom = 0x10, /* count the possession-start animation instance too. */
+    UCT_PossessionEntryZoom = 0x08, /* the possession-start animation instance. (Without this flag, only counts if already in first-person.) */
+    UCT_Selected         = 0x10, /* misc. for querying, cheat menu, etc. */
 };
 
 #pragma pack(1)

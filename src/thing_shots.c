@@ -418,7 +418,7 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, Effe
     return efftng;
 }
 
-short lua_process_shot_hit(struct Thing *shotng, struct Thing *target, MapSubtlCoord next_stl_x, MapSubtlCoord next_stl_y, struct ShotConfigStats *shotst) 
+short lua_process_shot_hit(struct Thing *shotng, struct Thing *target, MapSubtlCoord next_stl_x, MapSubtlCoord next_stl_y, struct ShotConfigStats *shotst)
 {
     if (thing_exists(target) && target->health < 0) {
         return 1;
@@ -1226,7 +1226,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long push_strength = shotst->push_on_hit;
     struct Thing* shooter = get_parent_thing(shotng);
-    
+
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
     }
@@ -1665,7 +1665,7 @@ static void affect_nearby_friends_with_alarm(struct Thing *traptng)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing) && !user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_IncludeEntryZoom) &&
+        if (!thing_is_picked_up(thing) && !user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom) &&
             !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
             (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
@@ -2085,7 +2085,7 @@ struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation locatio
     }
     thing->shot.hit_type = hittype;
     thing->shot.target_idx = target;
-    
+
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
     {
@@ -2114,7 +2114,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   {
     if ( thing_touching_floor(thing) )
     {
-      if (!(subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num) || 
+      if (!(subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num) ||
             subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num) ||
             subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
       {

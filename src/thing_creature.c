@@ -1139,7 +1139,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
             setup_combat_flee_position(thing);
-            if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_IncludeEntryZoom))
+            if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom))
             {
                 struct PlayerInfo* player = get_player(thing->owner);
                 if (get_player_user_state(player)->controlled_thing_idx == thing->index)
@@ -2462,7 +2462,7 @@ TbBool thing_can_be_eaten(struct Thing *thing)
     if (thing_is_mature_food(thing)
     || (thing_is_creature(thing) && creature_under_spell_effect(thing, CSAfF_Chicken)))
     {
-        if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_IncludeEntryZoom) || thing_is_picked_up(thing))
+        if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom) || thing_is_picked_up(thing))
         {
             return false;
         }
@@ -4377,7 +4377,7 @@ void draw_creature_view(struct Thing *thing)
   unsigned char* scrmem = lens_get_render_target();
   unsigned int render_width = lens_get_render_target_width();
   unsigned int render_height = lens_get_render_target_height();
-  
+
   // Store previous graphics settings
   unsigned char* wscr_cp = lbDisplay.WScreen;
   TbGraphicsWindow grwnd;
@@ -7866,12 +7866,12 @@ struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, Cr
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
     struct PlayerInfo *player = get_player(thing->owner);
     // Switch control if this creature is possessed.
-    if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_IncludeEntryZoom))
+    if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom))
     {
         leave_creature_as_controller(player, thing);
         control_creature_as_controller(player, newtng);
     }
-    if (user_controls_thing(ANY_USER, thing, UCT_Passenger | UCT_IncludeEntryZoom))
+    if (user_controls_thing(ANY_USER, thing, UCT_Passenger | UCT_PossessionEntryZoom))
     {
         leave_creature_as_passenger(player, thing);
         control_creature_as_passenger(player, newtng);

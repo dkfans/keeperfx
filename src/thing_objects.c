@@ -653,7 +653,7 @@ static long food_moves(struct Thing *objtng)
         destroy_food(objtng);
         return TUFRet_Deleted;
     }
-    TbBool dirct_ctrl = user_controls_thing(ANY_USER, objtng, UCT_Direct | UCT_IncludeEntryZoom);
+    TbBool dirct_ctrl = user_controls_thing(ANY_USER, objtng, UCT_Direct | UCT_PossessionEntryZoom);
     if (dirct_ctrl)
     {
         if (objtng->food.possession_startup_timer > 0)

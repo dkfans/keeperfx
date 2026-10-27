@@ -990,7 +990,7 @@ static TbBool user_controls_thing_now(NetUserId user, const struct Thing *thing,
         {
         case PI_DirctCtrl:
         case PI_PsngrCtrl:
-            return (uct_flags & UCT_IncludeEntryZoom) && thing->index == ustate->influenced_thing_idx;
+            return (uct_flags & UCT_PossessionEntryZoom) && thing->index == ustate->influenced_thing_idx;
         case PI_DirctCtLeave:
         case PI_PsngrCtLeave:
         case PI_ZoomToPos:

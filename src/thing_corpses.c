@@ -262,7 +262,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             corpse_age = get_gameturn() - thing->creation_turn;
             #define VANISH_EFFECT_DELAY 60
             if (((corpse_age > game.conf.rules[thing->owner].creature.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
-                && !(user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_IncludeEntryZoom)))
+                && !(user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom)))
             {
                 delete_corpse(thing);
                 return TUFRet_Deleted;

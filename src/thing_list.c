@@ -3401,7 +3401,7 @@ TbBool update_thing(struct Thing *thing)
         }
     }
     if (falling && (thing->mappos.z.val <= -subtile_coord(ABYSS_DEPTH, 0))) {
-        if (thing_is_creature(thing)) 
+        if (thing_is_creature(thing))
         {
             lua_on_creature_fell_into_abyss(thing);
             if (!flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
@@ -3598,7 +3598,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
             return ((hit_targets & HitTF_AlliedSoulContainer) != 0);
         }
         if (object_is_growing_food(thing) ||
-           (object_is_mature_food(thing) && !user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_IncludeEntryZoom) && !user_controls_thing(ANY_USER, thing, UCT_Passenger | UCT_IncludeEntryZoom)))
+           (object_is_mature_food(thing) && !user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom) && !user_controls_thing(ANY_USER, thing, UCT_Passenger | UCT_PossessionEntryZoom)))
         {
             return ((hit_targets & HitTF_AnyFoodObjects) != 0);
         }
