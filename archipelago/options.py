@@ -3,7 +3,7 @@ from typing import Dict
 
 from Options import OptionGroup, ItemDict, Toggle, Choice
 from worlds.AutoWorld import PerGameCommonOptions
-from .items import CREATURES, ROOMS, SPELLS, LEVELS, RECIPES
+from .items import CREATURES, ROOMS, SPELLS, LEVELS, POSITIVE_RECIPES
 from .enums import KeeperLevelName, KeeperPowerName, KeeperRoomName, KeeperCreatureName, KeeperRecipe
 
 def get_val(key):
@@ -249,6 +249,7 @@ option_groups = [
         KeeperFXHeroes,
     ]),
     OptionGroup("Temple Recipes", [
+        PositiveRecipes,
         NegativeRecipes,
         KeeperFXRecipes,
     ]),

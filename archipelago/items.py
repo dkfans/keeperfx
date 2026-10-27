@@ -149,7 +149,7 @@ PROGRESSIVES = {
     KeeperProgressiveName.PROGRESSIVE_CREATURE_LIMIT: KeeperItem(KeeperProgressive.PROGRESSIVE_CREATURE_LIMIT, ItemClassification.progression), #"Progressive Creature Limit", #Increase creature limit by 5 (starts at max 10)
     KeeperProgressiveName.PROGRESSIVE_STARTING_GOLD: KeeperItem(KeeperProgressive.PROGRESSIVE_STARTING_GOLD, ItemClassification.useful), #"Progressive Starting Gold" #Increase starting gold by 1250 (starts at 2500)
     KeeperProgressiveName.PROGRESSIVE_PORTAL_SPEED: KeeperItem(KeeperProgressive.PROGRESSIVE_PORTAL_SPEED, ItemClassification.useful), #"Progressive Portal Speed" #Decrease portal speed by 125 (starts at 750)
-    KeeperProgressiveName.PROGRESSIVE_HAND_SIZE: KeeperItem(KeeperProgressive.PROGRESSIVE_HAND_SIZE, ItemClassification.useful), #"Progressive Portal Speed" #Decrease portal speed by 125 (starts at 750)
+    KeeperProgressiveName.PROGRESSIVE_HAND_SIZE: KeeperItem(KeeperProgressive.PROGRESSIVE_HAND_SIZE, ItemClassification.useful), #"Progressive hand size" #Increase hand size by 2 (starts at 4)
 #    #Others e.g. progressive starting imps number/level, progressive auto-researched (e.g. at 1, bridge/guardpost and SOE are unlocked, at 2, workshop and speed are unlocked and so on (IF THOSE ARE UNLOCKED)),
 #    #progressive auto-manufacturing (at 1, you get an alarm/gas trap and wooden door at start, at 2 you get a lightning trap and braced door, at 3 you get WOP trap and iron door, at 4 you get lava/boulder and magic door (IF THOSE ARE UNLOCKED))
 }
@@ -161,7 +161,6 @@ FILLER = {
     KeeperFillerName.FILLER_STEAL_HERO: KeeperItem(KeeperFiller.FILLER_STEAL_HERO, ItemClassification.filler),
     KeeperFillerName.FILLER_REVEAL_MAP: KeeperItem(KeeperFiller.FILLER_REVEAL_MAP, ItemClassification.filler),
     KeeperFillerName.FILLER_RECEIVE_GOLD: KeeperItem(KeeperFiller.FILLER_RECEIVE_GOLD, ItemClassification.filler),
-    KeeperFillerName.FILLER_MAKE_HAPPY: KeeperItem(KeeperFiller.FILLER_MAKE_HAPPY, ItemClassification.filler),
     KeeperFillerName.FILLER_RECEIVE_IMPS: KeeperItem(KeeperFiller.FILLER_RECEIVE_IMPS, ItemClassification.filler),
 }
 
