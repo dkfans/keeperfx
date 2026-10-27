@@ -446,8 +446,9 @@ static short get_players_message_inputs(void)
         } else {
             console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
         }
-        if (observer_is_active() && text[0] == cmd_char) {
+        if (text[0] != '\0')
             memcpy(local_state.mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
+        if (observer_is_active() && text[0] == cmd_char) {
             cmd_exec_observer(text + 1, cursor_x, cursor_y);
         } else if (replay.load_enable) {
             if (text[0] != '\0') {
