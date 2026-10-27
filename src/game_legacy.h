@@ -326,10 +326,6 @@ struct Game {
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;
     int8_t active_panel_mnu_idx; /**< The MenuID of currently active panel menu, or 0 if none. */
-    int8_t comp_player_aggressive;
-    int8_t comp_player_defensive;
-    int8_t comp_player_construct;
-    int8_t comp_player_creatrsonly;
     /** Imprisonment tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */
     TbBool creatures_tend_imprison;
     /** Flee tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */

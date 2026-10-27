@@ -3216,8 +3216,9 @@ short get_gui_inputs(short gameplay_on)
       // TODO GUI Introduce circular buttons instead of specific condition for pannel map
       if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(local_state.minimap_pos_x,local_state.minimap_pos_y))
           continue;
+      TbBool dragging = (gbtn->gbtype == LbBtnT_DraggableBtn) && (gbtn->button_state_left_pressed != 0) && (lbDisplay.MLeftButton || left_button_released);
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
-        || ((gbtn->gbtype == LbBtnT_Hotspot) && (gbtn->button_state_left_pressed != 0)) )
+        || ((gbtn->gbtype == LbBtnT_Hotspot) && (gbtn->button_state_left_pressed != 0)) || dragging )
       {
           if ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
@@ -3227,8 +3228,9 @@ short get_gui_inputs(short gameplay_on)
             callback = gbtn->ptover_event;
             if (callback != NULL)
                 callback(gbtn);
-            if (gbtn->gbtype == LbBtnT_Hotspot)
+            if ((gbtn->gbtype == LbBtnT_Hotspot) || dragging) {
                 break;
+            }
             if (gbtn->gbtype == LbBtnT_HorizSlider)
                 nx_over_slider_button = gidx;
           } else

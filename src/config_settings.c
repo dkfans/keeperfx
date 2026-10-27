@@ -29,6 +29,7 @@
 #include "bflib_joyst.h"
 #include "frontmenu_options.h"
 #include "config.h"
+#include "config_compp.h"
 #include "front_input.h"
 #include "engine_camera.h"
 #include "game_merge.h"
@@ -384,6 +385,7 @@ void setup_default_settings(void)
     settings.mentor_volume                 = 127;
     settings.isometric_tilt                = CAMERA_TILT_DEFAULT;
     settings.highlight_mode                = false;
+    settings.computer_assistant_kind       = DEFAULT_COMPUTER_ASSIST;
 
     for (int i = 0; i < GAME_KEYS_COUNT; i++)
     {
@@ -472,6 +474,8 @@ TbBool load_settings(void)
         if (val && value_type(val) == VALUE_INT32) settings.first_person_move_invert = (unsigned char)value_int32(val);
         val = value_dict_get(vsec, "first_person_move_sensitivity");
         if (val && value_type(val) == VALUE_INT32) settings.first_person_move_sensitivity = (unsigned char)value_int32(val);
+        val = value_dict_get(vsec, "computer_assistant_kind");
+        if (val && value_type(val) == VALUE_INT32) settings.computer_assistant_kind = (uint8_t)clamp(value_int32(val), 0, COMPUTER_ASSIST_TYPES_COUNT);
     }
 
     /* [keys] */
@@ -560,6 +564,7 @@ short save_settings(void)
     TOSAVE("\n[gameplay]\n");
     TOSAVE("first_person_move_invert = %d\n", (int)settings.first_person_move_invert);
     TOSAVE("first_person_move_sensitivity = %d\n", (int)settings.first_person_move_sensitivity);
+    TOSAVE("computer_assistant_kind = %d\n", (int)settings.computer_assistant_kind);
     TOSAVE("\n[keys]\n");
     for (int i = 0; i < GAME_KEYS_COUNT; i++)
     {

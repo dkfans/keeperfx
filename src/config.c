@@ -387,11 +387,11 @@ static int64_t get_datatype_min(uchar type)
         case dt_uint:
             return 0;
         case dt_long:
-            return INT32_MIN;
+            return LONG_MIN;
         case dt_ulong:
             return 0;
         case dt_longlong:
-            return INT64_MIN;
+            return LLONG_MIN;
         case dt_ulonglong:
             return 0;
         default:
@@ -420,13 +420,13 @@ static int64_t get_datatype_max(uchar type)
         case dt_uint:
             return UINT_MAX;
         case dt_long:
-            return INT32_MAX;
+            return LONG_MAX;
         case dt_ulong:
-            return UINT32_MAX;
+            return ULONG_MAX > INT64_MAX ? INT64_MAX : (int64_t)ULONG_MAX;
         case dt_longlong:
-            return INT64_MAX;
+            return LLONG_MAX;
         case dt_ulonglong:
-            return UINT64_MAX;
+            return ULLONG_MAX;
         default:
             break;
     }
@@ -781,23 +781,20 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
             *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
-        /* Range-checked against 32 bits, not the local long's own width: Windows'
-         * long has always been 32 bits, so that's the reference width. Checking
-         * against the compiling platform's own LONG_MIN/LONG_MAX let Linux (64-bit
-         * long) accept config values Windows silently rejected. */
-        if (value < INT32_MIN || value > INT32_MAX)
+        /* these need to stay LONG_MIN and MAX, as they arrive at this path trough generics so on windows int32_t might arrive here, on linux int64_t might*/
+        if (value < LONG_MIN || value > LONG_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
         else
             *(signed long *)field = (signed long)value;
         break;
     case dt_ulong:
-        if (value < 0 || value > UINT32_MAX)
+        if (value < 0 || value > ULONG_MAX)
             NAMFIELDWRNLOG("Value out of range for unsigned long: %" PRId64, value);
         else
             *(unsigned long *)field = (unsigned long)value;
         break;
     case dt_longlong:
-        if (value < INT64_MIN || value > INT64_MAX)
+        if (value < LLONG_MIN || value > LLONG_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long long: %" PRId64, value);
         else {
             /* Use memcpy to avoid ARM STRD strict-alignment fault (ARMv7 STRD requires
@@ -2289,7 +2286,7 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
     if (mod_state->cmpg_lvls)
     {
         char map_fname[DISKPATH_SIZE] = "";
-        snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_selected_level_number(), conf_fname);
+        snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_level_number(), conf_fname);
         prepare_file_path_buf_mod(fname, sizeof(fname), mod_dir, FGrp_CmpgLvls, map_fname);
         if (strlen(fname) > 0)
         {
@@ -2343,7 +2340,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     }
 
     char map_fname[DISKPATH_SIZE] = "";
-    snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_selected_level_number(), conf_fname);
+    snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_level_number(), conf_fname);
     prepare_file_path_buf(fname, sizeof(fname), FGrp_CmpgLvls, map_fname);
     if (strlen(fname) > 0)
     {

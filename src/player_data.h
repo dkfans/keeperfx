@@ -37,7 +37,7 @@ extern "C" {
 #define INVALID_PLAYER (&bad_player)
 #define INVALID_USER_STATE (&bad_user_state)
 
-#define PLAYER_MP_MESSAGE_LEN  64
+#define PLAYER_MP_MESSAGE_LEN  128
 
 #define MINIMAP_ZOOM_MIN       128
 #define MINIMAP_ZOOM_DEFAULT   256

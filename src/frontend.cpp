@@ -138,7 +138,7 @@ struct GuiButtonInit frontend_high_score_score_buttons[] = {
   { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,                 0, 80,  97, 80,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, NULL },
   { LbBtnT_HoldableBtn,BID_DEFAULT,    0, 0, highscore_scroll_up,NULL,frontend_over_button,  0, 530, 96, 530, 96, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_highscore_scroll_up_maintain},
   { LbBtnT_HoldableBtn,BID_DEFAULT,    0, 0, highscore_scroll_down,NULL,frontend_over_button,0, 530, 374, 530, 374, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, frontend_highscore_scroll_down_maintain},
-  { LbBtnT_HoldableBtn,BID_DEFAULT,    0, 0, highscore_scroll,NULL,NULL,              0, 533, 112, 533, 112, 20,260, frontend_draw_highscores_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, frontend_highscore_scroll_tab_maintain},
+  { LbBtnT_DraggableBtn,BID_DEFAULT,    0, 0, highscore_scroll,NULL,NULL,              0, 533, 112, 533, 112, 20,260, frontend_draw_highscores_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, frontend_highscore_scroll_tab_maintain},
   { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, frontend_maintain_high_score_ok_button },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
@@ -204,7 +204,7 @@ struct GuiMenu *menu_list[] = {
     &frontend_select_level_menu,//40
     &frontend_select_campaign_menu,
     &frontend_error_box,
-    &frontend_add_session_box,
+    NULL,
     &frontend_select_mappack_menu,
     &message_box,
     &spell_menu2,
@@ -336,7 +336,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuReturnToLobby, 1},
     {GUIStr_MnuContinueCampaign, 1}, // [115]
     {GUIStr_MnuStartNewGame, 1},
-    {GUIStr_NetConfirm, 1},
+    {GUIStr_NetSettings, 2},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
@@ -433,6 +433,9 @@ static int32_t error_box_scroll_y = 0;
 static int32_t error_box_overflow = 0;
 static int32_t error_box_visible_height = 0;
 static int32_t error_box_line_step = 0;
+static TbClockMSec holdable_button_repeat_time = 0;
+
+#define HOLDABLE_BUTTON_REPEAT_MS 50
 
 /** Height in px of one line of error message text, before it is scaled. */
 #define ERROR_BOX_TEXT_LINE_HEIGHT 18
@@ -525,11 +528,12 @@ void add_message(long plyr_idx, char *msg)
     nmsg = &net_message[i];
     nmsg->plyr_idx = plyr_idx;
     nmsg->connection_id = net_user_info[plyr_idx].connection_id;
-    snprintf(nmsg->text, NET_MESSAGE_LEN, "%s", msg);
+    snprintf(nmsg->text, NET_MESSAGE_LEN, "%s: %s", net_user_info[plyr_idx].name, msg);
     i++;
     net_number_of_messages = i;
-    if (net_message_scroll_offset+4 < i)
-      net_message_scroll_offset = i-4;
+    if (net_message_scroll_offset + frontend_messages_items_visible < i) {
+        net_message_scroll_offset = i - frontend_messages_items_visible;
+    }
 }
 
 /**
@@ -651,6 +655,29 @@ void maintain_error_message_scroll(struct GuiButton *gbtn)
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (overflows && (error_box_scroll_y < error_box_overflow))) & LbBtnF_Enabled;
 }
 
+static int32_t error_box_thumb_height(struct GuiButton *gbtn)
+{
+    int32_t thumb_h = gbtn->height * error_box_visible_height / (error_box_visible_height + error_box_overflow);
+    if (thumb_h < gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR) {
+        thumb_h = gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR;
+    }
+    return thumb_h;
+}
+
+void gui_error_message_scroll_drag(struct GuiButton *gbtn)
+{
+    if (error_box_overflow <= 0) {
+        return;
+    }
+    const int32_t thumb_h = error_box_thumb_height(gbtn);
+    const int32_t travel = gbtn->height - thumb_h;
+    if (travel <= 0) {
+        return;
+    }
+    error_box_scroll_y = (GetMouseY() - gbtn->scr_pos_y - thumb_h / 2) * error_box_overflow / travel;
+    error_message_scroll_by(0);
+}
+
 void gui_area_error_scrollbar(struct GuiButton *gbtn)
 {
     const unsigned short flg_mem = RendererGetDrawFlags();
@@ -660,9 +687,7 @@ void gui_area_error_scrollbar(struct GuiButton *gbtn)
     LbDrawBox(track_x, gbtn->scr_pos_y, track_w, gbtn->height, 0);
     if (error_box_overflow > 0)
     {
-        int32_t thumb_h = gbtn->height * error_box_visible_height / (error_box_visible_height + error_box_overflow);
-        if (thumb_h < gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR)
-            thumb_h = gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR;
+        const int32_t thumb_h = error_box_thumb_height(gbtn);
         const int32_t thumb_y = gbtn->scr_pos_y + (gbtn->height - thumb_h) * error_box_scroll_y / error_box_overflow;
         RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
         LbDrawBox(track_x, thumb_y, track_w, thumb_h, colours[ERROR_BOX_THUMB_RED][ERROR_BOX_THUMB_GREEN][ERROR_BOX_THUMB_BLUE]);
@@ -896,14 +921,6 @@ TbBool frontend_is_player_allied(long idx1, long idx2)
     if ((idx2 < 0) || (idx2 >= PLAYER_GOOD))
       return false;
     return ((frontend_alliances & alliance_grid[idx1][idx2]) != 0);
-}
-
-void frontend_set_alliance(long idx1, long idx2)
-{
-    if (frontend_is_player_allied(idx1, idx2))
-      frontend_alliances &= ~alliance_grid[idx1][idx2];
-    else
-      frontend_alliances |= alliance_grid[idx1][idx2];
 }
 
 TbResult frontend_load_data(void)
@@ -1369,6 +1386,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     LbTextDrawResized(0, 0, tx_units_per_px, frontend_button_caption_text(gbtn));
+    RendererSetDrawFlags(0);
 }
 
 void frontend_change_state(struct GuiButton *gbtn)
@@ -1423,52 +1441,9 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
     {
         screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
         nspck->action_par1 = (fe_computer_players == 0);
+        net_config_info.computer_players = nspck->action_par1;
+        net_write_config_file();
     }
-}
-
-void frontend_draw_computer_players(struct GuiButton *gbtn)
-{
-    int font_idx;
-    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-    LbTextSetFont(frontend_font[font_idx]);
-    const char *text;
-    if (fe_computer_players) {
-        text = get_string(GUIStr_On);
-    } else {
-        text = get_string(GUIStr_Off);
-    }
-    int tx_units_per_px;
-    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
-    int ln_height;
-    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
-    LbTextDrawResized(0, 0, tx_units_per_px, frontend_button_caption_text(gbtn));
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
-    RendererSetDrawFlags(0);
-}
-
-
-void frontend_draw_mp_mappack(struct GuiButton *gbtn)
-{
-    int font_idx = 1;
-    if (frontend_mouse_over_button == gbtn->content.lval) {
-        font_idx = 2;
-    }
-    LbTextSetFont(frontend_font[font_idx]);
-    const char *text;
-    text = campaign.display_name;
-    
-    int tx_units_per_px;
-    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
-    int ln_height;
-    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
-    
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
-    RendererSetDrawFlags(0);
 }
 
 void set_packet_start(struct GuiButton *gbtn)
@@ -1750,12 +1725,6 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
     }
 }
 
-void frontend_load_mp_mappacks(struct GuiButton *gbtn)
-{
-    SYNCDBG(6,"Clicked");
-    frontend_set_state(FeSt_MP_MAPPACK_SELECT);
-}
-
 short frontend_save_continue_game(short allow_lvnum_grow)
 {
     struct PlayerInfo *player;
@@ -1927,10 +1896,18 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
         switch (gbtn->gbtype)
         {
         case LbBtnT_HoldableBtn:
-            if ((*s > 5) && (callback != NULL)) {
+            if (*s == 0) {
+                holdable_button_repeat_time = LbTimerClock() + HOLDABLE_BUTTON_REPEAT_MS;
+                *s = 1;
+            } else if ((callback != NULL) && (LbTimerClock() >= holdable_button_repeat_time)) {
+                holdable_button_repeat_time = LbTimerClock() + HOLDABLE_BUTTON_REPEAT_MS;
                 callback(gbtn);
-            } else {
-                (*s)++;
+            }
+            break;
+        case LbBtnT_DraggableBtn:
+            *s = 1;
+            if (callback != NULL) {
+                callback(gbtn);
             }
             break;
         case LbBtnT_Hotspot:
@@ -2012,6 +1989,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
   {
   case LbBtnT_NormalBtn:
   case LbBtnT_HoldableBtn:
+  case LbBtnT_DraggableBtn:
       if ((*s != 0) && (callback != NULL))
       {
           do_sound_button_click(gbtn);
@@ -2610,7 +2588,6 @@ void set_gui_visible(TbBool visible)
         break;
     }
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-    observer_snap_view_camera();
 }
 
 void toggle_gui(void)
@@ -2875,9 +2852,8 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_menu();
           break;
       case FeSt_NET_START:
+          frontnet_start_setup();
           turn_on_menu(GMnu_FENET_START);
-          if (frontend_menu_state != FeSt_MP_MAPPACK_SELECT)
-            frontnet_start_setup();
           LbStartTextInput();
           set_flag(local_system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
@@ -3587,30 +3563,14 @@ void load_game_update(void)
 
 void gui_set_autopilot(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  int ntype;
-  if (game.comp_player_aggressive)
+  do_sound_button_click(gbtn);
+  uint8_t kind = gbtn->btype_value + 1;
+  if (!replay.load_enable)
   {
-    ntype = 1;
-  } else
-  if (game.comp_player_defensive)
-  {
-    ntype = 2;
-  } else
-  if (game.comp_player_construct)
-  {
-    ntype = 3;
-  } else
-  if (game.comp_player_creatrsonly)
-  {
-    ntype = 4;
-  } else
-  {
-    ERRORLOG("Illegal Autopilot type, resetting to default");
-    ntype = 1;
+    settings.computer_assistant_kind = kind;
+    save_settings();
   }
-  set_players_packet_action(player, PckA_SetComputerKind, ntype, 0, 0, 0);
+  set_players_packet_action(get_my_player(), PckA_SetComputerKind, kind, 0, 0, 0);
 }
 
 void set_level_objective(PlayerNumber plyr_idx, const char *msg_text)
@@ -3835,14 +3795,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_NET_START:
         return FeSt_NET_SESSION;
     case FeSt_MP_MAPPACK_SELECT:
-        if (net_service_index_selected == FrontendNetSvc_Skirmish)
-        {
-            return FeSt_NET_SERVICE;
-        }
-        else
-        {
-            return FeSt_NET_START;
-        }
+        return FeSt_NET_SERVICE;
     case FeSt_LEVEL_SELECT:
          return FeSt_MAPPACK_SELECT;
     case FeSt_NET_SESSION:

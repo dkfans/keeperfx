@@ -154,6 +154,7 @@ static const unsigned char user_preference_flags[UPref_Count] = {
     [UPref_StartingFrontviewZoom] = 0,
     [UPref_StartingTendencies]    = 0,
     [UPref_MinimapZoom]           = UPF_ApplyOnLoad,
+    [UPref_StartingComputerAssistantKind] = UPF_ApplyOnLoad,
 };
 
 void build_local_user_preferences(UserPreferences prefs)
@@ -180,6 +181,7 @@ void build_local_user_preferences(UserPreferences prefs)
     if (FLEE_BUTTON_DEFAULT)
         prefs[UPref_StartingTendencies] |= CrTend_Flee;
     prefs[UPref_MinimapZoom] = settings.minimap_zoom;
+    prefs[UPref_StartingComputerAssistantKind] = settings.computer_assistant_kind;
 }
 
 static void apply_user_starting_preferences(struct UserState *ustate, unsigned char flags)
@@ -609,6 +611,8 @@ static TbBool replay_has_remote_humans(void)
 static void replace_network_player_with_ai(struct PlayerInfo *player)
 {
     player->allocflags |= PlaF_CompCtrl | PlaF_Placeholder;
+    // TODO: if we add reconnect, remember to undo this
+    setup_a_computer_player(player->id_number, get_random_skirmish_computer_model());
     toggle_computer_player(player->id_number);
     message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
     JUSTLOG("p:%d computer took over", player->id_number);

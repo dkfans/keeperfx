@@ -54,6 +54,7 @@ enum TbButtonType {
     LbBtnT_HorizSlider,
     LbBtnT_EditBox,
     LbBtnT_Hotspot,
+    LbBtnT_DraggableBtn,
 };
 
 enum TbButtonFlags {

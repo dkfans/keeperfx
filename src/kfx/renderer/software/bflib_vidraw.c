@@ -1370,24 +1370,23 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
  * @param dwidth Width which the sprite should have on destination buffer.
  * @param gwidth Graphics buffer visible window line width.
  */
-void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swidth, long dwidth, long gwidth)
+void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, int32_t x, int32_t swidth, int32_t dwidth, int32_t gwidth)
 {
     int32_t *pwidth;
-    long pxpos;
+    int32_t pxpos;
     pwidth = xsteps_arr;
-    long factor = (dwidth<<16)/swidth;
-    long tmp = (factor >> 1) + (x << 16);
-    pxpos = tmp >> 16;
-    pxpos = min(pxpos, max(0, x));
-    long w = swidth;
+    int32_t factor = ((dwidth << 16) + swidth - 1) / swidth;
+    int32_t tmp = x << 16;
+    pxpos = x;
+    int32_t w = swidth;
     do {
         tmp += factor;
-        long pxstart;
-        long pxend;
+        int32_t pxstart;
+        int32_t pxend;
         pxstart = pxpos;
         pxend = tmp>>16;
         // Remember unclipped difference
-        long wdiff = pxend - pxstart;
+        int32_t wdiff = pxend - pxstart;
        // Clip both endpoints independently to [0, gwidth]
         if (pxstart < 0) pxstart = 0;
         else if (pxstart > gwidth) pxstart = gwidth;
@@ -1404,15 +1403,15 @@ void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swid
     } while (w > 0);
 }
 
-void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, long x, long swidth, long dwidth)
+void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, int32_t x, int32_t swidth, int32_t dwidth)
 {
     int32_t *pwidth;
-    long cwidth;
+    int32_t cwidth;
     pwidth = xsteps_arr;
-    long factor = (dwidth<<16)/swidth;
-    long tmp = (factor >> 1) + (x << 16);
+    int32_t factor = ((dwidth << 16) + swidth - 1) / swidth;
+    int32_t tmp = x << 16;
     cwidth = tmp >> 16;
-    long w = swidth;
+    int32_t w = swidth;
     do {
       int i;
       for (i=0; i < 16; i+=2)
@@ -1451,28 +1450,27 @@ void LbSpriteClearScalingWidthArray(int32_t * xsteps_arr, int32_t swidth)
  * @param dheight Height which the sprite should have on destination buffer.
  * @param gheight Graphics buffer visible window lines count.
  */
-void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long sheight, long dheight, long gheight)
+void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, int32_t y, int32_t sheight, int32_t dheight, int32_t gheight)
 {
     int32_t *pheight;
-    long lnpos;
+    int32_t lnpos;
     pheight = ysteps_arr;
-    long factor = (dheight<<16)/sheight;
-    long tmp = (factor >> 1) + (y << 16);
-    lnpos = tmp >> 16;
-    lnpos = min(lnpos, max(0, y));
+    int32_t factor = ((dheight << 16) + sheight - 1) / sheight;
+    int32_t tmp = y << 16;
+    lnpos = y;
     if (lnpos < 0)
         lnpos = 0;
     if (lnpos >= gheight)
         lnpos = gheight;
-    long h = sheight;
+    int32_t h = sheight;
     do {
         tmp += factor;
-        long lnstart;
-        long lnend;
+        int32_t lnstart;
+        int32_t lnend;
         lnstart = lnpos;
         lnend = tmp>>16;
         // Remember unclipped difference
-        long hdiff = lnend - lnstart;
+        int32_t hdiff = lnend - lnstart;
         // Clip both endpoints independently to [0, gheight]
         if (lnstart < 0) lnstart = 0;
         else if (lnstart > gheight) lnstart = gheight;
@@ -1489,15 +1487,15 @@ void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long she
     } while (h > 0);
 }
 
-void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, long y, long sheight, long dheight)
+void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, int32_t y, int32_t sheight, int32_t dheight)
 {
     int32_t *pheight;
-    long cheight;
+    int32_t cheight;
     pheight = ysteps_arr;
-    long factor = (dheight<<16)/sheight;
-    long tmp = (factor >> 1) + (y << 16);
+    int32_t factor = ((dheight << 16) + sheight - 1) / sheight;
+    int32_t tmp = y << 16;
     cheight = tmp >> 16;
-    long h = sheight;
+    int32_t h = sheight;
     do {
       int i=0;
       for (i=0; i < 16; i+=2)
