@@ -825,7 +825,7 @@ void process_user_leave_game_packet(NetUserId user)
         struct PlayerInfo *player = get_player(get_net_user_player_number(user));
         forget_user(user);
         if (player_exists(player) && get_player_primary_user(player) < 0) {
-            player->allocflags &= ~PlaF_Allocated;
+            player->allocflags &= ~(PlaF_Allocated | PlaF_Seat);
         }
         return;
     }
