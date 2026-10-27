@@ -69,7 +69,7 @@ enum PlayerInstanceNum {
 enum UserControllingThing {
     UCT_Direct           = 0x01, /* user is possessing the creature normally */
     UCT_Passenger        = 0x02, /* possession, but unable to control */
-    UCT_IncludeEntryZoom = 0x04,
+    UCT_IncludeEntryZoom = 0x04, /* count the possession-start animation instance too. */
     UCT_Other            = 0x08, /* mainly for intro heart zoom-in and post-defeat spectating in multiplayer */
     UCT_Selected         = 0x10, /* misc. for querying, cheat menu, etc. */
 };
