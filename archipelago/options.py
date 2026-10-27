@@ -34,13 +34,36 @@ class KeeperFXDoors(Toggle):
 #                KeeperFXRecipes: on (don't include in pool, just unlock them)/off (don't include in pool, remove locations)/unlock (same as current)
 # need some sort of safety here i.e. don't include locations if not in pool at all.
 
-class NegativeRecipes(Toggle):
+
+class PositiveRecipes(Choice):
+    """Choose if you want positive Temple recipes to be available in the game."""
+    display_name = "Temple Recipes"
+
+    option_off = 0
+    option_unlock = 1
+    option_on = 2
+
+    default = 1
+
+class NegativeRecipes(Choice):
     """Choose if you want negative Temple recipes to be available in the game."""
     display_name = "Negative Recipes"
 
-class KeeperFXRecipes(Toggle):
+    option_off = 0
+    option_unlock = 1
+    option_on = 2
+
+    default = 1
+
+class KeeperFXRecipes(Choice):
     """Choose if you want KeeperFX Temple recipes to be available in the game."""
     display_name = "KeeperFX Recipes"
+        
+    option_off = 0
+    option_unlock = 1
+    option_on = 2
+
+    default = 0
 
 # really want this to be "creature type evil/good/both/mixed"
 # i.e. if "evil", get the 16 standard creatures.
@@ -189,6 +212,7 @@ class DungeonKeeperOptions(PerGameCommonOptions):
     KeeperFXDoors: KeeperFXDoors
     KeeperFXSpells: KeeperFXSpells
     KeeperFXTraps: KeeperFXTraps
+    PositiveRecipes: PositiveRecipes
     NegativeRecipes: NegativeRecipes
     KeeperFXRecipes: KeeperFXRecipes
     AddHeroes: AddHeroes

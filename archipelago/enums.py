@@ -385,11 +385,20 @@ class KeeperFillerName(StrEnum):
         FILLER_INCREASE_LEVEL = "Increase Level"
         FILLER_MULTIPLY_CREATURES = "Multiply Creatures"
         FILLER_MAKE_SAFE = "Make Safe"
-
+        FILLER_STEAL_HERO = "Steal Hero"
+        FILLER_REVEAL_MAP = "Reveal Map"
+        FILLER_RECEIVE_GOLD = "Receive Gold"
+        FILLER_RECEIVE_IMPS = "Receive Imps"
+    
 class KeeperFiller(IntEnum):
         FILLER_INCREASE_LEVEL = 901
         FILLER_MULTIPLY_CREATURES = 902
         FILLER_MAKE_SAFE = 903
+        FILLER_STEAL_HERO = 904
+        FILLER_REVEAL_MAP = 905
+        FILLER_RECEIVE_GOLD = 906
+        FILLER_RECEIVE_IMPS = 907
+
 
 #    #---------------------------------------------------------
 #    #Filler
