@@ -43,8 +43,6 @@ SAVE_STRUCT(Game, struct Game,
     SAVE_ARRAY_EX(struct Game, music_fname, SV_STR, .flags = SVF_SAVE),  /* plain-char */
     SAVE_FIELD(struct Game, save_game_slot, SV_I8),
     SAVE_FIELD(struct Game, selected_level_number, SV_I32),
-    SAVE_FIELD_EX(struct Game, active_lens_type, SV_I8, .flags = SVF_SAVE),
-    SAVE_FIELD_EX(struct Game, applied_lens_type, SV_U8, .flags = SVF_SAVE),
     SAVE_SUB_ARRAY(struct Game, players, PlayerInfo),
     SAVE_SUB_ARRAY(struct Game, user_states, UserState),
     SAVE_SUB_ARRAY(struct Game, columns_data, Column),

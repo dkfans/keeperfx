@@ -290,10 +290,10 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         create_light_for_possession(thing);
     }
-    if ((thing->class_id == TCls_Creature) && is_my_player(player)) {
+    if (thing->class_id == TCls_Creature) {
         crconf = creature_stats_get_from_thing(thing);
         SYNCDBG(7,"Controlling creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
-        setup_eye_lens(crconf->eye_effect);
+        set_player_lens(player->id_number, crconf->eye_effect);
     }
     return true;
 }
@@ -4417,7 +4417,7 @@ void draw_creature_view(struct Thing *thing)
   {
       long dst_offset = view_y * lbDisplay.GraphicsScreenWidth + view_x;
       draw_lens_effect(lbDisplay.WScreen + dst_offset, lbDisplay.GraphicsScreenWidth,
-          scrmem, render_width, view_width, view_height, view_x, game.applied_lens_type);
+          scrmem, render_width, view_width, view_height, view_x);
   }
 }
 
@@ -6554,22 +6554,6 @@ TngUpdateRet update_creature(struct Thing *thing)
             {
                 ERRORLOG("Human controlled creature has been deleted by state routine.");
                 return TUFRet_Deleted;
-            }
-        }
-        struct PlayerInfo* player = get_player(thing->owner);
-        struct UserState* ustate = get_player_user_state(player);
-        if (creature_under_spell_effect(thing, CSAfF_Freeze))
-        {
-            if (!flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
-            {
-                PaletteSetPlayerPalette(player, blue_palette);
-            }
-        }
-        else
-        {
-            if (flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
-            {
-                PaletteSetPlayerPalette(player, engine_palette);
             }
         }
     } else

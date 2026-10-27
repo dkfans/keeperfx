@@ -71,6 +71,7 @@ LensManager::LensManager()
 LensManager::~LensManager()
 {
     Reset();
+    ClearCustomLenses();
 }
 
 TbBool LensManager::Init()
@@ -105,7 +106,6 @@ TbBool LensManager::Init()
     LoadAccessibilityConfig();
     
     m_initialized = true;
-    set_flag(game.mode_flags, MFlg_EyeLensReady);
     
     SYNCDBG(7, "Lens manager initialized with %d effects", (int)m_effects.size());
     return true;
@@ -129,7 +129,6 @@ void LensManager::Reset()
     m_applied_lens = 0;
     m_active_custom_lens.clear();
     m_initialized = false;
-    clear_flag(game.mode_flags, MFlg_EyeLensReady);
     
     SYNCDBG(9, "Lens manager reset complete");
 }
@@ -143,14 +142,12 @@ TbBool LensManager::SetLens(long lens_idx)
     
     SYNCDBG(7, "Setting lens to %ld", lens_idx);
     
+    CleanupAllEffects();
+    m_active_lens = 0;
+    m_applied_lens = 0;
+    m_active_custom_lens.clear();
     // lens_idx == 0 means "remove lens"
     if (lens_idx == 0) {
-        CleanupAllEffects();
-        m_active_lens = 0;
-        m_applied_lens = 0;
-        m_active_custom_lens.clear();  // Also clear custom lens
-        game.active_lens_type = 0;
-        game.applied_lens_type = 0;
         return true;
     }
     
@@ -210,8 +207,6 @@ TbBool LensManager::SetLens(long lens_idx)
         m_active_lens = lens_idx;
         m_applied_lens = lens_idx;
         m_active_custom_lens.clear();  // Clear custom lens name when using standard lens
-        game.active_lens_type = lens_idx;
-        game.applied_lens_type = lens_idx;
     }
     
     return success;
@@ -400,12 +395,7 @@ TbBool LensManager::SetLensByName(const char* name)
     m_applied_lens = -1;
     m_active_custom_lens = name;  // Track which custom lens is active
     
-    // CRITICAL: Update game state to indicate custom lens is active
-    // Use 255 as sentinel value for custom lenses (vs 0=none, 1-5=standard)
-    game.active_lens_type = 255;
-    game.applied_lens_type = 255;
-    
-    SYNCDBG(0, "Activated custom lens '%s', set game.applied_lens_type=255", name);
+    SYNCDBG(0, "Activated custom lens '%s'", name);
     return true;
 }
 
@@ -462,12 +452,15 @@ void LensManager::FreeAllEffects()
         delete effect;
     }
     m_effects.clear();
-    
-    // Delete all custom lens objects
+}
+
+void LensManager::ClearCustomLenses()
+{
     for (const auto& pair : m_custom_lenses) {
         delete pair.second;
     }
     m_custom_lenses.clear();
+    m_active_custom_lens.clear();
 }
 
 TbBool LensManager::AllocateBuffers()
@@ -601,6 +594,12 @@ TbBool LensManager_SetLensByName(void* mgr, const char* name)
 {
     if (mgr == nullptr || name == nullptr) return false;
     return static_cast<LensManager*>(mgr)->SetLensByName(name);
+}
+
+void LensManager_ClearCustomLenses(void* mgr)
+{
+    if (mgr != nullptr)
+        static_cast<LensManager*>(mgr)->ClearCustomLenses();
 }
 
 void* LuaLensEffect_Create(const char* name, void* lua_state)

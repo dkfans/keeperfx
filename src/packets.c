@@ -354,7 +354,6 @@ void process_pause_packet(long curr_pause, long new_pause)
   if ( can )
   {
       player = get_my_player();
-      struct UserState* ustate = get_user_state(get_local_user());
       const TbBool was_paused = flag_is_set(game.operation_flags, GOF_Paused);
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if (was_paused && !curr_pause && (get_local_user() == SERVER_ID) && !replay.load_enable)
@@ -379,10 +378,10 @@ void process_pause_packet(long curr_pause, long new_pause)
       }
       if ((game.operation_flags & GOF_Paused) != 0)
       {
-          if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) != 0)
+          if (local_state.lightning_palette_active)
           {
               PaletteSetUserPalette(get_local_user(), engine_palette);
-              ustate->additional_flags &= ~UsrAF_LightningPaletteIsActive;
+              local_state.lightning_palette_active = false;
           }
       }
   }

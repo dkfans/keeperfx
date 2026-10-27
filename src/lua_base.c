@@ -9,6 +9,7 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "config_keeperfx.h"
+#include "lens_api.h"
 #include "game_legacy.h"
 #include "globals.h"
 #include "gui_msgs.h"
@@ -124,6 +125,7 @@ TbBool CheckLua(lua_State *L, int result, const char* func)
 
 void close_lua_script()
 {
+    LensManager_ClearCustomLenses(LensManager_GetInstance());
     if(Lvl_script)
         lua_close(Lvl_script);
     Lvl_script = NULL;

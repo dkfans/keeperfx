@@ -81,7 +81,7 @@ enum CmdLineOverrides {
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
-    MFlg_EyeLensReady       =  0x02,
+    MFlg_Unusedparam02      =  0x02,
     MFlg_Unusedparam04      =  0x04,
     MFlg_DeadBackToPool     =  0x08,
     MFlg_NoCdMusic          =  0x10, // unused
@@ -285,6 +285,7 @@ void init_seeds();
 TbBool startup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void rederive_local_state(void);
+void update_local_view_effects(void);
 void redetect_screen_refresh_rate_for_draw();
 
 

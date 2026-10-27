@@ -69,16 +69,18 @@ void LensManager_CopyBuffer(unsigned char* dstbuf, long dstpitch,
 TbBool LensManager_RegisterCustomLens(void* mgr, const char* name, void* effect);
 void* LensManager_GetCustomLens(void* mgr, const char* name);
 TbBool LensManager_SetLensByName(void* mgr, const char* name);
+void LensManager_ClearCustomLenses(void* mgr);
 
 // LUA lens effect creation
 void* LuaLensEffect_Create(const char* name, void* lua_state);
 void LuaLensEffect_SetDrawCallback(void* effect, int callback_ref);
 /******************************************************************************/
 void initialise_eye_lenses(void);
-void setup_eye_lens(long nlens);
-void reinitialise_eye_lens(long nlens);
 void reset_eye_lenses(void);
-void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long viewport_x, long effect);
+void set_player_lens(PlayerNumber plyr_idx, long lens);
+void set_all_users_lens(long lens, const char *custom_lens);
+void update_local_lens(void);
+void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long viewport_x);
 TbBool lens_is_ready(void);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -3599,23 +3599,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 4: // EYEEFFECT
         {
             crconf->eye_effect = value;
-            struct Thing* thing = thing_get(get_local_user_state()->influenced_thing_idx);
-            if(thing_exists(thing))
+            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
             {
-                if (thing->model == creatid)
-                {
-                    struct LensConfig* lenscfg = get_lens_config(value);
-                    initialise_eye_lenses();
-                    if (flag_is_set(lenscfg->flags, LCF_HasPalette))
-                    {
-                        PaletteSetUserPalette(get_local_user(), lenscfg->palette);
-                    }
-                    else
-                    {
-                        PaletteSetUserPalette(get_local_user(), engine_palette);
-                    }
-                    setup_eye_lens(value);
-                }
+                struct Thing* thing = thing_get(get_player(plyr_idx)->controlled_thing_idx);
+                if (thing_is_creature(thing) && (thing->model == creatid) && flag_is_set(thing->alloc_flags, TAlF_IsControlled))
+                    set_player_lens(plyr_idx, value);
             }
             break;
         }
