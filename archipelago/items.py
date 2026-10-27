@@ -308,14 +308,14 @@ def create_all_items(world):
         enabled_items.update(KEEPERFX_TRAPS)
     if world.options.KeeperFXDoors:
         enabled_items.update(KEEPERFX_DOORS)
-    #if it's == 1, unlock all of these
-    if world.options.PositiveRecipes == 2:
+    #if it's 0 it's disabled, if it's 2, it's all on. 1 is "needs to be unlocked"
+    if world.options.PositiveRecipes == 1:
         enabled_items.update(POSITIVE_RECIPES)
-    #if it's == 1, unlock all of these
-    if world.options.NegativeRecipes == 2:
+    #if it's 0 it's disabled, if it's 2, it's all on. 1 is "needs to be unlocked"
+    if world.options.NegativeRecipes == 1:
         enabled_items.update(NEGATIVE_RECIPES)
-    #if it's == 1, unlock all of these
-    if world.options.KeeperFXRecipes == 2:
+    #if it's 0 it's disabled, if it's 2, it's all on. 1 is "needs to be unlocked"
+    if world.options.KeeperFXRecipes == 1:
         enabled_items.update(KEEPERFX_RECIPES)
     if world.options.AddHeroes:
         enabled_items.update(HEROES)
