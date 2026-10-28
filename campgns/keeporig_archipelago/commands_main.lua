@@ -16,6 +16,9 @@ function Setup()
             IncreaseLevelCap()
             IncreaseCreatureLimit()
             --IncreaseStartingGold() --Calling this each save and reload keeps adding gold to the player oops.
+            --todo: add options for turning off these progressives
+            IncreasePortalSpeed()
+            IncreaseHandSize()
             HideVariable()
             DisplayVariableWithLabel("PLAYER0","BOXES_REMAIN","ARCHIPELAGO_BIG")
             BoxLocations.DeleteBoxes(Map.map_number)
@@ -55,6 +58,9 @@ function OnItemReceived(itemid)
           print("ERROR: Invalid item ID:" .. tostring(itemid))
           return
       end
+      if Game.APBoxMessage == nil then
+            print("Error: Game.APBoxMessage is nil! Setting to 1")
+      end
       local message_num = (Game.APBoxMessage or 1)
       print("message_num = " .. message_num)
       --print("Game.APBoxMessage: " .. Game.APBoxMessage)
@@ -65,8 +71,18 @@ function OnItemReceived(itemid)
       print("Game.APBoxMessage: " .. Game.APBoxMessage)
       -- Also if you receive items while outside a level and then join, will it send all of the new ones when you go into a level?
       ReceivedLocations.ReceivedItemCheck(itemid)
-      QuickMessage("Total AP Items Received: " .. ReceivedLocationsTable.Total() .. "/" .. ChecksTable.Total() .. ".", "ARCHIPELAGO_ICON")
-      print("QuickMessage: Total AP Items Received: " .. ReceivedLocationsTable.Total() .. "/" .. ChecksTable.Total())
+      if ReceivedLocationsTable.Total() == nil then
+            print("Error: ReceivedLocations blew up! (OnItemReceived)")
+            QuickMessage("Error: ReceivedLocations blew up! (OnItemReceived)", "ARCHIPELAGO_ICON")
+      elseif ChecksTable.Total() == nil then
+            print("Error: ChecksTable blew up! (OnItemReceived)")
+            QuickMessage("Error: ChecksTable blew up! (OnItemReceived)", "ARCHIPELAGO_ICON")
+      else
+            local rec_total = ReceivedLocationsTable.Total() or -1
+            local check_total = ChecksTable.Total() or -1
+            QuickMessage("Total AP Items Received: " .. rec_total .. "/" .. check_total .. ".", "ARCHIPELAGO_ICON")
+            print("QuickMessage: Total AP Items Received: " .. rec_total .. "/" .. check_total)
+      end
 end
 
 function ActivateItems()
@@ -97,7 +113,18 @@ function ActivateItems()
             SetAPLastProcessedItemIndex(lastProcessed)
       end
       CheckForMiscUnlocks()
-      QuickMessage("Total AP Items Received: " .. ReceivedLocationsTable.Total() .. "/" .. ChecksTable.Total() .. ".", "ARCHIPELAGO_ICON")
+      if ReceivedLocationsTable.Total() == nil then
+            print("Error: ReceivedLocations blew up! (OnItemReceived)")
+            QuickMessage("Error: ReceivedLocations blew up! (OnItemReceived)", "ARCHIPELAGO_ICON")
+      elseif ChecksTable.Total() == nil then
+            print("Error: ChecksTable blew up! (OnItemReceived)")
+            QuickMessage("Error: ChecksTable blew up! (OnItemReceived)", "ARCHIPELAGO_ICON")
+      else
+            local rec_total = ReceivedLocationsTable.Total() or -1
+            local check_total = ChecksTable.Total() or -1
+            QuickMessage("Total AP Items Received: " .. rec_total .. "/" .. check_total .. ".", "ARCHIPELAGO_ICON")
+            print("QuickMessage: Total AP Items Received: " .. rec_total .. "/" .. check_total)
+      end
 end
 
 function OnChatMsg(plyr_idx, msg)
@@ -393,10 +420,13 @@ function GetForbiddenRooms()
     local forbidden_rooms = {}
     for id = 101, 200 do
         local check = ChecksTable[id]
-        if type(check) == "table"
-        and check.internal_name
-        and not ReceivedLocationsTable.Has(id) then
+        if type(check) == "table" and check.internal_name and not ReceivedLocationsTable.Has(id) then
             forbidden_rooms[check.internal_name] = true
+            if id == 107 then
+                  forbidden_rooms["GUARD_POST_FLAT"] = true
+            elseif id == 112 then
+                  forbidden_rooms["TEMPLE_FLAT"] = true
+            end
         end
     end
     return forbidden_rooms
@@ -497,12 +527,22 @@ function FunOptions(settings)
       end
 
       local cruelty_mode = settings.CrueltyMode
+      print("cruelty_mode: " .. tostring(cruelty_mode))
 
-      local trigger_remove_forbidden_rooms = RegisterOnConditionEvent(
-            function () RemoveForbiddenPlayerRooms() end,
-            function () return (cruelty_mode and HasForbiddenRoom()) end
-      )
-      trigger_remove_forbidden_rooms.triggerData.destroyAfterUse = false
+      if settings.CrueltyMode then
+            local trigger_remove_forbidden_rooms = RegisterOnConditionEvent(
+                  function () RemoveForbiddenPlayerRooms() end,
+                  function () return (cruelty_mode and HasForbiddenRoom()) end
+            )
+            trigger_remove_forbidden_rooms.triggerData.destroyAfterUse = false
+      end
+
+      if settings.FlatTempleGuardPost then
+            SetRoomConfiguration("GUARD_POST","PanelTabIndex",0)
+            SetRoomConfiguration("GUARD_POST_FLAT","PanelTabIndex",7)
+            SetRoomConfiguration("TEMPLE","PanelTabIndex",0)
+            SetRoomConfiguration("TEMPLE_FLAT","PanelTabIndex",12)
+      end
 end
 
 return CommandsMain

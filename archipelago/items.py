@@ -101,8 +101,6 @@ SPELLS = {
     KeeperPowerName.POWER_DESTROY_WALLS: KeeperItem(KeeperPower.POWER_DESTROY_WALLS, ItemClassification.progression), #"POWER_DESTROY_WALLS",
 }
 
-#    #Levels
-
 LEVELS = {
     KeeperLevelName.LEVEL_001: KeeperItem(KeeperLevel.LEVEL_001, ItemClassification.progression), #"Level 1 Unlocked"
     KeeperLevelName.LEVEL_002: KeeperItem(KeeperLevel.LEVEL_002, ItemClassification.progression), #"Level 2 Unlocked"
@@ -135,7 +133,7 @@ SECRET_LEVELS = {
     KeeperSecretLevelName.LEVEL_105: KeeperItem(KeeperSecretLevel.LEVEL_105, ItemClassification.progression), #"Level 105 Unlocked"
     }
 
-RECIPES = {
+POSITIVE_RECIPES = {
     KeeperRecipeName.RECIPE_CHEAPER_IMPS: KeeperItem(KeeperRecipe.RECIPE_CHEAPER_IMPS, ItemClassification.useful), #"Cheaper Imps"
     KeeperRecipeName.RECIPE_COMPLETE_MANUFACTURING: KeeperItem(KeeperRecipe.RECIPE_COMPLETE_MANUFACTURING, ItemClassification.useful), #"Complete Manufacturing"
     KeeperRecipeName.RECIPE_COMPLETE_RESEARCH: KeeperItem(KeeperRecipe.RECIPE_COMPLETE_RESEARCH, ItemClassification.useful), #"Complete Research"
@@ -147,10 +145,11 @@ RECIPES = {
 }
 
 PROGRESSIVES = {
-    KeeperProgressiveName.PROGRESSIVE_LEVEL_CAP: KeeperItem(KeeperProgressive.PROGRESSIVE_LEVEL_CAP, ItemClassification.useful), 
-    KeeperProgressiveName.PROGRESSIVE_CREATURE_LIMIT: KeeperItem(KeeperProgressive.PROGRESSIVE_CREATURE_LIMIT, ItemClassification.useful), #"Progressive Creature Limit 1", #Increase creature limit by 5 (starts at max 10): 15
-    KeeperProgressiveName.PROGRESSIVE_STARTING_GOLD: KeeperItem(KeeperProgressive.PROGRESSIVE_STARTING_GOLD, ItemClassification.useful), #"Progressive Starting Gold 1" #Increase starting gold by 1250 (starts at 2500): 3750
-    KeeperProgressiveName.PROGRESSIVE_PORTAL_SPEED: KeeperItem(KeeperProgressive.PROGRESSIVE_PORTAL_SPEED, ItemClassification.useful), #"Progressive Starting Gold 1" #Increase starting gold by 1250 (starts at 2500): 3750
+    KeeperProgressiveName.PROGRESSIVE_LEVEL_CAP: KeeperItem(KeeperProgressive.PROGRESSIVE_LEVEL_CAP, ItemClassification.progression), 
+    KeeperProgressiveName.PROGRESSIVE_CREATURE_LIMIT: KeeperItem(KeeperProgressive.PROGRESSIVE_CREATURE_LIMIT, ItemClassification.progression), #"Progressive Creature Limit", #Increase creature limit by 5 (starts at max 10)
+    KeeperProgressiveName.PROGRESSIVE_STARTING_GOLD: KeeperItem(KeeperProgressive.PROGRESSIVE_STARTING_GOLD, ItemClassification.useful), #"Progressive Starting Gold" #Increase starting gold by 1250 (starts at 2500)
+    KeeperProgressiveName.PROGRESSIVE_PORTAL_SPEED: KeeperItem(KeeperProgressive.PROGRESSIVE_PORTAL_SPEED, ItemClassification.useful), #"Progressive Portal Speed" #Decrease portal speed by 125 (starts at 750)
+    KeeperProgressiveName.PROGRESSIVE_HAND_SIZE: KeeperItem(KeeperProgressive.PROGRESSIVE_HAND_SIZE, ItemClassification.useful), #"Progressive hand size" #Increase hand size by 2 (starts at 4)
 #    #Others e.g. progressive starting imps number/level, progressive auto-researched (e.g. at 1, bridge/guardpost and SOE are unlocked, at 2, workshop and speed are unlocked and so on (IF THOSE ARE UNLOCKED)),
 #    #progressive auto-manufacturing (at 1, you get an alarm/gas trap and wooden door at start, at 2 you get a lightning trap and braced door, at 3 you get WOP trap and iron door, at 4 you get lava/boulder and magic door (IF THOSE ARE UNLOCKED))
 }
@@ -159,6 +158,10 @@ FILLER = {
     KeeperFillerName.FILLER_INCREASE_LEVEL: KeeperItem(KeeperFiller.FILLER_INCREASE_LEVEL, ItemClassification.filler),
     KeeperFillerName.FILLER_MULTIPLY_CREATURES: KeeperItem(KeeperFiller.FILLER_MULTIPLY_CREATURES, ItemClassification.filler),
     KeeperFillerName.FILLER_MAKE_SAFE: KeeperItem(KeeperFiller.FILLER_MAKE_SAFE, ItemClassification.filler),
+    KeeperFillerName.FILLER_STEAL_HERO: KeeperItem(KeeperFiller.FILLER_STEAL_HERO, ItemClassification.filler),
+    KeeperFillerName.FILLER_REVEAL_MAP: KeeperItem(KeeperFiller.FILLER_REVEAL_MAP, ItemClassification.filler),
+    KeeperFillerName.FILLER_RECEIVE_GOLD: KeeperItem(KeeperFiller.FILLER_RECEIVE_GOLD, ItemClassification.filler),
+    KeeperFillerName.FILLER_RECEIVE_IMPS: KeeperItem(KeeperFiller.FILLER_RECEIVE_IMPS, ItemClassification.filler),
 }
 
 # OPTIONAL STUFF
@@ -290,7 +293,6 @@ def create_all_items(world):
         **TRAPS,
         **DOORS,
         **LEVELS,
-        **RECIPES,
         **SPELLS,
         **PROGRESSIVES,
     }
@@ -305,9 +307,14 @@ def create_all_items(world):
         enabled_items.update(KEEPERFX_TRAPS)
     if world.options.KeeperFXDoors:
         enabled_items.update(KEEPERFX_DOORS)
-    if world.options.NegativeRecipes:
+    #if it's 0 it's disabled, if it's 2, it's all on. 1 is "needs to be unlocked"
+    if world.options.PositiveRecipes == 1:
+        enabled_items.update(POSITIVE_RECIPES)
+    #if it's 0 it's disabled, if it's 2, it's all on. 1 is "needs to be unlocked"
+    if world.options.NegativeRecipes == 1:
         enabled_items.update(NEGATIVE_RECIPES)
-    if world.options.KeeperFXRecipes:
+    #if it's 0 it's disabled, if it's 2, it's all on. 1 is "needs to be unlocked"
+    if world.options.KeeperFXRecipes == 1:
         enabled_items.update(KEEPERFX_RECIPES)
     if world.options.AddHeroes:
         enabled_items.update(HEROES)
@@ -344,9 +351,13 @@ def create_all_items(world):
     world.multiworld.itempool.extend(item_pool)
 
 FILLER_WEIGHTS = {
-    KeeperFillerName.FILLER_MAKE_SAFE.value: 60,
     KeeperFillerName.FILLER_INCREASE_LEVEL.value: 30,
     KeeperFillerName.FILLER_MULTIPLY_CREATURES.value: 10,
+    KeeperFillerName.FILLER_MAKE_SAFE.value: 60,
+    KeeperFillerName.FILLER_STEAL_HERO.value: 30,
+    KeeperFillerName.FILLER_REVEAL_MAP.value: 20,
+    KeeperFillerName.FILLER_RECEIVE_GOLD.value: 60,
+    KeeperFillerName.FILLER_RECEIVE_IMPS.value: 40,
 }
 def get_random_filler_item_name():
     return random.choices(
@@ -362,7 +373,6 @@ all_category_dicts = {
     **TRAPS,
     **DOORS,
     **LEVELS,
-    **RECIPES,
     **SPELLS,
     **PROGRESSIVES,
     **FILLER,
@@ -371,6 +381,7 @@ all_category_dicts = {
     **KEEPERFX_SPELLS,
     **KEEPERFX_TRAPS,
     **SECRET_LEVELS,
+    **POSITIVE_RECIPES,
     **NEGATIVE_RECIPES,
     **KEEPERFX_RECIPES,
     **IMP,
