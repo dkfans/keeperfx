@@ -290,6 +290,11 @@ void ap_bridge_send_message(const char* msg)
     ap_send_message(msg);
 }
 
+void ap_goal_complete(void)
+{
+    AP_StoryComplete();
+}
+
 void ap_process_sacrifice_recipe(struct SacrificeRecipe *sac)
 {
     char recipe_name[128] = {0};
@@ -349,7 +354,8 @@ void ap_process_sacrifice_recipe(struct SacrificeRecipe *sac)
         if(info != NULL && ap_location_is_missing(&g_ap_state, info->location)){
             AP_SendItem(info->location);
         }
-    }
+    }                       
+
 }
 
 #ifdef __cplusplus

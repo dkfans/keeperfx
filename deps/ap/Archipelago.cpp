@@ -183,8 +183,11 @@ void AP_Init(const char* ip, const char* game, const char* player_name, const ch
     logfunc("AP: Initializing...");
 
     //Connect to server
+    isSSL = false; 
+    
     ix::initNetSystem();
-    webSocket.setUrl("wss://" + ap_ip);
+    webSocket.setUrl("ws://" + ap_ip); // Changed from "wss://" to "ws://"
+    
     webSocket.setOnMessageCallback([](const ix::WebSocketMessagePtr& msg)
         {
             if (msg->type == ix::WebSocketMessageType::Message)

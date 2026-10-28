@@ -1833,7 +1833,7 @@ void write_arch_config_file(void)
 void frontnet_archipelago_set_ip(struct GuiButton *gbtn)
 {  
     strcpy(arch_ip_address, tmp_arch_ip_address);
-    strcpy(arch_config_info.arch_ip_address, tmp_net_player_name);
+    strcpy(arch_config_info.arch_ip_address, tmp_arch_ip_address);
     write_arch_config_file();
 }
 

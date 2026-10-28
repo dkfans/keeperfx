@@ -354,6 +354,12 @@ static int lua_ap_decrease_level_box_remain(lua_State *L)
     return 0;
 }
 
+static int lua_ap_goal(lua_State *L)
+{
+    ap_goal_complete();
+    return 0;
+}
+
 static int lua_ap_send_message(lua_State *L)
 {
     const char* message   = lua_tostring(L,  1);
@@ -2919,6 +2925,7 @@ static const luaL_Reg global_methods[] = {
     {"GetAPLastProcessedItemIndex",      lua_ap_get_last_processed_item_index},
     {"SetAPLastProcessedItemIndex",      lua_ap_set_last_processed_item_index},
     {"GetAPSlotData",                    lua_ap_get_slot_data},
+    {"APGoalComplete",                   lua_ap_goal},
     
 };
 /*
