@@ -16,6 +16,8 @@ function Setup()
             IncreaseLevelCap()
             IncreaseCreatureLimit()
             --IncreaseStartingGold() --Calling this each save and reload keeps adding gold to the player oops.
+            IncreasePortalSpeed()
+            IncreaseHandSize()
             HideVariable()
             DisplayVariableWithLabel("PLAYER0","BOXES_REMAIN","ARCHIPELAGO_BIG")
             BoxLocations.DeleteBoxes(Map.map_number)
