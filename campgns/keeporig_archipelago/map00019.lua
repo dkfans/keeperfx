@@ -15,7 +15,9 @@ function OnGameStart()
 	CommandsMain.MainSetup()
     IncreaseStartingGold()
     FunOptions(APSettings)
-    Map.default_texture = APSettings.SwappedTileset
+    if APSettings.ShuffleTilesets then
+        Map.default_texture = APSettings.SwappedTileset
+    end
 end
 
 --will get called when the game is loaded from the Save/Load menu

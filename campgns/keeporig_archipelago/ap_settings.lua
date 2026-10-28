@@ -63,10 +63,11 @@ else
     print("IncludeKnightsInPool:     " .. tostring(APSettings.IncludeKnightsInPool) .. " (" .. tostring(slot_data.IncludeKnightsInPool) .. ")")
     APSettings.IncludeAvatarsInPool = IsValueTrue(slot_data.IncludeAvatarsInPool)
     print("IncludeAvatarsInPool:     " .. tostring(APSettings.IncludeAvatarsInPool) .. " (" .. tostring(slot_data.IncludeAvatarsInPool) .. ")")
-    if slot_data.ShuffleTilesets then --TODO: Change this when the AP populates this information.
+    APSettings.ShuffleTilesets = IsValueTrue(slot_data.ShuffleTilesets)
+    if APSettings.ShuffleTilesets then --TODO: Change this when the AP populates this information.
         APSettings.SwappedTileset = math.random(0,13)
     end
-    print("ShuffleTilesets:          " .. tostring(APSettings.ShuffleTilesets))
+    print("ShuffleTilesets:          " .. tostring(APSettings.ShuffleTilesets .. "(" .. APSettings.SwappedTileset .. ")"))
     if slot_data.ChangePlayerColour >= 8 then
         APSettings.ChangePlayerColour = math.random(0,7)
     elseif slot_data.ChangePlayerColour < 0 then
