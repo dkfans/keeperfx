@@ -6,6 +6,7 @@ APSettings = {
     KeeperFXSpells = false,
     KeeperFXTraps = false,
     KeeperFXDoors = false,
+    temple_locations = 1,
     PositiveRecipes = 1,
     NegativeRecipes = 1,
     KeeperFXRecipes = 0,
@@ -21,6 +22,7 @@ APSettings = {
     SwapWaterAndLava = false,
     RemoveNeutralRooms = false,
     CrueltyMode = false,
+    FlatTempleGuardPost = false,
 }
 
 local function IsValueTrue(var)
