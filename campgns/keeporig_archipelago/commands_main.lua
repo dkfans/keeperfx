@@ -526,11 +526,13 @@ function FunOptions(settings)
       local cruelty_mode = settings.CrueltyMode
       print("cruelty_mode: " .. tostring(cruelty_mode))
 
-      local trigger_remove_forbidden_rooms = RegisterOnConditionEvent(
-            function () RemoveForbiddenPlayerRooms() end,
-            function () return (cruelty_mode and HasForbiddenRoom()) end
-      )
-      trigger_remove_forbidden_rooms.triggerData.destroyAfterUse = false
+      if settings.CrueltyMode then
+            local trigger_remove_forbidden_rooms = RegisterOnConditionEvent(
+                  function () RemoveForbiddenPlayerRooms() end,
+                  function () return (cruelty_mode and HasForbiddenRoom()) end
+            )
+            trigger_remove_forbidden_rooms.triggerData.destroyAfterUse = false
+      end
 
       if settings.FlatTempleGuardPost then
             SetRoomConfiguration("GUARD_POST","PanelTabIndex",0)
