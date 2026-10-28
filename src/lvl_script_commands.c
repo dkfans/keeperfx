@@ -1969,11 +1969,13 @@ static void new_trap_type_check(const struct ScriptLine* scline)
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
     set_config_process(&trapdoor_trap_named_fields_set, context, "SET_TRAP_CONFIGURATION");
+    create_manufacture_array_from_trapdoor_data();
 }
 
 static void set_room_configuration_process(struct ScriptContext *context)
 {
     set_config_process(&terrain_room_named_fields_set, context, "SET_ROOM_CONFIGURATION");
+    update_room_tab_to_config();
 }
 
 static void set_hand_rule_process(struct ScriptContext* context)
@@ -2034,6 +2036,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
 static void set_door_configuration_process(struct ScriptContext *context)
 {
     set_config_process(&trapdoor_door_named_fields_set, context, "SET_DOOR_CONFIGURATION");
+    create_manufacture_array_from_trapdoor_data();
 }
 
 static void create_effect_at_pos_process(struct ScriptContext* context)
