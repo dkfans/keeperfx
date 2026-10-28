@@ -138,7 +138,7 @@ extern struct DebugMessage ** debug_messages_tail;
 /******************************************************************************/
 extern const char *log_file_name;
 extern int debug_display_consolelog;
-extern char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
+extern char (*consoleLogArray)[MAX_TEXT_LENGTH];
 extern size_t consoleLogArraySize;
 
 // High level functions - DK specific

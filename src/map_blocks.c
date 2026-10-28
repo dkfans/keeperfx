@@ -711,10 +711,16 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
         {
             struct CubeConfigStats* cubed = get_cube_model_stats(col.cubes[i]);
             if (cubed->ownershipGroup > 0) {
-                found = true;
                 struct SlabMap *slb;
                 slb = get_slabmap_for_subtile(stl_x, stl_y);
-                col.cubes[i] = game.conf.cube_conf.cube_bits[cubed->ownershipGroup][get_player_color_idx(slabmap_owner(slb))];
+                unsigned short new_cube = game.conf.cube_conf.cube_bits[cubed->ownershipGroup][get_player_color_idx(slabmap_owner(slb))];
+                if (new_cube > 0) {
+                    found = true;
+                    col.cubes[i] = new_cube;
+                }
+                // else: no cube for this player (e.g. neutral owner); keep original template
+                // cube so the map block stores the template index via the else branch below,
+                // preserving ownershipGroup for future ownership changes.
             }
         }
     }
