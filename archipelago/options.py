@@ -68,6 +68,8 @@ class KeeperFXRecipes(Choice):
 
     default = 0
 
+#todo: add options for turning off progressive hand size and portal limit in case they are annoying!
+
 # really want this to be "creature type evil/good/both/mixed"
 # i.e. if "evil", get the 16 standard creatures.
 #      if "good", get the 10 standard heroes.

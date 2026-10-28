@@ -16,6 +16,7 @@ function Setup()
             IncreaseLevelCap()
             IncreaseCreatureLimit()
             --IncreaseStartingGold() --Calling this each save and reload keeps adding gold to the player oops.
+            --todo: add options for turning off these progressives
             IncreasePortalSpeed()
             IncreaseHandSize()
             HideVariable()
