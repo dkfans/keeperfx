@@ -495,18 +495,22 @@ end
 --hand size, portal speed, starting imps, progressive unlocks (gonna be a pain)
 
 function CheckForMiscUnlocks()
+    local slot_data = GetAPSlotData()
     --if option is set to 2, unlock all of them immediately.
-    if APSettings.PositiveRecipes == 2 then
+    if slot_data.PositiveRecipes == 2 then
+        print("PositiveRecipes set to ON, giving all positive recipes automatically.")
         for itemid = 601, 607 do
             RunDKScriptCommand("SET_SACRIFICE_RECIPE(" .. ChecksTable[itemid].internal_name .. ")")
         end
     end
-    if APSettings.NegativeRecipes == 2 then
+    if slot_data.NegativeRecipes == 2 then
+        print("NegativeRecipes set to ON, giving all negative recipes automatically.")
         for itemid = 609, 613 do
             RunDKScriptCommand("SET_SACRIFICE_RECIPE(" .. ChecksTable[itemid].internal_name .. ")")
         end
     end
-    if APSettings.KeeperFXRecipes == 2 then
+    if slot_data.KeeperFXRecipes == 2 then
+        print("KeeperFXRecipes set to ON, giving all KeeperFX recipes automatically.")
         for itemid = 615, 625 do
             RunDKScriptCommand("SET_SACRIFICE_RECIPE(" .. ChecksTable[itemid].internal_name .. ")")
         end
