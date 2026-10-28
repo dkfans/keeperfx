@@ -90,8 +90,10 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
     location_rules["Blaise End Fortress Barbarian Tunnel"] = CanReachLocation("Level 18 Beaten")
     location_rules["Blaise End Central Portal"] = HasAll("Destroy Walls", "Library") | HasAll("Demolition Trap Manufacturable", "Workshop")
 
+    location_rules["Mistle Prison Tunnel"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
     location_rules["Mistle Central Water 1"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
     location_rules["Mistle Central Water 2"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
+    location_rules["Mistle Fairy Room"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
 
     location_rules["Skybird Trill Hero Fortress Centre"] = Has("Training Room") # would be awful having to fight level 10 Tentacles with level 1 creatures
     location_rules["Skybird Trill Hero Fortress West"] = Has("Training Room") # would be awful having to fight level 10 Tentacles with level 1 creatures

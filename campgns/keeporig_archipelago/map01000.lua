@@ -168,11 +168,11 @@ end
 --ChecksTable, 
 
 function ItemStatus()
+    local id_width_limit = 21 -- as in, width on the map itself before it starts digging into the rock.
     --Creatures
     local creature_id_max = 16
-    local creature_id_width_limit = 21 -- as in, width on the map itself before it starts digging into the rock.
     if APSettings.KeeperFXCreatures then creature_id_max = 18 end
-    for itemid=1, creature_id_width_limit do
+    for itemid=1, id_width_limit do
         local item_subtile_x = 88 + 9*(itemid)
         local item_subtile_y = 88
         if itemid <= creature_id_max then
@@ -219,10 +219,11 @@ function ItemStatus()
         end
     end
     --Rooms
-    for itemid=101, 200 do
+    local room_id_max = 14
+    for itemid=101, 100 + id_width_limit do
         local item_subtile_x = 97 + 12*(itemid % 100)
         local item_subtile_y = 142
-        if ChecksTable[itemid] then
+        if itemid <= room_id_max then
             --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
@@ -230,16 +231,18 @@ function ItemStatus()
             end
         else
             local slab_x = SubtileToSlab(item_subtile_x)
-            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+4 do
+            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
                 ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
             end
         end
     end
     --Traps
-    for itemid=201, 300 do
+    local trap_id_max = 6
+    if APSettings.KeeperFXTraps then trap_id_max = 9 end
+    for itemid=201, 200 + id_width_limit do
         local item_subtile_x = 121 + 12*(itemid % 100)
         local item_subtile_y = 250
-        if ChecksTable[itemid] then
+        if itemid <= trap_id_max then
             --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
@@ -247,17 +250,18 @@ function ItemStatus()
             end
         else
             local slab_x = SubtileToSlab(item_subtile_x)
-            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+4 do
+            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
                 ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
             end
         end
     end
     --Doors
-    for itemid=301, 400 do
+    local door_id_max = 4
+    if APSettings.KeeperFXDoors then door_id_max = 6 end
+    for itemid=301, 300 + id_width_limit do
         local item_subtile_x = 145 + 12*(itemid % 100)
         local item_subtile_y = 274
-        if ChecksTable[itemid] then
-            
+        if itemid <= door_id_max then
             --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
@@ -265,16 +269,19 @@ function ItemStatus()
             end
         else
             local slab_x = SubtileToSlab(item_subtile_x)
-            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+4 do
+            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
                 ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
             end
         end
     end
     --Spells
-    for itemid=401, 500 do
+    local spell_id_max = 18
+    if APSettings.KeeperFXSpells then spell_id_max = 26 end
+    --todo: something for SplitHandPower
+    for itemid=401, 400 + id_width_limit do
         local item_subtile_x = 73 + 12*(itemid % 100)
         local item_subtile_y = 196
-        if ChecksTable[itemid] then
+        if itemid <= spell_id_max then
             --AddObjectToLevelAtPos("SPELLBOOK_IMP",item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
@@ -282,13 +289,16 @@ function ItemStatus()
             end
         else
             local slab_x = SubtileToSlab(item_subtile_x)
-            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+4 do
+            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
                 ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
             end
         end
     end
     --501 is Levels
     --recipes
+    
+    --todo: recipes
+
     for itemid=601, 700 do
         local item_subtile_x = 34
         local item_subtile_y = 28 + 6*(itemid % 100)
