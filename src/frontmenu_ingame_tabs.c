@@ -60,6 +60,7 @@
 #include "magic_powers.h"
 #include "player_computer.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "config_players.h"
 #include "config_settings.h"
 #include "frontmenu_ingame_evnt.h"
@@ -150,8 +151,9 @@ static PlayerNumber info_panel_pos_to_player_number(int idx)
             continue;
 
         struct PlayerInfo* player = get_player(i);
-        if(player_exists(player))
+        if (player_exists(player) || player_is_seat(player)) {
             current_players_count++;
+        }
 
         if(idx == current_players_count)
           return i;
@@ -2276,8 +2278,9 @@ static unsigned char count_current_players_count()
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if(player_exists(player) && player_is_keeper(i))
+        if ((player_exists(player) || player_is_seat(player)) && player_is_keeper(i)) {
             current_players_count++;
+        }
     }
     return current_players_count;
 }
@@ -2350,45 +2353,15 @@ void maintain_prison_bar(struct GuiButton *gbtn)
     }
 }
 
-void maintain_room_button(struct GuiButton *gbtn)
+void maintain_player_info_button(struct GuiButton *gbtn)
 {
-    PlayerNumber plyr_idx = gbtn->content.lval;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    gbtn->sprite_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_room_red_std_a,plyr_idx);
-
-    if (player_exists(player))
-    {
-        gbtn->btype_value &= LbBFeF_IntValueMask;
-        gbtn->flags |= LbBtnF_Enabled;
-    } else
-    {
+    if (info_panel_pos_to_player_number(gbtn->content.lval) == -1) {
         gbtn->btype_value |= LbBFeF_NoMouseOver;
         gbtn->flags &= ~LbBtnF_Enabled;
         gbtn->tooltip_stridx = GUIStr_Empty;
-    }
-}
-void maintain_creature_button(struct GuiButton* gbtn)
-{
-    PlayerNumber plyr_idx = gbtn->content.lval;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player_exists(player))
-    {
-        if (player_has_heart(plyr_idx))
-        {
-            gbtn->sprite_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_a,plyr_idx);
-        }
-        else
-        {
-            gbtn->sprite_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_dead,plyr_idx);
-        }
+    } else {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
-    }
-    else
-    {
-        gbtn->btype_value |= LbBFeF_NoMouseOver;
-        gbtn->flags &= ~LbBtnF_Enabled;
-        gbtn->tooltip_stridx = GUIStr_Empty;
     }
 }
 
@@ -2530,9 +2503,11 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
     struct PlayerInfo* player = get_player(plyr_idx);
     draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up, plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    if (player_exists(player) && !dungeon_invalid(dungeon))
-    {
-        unsigned long spr_idx = get_player_colored_icon_idx(player_has_heart(plyr_idx) ? GPS_plyrsym_symbol_player_red_std_a : GPS_plyrsym_symbol_player_red_dead, plyr_idx);
+    if (!dungeon_invalid(dungeon)) {
+        int32_t spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_dead, plyr_idx);
+        if (player_has_heart(plyr_idx) && (player->victory_state != VicS_LostLevel)) {
+            spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_a, plyr_idx);
+        }
         if (((dungeon->num_active_creatrs < dungeon->max_creatures_attracted) && (!game.pool.is_empty))
             || ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
         {
@@ -2563,8 +2538,7 @@ void gui_area_player_room_info(struct GuiButton *gbtn)
     draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up, plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
 
-    if (player_exists(player) && !dungeon_invalid(dungeon))
-    {
+    if (!dungeon_invalid(dungeon)) {
         draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_plyrsym_symbol_room_red_std_a, plyr_idx);
         long i = dungeon->total_rooms;
         char text[16];

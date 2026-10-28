@@ -614,8 +614,6 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
     // TODO: if we add reconnect, remember to undo this
     setup_a_computer_player(player->id_number, get_random_skirmish_computer_model());
     toggle_computer_player(player->id_number);
-    message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
-    JUSTLOG("p:%d computer took over", player->id_number);
 }
 
 // used when ending a netplay game or recording.
@@ -773,6 +771,9 @@ static void abandon_network_player(struct PlayerInfo *player, const char *announ
     resolve_placeholders();
     if (player->victory_state != VicS_Undecided) {
         player->allocflags &= ~PlaF_Allocated;
+    } else if (player_is_placeholder(player)) {
+        message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
+        JUSTLOG("p:%d computer took over", player->id_number);
     }
 }
 
@@ -824,7 +825,7 @@ void process_user_leave_game_packet(NetUserId user)
         struct PlayerInfo *player = get_player(get_net_user_player_number(user));
         forget_user(user);
         if (player_exists(player) && get_player_primary_user(player) < 0) {
-            player->allocflags &= ~PlaF_Allocated;
+            player->allocflags &= ~(PlaF_Allocated | PlaF_Seat);
         }
         return;
     }
