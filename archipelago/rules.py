@@ -270,7 +270,7 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
     location_rules["Recipe Chicken Creatures"] = Has("Chicken creatures Recipe") & (can_get_bile | HasAll("Level 4", "Recipe Bile Demon") | CanReachLocation("Recipe Bile Demon")) & can_access_temple
     #location_rules[Recipe Good Skeleton] = Has("Good Skeleton Recipe") #& Skeleton locations
     location_rules["Recipe Tentacle"] = Has("Tentacle Recipe") & ((Has("Attract Troll") & can_get_spider) | (Has("Attract Spider") & can_get_troll)) & can_access_temple
-    location_rules["Recipe Hellhound"] = Has("Hound Recipe") & (Has("Level 10") | HasAll("Attract Dragon", can_get_fly) | (Has("Attract Fly") & can_get_dragon)) & can_access_temple
+    location_rules["Recipe Hellhound"] = Has("Hound Recipe") & (Has("Level 10") | ((Has("Attract Dragon") & can_get_fly) | (Has("Attract Fly") & can_get_dragon))) & can_access_temple
     location_rules["Recipe Speed"] = Has("Speed Creatures Recipe") & ((Has("Attract Hellhound") & can_get_fly) | (Has("Attract Fly") & HasAny("Level 8", "Attract Hellhound")) | (CanReachLocation("Recipe Recipe Hellhound") & can_get_fly)) & can_access_temple
     location_rules["Recipe Conceal"] = Has("Conceal Creatures Recipe") & ((Has("Attract Troll") & can_get_fly) | (Has("Attract Fly") & can_get_troll)) & can_access_temple
     location_rules["Recipe Heal"] = HasAll("Attract Orc", "Heal Creatures Recipe") & can_get_spider & can_access_temple
