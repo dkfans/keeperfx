@@ -232,12 +232,12 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         gui_set_button_flashing(0, 0);
     if (get_player_view_type(player) == PVT_CreatureContrl)
     {
-        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(get_player_user_state(player)->controlled_thing_idx);
         leave_creature_as_controller(player, thing);
     }
     else if (get_player_view_type(player) == PVT_CreaturePasngr)
     {
-        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(get_player_user_state(player)->controlled_thing_idx);
         leave_creature_as_passenger(player, thing);
     }
     else
@@ -944,7 +944,7 @@ int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y)
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
     {
-        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(get_user_state(user)->controlled_thing_idx);
         if (thing_exists(thing))
         {
             *x = thing->mappos.x.val;
@@ -1249,7 +1249,7 @@ void process_player_states(void)
         {
             if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
             {
-                struct Thing* thing = thing_get(player->controlled_thing_idx);
+                struct Thing* thing = thing_get(ustate->controlled_thing_idx);
                 if (thing_exists(thing)) {
                     get_player_user_state(player)->dungeon_camera.x = thing->mappos.x.val;
                     get_player_user_state(player)->dungeon_camera.y = thing->mappos.y.val;
@@ -1258,7 +1258,7 @@ void process_player_states(void)
             }
             else if (get_player_view_type(player) == PVT_CreatureContrl || get_player_view_type(player) == PVT_CreaturePasngr)
             {
-                struct Thing* thing = thing_get(player->controlled_thing_idx);
+                struct Thing* thing = thing_get(ustate->controlled_thing_idx);
                 if (thing_exists(thing)) {
                     ustate->dungeon_camera.x = thing->mappos.x.val;
                     ustate->dungeon_camera.y = thing->mappos.y.val;

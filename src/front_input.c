@@ -1149,25 +1149,25 @@ static TbBool get_level_lost_inputs(void)
         break;
       case PVT_CreatureContrl:
       {
-          struct Thing* thing = thing_get(player->controlled_thing_idx);
+          struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
           TRACE_THING(thing);
           if (thing->class_id == TCls_Creature)
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               if ((cctrl->creature_state_flags & TF2_Spectator) == 0)
               {
-                  set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+                  set_players_packet_action(player, PckA_DirectCtrlExit, get_local_user_state()->controlled_thing_idx, 0, 0, 0);
                   inp_done = true;
               }
           } else
         {
-          set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx,0,0,0);
+          set_players_packet_action(player, PckA_DirectCtrlExit, get_local_user_state()->controlled_thing_idx,0,0,0);
           inp_done = true;
         }
         break;
       }
       case PVT_CreaturePasngr:
-        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        set_players_packet_action(player, PckA_PasngrCtrlExit, get_local_user_state()->controlled_thing_idx,0,0,0);
         break;
       case PVT_MapScreen:
         if (menu_is_active(GMnu_SPELL_LOST))
@@ -1363,7 +1363,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     {
         if ( (ustate->continue_work_state == PSt_CreatrQuery) || (ustate->continue_work_state == PSt_QueryAll) )
         {
-            struct Thing *creatng = thing_get(player->controlled_thing_idx);
+            struct Thing *creatng = thing_get(get_local_user_state()->controlled_thing_idx);
             if (thing_is_creature(creatng))
             {
                 if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
@@ -1498,9 +1498,9 @@ static short get_creature_passenger_action_inputs(void)
         return 1;
     if (((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
         get_gui_inputs(1);
-    if (player->controlled_thing_idx == 0)
+    if (get_local_user_state()->controlled_thing_idx == 0)
         return false;
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(thing);
     if (thing_is_creature(thing))
     {
@@ -1575,12 +1575,12 @@ static short get_creature_passenger_action_inputs(void)
     }
     if (right_button_released)
     {
-        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+        set_players_packet_action(player, PckA_PasngrCtrlExit, get_local_user_state()->controlled_thing_idx, 0, 0, 0);
         return true;
     }
-    if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
+    if (!thing_exists(thing) || (get_local_user_state()->controlled_thing_creatrn != thing->creation_turn))
     {
-        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        set_players_packet_action(player, PckA_PasngrCtrlExit, get_local_user_state()->controlled_thing_idx,0,0,0);
         return true;
     }
     return false;
@@ -1667,14 +1667,14 @@ static short get_creature_control_action_inputs(void)
             toggle_creature_cheat_menu();
         }
     }
-    if (player->controlled_thing_idx != 0)
+    if (get_local_user_state()->controlled_thing_idx != 0)
     {
         short make_packet = right_button_released;
-        struct Thing* thing = thing_get(player->controlled_thing_idx);
+        struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
         if (!make_packet)
         {
             TRACE_THING(thing);
-            if ((player->controlled_thing_creatrn != thing->creation_turn) || (!flag_is_set(thing->alloc_flags, TAlF_Exists)) || (thing->active_state == CrSt_CreatureUnconscious))
+            if ((get_local_user_state()->controlled_thing_creatrn != thing->creation_turn) || (!flag_is_set(thing->alloc_flags, TAlF_Exists)) || (thing->active_state == CrSt_CreatureUnconscious))
             {
                 make_packet = true;
             }
@@ -1688,12 +1688,12 @@ static short get_creature_control_action_inputs(void)
             }
             else
             {
-                set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+                set_players_packet_action(player, PckA_DirectCtrlExit, get_local_user_state()->controlled_thing_idx, 0, 0, 0);
             }
         }
     }
     // Use the Query/Message keys and mouse wheel to scroll through query pages and go to correct query page when selecting an instance.
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     if (!thing_is_creature(thing))
     {
         return false;
@@ -1920,7 +1920,7 @@ static short get_creature_control_action_inputs(void)
             set_players_packet_action(player, PckA_SwitchTeleportDest, 19, 0, 0, 0); // default behaviour
             StrID = GUIStr_Lair;
         }
-        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        struct Thing* creatng = thing_get(get_local_user_state()->controlled_thing_idx);
         if ( (StrID != 0) && (creature_instance_is_available(creatng, CrInst_TELEPORT)) )
         {
             if (game.active_messages_count > 0)
@@ -2018,7 +2018,7 @@ static short get_creature_control_action_inputs(void)
             int num_avail = 0;
             for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
             {
-                struct Thing* cthing = thing_get(player->controlled_thing_idx);
+                struct Thing* cthing = thing_get(get_local_user_state()->controlled_thing_idx);
                 TRACE_THING(cthing);
                 struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cthing);
                 int inst_id = crconf->learned_instance_id[idx];
@@ -2037,7 +2037,7 @@ static short get_creature_control_action_inputs(void)
         // Next/Previous instance switching
         if (menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2))
         {
-            struct Thing* cthing = thing_get(player->controlled_thing_idx);
+            struct Thing* cthing = thing_get(get_local_user_state()->controlled_thing_idx);
                 
             if (is_game_key_pressed(Gkey_NextInstance, true, false))
             {
@@ -2556,7 +2556,7 @@ static void get_dungeon_control_nonaction_inputs(void)
             }
             case PSt_OrderCreatr:
             {
-                if ( (player->controlled_thing_idx == 0) || (ustate->thing_under_hand == player->controlled_thing_idx) )
+                if ( (get_local_user_state()->controlled_thing_idx == 0) || (ustate->thing_under_hand == get_local_user_state()->controlled_thing_idx) )
                 {
                     local_state.local_thing_under_hand = ustate->thing_under_hand;
                 }
@@ -2764,7 +2764,6 @@ static TbBool get_packet_load_demo_inputs(void)
 
 static void get_creature_control_nonaction_inputs(void)
 {
-    struct PlayerInfo* player = get_my_player();
     if ((get_local_user_state()->init_flags & UsrIF_CreaturePassengerMode) != 0)
     {
         return;
@@ -2772,7 +2771,7 @@ static void get_creature_control_nonaction_inputs(void)
     struct Packet* pckt = get_local_packet();
     long x = GetMouseX();
     long y = GetMouseY();
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(thing);
     TbBool cheat_menu_active = cheat_menu_is_active();
     if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y))
@@ -2890,7 +2889,7 @@ static void get_player_gui_clicks(void)
   case PVT_CreaturePasngr:
       if (right_button_released)
       {
-        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(get_local_user_state()->controlled_thing_idx);
         if (thing->class_id == TCls_Creature)
         {
           if (a_menu_window_is_active())
@@ -3027,7 +3026,7 @@ static short get_inputs(void)
     {
         SYNCDBG(5,"Starting for creature or map fade");
         // Store the creature's facing so possession does not send 0,0 and turn it north.
-        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(get_local_user_state()->controlled_thing_idx);
         if ((get_local_view_type(player) == PVT_CreatureContrl) && thing_exists(thing))
             set_players_packet_position(get_local_packet(), thing->move_angle_xy, thing->move_angle_z, 0);
         else
@@ -3063,7 +3062,7 @@ static short get_inputs(void)
             get_level_lost_inputs();
             return true;
         }
-        struct Thing* thing = thing_get(player->controlled_thing_idx);
+        struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
         TRACE_THING(thing);
         if (!thing_is_creature(thing))
         {

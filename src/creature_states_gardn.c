@@ -154,7 +154,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         }
     }
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    if (thing_is_invalid(near_food_tng) || is_thing_directly_controlled(near_food_tng) || is_thing_passenger_controlled(near_food_tng))
+    if (thing_is_invalid(near_food_tng) || user_controls_thing(ANY_USER, near_food_tng, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom))
     {
         RoomRole job_rrole = get_room_role_for_job(Job_TAKE_FEED);
         // Warn about no food in this room

@@ -376,7 +376,7 @@ static void draw_overlay_creature(struct Thing *thing, const struct MinimapOverl
             panel_map_draw_creature_dot(x, y - offset, col2, ov->basic_zoom, ov->is_low_res);
             panel_map_draw_creature_dot(x, y, 31, ov->basic_zoom, ov->is_low_res);
         } else
-        if ((is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)))
+        if (user_controls_thing(get_displayed_user(), thing, UCT_Direct | UCT_Passenger | UCT_Other))
         {
             draw_overlay_possessed_thing(ov, x, y, col2);
         } else

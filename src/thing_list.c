@@ -3401,7 +3401,7 @@ TbBool update_thing(struct Thing *thing)
         }
     }
     if (falling && (thing->mappos.z.val <= -subtile_coord(ABYSS_DEPTH, 0))) {
-        if (thing_is_creature(thing)) 
+        if (thing_is_creature(thing))
         {
             lua_on_creature_fell_into_abyss(thing);
             if (!flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
@@ -3598,7 +3598,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
             return ((hit_targets & HitTF_AlliedSoulContainer) != 0);
         }
         if (object_is_growing_food(thing) ||
-           (object_is_mature_food(thing) && !is_thing_directly_controlled(thing) && !is_thing_passenger_controlled(thing)))
+           (object_is_mature_food(thing) && !user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom) && !user_controls_thing(ANY_USER, thing, UCT_Passenger | UCT_PossessionEntryZoom)))
         {
             return ((hit_targets & HitTF_AnyFoodObjects) != 0);
         }
@@ -4241,7 +4241,7 @@ long switch_owned_objects_on_destoyed_slab_to_neutral(MapSlabCoord slb_x, MapSla
 
 TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
 {
-    if (!is_thing_some_way_controlled(thing) && !creature_is_dying(thing))
+    if (!user_controls_thing(ANY_USER, thing, UCT_Selected) && !creature_is_dying(thing))
     {
         if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
@@ -4328,7 +4328,7 @@ unsigned short setup_excess_creatures_to_leave_or_die(short max_remain)
             cleanup_creature_state_and_interactions(thing);
             force_any_creature_dragging_thing_to_drop_it(thing);
 
-            if (is_thing_some_way_controlled(thing) || thing_is_picked_up(thing))
+            if (user_controls_thing(ANY_USER, thing, UCT_Selected) || thing_is_picked_up(thing))
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_Default);
             }

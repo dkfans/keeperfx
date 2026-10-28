@@ -149,7 +149,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
         toggle_status_menu(0);
         turn_off_roaming_menus();
     }
-    set_selected_creature(player, thing);
+    set_selected_creature(get_player_user_state(player), thing);
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
