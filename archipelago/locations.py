@@ -405,8 +405,13 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
     )
     skybirdtrill.add_locations(skybirdtrill_locations, DungeonKeeperLocation)
 
+    if world.options.temple_locations:
+        create_temple_locations(world)
+
     if world.options.secret_levels:
         create_secret_locations(world)
+
+def create_temple_locations(world: DungeonKeeperWorld) -> None:
 
     temple = world.get_region("Temple")
     temple_locations = get_location_names_with_ids(
@@ -415,7 +420,7 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
          "Recipe Tentacle", "Recipe Hellhound", "Recipe Speed", "Recipe Conceal", "Recipe Heal", "Recipe Rebound", "Recipe Protect", "Recipe Flight", "Recipe Freeze", "Recipe Slow"]
     )
     temple.add_locations(temple_locations, DungeonKeeperLocation)
-    
+
 def create_secret_locations(world: DungeonKeeperWorld) -> None:
         
     secret1 = world.get_region("Secret 1")
