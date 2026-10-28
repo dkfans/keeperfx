@@ -219,6 +219,7 @@ LOCATION_NAME_TO_ID = {
     "Recipe Flight":11019,
     "Recipe Freeze":11020,
     "Recipe Slow":11021,
+    #"Recipe Good Skeleton"
 
     #Other checks you can do anywhere
 

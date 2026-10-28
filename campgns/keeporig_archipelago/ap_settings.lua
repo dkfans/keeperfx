@@ -67,7 +67,7 @@ else
     if APSettings.ShuffleTilesets then --TODO: Change this when the AP populates this information.
         APSettings.SwappedTileset = math.random(0,13)
     end
-    print("ShuffleTilesets:          " .. tostring(APSettings.ShuffleTilesets .. "(" .. APSettings.SwappedTileset .. ")"))
+    print("ShuffleTilesets:          " .. tostring(APSettings.ShuffleTilesets) .. "(" .. tostring(APSettings.SwappedTileset) .. ")")
     if slot_data.ChangePlayerColour >= 8 then
         APSettings.ChangePlayerColour = math.random(0,7)
     elseif slot_data.ChangePlayerColour < 0 then
