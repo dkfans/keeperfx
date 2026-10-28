@@ -42,6 +42,9 @@ int SwapWaterAndLava;
 int RemoveNeutralRooms;
 int CrueltyMode;
 int SecretLevels;
+int TempleRecipes;
+int PositiveRecipes;
+int FlatTempleGuardPost;
 };
 struct APState
 {

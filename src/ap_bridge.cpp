@@ -84,6 +84,9 @@ RedirectStdoutToFile();
     AP_RegisterSlotDataIntCallback("RemoveNeutralRooms",       OnRemoveNeutralRooms);
     AP_RegisterSlotDataIntCallback("CrueltyMode",              OnCrueltyMode);
     AP_RegisterSlotDataIntCallback("SecretLevels",             OnSecretLevels);
+    AP_RegisterSlotDataIntCallback("temple_locations",            OnTempleRecipes);
+    AP_RegisterSlotDataIntCallback("PositiveRecipes",          OnPositiveRecipes);
+    AP_RegisterSlotDataIntCallback("FlatTempleGuardPost",      OnFlatTempleGuardPost);
 
     ap_location_info_init();    
     ap_state_init(&g_ap_state);
@@ -257,6 +260,9 @@ void OnSwapWaterAndLava(int val)    { g_ap_state.slot_data.SwapWaterAndLava = va
 void OnRemoveNeutralRooms(int val)    { g_ap_state.slot_data.RemoveNeutralRooms = val; }
 void OnCrueltyMode(int val)    { g_ap_state.slot_data.CrueltyMode = val; }
 void OnSecretLevels(int val)    { g_ap_state.slot_data.SecretLevels = val; }
+void OnTempleRecipes(int val)    { g_ap_state.slot_data.TempleRecipes = val; }
+void OnPositiveRecipes(int val)    { g_ap_state.slot_data.PositiveRecipes = val;}
+void OnFlatTempleGuardPost(int val)    { g_ap_state.slot_data.FlatTempleGuardPost = val; }
 
 // Functions below are run through the C compiler so that lua/console can call them
 

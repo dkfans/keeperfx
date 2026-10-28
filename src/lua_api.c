@@ -277,9 +277,6 @@ static int lua_ap_get_slot_data(lua_State *L)
     lua_pushinteger(L, slot_data.KeeperFXTraps);
     lua_setfield(L, -2, "KeeperFXTraps");
 
-    lua_pushinteger(L, slot_data.PositiveRecipes);
-    lua_setfield(L, -2, "PositiveRecipes");
-
     lua_pushinteger(L, slot_data.NegativeRecipes);
     lua_setfield(L, -2, "NegativeRecipes");
 
@@ -328,8 +325,11 @@ static int lua_ap_get_slot_data(lua_State *L)
     lua_pushinteger(L, slot_data.FlatTempleGuardPost);
     lua_setfield(L, -2, "FlatTempleGuardPost");
 
-    lua_pushinteger(L, slot_data.temple_locations);
-    lua_setfield(L, -2, "temple_locations");
+    lua_pushinteger(L, slot_data.TempleRecipes);
+    lua_setfield(L, -2, "TempleRecipes");
+
+    lua_pushinteger(L, slot_data.PositiveRecipes);
+    lua_setfield(L, -2, "PositiveRecipes");
 
     return 1;
 }
