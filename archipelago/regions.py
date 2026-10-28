@@ -45,7 +45,8 @@ def create_all_regions(world: DungeonKeeperWorld) -> None:
     blaiseend = Region("Blaise End", world.player, world.multiworld)
     mistle = Region("Mistle", world.player, world.multiworld)
     skybirdtrill = Region("Skybird Trill", world.player, world.multiworld)
-    temple = Region("Temple", world.player, world.multiworld)
+    if world.option.temple_locations:
+        temple = Region("Temple", world.player, world.multiworld)
     if world.options.secret_levels:
         secret1 = Region("Secret 1", world.player, world.multiworld)
         secret2 = Region("Secret 2", world.player, world.multiworld)
@@ -58,9 +59,12 @@ def create_all_regions(world: DungeonKeeperWorld) -> None:
 
 
     # Let's put all these regions in a list.
-    regions = [overworld, eversmile, cosyton, waterdreamwarm, flowerhat, lushmeadow, snuggledell, wishvale, tickle, moonbrushwood, nevergrim, hearth, elfsdance, buffyoak, sleepiburgh, woodlyrhyme, tulipscent, mirthshire, blaiseend, mistle, skybirdtrill, temple]
+    regions = [overworld, eversmile, cosyton, waterdreamwarm, flowerhat, lushmeadow, snuggledell, wishvale, tickle, moonbrushwood, nevergrim, hearth, elfsdance, buffyoak, sleepiburgh, woodlyrhyme, tulipscent, mirthshire, blaiseend, mistle, skybirdtrill]
+    if world.options.temple_locations:
+        regions += [temple]
     if world.options.secret_levels:
         regions += [secret1, secret2, secret3, secret4, secret5, secret6]
+
     # Some regions may only exist if the player enables certain options.
     # In our case, the Hammer locks the top middle chest in its own room if the hammer option is enabled.
 
@@ -96,8 +100,6 @@ def connect_regions(world: DungeonKeeperWorld) -> None:
     mistle = world.get_region("Mistle")
     skybirdtrill = world.get_region("Skybird Trill")
 
-
-    temple = world.get_region("Temple")
     # Okay, now we can get connecting. For this, we need to create Entrances.
     # Entrances are inherently one-way, but crucially, AP assumes you can always return to the origin region.
     # One way to create an Entrance is by calling the Entrance constructor.
@@ -122,7 +124,9 @@ def connect_regions(world: DungeonKeeperWorld) -> None:
     overworld.connect(mistle, "Overworld to Mistle", lambda state: state.has("Level 19", world.player))
     overworld.connect(skybirdtrill, "Overworld to Skybird Trill", lambda state: state.has("Level 20", world.player) & (state.count("Progressive Level Cap", world.player) >= 5) & state.has_group("Creatures", world.player, count=10))
 
-    overworld.connect(temple, "Overworld to Temple", lambda state: state.has_all({"Temple", "Library"}, world.player))
+    if world.options.temple_locations:
+        temple = world.get_region("Temple")
+        overworld.connect(temple, "Overworld to Temple", lambda state: state.has_all({"Temple", "Library"}, world.player))
 
     if world.options.secret_levels:
         secret1 = world.get_region("Secret 1")

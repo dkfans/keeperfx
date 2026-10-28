@@ -246,39 +246,40 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
 
 
 # temple recipes
-    can_access_temple = HasAny("Temple", "Level 9", "Level 10", "Level 20")
-    can_get_fly = HasAny("Attract Fly", "Level 10", "Level 20")
-    can_get_beetle = HasAny("Attract Beetle", "Level 20")
-    can_get_spider = HasAny("Attract Spider", "Level 4", "Level 5", "Level 18") #enough for 2 spiders
-    can_get_troll = HasAny("Attract Troll", "Level 9", "Level 11", "Level 14")
-    can_get_bile = HasAny("Attract Bile Demon", "Level 5", "Level 9", "Level 11", "Level 18")
-    can_get_mistress = HasAny("Attract Mistress", "Level 6", "Level 9")
-    can_get_dragon = HasAny("Attract Dragon", "Level 10", "Level 13", "Level 18") #18 might be awkward
-    can_get_demon_spawn = HasAny("Attract Demon Spawn", "Level 8", "Level 11")
-    can_get_vampire = HasAny("Attract Vampire", "Level 12", "Level 18", "Level 19") #18 might be awkward
+    if world.option.temple_locations:
+        can_access_temple = HasAny("Temple", "Level 9", "Level 10", "Level 20")
+        can_get_fly = HasAny("Attract Fly", "Level 10", "Level 20")
+        can_get_beetle = HasAny("Attract Beetle", "Level 20")
+        can_get_spider = HasAny("Attract Spider", "Level 4", "Level 5", "Level 18") #enough for 2 spiders
+        can_get_troll = HasAny("Attract Troll", "Level 9", "Level 11", "Level 14")
+        can_get_bile = HasAny("Attract Bile Demon", "Level 5", "Level 9", "Level 11", "Level 18")
+        can_get_mistress = HasAny("Attract Mistress", "Level 6", "Level 9")
+        can_get_dragon = HasAny("Attract Dragon", "Level 10", "Level 13", "Level 18") #18 might be awkward
+        can_get_demon_spawn = HasAny("Attract Demon Spawn", "Level 8", "Level 11")
+        can_get_vampire = HasAny("Attract Vampire", "Level 12", "Level 18", "Level 19") #18 might be awkward
 
-    location_rules["Recipe Cheaper Imps"] = HasAll("Create Imp","Cheaper Imps Recipe") & can_access_temple
-    location_rules["Recipe Complete Manufacturing"] = HasAll("Workshop","Complete Manufacturing Recipe") & can_get_beetle & can_access_temple
-    location_rules["Recipe Complete Research"] = HasAll("Library","Complete Research Recipe") & can_get_fly & can_access_temple
-    location_rules["Recipe Bile Demon"] = Has("Bile Demon Recipe") & HasAny("Attract Spider", "Level 4") & can_access_temple #not enough spiders in other levels
-    location_rules["Recipe Warlock"] = Has("Warlock Recipe") & ((Has("Attract Fly") & can_get_spider) | (Has("Attract Spider") & can_get_fly)) & can_access_temple
-    location_rules["Recipe Mistress"] = Has("Mistress Recipe") & ((Has("Attract Beetle") & can_get_spider) | (Has("Attract Spider") & can_get_beetle)) & can_access_temple
-    location_rules["Recipe Horned Reaper"] = Has("Horned Reaper Recipe") & (Has("Level 9") | (HasAll("Attract Mistress", "Attract Bile Demon") & can_get_troll) | (HasAll("Attract Mistress", "Attract Troll") & (can_get_bile | CanReachLocation("Recipe Bile Demon"))) | (HasAll("Attract Bile Demon", "Attract Troll") & (can_get_mistress | CanReachLocation("Recipe Mistress")))) & can_access_temple
-    location_rules["Recipe Make Angry"] = Has("All creatures angry Recipe") & (Has("Attract Horned Reaper") | CanReachLocation("Recipe Horned Reaper")) & can_access_temple
-    location_rules["Recipe Kill Chickens"] = HasAll("Hatchery", "All chickens die 1 Recipe") & (HasAny("Attract Ghost", "Level 15", "Level 19", "Torture Chamber") | HasAll("Level 6", "Bridge")) & can_access_temple
-    location_rules["Recipe Disease Creatures"] = Has("Disease creatures Recipe") & HasAny("Attract Vampire", "Graveyard", "Level 12", "Level 19") & can_access_temple
-    location_rules["Recipe Chicken Creatures"] = Has("Chicken creatures Recipe") & (can_get_bile | HasAll("Level 4", "Recipe Bile Demon") | CanReachLocation("Recipe Bile Demon")) & can_access_temple
-    #location_rules[Recipe Good Skeleton] = Has("Good Skeleton Recipe") #& Skeleton locations
-    location_rules["Recipe Tentacle"] = Has("Tentacle Recipe") & ((Has("Attract Troll") & can_get_spider) | (Has("Attract Spider") & can_get_troll)) & can_access_temple
-    location_rules["Recipe Hellhound"] = Has("Hound Recipe") & (Has("Level 10") | ((Has("Attract Dragon") & can_get_fly) | (Has("Attract Fly") & can_get_dragon))) & can_access_temple
-    location_rules["Recipe Speed"] = Has("Speed Creatures Recipe") & ((Has("Attract Hellhound") & can_get_fly) | (Has("Attract Fly") & HasAny("Level 8", "Attract Hellhound")) | (CanReachLocation("Recipe Recipe Hellhound") & can_get_fly)) & can_access_temple
-    location_rules["Recipe Conceal"] = Has("Conceal Creatures Recipe") & ((Has("Attract Troll") & can_get_fly) | (Has("Attract Fly") & can_get_troll)) & can_access_temple
-    location_rules["Recipe Heal"] = HasAll("Attract Orc", "Heal Creatures Recipe") & can_get_spider & can_access_temple
-    location_rules["Recipe Rebound"] = Has("Rebound Creatures Recipe") & ((Has("Attract Mistress") & can_get_beetle) | (Has("Attract Beetle") & can_get_mistress)) & can_access_temple
-    location_rules["Recipe Protect"] = Has("Protect Creatures Recipe") & ((Has("Attract Bile Demon") & can_get_beetle) | (Has("Attract Beetle") & can_get_bile)) & can_access_temple
-    location_rules["Recipe Flight"] = Has("Flight Creatures Recipe") & ((Has("Attract Fly") & can_get_demon_spawn) | (Has("Attract Demon Spawn") & can_get_fly)) & can_access_temple
-    location_rules["Recipe Freeze"] = Has("Freeze Creatures Recipe") & ((Has("Attract Vampire") & can_get_spider) | (Has("Attract Spider") & can_get_vampire)) & can_access_temple
-    location_rules["Recipe Slow"] = Has("Slow Creatures Recipe") & ((Has("Attract Vampire") & can_get_demon_spawn) | (Has("Attract Demon Spawn") & can_get_vampire)) & can_access_temple
+        location_rules["Recipe Cheaper Imps"] = HasAll("Create Imp","Cheaper Imps Recipe") & can_access_temple
+        location_rules["Recipe Complete Manufacturing"] = HasAll("Workshop","Complete Manufacturing Recipe") & can_get_beetle & can_access_temple
+        location_rules["Recipe Complete Research"] = HasAll("Library","Complete Research Recipe") & can_get_fly & can_access_temple
+        location_rules["Recipe Bile Demon"] = Has("Bile Demon Recipe") & HasAny("Attract Spider", "Level 4") & can_access_temple #not enough spiders in other levels
+        location_rules["Recipe Warlock"] = Has("Warlock Recipe") & ((Has("Attract Fly") & can_get_spider) | (Has("Attract Spider") & can_get_fly)) & can_access_temple
+        location_rules["Recipe Mistress"] = Has("Mistress Recipe") & ((Has("Attract Beetle") & can_get_spider) | (Has("Attract Spider") & can_get_beetle)) & can_access_temple
+        location_rules["Recipe Horned Reaper"] = Has("Horned Reaper Recipe") & (Has("Level 9") | (HasAll("Attract Mistress", "Attract Bile Demon") & can_get_troll) | (HasAll("Attract Mistress", "Attract Troll") & (can_get_bile | CanReachLocation("Recipe Bile Demon"))) | (HasAll("Attract Bile Demon", "Attract Troll") & (can_get_mistress | CanReachLocation("Recipe Mistress")))) & can_access_temple
+        location_rules["Recipe Make Angry"] = Has("All creatures angry Recipe") & (Has("Attract Horned Reaper") | CanReachLocation("Recipe Horned Reaper")) & can_access_temple
+        location_rules["Recipe Kill Chickens"] = HasAll("Hatchery", "All chickens die 1 Recipe") & (HasAny("Attract Ghost", "Level 15", "Level 19", "Torture Chamber") | HasAll("Level 6", "Bridge")) & can_access_temple
+        location_rules["Recipe Disease Creatures"] = Has("Disease creatures Recipe") & HasAny("Attract Vampire", "Graveyard", "Level 12", "Level 19") & can_access_temple
+        location_rules["Recipe Chicken Creatures"] = Has("Chicken creatures Recipe") & (can_get_bile | HasAll("Level 4", "Recipe Bile Demon") | CanReachLocation("Recipe Bile Demon")) & can_access_temple
+        #location_rules[Recipe Good Skeleton] = Has("Good Skeleton Recipe") #& Skeleton locations
+        location_rules["Recipe Tentacle"] = Has("Tentacle Recipe") & ((Has("Attract Troll") & can_get_spider) | (Has("Attract Spider") & can_get_troll)) & can_access_temple
+        location_rules["Recipe Hellhound"] = Has("Hound Recipe") & (Has("Level 10") | ((Has("Attract Dragon") & can_get_fly) | (Has("Attract Fly") & can_get_dragon))) & can_access_temple
+        location_rules["Recipe Speed"] = Has("Speed Creatures Recipe") & ((Has("Attract Hellhound") & can_get_fly) | (Has("Attract Fly") & HasAny("Level 8", "Attract Hellhound")) | (CanReachLocation("Recipe Recipe Hellhound") & can_get_fly)) & can_access_temple
+        location_rules["Recipe Conceal"] = Has("Conceal Creatures Recipe") & ((Has("Attract Troll") & can_get_fly) | (Has("Attract Fly") & can_get_troll)) & can_access_temple
+        location_rules["Recipe Heal"] = HasAll("Attract Orc", "Heal Creatures Recipe") & can_get_spider & can_access_temple
+        location_rules["Recipe Rebound"] = Has("Rebound Creatures Recipe") & ((Has("Attract Mistress") & can_get_beetle) | (Has("Attract Beetle") & can_get_mistress)) & can_access_temple
+        location_rules["Recipe Protect"] = Has("Protect Creatures Recipe") & ((Has("Attract Bile Demon") & can_get_beetle) | (Has("Attract Beetle") & can_get_bile)) & can_access_temple
+        location_rules["Recipe Flight"] = Has("Flight Creatures Recipe") & ((Has("Attract Fly") & can_get_demon_spawn) | (Has("Attract Demon Spawn") & can_get_fly)) & can_access_temple
+        location_rules["Recipe Freeze"] = Has("Freeze Creatures Recipe") & ((Has("Attract Vampire") & can_get_spider) | (Has("Attract Spider") & can_get_vampire)) & can_access_temple
+        location_rules["Recipe Slow"] = Has("Slow Creatures Recipe") & ((Has("Attract Vampire") & can_get_demon_spawn) | (Has("Attract Demon Spawn") & can_get_vampire)) & can_access_temple
 
     for location_name, rule_logic in location_rules.items():
         try:
