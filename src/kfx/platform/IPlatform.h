@@ -73,7 +73,7 @@ public:
     virtual void LogDisplayDiagnostics(SDL_Window* /*window*/) {}
 
 private:
-    constexpr size_t kScratchMemorySize = 4 * 1024 * 1024;
+    static constexpr size_t kScratchMemorySize = 4 * 1024 * 1024;
 };
 
 /** The platform implementation selected for this build target. */
