@@ -258,7 +258,7 @@ function ItemStatus()
     --Doors
     local door_id_max = 4
     if APSettings.KeeperFXDoors then door_id_max = 6 end
-    for itemid=301, 300 + id_width_limit do
+    for itemid=301, 300 + door_id_max do
         local item_subtile_x = 145 + 12*(itemid % 100)
         local item_subtile_y = 274
         if itemid <= door_id_max then

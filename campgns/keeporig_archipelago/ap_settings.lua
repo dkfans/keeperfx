@@ -48,7 +48,7 @@ else
     APSettings.KeeperFXDoors = IsValueTrue(slot_data.KeeperFXDoors)
     print("KeeperFXDoors:            " .. tostring(APSettings.KeeperFXDoors) .. " (" .. tostring(slot_data.KeeperFXDoors) .. ")")
     APSettings.temple_locations = IsValueTrue(slot_data.temple_locations)
-    print("temple_locations:          " .. tostring(APSettings.temple_locations) .. " (" .. tostring(slot_data.temple_locations) .. ")")
+    print("temple_locations:         " .. tostring(APSettings.temple_locations) .. " (" .. tostring(slot_data.temple_locations) .. ")")
     APSettings.PositiveRecipes = IsValueTrue(slot_data.PositiveRecipes)
     print("PositiveRecipes:          " .. tostring(APSettings.PositiveRecipes) .. " (" .. tostring(slot_data.PositiveRecipes) .. ")")
     APSettings.NegativeRecipes = IsValueTrue(slot_data.NegativeRecipes)
