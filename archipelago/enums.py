@@ -323,7 +323,7 @@ class KeeperProgressiveName(StrEnum):
         PROGRESSIVE_CREATURE_LIMIT = "Progressive Creature Limit" #Increase creature limit by 5 (starts at max 10)
         PROGRESSIVE_STARTING_GOLD = "Progressive Starting Gold" #Increase starting gold by 1250 (starts at 2500)
         PROGRESSIVE_PORTAL_SPEED = "Progressive Portal Speed" #Increases Portal speed (decreases wait) by 125 (starts at 750)
-
+        PROGRESSIVE_HAND_SIZE = "Progressive Hand Size" #Increases Hand size by 2 (starts at 4)
 #    #Others e.g. progressive starting imps number/level, progressive auto-researched (e.g. at 1, bridge/guardpost and SOE are unlocked, at 2, workshop and speed are unlocked and so on (IF THOSE ARE UNLOCKED)),
 #    #progressive auto-manufacturing (at 1, you get an alarm/gas trap and wooden door at start, at 2 you get a lightning trap and braced door, at 3 you get WOP trap and iron door, at 4 you get lava/boulder and magic door (IF THOSE ARE UNLOCKED))
 #       progressive hand size (e.g. start with hand size of 4 (default 8), up to 16)
@@ -332,6 +332,7 @@ class KeeperProgressive(IntEnum):
         PROGRESSIVE_CREATURE_LIMIT = 702 #Increase creature limit by 5 (starts at max 10)
         PROGRESSIVE_STARTING_GOLD = 703 #Increase starting gold by 1250 (starts at 2500)
         PROGRESSIVE_PORTAL_SPEED = 704 #Increases Portal speed (decreases wait) by 125 (starts at 750)
+        PROGRESSIVE_HAND_SIZE = 705
 
 class KeeperHeroName(StrEnum):
         THIEF = "Attract Thief"
@@ -385,11 +386,20 @@ class KeeperFillerName(StrEnum):
         FILLER_INCREASE_LEVEL = "Increase Level"
         FILLER_MULTIPLY_CREATURES = "Multiply Creatures"
         FILLER_MAKE_SAFE = "Make Safe"
-
+        FILLER_STEAL_HERO = "Steal Hero"
+        FILLER_REVEAL_MAP = "Reveal Map"
+        FILLER_RECEIVE_GOLD = "Receive Gold"
+        FILLER_RECEIVE_IMPS = "Receive Imps"
+    
 class KeeperFiller(IntEnum):
         FILLER_INCREASE_LEVEL = 901
         FILLER_MULTIPLY_CREATURES = 902
         FILLER_MAKE_SAFE = 903
+        FILLER_STEAL_HERO = 904
+        FILLER_REVEAL_MAP = 905
+        FILLER_RECEIVE_GOLD = 906
+        FILLER_RECEIVE_IMPS = 907
+
 
 #    #---------------------------------------------------------
 #    #Filler

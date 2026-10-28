@@ -290,6 +290,7 @@ class DungeonKeeperWorld(World):
             "RemoveNeutralRooms": self.options.remove_neutral_rooms.value,
             "CrueltyMode": self.options.cruelty_mode.value,
             "SecretLevels": self.options.secret_levels.value,
+            "FlatTempleGuardPost": self.options.FlatTempleGuardPost.value,
         }
     
 
