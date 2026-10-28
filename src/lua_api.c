@@ -1342,6 +1342,7 @@ static int lua_Copy_creature_type(lua_State* L)
 static int lua_Set_door_configuration(lua_State *L)
 {
     set_configuration(L, &trapdoor_door_named_fields_set, "SET_DOOR_CONFIGURATION");
+    create_manufacture_array_from_trapdoor_data();
     return 0;
 }
 
@@ -1356,6 +1357,7 @@ static int lua_Set_object_configuration(lua_State *L)
 static int lua_Set_trap_configuration(lua_State *L)
 {
     set_configuration(L, &trapdoor_trap_named_fields_set, "SET_TRAP_CONFIGURATION");
+    create_manufacture_array_from_trapdoor_data();
     return 0;
 }
 
@@ -1375,6 +1377,7 @@ static int lua_Set_effect_generator_configuration(lua_State *L)
 static int lua_Set_room_configuration(lua_State *L)
 {
     set_configuration(L, &terrain_room_named_fields_set, "SET_ROOM_CONFIGURATION");
+    update_room_tab_to_config();
     return 0;
 }
 
