@@ -47,6 +47,9 @@ function(apply_keeperfx_warnings TARGET)
             -Wno-format-truncation -Wno-sign-compare
             -g -O3 -march=x86-64
             $<$<COMPILE_LANGUAGE:C>:-Wno-absolute-value>)
+        if(KEEPERFX_TSAN)
+            target_compile_options(${TARGET} PRIVATE -fsanitize=thread)
+        endif()
     endif()
 endfunction()
 
@@ -71,6 +74,9 @@ function(apply_keeperfx_link_flags TARGET)
         target_link_libraries(${TARGET} PUBLIC -static stdc++ winpthread -dynamic)
     else()
         target_link_options(${TARGET} PRIVATE -g -rdynamic)
+        if(KEEPERFX_TSAN)
+            target_link_options(${TARGET} PRIVATE -fsanitize=thread)
+        endif()
     endif()
 endfunction()
 
