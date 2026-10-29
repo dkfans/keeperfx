@@ -1067,7 +1067,9 @@ void clear_game_for_summary(void)
     clear_columns();
     clear_action_points();
     clear_players();
-    clear_dungeons();
+    clear_dungeons();    
+    memset(game.script_variables, 0, sizeof(game.script_variables));
+    game.active_script_var_count = 0;
 }
 
 void clear_game(void)
