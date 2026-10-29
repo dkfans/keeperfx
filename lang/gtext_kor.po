@@ -7426,7 +7426,7 @@ msgstr "최대 인원"
 #: guitext:1134
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow observers"
+msgid "Allow spectators"
 msgstr "관전 허용"
 
 #: guitext:1135
@@ -7583,3 +7583,33 @@ msgstr "%s 님의 연결이 끊어졌습니다 (시간 초과)."
 msgctxt "Network game message"
 msgid "%s has become a spectator."
 msgstr "%s 님이 관전자가 되었습니다."
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Team"
+msgstr "팀"
+
+#: guitext:1162
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Ping"
+msgstr "핑"
+
+#: guitext:1163
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Add computer players"
+msgstr "컴퓨터 플레이어 추가"
+
+#: guitext:1164
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow cheats"
+msgstr "치트 허용"
+
+#: guitext:1165
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow computer assistant"
+msgstr "컴퓨터 보조 허용"

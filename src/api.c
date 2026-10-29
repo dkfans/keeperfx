@@ -1338,8 +1338,9 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         // Execute console command
         MapCoord cursor_x;
         MapCoord cursor_y;
-        console_cmd_default_cursor(player_id, &cursor_x, &cursor_y);
-        if (cmd_exec(player_id, console_command, cursor_x, cursor_y))
+        console_cmd_default_cursor(get_player(player_id), &cursor_x, &cursor_y);
+        const enum ConsoleCommandResult result = cmd_exec(player_id, console_command, cursor_x, cursor_y, true);
+        if ((result == CmdR_Succeeded) || (result == CmdR_SucceededLocally))
         {
             api_ok(ack_id);
         }

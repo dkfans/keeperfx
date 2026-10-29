@@ -192,7 +192,7 @@ TbBool packets_process_cheats(
             ustate->thing_under_hand = 0;
         else
             ustate->thing_under_hand = thing->index;
-        thing = thing_get(player->controlled_thing_idx);
+        thing = thing_get(get_user_state(user)->controlled_thing_idx);
         if (thing_is_creature(thing))
         {
             ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
@@ -206,18 +206,18 @@ TbBool packets_process_cheats(
         {
           if (ustate->thing_under_hand > 0)
           {
-            if (player->controlled_thing_idx != ustate->thing_under_hand)
+            if (get_user_state(user)->controlled_thing_idx != ustate->thing_under_hand)
             {
                 ustate->influenced_thing_idx = ustate->thing_under_hand;
                 ustate->influenced_thing_creation = thing->creation_turn;
             }
           }
-          if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
+          if ((get_user_state(user)->controlled_thing_idx > 0) && (get_user_state(user)->controlled_thing_idx < THINGS_COUNT))
           {
             if ( (stl_x == thing->mappos.x.stl.num) && (stl_y == thing->mappos.y.stl.num) )
             {
                 set_start_state(thing);
-                clear_selected_thing(player);
+                clear_selected_thing(ustate);
             }
             else if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
             {
@@ -237,7 +237,7 @@ TbBool packets_process_cheats(
             thing = get_creature_near(x, y);
             if (!thing_is_invalid(thing))
             {
-                set_selected_creature(player, thing);
+                set_selected_creature(ustate, thing);
                 initialise_thing_state(thing, CrSt_ManualControl);
                 if (creature_is_group_member(thing)) {
                     make_group_member_leader(thing);
@@ -568,7 +568,7 @@ TbBool packets_process_cheats(
                 {
                     if (thing->class_id == TCls_Creature)
                     {
-                        if (player->controlled_thing_idx != ustate->thing_under_hand)
+                        if (get_user_state(user)->controlled_thing_idx != ustate->thing_under_hand)
                         {
                             query_creature(user, ustate->thing_under_hand, true, false);
                         }
@@ -583,7 +583,7 @@ TbBool packets_process_cheats(
             }
             if ( ustate->work_state == PSt_CreatrInfoAll )
             {
-                thing = thing_get(player->controlled_thing_idx);
+                thing = thing_get(get_user_state(user)->controlled_thing_idx);
                 if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
                 {
                     if (is_my_player(player))
@@ -872,14 +872,14 @@ TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* p
 		case PckA_CheatLevelUp:
 		{
 			player = get_player(plyr_idx);
-			struct Thing* thing = thing_get(player->controlled_thing_idx);
+			struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
 			creature_increase_level(thing);
 			return false;
 		}
 		case PckA_CheatLevelDown:
 		{
 			player = get_player(plyr_idx);
-			struct Thing* thing = thing_get(player->controlled_thing_idx);
+			struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
 			struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if (!creature_control_invalid(cctrl))
             {
@@ -890,7 +890,7 @@ TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* p
 		case PckA_CheatApplySpell:
 		{
 			player = get_player(plyr_idx);
-			struct Thing* thing = thing_get(player->controlled_thing_idx);
+			struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
 			struct SpellConfig* spconf = get_spell_config(pckt->actn_par1);
 			SoundSmplTblID smptbl_idx;
 			if (spconf->caster_affected)
@@ -916,7 +916,7 @@ TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* p
 		case PckA_CheatKillCreature:
 		{
 			player = get_player(plyr_idx);
-			struct Thing* thing = thing_get(player->controlled_thing_idx);
+			struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
 			kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
 			return false;
 		}

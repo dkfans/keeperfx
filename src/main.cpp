@@ -501,7 +501,7 @@ static bool players_cursor_is_at_top_of_view()
         return true;
 
     case PSt_OrderCreatr:
-        return (player->controlled_thing_idx > 0);
+        return (get_user_state(get_displayed_user())->controlled_thing_idx > 0);
 
     case PSt_CtrlDungeon:
         switch (ustate->primary_cursor_state)
@@ -774,10 +774,8 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
 
 void instant_instance_selected(CrInstance check_inst_id)
 {
-    struct PlayerInfo *player;
-    player = get_player(my_player_number);
     struct Thing *ctrltng;
-    ctrltng = thing_get(player->controlled_thing_idx);
+    ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     struct CreatureModelConfig *crconf;
     crconf = creature_stats_get_from_thing(ctrltng);
     long i;
@@ -1801,7 +1799,7 @@ static short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
-          smooth_on = true;
+          WARNLOG("The -%s commandline parameter is no longer functional.", parstr); //todo remove once it's no longer in the launcher
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {

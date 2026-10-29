@@ -416,7 +416,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
             foodtng = find_random_thing_in_room(TCls_Object, ObjMdl_ChickenMature, room);
             if ( !thing_is_invalid(foodtng) )
             {
-                if ( !is_thing_directly_controlled(foodtng)
+                if ( !user_controls_thing(ANY_USER, foodtng, UCT_Direct | UCT_PossessionEntryZoom)
                 && line_of_room_move_2d(
                     &creatng->mappos,
                     &foodtng->mappos,
@@ -435,7 +435,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
         }
         return false;
     }
-    if ( is_thing_directly_controlled(foodtng) )
+    if ( user_controls_thing(ANY_USER, foodtng, UCT_Direct | UCT_PossessionEntryZoom) )
         return false;
 
     thing_play_sample(creatng, 112 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);

@@ -34,8 +34,6 @@ struct PlayerInfo;
 
 #pragma pack()
 /******************************************************************************/
-extern unsigned char smooth_on;
-/******************************************************************************/
 /** Screen columns on the left the engine window must leave free for the sidebar. */
 int32_t engine_window_reserved_left(void);
 void setup_engine_window(long x1, long y1, long x2, long y2);
@@ -48,7 +46,6 @@ void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera);
 void draw_overlay_compass(long a1, long a2);
 
 TbBool keeper_screen_redraw(void);
-void smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
 
 int get_place_terrain_pointer_graphics(SlabKind skind);
 /******************************************************************************/

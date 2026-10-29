@@ -7491,7 +7491,7 @@ msgstr "Макс. гравців"
 #: guitext:1134
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow observers"
+msgid "Allow spectators"
 msgstr "Дозволити глядачів"
 
 #: guitext:1135
@@ -7558,7 +7558,7 @@ msgstr "Завантаження"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Show spectator chat"
-msgstr "Показувати чат глядачів"
+msgstr "Чат глядачів"
 
 #: guitext:1146
 #, fuzzy
@@ -7648,3 +7648,33 @@ msgstr "%s втратив з'єднання (час очікування вич�
 msgctxt "Network game message"
 msgid "%s has become a spectator."
 msgstr "%s став спостерігачем."
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Team"
+msgstr "Команда"
+
+#: guitext:1162
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Ping"
+msgstr "Пінг"
+
+#: guitext:1163
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Add computer players"
+msgstr "Додати комп'ютери"
+
+#: guitext:1164
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow cheats"
+msgstr "Дозволити чити"
+
+#: guitext:1165
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow computer assistant"
+msgstr "Дозволити асистента"

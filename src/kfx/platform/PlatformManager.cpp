@@ -47,6 +47,7 @@ extern "C" const void * PlatformManager_GetImageBase(void)   { return GetPlatfor
 extern "C" const char * PlatformManager_GetWineVersion(void) { return GetPlatform()->GetWineVersion(); }
 extern "C" const char * PlatformManager_GetWineHost(void)    { return GetPlatform()->GetWineHost(); }
 extern "C" const char * PlatformManager_GetUserPrefDir(void) { return GetPlatform()->GetUserPrefDir(); }
+extern "C" size_t       PlatformManager_GetScratchSize(void) { return GetPlatform()->GetScratchSize(); }
 
 /******************************************************************************/
 

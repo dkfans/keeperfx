@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +58,7 @@ long erstat_inc(int stat_num);
 
 TbBool is_onscreen_msg_visible(void);
 TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...);
+TbBool show_onscreen_msg_va(int nturns, const char *fmt_str, va_list val);
 TbBool draw_onscreen_direct_messages(void);
 /******************************************************************************/
 #ifdef __cplusplus

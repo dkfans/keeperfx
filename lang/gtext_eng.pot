@@ -5994,7 +5994,7 @@ msgstr ""
 
 #: guitext:1134
 msgctxt "Network game interface"
-msgid "Allow observers"
+msgid "Allow spectators"
 msgstr ""
 
 #: guitext:1135
@@ -6133,3 +6133,28 @@ msgstr "%s lost connection (timed out)."
 msgctxt "Network game message"
 msgid "%s has become a spectator."
 msgstr "%s has become a spectator."
+
+#: guitext:1161
+msgctxt "Network game interface"
+msgid "Team"
+msgstr "Team"
+
+#: guitext:1162
+msgctxt "Network game interface"
+msgid "Ping"
+msgstr "Ping"
+
+#: guitext:1163
+msgctxt "Network game interface"
+msgid "Add computer players"
+msgstr "Add computer players"
+
+#: guitext:1164
+msgctxt "Network game interface"
+msgid "Allow cheats"
+msgstr "Allow cheats"
+
+#: guitext:1165
+msgctxt "Network game interface"
+msgid "Allow computer assistant"
+msgstr "Allow computer assistant"

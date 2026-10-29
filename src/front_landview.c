@@ -107,7 +107,7 @@ static struct LandViewTextBox landview_textbox;
 /******************************************************************************/
 static LevelNumber landview_textbox_lvnum;
 
-static void make_palette_remap(unsigned char *remap, const unsigned char *source_palette, const unsigned char *destination_palette)
+void make_palette_remap(unsigned char *remap, const unsigned char *source_palette, const unsigned char *destination_palette)
 {
     for (int i = 0; i < PALETTE_COLORS; i++)
     {

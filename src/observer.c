@@ -448,7 +448,7 @@ static void observer_clear_query(unsigned char state)
     }
     local_observer_user_state.instance_num = PI_Unset;
     set_user_work_state(OBSERVER_USER, state, 0);
-    clear_selected_thing(&local_observer_player);
+    clear_selected_thing(&local_observer_user_state);
 }
 
 static void observer_select_user(NetUserId user, PlayerNumber plyr_idx)

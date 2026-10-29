@@ -548,26 +548,12 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     
     if (!change_campaign(CampgnT_MultiplayerMappack, campgn->fname))
         return;
-    if (net_service_index_selected == FrontendNetSvc_Skirmish)
-    {
-        frontend_set_state(FeSt_NETLAND_VIEW);
-    }
-    else
-    {
-        frontend_set_state(FeSt_NET_START);
-    }
+    frontend_set_state(FeSt_NETLAND_VIEW);
 }
 
 void frontend_back_from_mp_mappack_list(struct GuiButton *gbtn)
 {
-    if (net_service_index_selected == FrontendNetSvc_Skirmish)
-    {
-        frontend_set_state(FeSt_NET_SERVICE);
-    }
-    else
-    {
-        frontend_set_state(FeSt_NET_START);
-    }
+    frontend_set_state(FeSt_NET_SERVICE);
 }
 
 void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn)

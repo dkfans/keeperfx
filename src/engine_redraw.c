@@ -90,7 +90,6 @@ static int32_t *ytab = NULL;
 static int mapfade_tab_w = 0;
 static int mapfade_tab_h = 0;
 
-unsigned char smooth_on;
 static unsigned char * map_fade_ghost_table = NULL;
 static unsigned char * map_fade_dest = NULL;
 static unsigned char * map_fade_src = NULL;
@@ -552,17 +551,10 @@ void redraw_creature_view(void)
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     update_explored_flags_for_viewed_power_sights(player);
-    struct Thing* thing = thing_get(get_displayed_player()->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_user_state(get_displayed_user())->controlled_thing_idx);
     TRACE_THING(thing);
     if (thing_exists(thing))
       draw_creature_view(thing);
-    // Todo : De-global.
-    if (smooth_on && (lbDisplay.WScreen != NULL)) {
-        TbGraphicsWindow ewnd;
-        store_engine_window(&ewnd, pixel_size);
-        smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
-            ewnd.width, ewnd.height, RendererScreenWidth());
-    }
     remove_explored_flags_for_viewed_power_sights(player);
     GameUI_DrawFrame(player);
     if (!creature_control_invalid(creature_control_get_from_thing(thing))) {
@@ -578,24 +570,6 @@ void redraw_creature_view(void)
     }
 }
 
-void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
-{
-    SYNCDBG(7,"Starting");
-    unsigned char* lnbuf = scrbuf + scanln * y + x;
-    for (long i = h - y - 1; i > 0; i--)
-    {
-        unsigned char* buf = lnbuf;
-        for (long k = w - x - 1; k > 0; k--)
-        {
-            unsigned int ghpos = (buf[0] << 8) + buf[1];
-            ghpos = (buf[scanln] << 8) + pixmap.ghost[ghpos];
-            buf[0] = ghpos;
-            buf++;
-      }
-      lnbuf += scanln;
-    }
-}
-
 void redraw_isometric_view(void)
 {
     SYNCDBG(6,"Starting");
@@ -603,18 +577,9 @@ void redraw_isometric_view(void)
     struct PlayerInfo* player = get_my_player();
     if (player_invalid(player))
         return;
-    TbGraphicsWindow ewnd;
-    memset(&ewnd, 0, sizeof(TbGraphicsWindow));
     struct Camera* render_cam = get_local_active_camera(player);
     update_explored_flags_for_viewed_power_sights(player);
     engine(player,render_cam);
-    // Todo : De-global.
-    if (smooth_on && (lbDisplay.WScreen != NULL))
-    {
-        store_engine_window(&ewnd,pixel_size);
-        smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
-            ewnd.width, ewnd.height, RendererScreenWidth());
-    }
     remove_explored_flags_for_viewed_power_sights(player);
     GameUI_DrawFrame(player);
     SYNCDBG(8,"Finished");
@@ -865,7 +830,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
         set_pointer_graphic(MousePG_MkCreature);
         break;
     case PsPg_OrderCreatr: {
-        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        struct Thing* creatng = thing_get(get_user_state(user)->controlled_thing_idx);
         i = MousePG_Arrow;
         if (thing_is_creature(creatng)) {
             i = MousePG_MvCreature;

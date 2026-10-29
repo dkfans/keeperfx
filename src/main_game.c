@@ -457,9 +457,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
         return CLS_CONTINUE;
     }
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
-    if (game.game_kind == GKind_MultiGame) {
-        setup_alliances();
-    }
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
@@ -468,6 +465,9 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     {
         SYNCDBG(5,"Setting up uninitialized players as zombie players");
         setup_zombie_players();
+    }
+    if (game.game_kind == GKind_MultiGame) {
+        setup_alliances();
     }
     post_init_level();
     post_init_players();

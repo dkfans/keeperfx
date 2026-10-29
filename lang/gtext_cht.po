@@ -7036,7 +7036,7 @@ msgstr "玩家上限"
 #: guitext:1134
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Allow observers"
+msgid "Allow spectators"
 msgstr "允許觀戰"
 
 #: guitext:1135
@@ -7193,3 +7193,33 @@ msgstr "%s 失去連線（逾時）。"
 msgctxt "Network game message"
 msgid "%s has become a spectator."
 msgstr "%s 已成為觀眾。"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Team"
+msgstr "隊伍"
+
+#: guitext:1162
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Ping"
+msgstr "延遲"
+
+#: guitext:1163
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Add computer players"
+msgstr "新增電腦玩家"
+
+#: guitext:1164
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow cheats"
+msgstr "允許作弊"
+
+#: guitext:1165
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow computer assistant"
+msgstr "允許電腦輔助"

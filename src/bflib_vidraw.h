@@ -192,10 +192,10 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
 TbResult LbSpriteDrawOneColourUsingScalingData(long posx, long posy, const struct TbSprite *sprite, TbPixel colour);
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, const struct TbSourceBuffer *);
-void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, long x, long swidth, long dwidth);
-void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swidth, long dwidth, long gwidth);
-void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, long y, long sheight, long dheight);
-void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long sheight, long dheight, long gheight);
+void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, int32_t x, int32_t swidth, int32_t dwidth);
+void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, int32_t x, int32_t swidth, int32_t dwidth, int32_t gwidth);
+void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, int32_t y, int32_t sheight, int32_t dheight);
+void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, int32_t y, int32_t sheight, int32_t dheight, int32_t gheight);
 
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);

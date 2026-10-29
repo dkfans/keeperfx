@@ -52,7 +52,7 @@ static void get_lua_camera_view(const struct PlayerInfo *player, const struct Us
     {
         view->zoom = 0;
         view->view_mode = LUA_CAMERA_VIEW_CREATURE;
-        const struct Thing *thing = thing_get(player->controlled_thing_idx);
+        const struct Thing *thing = thing_get(ustate->controlled_thing_idx);
         if (!thing_exists(thing))
             break;
         view->pos = thing->mappos;

@@ -109,6 +109,7 @@ unsigned char LbTextGetFontFaceColor(void);
 unsigned char LbTextGetFontBackColor(void);
 int LbTextStringWidth(const char *str);
 int LbTextStringPartWidth(const char *text, int part);
+int LbTextStringPartWidthM(const char *text, int part, long units_per_px);
 int LbTextStringHeight(const char *str);
 int LbTextWordWidth(const char *str);
 int LbTextCharWidth(const uint32_t chr);

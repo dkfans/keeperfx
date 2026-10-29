@@ -32,6 +32,14 @@ extern "C" {
 /******************************************************************************/
 #define NET_SERVICE_LEN 64
 #define NET_PLAYER_COLOUR_RANDOM MAX_NET_USERS
+#define NET_TEAM_COUNT 4
+#define NET_TEAM_RANDOM NET_TEAM_COUNT
+
+enum NetPlayerSettingKind {
+    NetPlayerSetting_Colour,
+    NetPlayerSetting_Team,
+    NetPlayerSetting_Count,
+};
 
 enum FrontendNetService {
     FrontendNetSvc_Skirmish = -1,
@@ -50,6 +58,9 @@ struct ConfigInfo {
     uint8_t max_players;
     uint8_t spectators_enabled;
     uint8_t spectator_chat;
+    uint8_t computer_players;
+    uint8_t cheats_enabled;
+    uint8_t computer_assistant;
 };
 
 struct TbNetworkPlayerName {
@@ -63,15 +74,19 @@ extern long net_number_of_sessions;
 extern long net_session_index_active;
 extern struct TbNetworkPlayerName net_player[MAX_NET_USERS];
 extern struct ConfigInfo net_config_info;
+extern struct ConfigInfo net_lobby_settings;
 extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];
 extern char tmp_net_player_name[24];
 extern int8_t net_player_colour[MAX_NET_USERS];
+extern int8_t net_player_team[MAX_NET_USERS];
 extern int32_t net_lobby_max_players;
 
 #pragma pack()
 /******************************************************************************/
 TbBool net_player_colours_conflict(void);
+TbBool net_lobby_computer_player(NetUserId user);
+void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId user, TbBool backwards);
 void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances);
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);

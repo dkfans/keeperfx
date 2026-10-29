@@ -1243,7 +1243,9 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
         transfer_creature(thing_get(pckt->actn_par1), thing_get(pckt->actn_par2), plyr_idx);
         break;
     case PckA_ToggleComputer:
-        toggle_computer_player(plyr_idx);
+        if (computer_assistant_allowed()) {
+            toggle_computer_player(plyr_idx);
+        }
         break;
     default:
         return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);
@@ -1394,8 +1396,7 @@ CrInstance get_packet_instant_instance(const struct Packet *pckt)
 void process_user_creature_control_packet_control(NetUserId user)
 {
     SYNCDBG(6,"Starting");
-    struct PlayerInfo* player = get_player(get_net_user_player_number(user));
-    struct Thing* cctng = thing_get(player->controlled_thing_idx);
+    struct Thing* cctng = thing_get(get_user_state(user)->controlled_thing_idx);
     struct Packet* pckt = get_packet(user);
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
     if (!thing_is_creature(cctng) || creature_control_invalid(ccctrl)) {
@@ -1412,11 +1413,9 @@ void process_user_creature_control_packet_action(NetUserId user)
 {
   const PlayerNumber plyr_idx = get_net_user_player_number(user);
   struct CreatureControl *cctrl;
-  struct PlayerInfo *player;
   struct Thing *thing;
   struct Packet *pckt;
   CrInstance inst_id;
-  player = get_player(plyr_idx);
   struct UserState* ustate = get_user_state(user);
   pckt = get_packet(user);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
@@ -1425,7 +1424,7 @@ void process_user_creature_control_packet_action(NetUserId user)
   case PckA_DirectCtrlExit:
       ustate->influenced_thing_idx = pckt->actn_par1;
       ustate->influenced_thing_creation = pckt->actn_par2;
-      thing = thing_get(player->controlled_thing_idx);
+      thing = thing_get(get_user_state(user)->controlled_thing_idx);
       cctrl = creature_control_get_from_thing(thing);
       struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
       if (!thing_is_invalid(dragtng))
@@ -1435,7 +1434,7 @@ void process_user_creature_control_packet_action(NetUserId user)
       set_user_instance(user, PI_DirctCtLeave, 0);
       break;
   case PckA_CtrlCrtrSetInstnc:
-      thing = thing_get(player->controlled_thing_idx);
+      thing = thing_get(get_user_state(user)->controlled_thing_idx);
       if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
@@ -1454,7 +1453,7 @@ void process_user_creature_control_packet_action(NetUserId user)
   case PckA_CheatCtrlCrtrSetInstnc:
       if (!user_cheats_allowed(user))
         break;
-      thing = thing_get(player->controlled_thing_idx);
+      thing = thing_get(get_user_state(user)->controlled_thing_idx);
       if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
@@ -1466,8 +1465,8 @@ void process_user_creature_control_packet_action(NetUserId user)
       break;
       case PckA_DirectCtrlDragDrop:
       {
-         thing = thing_get(player->controlled_thing_idx);
-         direct_control_pick_up_or_drop(plyr_idx, thing);
+         thing = thing_get(get_user_state(user)->controlled_thing_idx);
+         direct_control_pick_up_or_drop(user, thing);
          break;
       }
     case PckA_SetFirstPersonDigMode:

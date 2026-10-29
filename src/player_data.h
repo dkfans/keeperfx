@@ -37,7 +37,7 @@ extern "C" {
 #define INVALID_PLAYER (&bad_player)
 #define INVALID_USER_STATE (&bad_user_state)
 
-#define PLAYER_MP_MESSAGE_LEN  64
+#define PLAYER_MP_MESSAGE_LEN  128
 
 #define MINIMAP_ZOOM_MIN       128
 #define MINIMAP_ZOOM_DEFAULT   256
@@ -174,8 +174,6 @@ struct PlayerInfo {
     unsigned char victory_state;
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
-    short controlled_thing_idx;
-    GameTurn controlled_thing_creatrn;
     TbBool possession_lock;
     struct Wander wandr_within;
     struct Wander wandr_outside;
@@ -257,6 +255,8 @@ struct UserState {
     uint32_t instance_remain_turns;
     short influenced_thing_idx; /* thing the current instance/cheat applies to */
     GameTurn influenced_thing_creation;
+    short controlled_thing_idx;
+    GameTurn controlled_thing_creatrn;
     MapCoord zoom_to_pos_x;
     MapCoord zoom_to_pos_y;
     /** Overcharge level while casting keeper powers. */

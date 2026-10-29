@@ -39,24 +39,27 @@
 /******************************************************************************/
 
 #define SESSION_COUNT 32
+#define LOBBY_SETTINGS_OFFSET offsetof(struct ConfigInfo, net_lobby_name)
+#define LOBBY_SETTINGS_SIZE (sizeof(struct ConfigInfo) - LOBBY_SETTINGS_OFFSET)
 
 static struct TbNetworkSessionNameEntry sessions[SESSION_COUNT];
 static int32_t server_port = 0;
 static TbClockMSec lobby_ping_last_sample;
 uint32_t network_lobby_ping;
-static char hosted_metadata[SESSION_METADATA_MAX];
+static struct LobbyAdvertisement hosted_advertisement;
 static SDL_Mutex *advertisement_mutex;
 static SDL_Thread *advertisement_thread;
 static SDL_AtomicInt advertisement_running;
 
-void net_lobby_metadata(char *metadata)
+void net_lobby_advertisement(struct LobbyAdvertisement *output)
 {
     if (!advertisement_mutex) {
-        metadata[0] = '\0';
+        output->name[0] = '\0';
+        output->metadata[0] = '\0';
         return;
     }
     SDL_LockMutex(advertisement_mutex);
-    memcpy(metadata, hosted_metadata, sizeof(hosted_metadata));
+    *output = hosted_advertisement;
     SDL_UnlockMutex(advertisement_mutex);
 }
 
@@ -66,6 +69,7 @@ void net_lobby_refresh_metadata(void)
         return;
     }
     struct TbNetworkSessionNameEntry session = {0};
+    snprintf(session.text, sizeof(session.text), "%s", net_config_info.net_lobby_name);
     session.phase = netstate.phase;
     session.joinable = !netstate.locked && netstate.phase != NetPhase_InGame && netstate.phase != NetPhase_Loading;
     session.max_players = netstate.max_users;
@@ -84,10 +88,50 @@ void net_lobby_refresh_metadata(void)
         }
     }
     SDL_LockMutex(advertisement_mutex);
-    if (net_session_metadata_json(&session, hosted_metadata, sizeof(hosted_metadata)) < 0) {
-        hosted_metadata[0] = '\0';
+    snprintf(hosted_advertisement.name, sizeof(hosted_advertisement.name), "%s", session.text);
+    if (net_session_metadata_json(&session, hosted_advertisement.metadata, sizeof(hosted_advertisement.metadata)) < 0) {
+        hosted_advertisement.metadata[0] = '\0';
     }
     SDL_UnlockMutex(advertisement_mutex);
+}
+
+static char *write_lobby_settings_message(void)
+{
+    char *write_pos = begin_net_message(NETMSG_LOBBY_SETTINGS);
+    memcpy(write_pos, (const char *)&net_config_info + LOBBY_SETTINGS_OFFSET, LOBBY_SETTINGS_SIZE);
+    return write_pos + LOBBY_SETTINGS_SIZE;
+}
+
+void net_lobby_apply_settings(void)
+{
+    if (netstate.my_id != SERVER_ID) {
+        return;
+    }
+    netstate.max_users = net_config_info.max_players;
+    net_lobby_settings = net_config_info;
+    net_lobby_refresh_metadata();
+    send_remote_buffer(write_lobby_settings_message());
+}
+
+TbError process_lobby_settings_message(NetUserId source, const char *buffer, size_t size)
+{
+    if (source != SERVER_ID || size < LOBBY_SETTINGS_SIZE) {
+        return Lb_OK;
+    }
+    memcpy((char *)&net_lobby_settings + LOBBY_SETTINGS_OFFSET, buffer, LOBBY_SETTINGS_SIZE);
+    net_lobby_settings.net_lobby_name[sizeof(net_lobby_settings.net_lobby_name) - 1] = '\0';
+    return Lb_OK;
+}
+
+int32_t net_lobby_min_players(void)
+{
+    int32_t min_players = MIN_NET_USERS;
+    for (NetUserId user = MIN_NET_USERS; user < MAX_NET_USERS; user++) {
+        if (netstate.users[user].progress != USER_UNUSED) {
+            min_players = user + 1;
+        }
+    }
+    return min_players;
 }
 
 void net_lobby_set_phase(enum NetSessionPhase phase)
@@ -261,6 +305,8 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
     UpdateLocalPlayerInfo(source);
     if (network_user_is_spectator(source)) {
         network_spectator_send_bootstrap(source);
+    } else {
+        send_message_buffer(source, write_lobby_settings_message());
     }
     return Lb_OK;
 }
@@ -400,7 +446,7 @@ TbError LbNetwork_ExchangeLobby(void *send_buf, void *server_buf, size_t frame_s
     return result;
 }
 
-TbError LbNetwork_Create(char *lobby_name, char *plyr_name, uint32_t *plyr_num, void *optns)
+TbError LbNetwork_Create(char *plyr_name, uint32_t *plyr_num, void *optns)
 {
     net_join_role = NetRole_Player;
     if (!netstate.sp) {
@@ -426,12 +472,11 @@ TbError LbNetwork_Create(char *lobby_name, char *plyr_name, uint32_t *plyr_num, 
         return Lb_FAIL;
     }
     netstate.phase = NetPhase_Lobby;
-    netstate.max_users = net_config_info.max_players;
     netstate.my_id = SERVER_ID;
     snprintf(netstate.users[SERVER_ID].name, sizeof(netstate.users[SERVER_ID].name), "%s", plyr_name);
     netstate.users[SERVER_ID].progress = USER_LOGGEDIN;
     netstate.locked = 0;
-    net_lobby_refresh_metadata();
+    net_lobby_apply_settings();
     const uint16_t local_port = enet_get_bound_port();
     uint16_t ipv4_port = local_port;
     if (external_ipv4_port != 0) {
@@ -439,9 +484,9 @@ TbError LbNetwork_Create(char *lobby_name, char *plyr_name, uint32_t *plyr_num, 
     }
     const uint16_t ipv6_port = enet_get_bound_ipv6_port();
     if (frontnet_service_selected(FrontendNetSvc_LAN)) {
-        lan_host_start(lobby_name, local_port);
+        lan_host_start(local_port);
     }
-    if (frontnet_service_selected(FrontendNetSvc_Online) && matchmaking_create(lobby_name, external_ipv4_address, ipv4_port, ipv6_port, local_port) != 0) {
+    if (frontnet_service_selected(FrontendNetSvc_Online) && matchmaking_create(external_ipv4_address, ipv4_port, ipv6_port, local_port) != 0) {
         LbNetwork_Stop();
         return Lb_FAIL;
     }
@@ -467,6 +512,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     if (netstate.sp->join(nsname->text, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
+    snprintf(net_lobby_settings.net_lobby_name, sizeof(net_lobby_settings.net_lobby_name), "%s", nsname->text);
     netstate.my_id = INVALID_USER_ID;
     if (LbNetwork_ExchangeLogin(plyr_name) == Lb_FAIL) {
         netstate.sp->disconnect();
@@ -515,6 +561,7 @@ TbError LbNetwork_Stop(void)
     clear_flag(local_system_flags, GSF_NetworkActive);
     network_spectator_clear_roles();
     memset(&netstate, 0, sizeof(netstate));
+    memset(&net_lobby_settings, 0, sizeof(net_lobby_settings));
     netstate.my_id = INVALID_USER_ID;
     netstate.pending_spectator_id = INVALID_USER_ID;
     net_join_role = NetRole_Player;
