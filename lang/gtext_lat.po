@@ -7627,3 +7627,9 @@ msgstr "Fraudes permittere"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Adiumentum sinere"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s ludo accessit."

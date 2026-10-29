@@ -7598,3 +7598,9 @@ msgstr "Povolit cheaty"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Povolit asistenta"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s se připojil ke hře."

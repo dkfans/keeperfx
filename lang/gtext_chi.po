@@ -7227,3 +7227,9 @@ msgstr "允许作弊"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "允许计算机助手"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s 已加入游戏。"

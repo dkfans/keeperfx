@@ -7562,3 +7562,9 @@ msgstr "チートを許可"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "CPU補助を許可"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s がゲームに参加しました。"
