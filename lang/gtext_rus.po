@@ -6962,3 +6962,9 @@ msgstr "Разрешить читы"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Разрешить ИИ-помощь"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s присоединился к игре."

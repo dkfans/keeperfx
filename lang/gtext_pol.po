@@ -7714,3 +7714,9 @@ msgstr "Zezwól na kody"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Zezwól na asystenta"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s dołączył do gry."

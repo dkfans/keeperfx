@@ -7625,3 +7625,9 @@ msgstr "Tillåt fusk"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Tillåt datorhjälp"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s har gått med i spelet."

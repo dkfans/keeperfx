@@ -7678,3 +7678,9 @@ msgstr "Дозволити чити"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Дозволити асистента"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s приєднався до гри."

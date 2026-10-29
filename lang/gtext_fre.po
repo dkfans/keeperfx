@@ -7852,3 +7852,9 @@ msgstr "Autoriser les triches"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Autoriser l'assistant"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s a rejoint la partie."

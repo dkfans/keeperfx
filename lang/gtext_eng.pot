@@ -6158,3 +6158,9 @@ msgstr "Allow cheats"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Allow computer assistant"
+
+#: guitext:1166
+#, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s has joined the game."
