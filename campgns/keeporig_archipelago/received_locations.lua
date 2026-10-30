@@ -147,33 +147,33 @@ ChecksTable = {
     [525] = {id=525, internal_name="",                    name="104",                          string="430",       thing="",       text="Level 104 Unlocked"}, --string is just "Bonus"
     [526] = {id=526, internal_name="",                    name="105",                          string="430",       thing="",       text="Level 105 Unlocked"}, --string is just "Bonus"
 -- RECIPES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [601] = {id=601, internal_name="PosUniqFunc,CHEAPER_IMPS,IMP",                    name="Cheaper Imps",                 string="",       thing="",       text="Cheaper Imps Recipe Unlocked"},
-    [602] = {id=602, internal_name="PosUniqFunc,COMPLETE_MANUFACTR,BUG,BUG",          name="Complete Manufacturing",       string="",       thing="",       text="Complete Manufacturing Recipe Unlocked"},
-    [603] = {id=603, internal_name="PosUniqFunc,COMPLETE_RESEARCH,FLY,FLY",           name="Complete Research",            string="",       thing="",       text="Complete Research Recipe Unlocked"},
-    [604] = {id=604, internal_name="MkCreature,BILE_DEMON,SPIDER,SPIDER,SPIDER",      name="Bile Demon",                   string="",       thing="",       text="Bile Demon Recipe Unlocked"},
-    [605] = {id=605, internal_name="MkCreature,SORCEROR,FLY,SPIDER",                  name="Warlock",                      string="",       thing="",       text="Warlock Recipe Unlocked"},
-    [606] = {id=606, internal_name="MkCreature,DARK_MISTRESS,BUG,SPIDER",             name="Mistress",                     string="",       thing="",       text="Mistress Recipe Unlocked"},
-    [607] = {id=607, internal_name="MkCreature,HORNY,TROLL,BILE_DEMON,DARK_MISTRESS", name="Horned Reaper",                string="",       thing="",       text="Horned Reaper Recipe Unlocked"},
+    [601] = {id=601, internal_name="PosUniqFunc,CHEAPER_IMPS,IMP",                    name="Cheaper Imps",                 string="",       thing="IMP_DANCE_DUMMY",       text="Cheaper Imps Recipe Unlocked"},
+    [602] = {id=602, internal_name="PosUniqFunc,COMPLETE_MANUFACTR,BUG,BUG",          name="Complete Manufacturing",       string="",       thing="SPELLBOOK_DUMMY",       text="Complete Manufacturing Recipe Unlocked"},
+    [603] = {id=603, internal_name="PosUniqFunc,COMPLETE_RESEARCH,FLY,FLY",           name="Complete Research",            string="",       thing="WRKBOX_DUMMY",       text="Complete Research Recipe Unlocked"},
+    [604] = {id=604, internal_name="MkCreature,BILE_DEMON,SPIDER,SPIDER,SPIDER",      name="Bile Demon",                   string="",       thing="LAIR_BILDM",       text="Bile Demon Recipe Unlocked"},
+    [605] = {id=605, internal_name="MkCreature,SORCEROR,FLY,SPIDER",                  name="Warlock",                      string="",       thing="LAIR_SORCR",       text="Warlock Recipe Unlocked"},
+    [606] = {id=606, internal_name="MkCreature,DARK_MISTRESS,BUG,SPIDER",             name="Mistress",                     string="",       thing="LAIR_DKMIS",       text="Mistress Recipe Unlocked"},
+    [607] = {id=607, internal_name="MkCreature,HORNY,TROLL,BILE_DEMON,DARK_MISTRESS", name="Horned Reaper",                string="",       thing="LAIR_HORNY",       text="Horned Reaper Recipe Unlocked"},
 --NegativeRecipes
     -- 608 is wishing well
-    [609] = {id=609, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,GHOST",             name="All chickens die 1",           string="",       thing="",       text="All chickens die 1 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    --[610] = {id=610, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,CHICKEN",           name="All chickens die 2",           string="",       thing="",       text="All chickens die 2 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    [611] = {id=611, internal_name="NegSpellAll,SPELL_DISEASE,VAMPIRE,VAMPIRE",       name="Disease creatures",            string="",       thing="",       text="Disease creatures Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    [612] = {id=612, internal_name="NegUniqFunc,ALL_CREATRS_ANGRY,HORNY",             name="All creatures angry",          string="",       thing="",       text="All creatures angry Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    [613] = {id=613, internal_name="NegSpellAll,SPELL_CHICKEN,BILE_DEMON,BILE_DEMON", name="Chicken creatures",            string="",       thing="",       text="Chicken creatures Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [609] = {id=609, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,GHOST",             name="All chickens die 1",           string="",       thing="CHICKEN_DIE_DUMMY",       text="All chickens die 1 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    --[610] = {id=610, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,CHICKEN",           name="All chickens die 2",           string="",       thing="CHICKEN_DIE_DUMMY",       text="All chickens die 2 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [611] = {id=611, internal_name="NegSpellAll,SPELL_DISEASE,VAMPIRE,VAMPIRE",       name="Disease creatures",            string="",       thing="FLIES_DUMMY",       text="Disease creatures Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [612] = {id=612, internal_name="NegUniqFunc,ALL_CREATRS_ANGRY,HORNY",             name="All creatures angry",          string="",       thing="ANGRY_HORNY_DUMMY",       text="All creatures angry Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [613] = {id=613, internal_name="NegSpellAll,SPELL_CHICKEN,BILE_DEMON,BILE_DEMON", name="Chicken creatures",            string="",       thing="CHICKEN_DUMMY",       text="Chicken creatures Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
     -- 614 is spider easter egg
 --FXRecipes
-    [615] = {id=615, internal_name="MkGoodHero,SKELETON,SKELETON,SKELETON",           name="Good Skeleton",                string="",       thing="",       text="Good Skeleton Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    [616] = {id=616, internal_name="MkCreature,TENTACLE,TROLL,SPIDER",                name="Tentacle",                     string="",       thing="",       text="Tentacle Recipe Unlocked"},
-    [617] = {id=617, internal_name="MkCreature,HELL_HOUND,DRAGON,FLY",                name="Hound",                        string="",       thing="",       text="Hound Recipe Unlocked"},
-    [618] = {id=618, internal_name="PosSpellAll,SPELL_SPEED,FLY,HELL_HOUND",          name="Speed Creatures",              string="",       thing="",       text="Speed Creatures Recipe Unlocked"},
-    [619] = {id=619, internal_name="PosSpellAll,SPELL_INVISIBILITY,TROLL,FLY",        name="Conceal Creatures",            string="",       thing="",       text="Conceal Creatures Recipe Unlocked"},
-    [620] = {id=620, internal_name="PosSpellAll,SPELL_HEAL,ORC,SPIDER",               name="Heal Creatures",               string="",       thing="",       text="Heal Creatures Recipe Unlocked"},
-    [621] = {id=621, internal_name="PosSpellAll,SPELL_REBOUND,DARK_MISTRESS,BUG",     name="Rebound Creatures",            string="",       thing="",       text="Rebound Creatures Recipe Unlocked"},
-    [622] = {id=622, internal_name="PosSpellAll,SPELL_ARMOUR,BILE_DEMON,BUG",         name="Protect Creatures",            string="",       thing="",       text="Protect Creatures Recipe Unlocked"},
-    [623] = {id=623, internal_name="PosSpellAll,SPELL_FLIGHT,DEMONSPAWN,FLY",         name="Flight Creatures",             string="",       thing="",       text="Flight Creatures Recipe Unlocked"},
-    [624] = {id=624, internal_name="NegSpellAll,SPELL_FREEZE,VAMPIRE,SPIDER",         name="Freeze Creatures",             string="",       thing="",       text="Freeze Creatures Recipe Unlocked"},
-    [625] = {id=625, internal_name="NegSpellAll,SPELL_SLOW,VAMPIRE,DEMONSPAWN",       name="Slow Creatures",               string="",       thing="",       text="Slow Creatures Recipe Unlocked"},
+    [615] = {id=615, internal_name="MkGoodHero,SKELETON,SKELETON,SKELETON",           name="Good Skeleton",                string="",       thing="LAIR_SKELT",       text="Good Skeleton Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [616] = {id=616, internal_name="MkCreature,TENTACLE,TROLL,SPIDER",                name="Tentacle",                     string="",       thing="LAIR_TENTC",       text="Tentacle Recipe Unlocked"},
+    [617] = {id=617, internal_name="MkCreature,HELL_HOUND,DRAGON,FLY",                name="Hound",                        string="",       thing="LAIR_HLHND",       text="Hound Recipe Unlocked"},
+    [618] = {id=618, internal_name="PosSpellAll,SPELL_SPEED,FLY,HELL_HOUND",          name="Speed Creatures",              string="",       thing="SPELLBOOK_SPDC",       text="Speed Creatures Recipe Unlocked"},
+    [619] = {id=619, internal_name="PosSpellAll,SPELL_INVISIBILITY,TROLL,FLY",        name="Conceal Creatures",            string="",       thing="SPELLBOOK_CONCL",       text="Conceal Creatures Recipe Unlocked"},
+    [620] = {id=620, internal_name="PosSpellAll,SPELL_HEAL,ORC,SPIDER",               name="Heal Creatures",               string="",       thing="SPELLBOOK_HEAL",       text="Heal Creatures Recipe Unlocked"},
+    [621] = {id=621, internal_name="PosSpellAll,SPELL_REBOUND,DARK_MISTRESS,BUG",     name="Rebound Creatures",            string="",       thing="SPELLBOOK_RBND",       text="Rebound Creatures Recipe Unlocked"},
+    [622] = {id=622, internal_name="PosSpellAll,SPELL_ARMOUR,BILE_DEMON,BUG",         name="Protect Creatures",            string="",       thing="SPELLBOOK_PROT",       text="Protect Creatures Recipe Unlocked"},
+    [623] = {id=623, internal_name="PosSpellAll,SPELL_FLIGHT,DEMONSPAWN,FLY",         name="Flight Creatures",             string="",       thing="SPELLBOOK_FLGT",       text="Flight Creatures Recipe Unlocked"},
+    [624] = {id=624, internal_name="NegSpellAll,SPELL_FREEZE,VAMPIRE,SPIDER",         name="Freeze Creatures",             string="",       thing="SPELLBOOK_FRZ",       text="Freeze Creatures Recipe Unlocked"},
+    [625] = {id=625, internal_name="NegSpellAll,SPELL_SLOW,VAMPIRE,DEMONSPAWN",       name="Slow Creatures",               string="",       thing="SPELLBOOK_SLOW",       text="Slow Creatures Recipe Unlocked"},
 -- PROGRESSIVES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- these work differently, see below.
     [701] = {id=701, internal_name="",                    name="Progressive Level Cap",        string="",          thing="",       text="Progressive Level Cap Unlocked"},      --Increase max creature level by 1 (starts max level 3)
@@ -259,9 +259,9 @@ end
 --  could optionally split POWER_HAND up into POWER_PICKUP_CREATURE, POWER_PICKUP_GOLD, POWER_PICKUP_FOOD
 -- RECIPES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Can't do these ones, they're hardcoded.
---  [6XX] = {id=6XX, internal_name="",                    name="Wishing Well",                 string="",       thing="",       text="Wishing Well Recipe Unlocked"}, --default, might be hardcoded, would probably be stupid to include
---  [6XX] = {id=6XX, internal_name="",                    name="All chickens die 2",           string="",       thing="",       text="All chickens die 2 Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
---  [6XX] = {id=6XX, internal_name="",                    name="Spider easter egg",            string="",       thing="",       text="Spider easter egg Recipe Unlocked"}, --default, hardcoded easter egg and not really a recipe, would probably be stupid to include
+--  [6XX] = {id=6XX, internal_name="",                    name="Wishing Well",                 string="",       thing="POWER_HAND_GOLD",       text="Wishing Well Recipe Unlocked"}, --default, might be hardcoded, would probably be stupid to include
+--  [6XX] = {id=6XX, internal_name="",                    name="All chickens die 2",           string="",       thing="CHICKEN_DIE_DUMMY",       text="All chickens die 2 Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
+--  [6XX] = {id=6XX, internal_name="",                    name="Spider easter egg",            string="",       thing="LAIR_SPIDR",       text="Spider easter egg Recipe Unlocked"}, --default, hardcoded easter egg and not really a recipe, would probably be stupid to include
 --}
 
 --    --Others e.g. progressive starting imps number/level, progressive auto-researched (e.g. at 1, bridge/guardpost and SOE are unlocked, at 2, workshop and speed are unlocked and so on (IF THOSE ARE UNLOCKED)},

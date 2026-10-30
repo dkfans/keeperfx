@@ -288,7 +288,7 @@ function ChangeOnMapNeutrals(setting)
             end
             print(creature_count .. " neutrals made hostile!")
             QuickMessage(creature_count .. " neutrals made hostile!", "ARCHIPELAGO_ICON")
-      else
+      elseif not (setting == "DEFAULT" or setting == 0) then
             print("Invalid option, options are \"REMOVE\", \"KILL\" and \"HOSTILE\". Default behaviour used instead.")
       end
 end

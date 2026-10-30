@@ -429,25 +429,6 @@ function ItemStatus()
     --recipes
     
     --todo: recipes
-    for itemid=601, 600 + 20 do
-        local item_subtile_x = 34
-        local item_subtile_y = 28 + 6*(itemid % 100)
-        if ChecksTable[itemid] then
-            --AddObjectToLevelAtPos("SPELLBOOK_IMP",item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
-            if ReceivedLocationsTable.Has(itemid) then
-                AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x+24, item_subtile_y, 0) --unlocked
-                AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x+30, item_subtile_y, 0) --active
-            end
-            if SentLocations.Has(11000+(itemid % 100)) and APSettings.temple_locations then --check this is the id we will use for having done a recipe
-                AddObjectToLevelAtPos("HEARTFLAME_GREEN", item_subtile_x+36, item_subtile_y, 0) --sent
-            end
-        --else
-        --    local slab_y = SubtileToSlab(item_subtile_y)
-        --    for slab_x = SubtileToSlab(item_subtile_x)-1,SubtileToSlab(item_subtile_x)+13 do
-        --        ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
-        --    end
-        end
-    end
     if not APSettings.temple_locations then
         for slab_x = 23,24 do
             for slab_y = 10,60 do
@@ -461,11 +442,57 @@ function ItemStatus()
                 ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
             end
         end
+    else
+        for itemid=601, 607 do
+            local item_subtile_x = 34
+            local item_subtile_y = 28 + 6*(itemid % 100)
+            if ChecksTable[itemid] then
+                AddObjectToLevelAtPos(ChecksTable[itemid].thing,item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
+                if ReceivedLocationsTable.Has(itemid) then
+                    AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x+24, item_subtile_y, 0) --unlocked
+                    AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x+30, item_subtile_y, 0) --active
+                end
+                if SentLocations.Has(11000+(itemid % 100)) and APSettings.temple_locations then --check this is the id we will use for having done a recipe
+                    AddObjectToLevelAtPos("HEARTFLAME_GREEN", item_subtile_x+36, item_subtile_y, 0) --sent
+                end
+            else
+                local slab_y = SubtileToSlab(item_subtile_y)
+                for slab_x = SubtileToSlab(item_subtile_x)-1,SubtileToSlab(item_subtile_x)+13 do
+                    ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+                end
+            end
+        end
     end
     if not APSettings.NegativeRecipes then
         for slab_x = 10,24 do
             for slab_y = 25,32 do
                 ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
+            end
+        end
+    else
+        for itemid=608, 614 do
+            local item_subtile_x = 34
+            local item_subtile_y = 28 + 6*(itemid % 100)
+            if itemid == 609 then --stupid workaround because i was too lazy to reorder recipes ids based on good/bad/fx
+                item_subtile_y = 28 + 6*((itemid - 1) % 100)
+            end
+            if itemid >= 611 then --stupid workaround because i was too lazy to reorder recipes ids based on good/bad/fx
+                item_subtile_y = 28 + 6*((itemid - 2) % 100)
+            end
+            if ChecksTable[itemid] then
+                AddObjectToLevelAtPos(ChecksTable[itemid].thing,item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
+                if ReceivedLocationsTable.Has(itemid) then
+                    AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x+24, item_subtile_y, 0) --unlocked
+                    AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x+30, item_subtile_y, 0) --active
+                end
+                if SentLocations.Has(11000+(itemid % 100)) and APSettings.temple_locations then --check this is the id we will use for having done a recipe
+                    AddObjectToLevelAtPos("HEARTFLAME_GREEN", item_subtile_x+36, item_subtile_y, 0) --sent
+                end
+            elseif itemid ~= 608 and itemid ~= 610 and itemid ~= 614 then
+                local slab_y = SubtileToSlab(item_subtile_y)
+                for slab_x = SubtileToSlab(item_subtile_x)-1,SubtileToSlab(item_subtile_x)+13 do
+                    ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+                end
             end
         end
     end
@@ -475,13 +502,33 @@ function ItemStatus()
                 ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
             end
         end
-    end
-    --not used atm, remove this
-        for slab_x = 10,24 do
-            for slab_y = 55,60 do
-                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
+    else
+        for itemid=615, 625 do
+            local item_subtile_x = 34
+            local item_subtile_y = 28 + 6*((itemid - 2)% 100)
+            if ChecksTable[itemid] then
+                AddObjectToLevelAtPos(ChecksTable[itemid].thing,item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
+                if ReceivedLocationsTable.Has(itemid) then
+                    AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x+24, item_subtile_y, 0) --unlocked
+                    AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x+30, item_subtile_y, 0) --active
+                end
+                if SentLocations.Has(11000+(itemid % 100)) and APSettings.temple_locations then --check this is the id we will use for having done a recipe
+                    AddObjectToLevelAtPos("HEARTFLAME_GREEN", item_subtile_x+36, item_subtile_y, 0) --sent
+                end
+            else
+                local slab_y = SubtileToSlab(item_subtile_y)
+                for slab_x = SubtileToSlab(item_subtile_x)-1,SubtileToSlab(item_subtile_x)+13 do
+                    ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+                end
             end
         end
+    end
+    --not used atm, remove this
+    for slab_x = 10,24 do
+        for slab_y = 55,60 do
+            ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
+        end
+    end
 
 
 
