@@ -449,13 +449,24 @@ static void process_event(const SDL_Event *ev)
         isMouseActive = true;
         isMouseActivated = true;
         LbGrabMouseCheck(MG_OnFocusGained);
-        if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+        if (mute_audio_on_focus_lost())
         {
-            resume_music();
+            if (!SoundDisabled)
+            {
+                set_music_volume(settings.music_volume);
+                SetSoundMasterVolume(settings.sound_volume);
+                if (!LbIsFrozenOrPaused() && !freeze_game_on_focus_lost()) //otherwise music is resumed already in the else
+                {
+                    resume_music();
+                }
+            }
         }
-        if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
+        else
         {
-            mute_audio(false);
+            if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+            {
+                resume_music();
+            }
         }
         redetect_screen_refresh_rate_for_draw();
         break;
