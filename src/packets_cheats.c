@@ -1061,6 +1061,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                     struct Dungeon* dungeon = get_dungeon(plyr_idx);
                     dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                    dungeon->lvstats.keeper_destroyed[ALL_PLAYERS]++;
                     dungeon->lvstats.keepers_destroyed++;
             }
             break;
@@ -1073,6 +1074,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 thing->health = 0;
                 dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                dungeon->lvstats.keeper_destroyed[ALL_PLAYERS]++;
                 dungeon->lvstats.keepers_destroyed++;
             }
             struct Thing* heartng = find_players_backup_dungeon_heart(pckt->actn_par1);
@@ -1080,6 +1082,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 heartng->health = 0;
                 dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                dungeon->lvstats.keeper_destroyed[ALL_PLAYERS]++;
                 dungeon->lvstats.keepers_destroyed++;
             }
             break;
