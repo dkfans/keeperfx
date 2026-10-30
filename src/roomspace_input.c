@@ -188,7 +188,7 @@ static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta p
             update_dungeon_sell_roomspace_preview(user, stl_x, stl_y);
         } else {
             has_roomspace = update_dig_highlight(pckt, stl_x, stl_y);
-            if (!has_roomspace && include_drop_preview && (ustate->primary_cursor_state == CSt_PowerHand) && !power_hand_is_empty(get_my_player())) {
+            if (!has_roomspace && include_drop_preview && (ustate->work_state == PSt_CtrlDungeon) && !power_hand_is_empty(get_my_player())) {
                 tag_cursor_blocks_thing_in_hand(user, stl_x, stl_y);
                 has_roomspace = true;
             }
