@@ -23,13 +23,14 @@
 #include "bflib_basics.h"
 #include "game_legacy.h"
 #include "moonphase.h"
+#include "replay_rewind.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-struct IntralevelData intralvl;
+kfx_rewindable struct IntralevelData intralvl;
 unsigned long game_flags2 = 0;
 /******************************************************************************/
 /******************************************************************************/

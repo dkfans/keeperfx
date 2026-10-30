@@ -420,10 +420,11 @@ CONTENTS
 --------------------------------------------------------------------------------
   header   kind REPL
   chunks   in this order
-    SCHM   REQ  zlib   roots: CatalogueEntry, PacketSaveHead, Packet,
+    SCHM   REQ  zlib   roots: CatalogueEntry, PacketSaveHead, Packet, IntralevelData,
                               and Game when the file has GAME
     META   REQ  raw    CatalogueEntry
     PHDR   REQ  raw    PacketSaveHead
+    ILVL   REQ  zlib   the interlevel state at the start of the replay
     GAME   REQ  zlib   optional, the game at the start of the replay
     TURN   REQ  raw    raw_len 0, stored_len 0
   Everything after TURN belongs to the replay codec and is not described here.
