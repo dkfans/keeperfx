@@ -236,8 +236,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
         break;
     }
 
-    if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
-    {
+    if (flag_is_set(pckt->control_flags, PCtr_LBtnHeld) && !flag_is_set(pckt->control_flags, PCtr_Gui)) {
         struct PowerConfigStats *powerst = get_power_model_stats(ustate->chosen_power_kind);
 
         switch (powerst->overcharge_check_idx)
