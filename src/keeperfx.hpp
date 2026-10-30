@@ -143,6 +143,7 @@ struct StartupParameters {
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
+    char *config_overrides; /**< extra lines from -cfg args */
     int renderer_type; /**< RendererType value from -opengl; only meaningful when overrides[Clo_Renderer] is set. */
     GameTurn pause_at_gameturn;
     unsigned char startup_flags;
@@ -272,8 +273,6 @@ int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
 void dump_thing_held_by_any_player(struct Thing *thing);
 
 void instant_instance_selected(CrInstance check_inst_id);
-void centre_engine_window(void);
-void change_engine_window_relative_size(long w_delta, long h_delta);
 void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_mesh_randomizers(void);

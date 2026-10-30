@@ -403,29 +403,8 @@ TbBool prepare_diskpath(char *buf,long buflen)
     return true;
 }
 
-static void load_file_configuration(const char *fname, const char *sname, const char *config_textname, unsigned short flags)
+static void load_string_configuration(const char *buf, int32_t len, const char *config_textname)
 {
-  long len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    if ((flags & CnfLd_IgnoreErrors) == 0)
-      WARNMSG("%s file \"%s\" doesn't exist or is too small.", config_textname,sname);
-    return;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
-    return;
-  }
-  char* buf = (char*)KfxCalloc(len + 256, 1);
-  if (buf == NULL)
-    return;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  if (len>0)
-  {
-    SYNCDBG(7,"Processing %s file, %ld bytes",config_textname,len);
-    buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
     int32_t pos = 0;
@@ -1195,6 +1174,32 @@ static void load_file_configuration(const char *fname, const char *sname, const 
       skip_conf_to_next_line(buf,&pos,len);
     }
 #undef COMMAND_TEXT
+}
+
+static void load_file_configuration(const char *fname, const char *sname, const char *config_textname, unsigned short flags)
+{
+  long len = LbFileLengthRnc(fname);
+  if (len < 2)
+  {
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+      WARNMSG("%s file \"%s\" doesn't exist or is too small.", config_textname,sname);
+    return;
+  }
+  if (len > 65536)
+  {
+    WARNMSG("%s file \"%s\" is too large.", config_textname,sname);
+    return;
+  }
+  char* buf = (char*)KfxCalloc(len + 256, 1);
+  if (buf == NULL)
+    return;
+
+  len = LbFileLoadAt(fname, buf);
+  if (len>0)
+  {
+    SYNCDBG(7,"Processing %s file, %ld bytes", config_textname, len);
+    buf[len] = '\0';
+    load_string_configuration(buf, len, config_textname);
   }
   SYNCDBG(7,"%s loaded", config_textname);
   // Freeing
@@ -1292,6 +1297,9 @@ short load_configuration(void)
   load_file_configuration(fname, sname, config_textname, 0);
 
   load_configuration_for_mod_all();
+
+  if (start_params.config_overrides != NULL)
+    load_string_configuration(start_params.config_overrides, strlen(start_params.config_overrides), "CLI (-cfg)");
 
   // Returning if the setting are valid
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');

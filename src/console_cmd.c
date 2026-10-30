@@ -1769,6 +1769,7 @@ TbBool cmd_player_heart_health(PlayerNumber plyr_idx, char * args)
     if (thing->health <= 0) {
         struct Dungeon * dungeon = get_dungeon(plyr_idx);
         dungeon->lvstats.keeper_destroyed[id]++;
+        dungeon->lvstats.keeper_destroyed[ALL_PLAYERS]++;
         dungeon->lvstats.keepers_destroyed++;
     }
     return true;

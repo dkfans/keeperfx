@@ -28,6 +28,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "kfx_memory.h"
 #include "bflib_sndlib.h"
 #include "bflib_cpu.h"
 #include "bflib_crash.h"
@@ -1119,12 +1120,6 @@ void reset_creature_max_levels(void)
     }
 }
 
-void change_engine_window_relative_size(long w_delta, long h_delta)
-{
-    setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
-        local_state.engine_window_width+w_delta, local_state.engine_window_height+h_delta);
-}
-
 void PaletteSetUserPalette(NetUserId user, unsigned char *pal)
 {
     struct UserState* ustate = get_user_state(user);
@@ -1189,16 +1184,6 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
     if (!result)
       ERRORLOG("Can't load palette file.");
     return result;
-}
-
-void centre_engine_window(void)
-{
-    long window_center_x;
-    long window_center_y;
-    int32_t reserved = engine_window_reserved_left();
-    window_center_x = (MyScreenWidth-local_state.engine_window_width-reserved) / 2 + reserved;
-    window_center_y = (MyScreenHeight-local_state.engine_window_height) / 2;
-    setup_engine_window(window_center_x, window_center_y, local_state.engine_window_width, local_state.engine_window_height);
 }
 
 void turn_off_query(NetUserId user)
@@ -1967,6 +1952,25 @@ static short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.config_file, pr2str);
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
+      }
+      else if (strcasecmp(parstr, "cfg") == 0)
+      {
+        if (pr2str[0])
+        {
+            // append line to config_overrides
+            const char *line = argv[narg + 1];
+            size_t old_len = start_params.config_overrides ? strlen(start_params.config_overrides) : 0;
+            size_t add_len = strlen(line);
+            start_params.config_overrides = (char *)KfxRealloc(start_params.config_overrides, old_len + add_len + 2);
+            memcpy(start_params.config_overrides + old_len, line, add_len);
+            start_params.config_overrides[old_len + add_len] = '\n';
+            start_params.config_overrides[old_len + add_len + 1] = '\0';
+            narg++;
+        }
+        else
+        {
+            WARNMSG("No KEY=VALUE given after -cfg");
+        }
       }
       else if ( strcasecmp(parstr,"Bullfrog") == 0 ) // force playing the Bullfrog video
       {

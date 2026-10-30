@@ -60,13 +60,13 @@ enum TbPacketAction {
         PckA_UnusedSlot018,
         PckA_UnusedSlot019,
         PckA_ToggleLights,//20
-        PckA_SwitchScrnRes,
+        PckA_UnusedSlot021,
         PckA_TogglePause,
         PckA_UnusedSlot023,
         PckA_SetUserPref,
-        PckA_ChangeWindowSize,//25
+        PckA_UnusedSlot025,//25
         PckA_BookmarkLoad,
-        PckA_SetGammaLevel,
+        PckA_UnusedSlot027,
         PckA_UnusedSlot028,
         PckA_SetMapRotation,
         PckA_UnusedSlot030,//30
@@ -338,6 +338,9 @@ void process_user_creature_control_packet_action(NetUserId user);
 void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
 TbBool process_user_global_packet_action(NetUserId user);
+void apply_user_pref_packet_action(struct UserState *ustate, const struct Packet *pckt);
+void apply_first_person_packet_action(struct UserState *ustate, const struct Packet *pckt);
+void apply_creature_input_packet_values(struct UserState *ustate, const struct Packet *pckt);
 void clear_users_button_state(void);
 void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, const struct UserState *ustate);
 TbBool packet_action_has_camera_position(enum TbPacketAction action);

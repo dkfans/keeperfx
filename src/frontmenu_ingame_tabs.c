@@ -2903,30 +2903,29 @@ void draw_placefiller(long scr_x, long scr_y, long units_per_px)
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
 }
 
-void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
+static void query_next_creature_of_owner(TbBool same_model)
 {
-    struct PlayerInfo *player = get_my_player();
-    struct Thing *creatng = thing_get(get_local_user_state()->influenced_thing_idx);
-    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, creatng->model, player);
-    if (next_creature != get_local_user_state()->influenced_thing_idx)
-    {
-        struct Packet* pckt = get_local_packet();
-        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0x02, 0, 0);
+    ThingIndex queried_creature = get_local_user_state_prediction()->influenced_thing_idx;
+    struct Thing *creatng = thing_get(queried_creature);
+    ThingModel crmodel = 0;
+    if (same_model) {
+        crmodel = creatng->model;
+    }
+    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, crmodel, get_my_player());
+    if (next_creature != queried_creature) {
+        set_packet_action(get_local_packet(), PckA_PlyrQueryCreature, next_creature, 0x02, 0, 0);
         play_non_3d_sample(snd_tab_click);
     }
 }
 
+void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
+{
+    query_next_creature_of_owner(true);
+}
+
 void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player = get_my_player();
-    struct Thing *creatng = thing_get(get_local_user_state()->influenced_thing_idx);
-    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, 0, player);
-    if (next_creature != get_local_user_state()->influenced_thing_idx)
-    {
-        struct Packet* pckt = get_local_packet();
-        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0x02, 0, 0);
-        play_non_3d_sample(snd_tab_click);
-    }
+    query_next_creature_of_owner(false);
 }
 
 void maintain_spell_next_page_button(struct GuiButton *gbtn)

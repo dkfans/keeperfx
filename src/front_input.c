@@ -77,6 +77,7 @@
 #include "local_camera.h"
 #include "local_possession.h"
 #include "packets.h"
+#include "vidmode.h"
 #include "replay.h"
 #include "replay_rewind.h"
 #include "roomspace_input.h"
@@ -107,6 +108,7 @@ static TbBool first_person_see_item_desc = false;
 
 static TbBool move_camera_this_turn;
 static GameTurn hand_pick_pending_turn;
+static unsigned char left_click_modifier_values;
 
 static int32_t my_mouse_x;
 static int32_t my_mouse_y;
@@ -887,20 +889,15 @@ static short get_minimap_control_inputs(void)
 
 /**
  * Handles screen control inputs.
- * @return Returns true if packet was created, false otherwise.
+ * @return Returns true if the input was handled, false otherwise.
  */
 static short get_screen_control_inputs(void)
 {
-    struct PlayerInfo* player = get_my_player();
-    short packet_made = false;
-    if (is_game_key_pressed(Gkey_SwitchScreenRes, true, false))
-    {
-        set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
-        packet_made = true;
-        if (packet_made)
-            return true;
-  }
-  return false;
+    if (!is_game_key_pressed(Gkey_SwitchScreenRes, true, false)) {
+        return false;
+    }
+    switch_to_next_video_mode_wrapper();
+    return true;
 }
 
 static TbBool get_paused_message_inputs(void)
@@ -1201,7 +1198,7 @@ static TbBool get_level_lost_inputs(void)
 
 static short get_status_panel_keyboard_action_inputs(void)
 {
-  struct UserState* ustate = get_local_user_state();
+  const struct UserState* ustate = get_local_user_state_prediction();
   if ( (ustate->work_state == PSt_PlaceTerrain) || (ustate->work_state == PSt_MkDigger) || (ustate->work_state == PSt_MkGoodCreatr) || (ustate->work_state == PSt_MkBadCreatr) )
   {
       return false;
@@ -1665,7 +1662,7 @@ static short get_creature_control_action_inputs(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_local_user_state();
+    const struct UserState* ustate = get_local_user_state_prediction();
     if (get_players_packet_action(player) != PckA_None)
         return 1;
     if ( ((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
@@ -1974,7 +1971,6 @@ static short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
             }
         }
-        ustate->thing_under_hand = 0;
         local_state.local_thing_under_hand = 0;
         const struct CreatureControl* cctrl = get_local_creature_control(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
@@ -1993,7 +1989,7 @@ static short get_creature_control_action_inputs(void)
                 struct Thing* traptng = controlled_get_trap_to_rearm(thing);
                 if (!thing_is_invalid(traptng))
                 {
-                    ustate->thing_under_hand = traptng->index;
+                    local_state.local_thing_under_hand = traptng->index;
                 }
             }
             else if (!thing_exists(dragtng))
@@ -2016,7 +2012,7 @@ static short get_creature_control_action_inputs(void)
                     struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
                     if (!thing_is_invalid(picktng))
                     {
-                        ustate->thing_under_hand = picktng->index;
+                        local_state.local_thing_under_hand = picktng->index;
                         if (first_person_see_item_desc)
                         {
                             display_controlled_pick_up_thing_name(picktng, 1, player->id_number);
@@ -2024,10 +2020,9 @@ static short get_creature_control_action_inputs(void)
                     }
                 }
             }
-            local_state.local_thing_under_hand = ustate->thing_under_hand;
-            if (ustate->selected_fp_thing_pickup != ustate->thing_under_hand)
+            if (ustate->selected_fp_thing_pickup != local_state.local_thing_under_hand)
             {
-                set_players_packet_action(player, PckA_SelectFPPickup, ustate->thing_under_hand, 0, 0, 0);
+                set_players_packet_action(player, PckA_SelectFPPickup, local_state.local_thing_under_hand, 0, 0, 0);
             }
         }
         if (numkey != -1)
@@ -3163,6 +3158,12 @@ void input(void)
       pckt->additional_packet_values |= PCAdV_CrtrQueryPressed;
     else
       pckt->additional_packet_values &= ~PCAdV_CrtrQueryPressed;
+    if (left_button_clicked) {
+        left_click_modifier_values = pckt->additional_packet_values & (PCAdV_CrtrContrlPressed | PCAdV_CrtrQueryPressed);
+    }
+    if (left_button_held || left_button_released) {
+        pckt->additional_packet_values |= left_click_modifier_values;
+    }
     if (is_game_key_pressed(Gkey_RotateMod, false, false) != 0)
         pckt->additional_packet_values |= PCAdV_RotatePressed;
     else
@@ -3315,7 +3316,7 @@ short get_gui_inputs(short gameplay_on)
 static void process_cheat_mode_selection_inputs(void)
 {
     struct PlayerInfo *player = get_my_player();
-    struct UserState* ustate = get_local_user_state();
+    const struct UserState* ustate = get_local_user_state_prediction();
     unsigned char new_value;
     struct CreatureModelConfig* crconf;
     // player selection

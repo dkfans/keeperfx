@@ -213,18 +213,11 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
         if (ustate->hand_thing_idx == 0) {
             create_power_hand(user);
         }
-        long allow_unclaimed_path = is_creature_droppable_on_path(thing);
-        if ((can_drop_thing_here(stl_x, stl_y, player->id_number, allow_unclaimed_path)
-             || !can_dig_here(stl_x, stl_y, player->id_number, true))
-            && (!ustate->one_click_lock_cursor))
-        {
-            ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
-            ustate->full_slab_cursor = (ustate->roomspace_mode != single_subtile_mode);
-            tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, allow_unclaimed_path, ustate->full_slab_cursor);
-        } else
-        {
+        if (ustate->one_click_lock_cursor || (!can_drop_thing_here(stl_x, stl_y, plyr_idx, is_creature_droppable_on_path(thing)) && can_dig_here(stl_x, stl_y, plyr_idx, true))) {
             ustate->additional_flags |= UsrAF_ChosenSubTileIsHigh;
             ustate->thing_under_hand = 0;
+        } else {
+            tag_cursor_blocks_thing_in_hand(user, stl_x, stl_y);
         }
     }
     if (ustate->hand_thing_idx != 0)

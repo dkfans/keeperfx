@@ -94,7 +94,7 @@ struct LevelStats {
   uint32_t hopes_dashed;
   uint32_t allow_save_score;
   uint32_t player_score;
-  uint32_t keeper_destroyed[PLAYERS_COUNT];
+  uint32_t keeper_destroyed[PLAYERS_COUNT+1];
 };
 
 #pragma pack()

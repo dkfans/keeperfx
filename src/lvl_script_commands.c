@@ -597,6 +597,24 @@ TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib
             }
             *varib_type = SVar_DESTROYED_KEEPER;
         }
+        else if (2 == sscanf(varib_name, "BATTLES_WON[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(player_desc, arg);
+            if (*varib_id == -1)
+            {
+                *varib_id = get_id(cmpgn_human_player_options, arg);
+            }
+            *varib_type = SVar_BATTLES_WON_VS;
+        }
+        else if (2 == sscanf(varib_name, "BATTLES_LOST[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(player_desc, arg);
+            if (*varib_id == -1)
+            {
+                *varib_id = get_id(cmpgn_human_player_options, arg);
+            }
+            *varib_type = SVar_BATTLES_LOST_VS;
+        }
         else if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);

@@ -12,6 +12,7 @@
 #include "bflib_fileio.h"
 #include "replay.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "post_inc.h"
 
 #include <cstdlib>
@@ -22,23 +23,28 @@
 #include "kfx/save/core/schema/save_tables_decl.h"
 /******************************************************************************/
 enum SaveResult SaveManager::WriteReplayHeader(TbFileHandle file, const CatalogueEntry *centry,
-    const PacketSaveHead *phead, const Game *game_state, SaveError *err)
+    const PacketSaveHead *phead, const Game *game_state, const IntralevelData *ilvl, SaveError *err)
 {
     SaveBufferOwner schema_buffer;
     SaveBufferOwner meta;
     SaveBufferOwner phdr;
+    SaveBufferOwner ilvlbuf;
     SaveBufferOwner gamebuf;
     SaveBufferOwner out;
+    const SaveStructDesc *roots5[5] = {
+        &save_desc_CatalogueEntry, &save_desc_PacketSaveHead, &save_desc_Packet,
+        &save_desc_IntralevelData, &save_desc_Game };
     const SaveStructDesc *roots4[4] = {
-        &save_desc_CatalogueEntry, &save_desc_PacketSaveHead, &save_desc_Packet, &save_desc_Game };
-    const SaveStructDesc *roots3[3] = {
-        &save_desc_CatalogueEntry, &save_desc_PacketSaveHead, &save_desc_Packet };
+        &save_desc_CatalogueEntry, &save_desc_PacketSaveHead, &save_desc_Packet,
+        &save_desc_IntralevelData };
     const bool with_game = (game_state != nullptr);
-    enum SaveResult result = save_schema_encode(&schema_buffer, with_game ? roots4 : roots3, with_game ? 4u : 3u, SVM_Save, err);
+    enum SaveResult result = save_schema_encode(&schema_buffer, with_game ? roots5 : roots4, with_game ? 5u : 4u, SVM_Save, err);
     if (result == SVR_Ok)
         result = save_encode_record(&meta, &save_desc_CatalogueEntry, centry, SVM_Save, err);
     if (result == SVR_Ok)
         result = save_encode_record(&phdr, &save_desc_PacketSaveHead, phead, SVM_Save, err);
+    if (result == SVR_Ok)
+        result = save_encode_record(&ilvlbuf, &save_desc_IntralevelData, ilvl, SVM_Save, err);
     if ((result == SVR_Ok) && with_game)
         result = save_encode_record(&gamebuf, &save_desc_Game, game_state, SVM_Save, err);
     if (result != SVR_Ok)
@@ -53,6 +59,7 @@ enum SaveResult SaveManager::WriteReplayHeader(TbFileHandle file, const Catalogu
     add(SCID_Schema, schema_buffer, true);
     add(SCID_Meta, meta, false);
     add(SCID_PacketHead, phdr, false);
+    add(SCID_Level, ilvlbuf, true);
     if (with_game)
         add(SCID_Game, gamebuf, true);
     succeeded = succeeded && (save_chunk_add(&out, SCID_TurnData, SCF_Required, &empty, 0, 0) == 0);
@@ -102,7 +109,8 @@ static enum SaveResult fail_freeing_decoder(SaveDecoder *decoder, SaveFileSchema
 }
 
 enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry *centry, PacketSaveHead *phead,
-    Game *game_state, bool *g_present, SaveFileSchema *out_schema, SaveDecoder *out_dec, SaveError *err)
+    Game *game_state, IntralevelData *ilvl, bool *g_present, SaveFileSchema *out_schema, SaveDecoder *out_dec,
+    SaveError *err)
 {
     *g_present = false;
     memset(out_schema, 0, sizeof(*out_schema));
@@ -119,6 +127,7 @@ enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry 
     bool have_schema = false;
     bool have_meta = false;
     bool have_phdr = false;
+    bool have_ilvl = false;
     for (bool done = false; !done;)
     {
         uint32_t id = 0;
@@ -139,14 +148,21 @@ enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry 
             break;
         case SCID_Meta:
         case SCID_PacketHead:
+        case SCID_Level:
         case SCID_Game:
         {
             if (!have_schema)
                 return save_fail(err, SVR_Damaged, "replay chunk before its schema");
             const SaveStructDesc *desc = (id == SCID_Meta) ? &save_desc_CatalogueEntry
-                : (id == SCID_PacketHead) ? &save_desc_PacketSaveHead : &save_desc_Game;
-            void *dst = (id == SCID_Meta) ? static_cast<void *>(centry) : (id == SCID_PacketHead) ? static_cast<void *>(phead) : static_cast<void *>(game_state);
-            memset(dst, 0, (id == SCID_Meta) ? sizeof(*centry) : (id == SCID_PacketHead) ? sizeof(*phead) : sizeof(*game_state));
+                : (id == SCID_PacketHead) ? &save_desc_PacketSaveHead
+                : (id == SCID_Level) ? &save_desc_IntralevelData : &save_desc_Game;
+            void *dst = (id == SCID_Meta) ? static_cast<void *>(centry)
+                : (id == SCID_PacketHead) ? static_cast<void *>(phead)
+                : (id == SCID_Level) ? static_cast<void *>(ilvl) : static_cast<void *>(game_state);
+            const size_t dst_size = (id == SCID_Meta) ? sizeof(*centry)
+                : (id == SCID_PacketHead) ? sizeof(*phead)
+                : (id == SCID_Level) ? sizeof(*ilvl) : sizeof(*game_state);
+            memset(dst, 0, dst_size);
             uint32_t used;
             save_decoder_set_chunk_flags(out_dec, flags);
             result = save_decode_record(out_dec, desc, data.get(), len, &used, dst, err);
@@ -154,6 +170,7 @@ enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry 
                 return fail_freeing_decoder(out_dec, out_schema, result);
             if (id == SCID_Meta) have_meta = true;
             else if (id == SCID_PacketHead) have_phdr = true;
+            else if (id == SCID_Level) have_ilvl = true;
             else *g_present = true;
             break;
         }
@@ -164,7 +181,7 @@ enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry 
             break;
         }
     }
-    if (!have_schema || !have_meta || !have_phdr)
+    if (!have_schema || !have_meta || !have_phdr || !have_ilvl)
     {
         save_fail(err, SVR_Damaged, "replay file is missing a required chunk");
         return fail_freeing_decoder(out_dec, out_schema, SVR_Damaged);
@@ -173,17 +190,18 @@ enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry 
 }
 /******************************************************************************/
 extern "C" enum SaveResult SaveManager_WriteReplayHeader(TbFileHandle file, const struct CatalogueEntry *centry,
-    const struct PacketSaveHead *phead, const struct Game *game_state, struct SaveError *err)
+    const struct PacketSaveHead *phead, const struct Game *game_state, const struct IntralevelData *ilvl,
+    struct SaveError *err)
 {
-    return SaveManager::WriteReplayHeader(file, centry, phead, game_state, err);
+    return SaveManager::WriteReplayHeader(file, centry, phead, game_state, ilvl, err);
 }
 
 extern "C" enum SaveResult SaveManager_ReadReplayHeader(TbFileHandle file, struct CatalogueEntry *centry,
-    struct PacketSaveHead *phead, struct Game *game_state, TbBool *g_present, struct SaveFileSchema *out_schema,
-    struct SaveDecoder *out_dec, struct SaveError *err)
+    struct PacketSaveHead *phead, struct Game *game_state, struct IntralevelData *ilvl, TbBool *g_present,
+    struct SaveFileSchema *out_schema, struct SaveDecoder *out_dec, struct SaveError *err)
 {
     bool present = false;
-    const enum SaveResult result = SaveManager::ReadReplayHeader(file, centry, phead, game_state, &present, out_schema, out_dec, err);
+    const enum SaveResult result = SaveManager::ReadReplayHeader(file, centry, phead, game_state, ilvl, &present, out_schema, out_dec, err);
     *g_present = present;
     return result;
 }
