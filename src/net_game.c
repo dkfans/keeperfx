@@ -799,7 +799,7 @@ static NetUserId startup_user_of_player(PlayerNumber plyr_idx)
     return SERVER_ID;
 }
 
-void seat_network_user(NetUserId user, PlayerNumber plyr_idx)
+void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferences seat_prefs)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
     JUSTLOG("p:%d user %d took over from the computer", (int)plyr_idx, (int)user);
@@ -810,9 +810,10 @@ void seat_network_user(NetUserId user, PlayerNumber plyr_idx)
     init_user_state(user, plyr_idx);
     UserPreferences prefs;
     if (!get_startup_user_preferences(startup_user_of_player(plyr_idx), prefs)) {
-        build_local_user_preferences(prefs);
+        memcpy(prefs, seat_prefs, sizeof(UserPreferences));
     }
     apply_user_preferences(user, prefs, UPF_NewGame);
+    apply_user_preferences(user, seat_prefs, UPF_ApplyOnLoad);
     init_user_controls(get_user_state(user));
     reset_user_view_type(user, PVT_DungeonTop);
     init_player_cameras(player);

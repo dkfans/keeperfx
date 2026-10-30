@@ -337,7 +337,7 @@ static void seat_spectator(NetUserId spectator_id, NetUserId player_id, PlayerNu
     OnDroppedUser(spectator_id, NETDROP_MANUAL);
     SendNewUserUpdates(player_id);
     UpdateLocalPlayerInfo(player_id);
-    seat_network_user(player_id, plyr_idx);
+    seat_network_user(player_id, plyr_idx, player->seat_prefs);
     netstate.resync_pending = true;
 }
 
@@ -382,7 +382,9 @@ static void join_seat(NetUserId player_id, PlayerNumber plyr_idx, uint8_t input_
     local_state.show_gui = false;
     LbStopTextInput();
     network_spectator_reset();
-    seat_network_user(player_id, plyr_idx);
+    UserPreferences prefs;
+    build_local_user_preferences(prefs);
+    seat_network_user(player_id, plyr_idx, prefs);
 }
 
 TbError process_network_spectator_seat(NetUserId source, const char *buffer, size_t size)
@@ -413,9 +415,9 @@ void network_spectator_finish_seat(void)
     reinit_all_menus();
 }
 
-TbError process_network_spectator_ready(NetUserId source, size_t size)
+TbError process_network_spectator_ready(NetUserId source, const char *buffer, size_t size)
 {
-    if (netstate.my_id != SERVER_ID || !network_user_is_spectator(source) || !IsUserActive(source) || size != 0) {
+    if (netstate.my_id != SERVER_ID || !network_user_is_spectator(source) || !IsUserActive(source) || size != sizeof(UserPreferences)) {
         return Lb_OK;
     }
     struct NetUser *user = &netstate.users[source];
@@ -435,6 +437,7 @@ TbError process_network_spectator_ready(NetUserId source, size_t size)
             return Lb_OK;
         }
         user->spectator_state = NetSpectator_SnapshotPending;
+        memcpy(user->seat_prefs, buffer, sizeof(user->seat_prefs));
         assign_spectator_icon(source);
         user->seat_player = find_open_seat(user->name);
         user->seat_requested = user->seat_player != PLAYER_NONE;
@@ -445,7 +448,11 @@ TbError process_network_spectator_ready(NetUserId source, size_t size)
 void network_spectator_request_resync(void)
 {
     NETLOG("Spectator: requesting resync from host");
+    UserPreferences prefs;
+    build_local_user_preferences(prefs);
     char *write_pos = begin_net_message(NETMSG_SPECTATOR_READY);
+    memcpy(write_pos, prefs, sizeof(prefs));
+    write_pos += sizeof(prefs);
     send_message_buffer(SERVER_ID, write_pos);
     network_spectator_resync_requested = true;
 }
