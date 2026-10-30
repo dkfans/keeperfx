@@ -896,7 +896,7 @@ void rederive_local_state(void)
 void update_local_view_effects(void)
 {
     update_local_lens();
-    struct Thing *thing = thing_get(get_displayed_player()->controlled_thing_idx);
+    struct Thing *thing = thing_get(get_user_state(get_displayed_user())->controlled_thing_idx);
     TbBool frozen = thing_is_creature(thing) && flag_is_set(thing->alloc_flags, TAlF_IsControlled)
         && creature_under_spell_effect(thing, CSAfF_Freeze);
     if (frozen != local_state.freeze_palette_active)

@@ -3622,7 +3622,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crconf->eye_effect = value;
             for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
             {
-                struct Thing* thing = thing_get(get_player(plyr_idx)->controlled_thing_idx);
+                struct Thing* thing = thing_get(get_player_user_state(get_player(plyr_idx))->controlled_thing_idx);
                 if (thing_is_creature(thing) && (thing->model == creatid) && flag_is_set(thing->alloc_flags, TAlF_IsControlled))
                     set_player_lens(plyr_idx, value);
             }
