@@ -54,6 +54,7 @@ static struct LobbyAdvertisement hosted_advertisement;
 static SDL_Mutex *advertisement_mutex;
 static SDL_Thread *advertisement_thread;
 static SDL_AtomicInt advertisement_running;
+static TbBool advertised_rejoin_open;
 
 void net_lobby_advertisement(struct LobbyAdvertisement *output)
 {
@@ -78,7 +79,9 @@ void net_lobby_refresh_metadata(void)
     session.joinable = !netstate.locked && netstate.phase != NetPhase_InGame && netstate.phase != NetPhase_Loading;
     session.max_players = netstate.max_users;
     session.spectator_support = 1;
-    session.spectators_enabled = net_config_info.spectators_enabled || network_spectator_seat_open(NULL);
+    session.spectators_enabled = net_config_info.spectators_enabled;
+    session.rejoin_open = network_spectator_seat_open(NULL);
+    advertised_rejoin_open = session.rejoin_open;
     session.max_spectators = MAX_NET_SPECTATORS;
     session.spectator_count = net_lobby_spectator_count();
     snprintf(session.version, sizeof(session.version), "%d.%d.%d.%d", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
@@ -97,6 +100,13 @@ void net_lobby_refresh_metadata(void)
         hosted_advertisement.metadata[0] = '\0';
     }
     SDL_UnlockMutex(advertisement_mutex);
+}
+
+void net_lobby_refresh_rejoin_open(void)
+{
+    if (network_spectator_seat_open(NULL) != advertised_rejoin_open) {
+        net_lobby_refresh_metadata();
+    }
 }
 
 static char *write_lobby_settings_message(void)

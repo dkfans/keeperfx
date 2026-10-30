@@ -33,6 +33,7 @@ struct LobbyAdvertisement {
 
 extern uint32_t network_lobby_ping;
 void net_lobby_refresh_metadata(void);
+void net_lobby_refresh_rejoin_open(void);
 void net_lobby_advertisement(struct LobbyAdvertisement *output);
 void net_lobby_apply_settings(void);
 int32_t net_lobby_min_players(void);
