@@ -315,7 +315,8 @@ enum ScriptVariables {
   SVar_PLAYER_SCORE                    = 89,
   SVar_MANAGE_SCORE                    = 90,
   SVar_CONTROLLED_THING                = 91,
-  SVar_BATTLES_WON_VS                  = 92,
+  SVar_BATTLES_LOST_VS                 = 92,
+  SVar_BATTLES_WON_VS                  = 93,
  };
 
 extern const struct NamedCommand player_desc[];

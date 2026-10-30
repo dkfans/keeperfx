@@ -3458,6 +3458,8 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         if (flag_is_set(flags, CrDed_DiedInBattle))
         {
             dungeon->battles_lost++;
+            dungeon->battles_lost_vs[ALL_PLAYERS]++;
+            dungeon->battles_lost_vs[killertng->owner]++;
         }
     }
     update_kills_counters(creatng, killertng, killer_plyr_idx, flags);

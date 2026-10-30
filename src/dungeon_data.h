@@ -194,6 +194,7 @@ struct Dungeon {
     CrtrExpLevel creature_max_level[CREATURE_TYPES_MAX];
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
+    unsigned short battles_lost_vs[PLAYERS_COUNT+1];
     unsigned short battles_won;
     unsigned short battles_won_vs[PLAYERS_COUNT+1];
     /** Amount of room tiles a player had which were destroyed (vandalized or damaged by enemy). */
