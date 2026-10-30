@@ -854,7 +854,7 @@ static void remove_user_from_game(NetUserId user, const char *announce_fmt, TbBo
 
 static void leave_network_if_alone(void)
 {
-    if (network_is_host() && (net_config_info.spectators_enabled || net_lobby_spectator_count() > 0)) {
+    if (network_is_host() && (net_config_info.spectators_enabled || net_lobby_spectator_count() > 0 || network_spectator_seat_open(NULL))) {
         return;
     }
     if (!network_has_remote_users_remaining()) {
@@ -900,6 +900,7 @@ void process_user_leave_game_packet(NetUserId user)
     remove_user_from_game(user, announce_fmt, !timed_out);
     if (timed_out && network_is_active()) {
         process_pause_packet(1, 0);
+        net_lobby_refresh_metadata();
     }
     if (network_is_active()) {
         leave_network_if_alone();

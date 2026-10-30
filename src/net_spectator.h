@@ -32,6 +32,7 @@ TbBool network_spectator_request_conversion(void);
 void network_spectator_convert_defeated_users(void);
 TbError process_network_spectator_conversion(NetUserId source, const char *buffer, size_t size);
 void network_spectator_finish_conversion(void);
+TbBool network_spectator_seat_open(const char *owner_name);
 void network_spectator_seat_users(void);
 TbError process_network_spectator_seat(NetUserId source, const char *buffer, size_t size);
 void network_spectator_finish_seat(void);

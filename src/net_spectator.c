@@ -294,11 +294,16 @@ static PlayerNumber find_open_seat(const char *owner_name)
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         const struct PlayerInfo *player = get_player(plyr_idx);
-        if (seat_is_open(plyr_idx) && strncmp(player->player_name, owner_name, sizeof(player->player_name) - 1) == 0) {
+        if (seat_is_open(plyr_idx) && (owner_name == NULL || strncmp(player->player_name, owner_name, sizeof(player->player_name) - 1) == 0)) {
             return plyr_idx;
         }
     }
     return PLAYER_NONE;
+}
+
+TbBool network_spectator_seat_open(const char *owner_name)
+{
+    return find_open_seat(owner_name) != PLAYER_NONE;
 }
 
 static NetUserId find_unseated_user_id(void)

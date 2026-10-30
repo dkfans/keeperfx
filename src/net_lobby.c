@@ -74,7 +74,7 @@ void net_lobby_refresh_metadata(void)
     session.joinable = !netstate.locked && netstate.phase != NetPhase_InGame && netstate.phase != NetPhase_Loading;
     session.max_players = netstate.max_users;
     session.spectator_support = 1;
-    session.spectators_enabled = net_config_info.spectators_enabled;
+    session.spectators_enabled = net_config_info.spectators_enabled || network_spectator_seat_open(NULL);
     session.max_spectators = MAX_NET_SPECTATORS;
     session.spectator_count = net_lobby_spectator_count();
     snprintf(session.version, sizeof(session.version), "%d.%d.%d.%d", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
@@ -170,11 +170,16 @@ enum NetJoinRejection net_lobby_spectator_rejection(NetUserId reservation)
     if (netstate.phase != NetPhase_InGame) {
         return NetJoin_SpectatorState;
     }
-    if (!net_config_info.spectators_enabled) {
+    const TbBool reserved = (reservation >= MAX_NET_USERS && reservation < MAX_NET_CONNECTIONS && netstate.users[reservation].progress != USER_UNUSED);
+    const char *returning_name = NULL;
+    if (reserved) {
+        returning_name = netstate.users[reservation].name;
+    }
+    if (!net_config_info.spectators_enabled && !network_spectator_seat_open(returning_name)) {
         return NetJoin_SpectatorsDisabled;
     }
     int32_t count = net_lobby_spectator_count();
-    if (reservation >= MAX_NET_USERS && reservation < MAX_NET_CONNECTIONS && netstate.users[reservation].progress != USER_UNUSED) {
+    if (reserved) {
         count--;
     }
     if (count >= MAX_NET_SPECTATORS) {
@@ -242,14 +247,6 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
         NETMSG("Peer was not in connected state");
         return Lb_OK;
     }
-    enum NetJoinRejection reason = net_lobby_join_rejection();
-    if (network_user_is_spectator(source)) {
-        reason = net_lobby_spectator_rejection(source);
-    }
-    if (reason != NetJoin_Accepted) {
-        netstate.sp->drop_user(source, reason);
-        return Lb_OK;
-    }
     const char *password;
     if (!read_network_message_text(&read_pos, &password, sizeof(netstate.password))) {
         NETDBG(6, "Connected peer sent invalid password");
@@ -272,6 +269,14 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
     if (!isalnum(user->name[0])) {
         NETDBG(6, "Connected peer had bad name starting with %c", user->name[0]);
         netstate.sp->drop_user(source, NetJoin_Accepted);
+        return Lb_OK;
+    }
+    enum NetJoinRejection reason = net_lobby_join_rejection();
+    if (network_user_is_spectator(source)) {
+        reason = net_lobby_spectator_rejection(source);
+    }
+    if (reason != NetJoin_Accepted) {
+        netstate.sp->drop_user(source, reason);
         return Lb_OK;
     }
     if (end_pos - read_pos < sizeof(user->version)) {
