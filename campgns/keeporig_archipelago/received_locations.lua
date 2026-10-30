@@ -326,6 +326,7 @@ function ReceivedLocations.ReceivedItemCheck(itemid)
             print("Unknown item ID " .. itemid)
             return
       end
+      SetAPLastProcessedItemIndex(itemid) -- Update our "last received" now that we've acknowledged and handled it.
       ReceivedLocationsTable.Add(itemid)
 end
 
