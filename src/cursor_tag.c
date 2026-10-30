@@ -32,6 +32,7 @@
 #include "frontend.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
+#include "thing_creature.h"
 #include "packets.h"
 #include "local_camera.h"
 #include "post_inc.h"
@@ -109,12 +110,17 @@ unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, NetUserId user, c
     return line_color;
 }
 
-void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool allow_unclaimed_path, TbBool full_slab)
+void tag_cursor_blocks_thing_in_hand(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   SYNCDBG(7,"Starting");
+  PlayerNumber plyr_idx = get_net_user_player_number(user);
+  struct UserState* ustate = get_user_state(user);
   MapSlabCoord slb_x = subtile_slab(stl_x);
-  MapSlabCoord slb_y = subtile_slab(stl_y);  
+  MapSlabCoord slb_y = subtile_slab(stl_y);
+  ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
   if (should_draw_cursor_box(plyr_idx)) {
+        TbBool full_slab = (ustate->roomspace_mode != single_subtile_mode);
+        TbBool allow_unclaimed_path = is_creature_droppable_on_path(get_first_thing_in_power_hand(get_player(plyr_idx)));
         map_volume_box.visible = true;
         map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, allow_unclaimed_path);
         if (full_slab)

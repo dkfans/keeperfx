@@ -159,7 +159,7 @@ static void apply_packet_prediction(NetUserId user, const struct Packet *pckt)
  * Runs the singleplayer roomspace cursor code for a local packet, on the user state as it will be once the pending local packets are processed.
  * pending_turns counts the pending packets before this one; it is negative when this packet has been processed already.
  */
-static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta pending_turns, struct UserState *predicted_ustate)
+static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta pending_turns, TbBool include_drop_preview, struct UserState *predicted_ustate)
 {
     NetUserId user = get_local_user();
     struct UserState *ustate = get_local_user_state();
@@ -188,6 +188,10 @@ static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta p
             update_dungeon_sell_roomspace_preview(user, stl_x, stl_y);
         } else {
             has_roomspace = update_dig_highlight(pckt, stl_x, stl_y);
+            if (!has_roomspace && include_drop_preview && (ustate->primary_cursor_state == CSt_PowerHand) && !power_hand_is_empty(get_my_player())) {
+                tag_cursor_blocks_thing_in_hand(user, stl_x, stl_y);
+                has_roomspace = true;
+            }
         }
     }
     *predicted_ustate = *ustate;
@@ -260,7 +264,7 @@ void update_dig_tag_input(void)
         selection_pckt.control_flags |= PCtr_LBtnClick;
     }
     struct UserState predicted_ustate;
-    TbBool has_roomspace = get_predicted_roomspace(&selection_pckt, game.input_lag_turns, &predicted_ustate);
+    TbBool has_roomspace = get_predicted_roomspace(&selection_pckt, game.input_lag_turns, false, &predicted_ustate);
     if (!dig_cursor.cursor_locked) {
         if (click && !has_roomspace && (cursor_context == CSt_PowerHand) && (local_state.local_thing_under_hand != 0)) {
             dig_cursor.cursor_button_down = false;
@@ -313,7 +317,7 @@ void update_dig_prediction_cursor_preview(void)
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
     reconcile_dig_predictions(&dig_tags, direct_packet->turn);
     struct UserState predicted_ustate;
-    dig_render_roomspace_active = get_predicted_roomspace(pckt, game.input_lag_turns - 1, &predicted_ustate);
+    dig_render_roomspace_active = get_predicted_roomspace(pckt, game.input_lag_turns - 1, true, &predicted_ustate);
     set_local_user_state_prediction(&predicted_ustate);
     if (pckt == NULL) {
         return;
