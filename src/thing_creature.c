@@ -2680,6 +2680,8 @@ TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
         killer_dungeon->lvstats.friendly_kills++;
     else
         killer_dungeon->battles_won++;
+    killer_dungeon->battles_won_vs[victim->owner]++;
+    killer_dungeon->battles_won_vs[ALL_PLAYERS]++;
     return true;
 }
 

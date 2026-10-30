@@ -96,6 +96,7 @@ static const VariableIconMapping variable_icon_mapping[] = {
     {SVar_CREATURES_ANNOYED,   GPS_symbols_creatr_mood_angry_std, 0, 2.5, NULL},
     {SVar_BATTLES_LOST,        GPS_message_rpanel_msg_battle_std, 0, 2.5, NULL},
     {SVar_BATTLES_WON,         GPS_message_rpanel_msg_battle_std, 0, 2.5, NULL},
+    {SVar_BATTLES_WON_VS,      GPS_message_rpanel_msg_battle_std, 0, 2.5, NULL },
     {SVar_ACTIVE_BATTLES,      GPS_message_rpanel_msg_battle_std, 0, 2.5, NULL},
     {SVar_ROOMS_DESTROYED,     GPS_message_rpanel_msg_room_std, 0, 2.5, NULL},
     {SVar_SPELLS_STOLEN,       GPS_message_rpanel_msg_spell_std, 0, 2.5, NULL},
@@ -202,6 +203,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
     case SVar_BATTLES_WON:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->battles_won;
+    case SVar_BATTLES_WON_VS:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->battles_won_vs[validx];
     case SVar_ROOMS_DESTROYED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->rooms_destroyed;
