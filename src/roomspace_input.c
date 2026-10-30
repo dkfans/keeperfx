@@ -46,15 +46,12 @@ static GameTurn cursor_release_turn;
 static MapSlabCoord room_drag_start_slb_x;
 static MapSlabCoord room_drag_start_slb_y;
 
-static TbBool dig_render_roomspace_active;
-
 void reset_dig_prediction(void)
 {
     memset(&dig_tags, 0, sizeof(dig_tags));
     memset(&dig_cursor, 0, sizeof(dig_cursor));
     cursor_release_turn = 0;
     set_local_user_state_prediction(NULL);
-    dig_render_roomspace_active = false;
 }
 
 static void reconcile_dig_predictions(struct DigTagPrediction *tags, GameTurn processed_turn)
@@ -99,14 +96,6 @@ static TbBool dig_input_is_enabled(void)
     return !replay.load_enable && (get_my_player() != &local_observer_player);
 }
 
-const struct RoomSpace *get_dig_prediction_render_roomspace(const struct RoomSpace *roomspace)
-{
-    if (dig_render_roomspace_active) {
-        return &get_player_user_state_prediction(get_my_player())->render_roomspace;
-    }
-    return roomspace;
-}
-
 TbBool local_cursor_is_locked(void)
 {
     if (dig_cursor.cursor_button_down && dig_cursor.cursor_locked) {
@@ -148,10 +137,16 @@ static void apply_packet_prediction(NetUserId user, const struct Packet *pckt)
 {
     struct UserState *ustate = get_user_state(user);
     apply_roomspace_packet_action(user, pckt);
+    apply_user_pref_packet_action(ustate, pckt);
+    apply_first_person_packet_action(ustate, pckt);
+    apply_creature_input_packet_values(ustate, pckt);
     ustate->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
     if (pckt->action == PckA_SetPlyrState) {
         ustate->work_state = pckt->actn_par1;
         set_user_work_state_kind(ustate, pckt->actn_par2);
+    }
+    if (pckt->action == PckA_PlyrQueryCreature) {
+        ustate->influenced_thing_idx = pckt->actn_par1;
     }
 }
 
@@ -159,7 +154,7 @@ static void apply_packet_prediction(NetUserId user, const struct Packet *pckt)
  * Runs the singleplayer roomspace cursor code for a local packet, on the user state as it will be once the pending local packets are processed.
  * pending_turns counts the pending packets before this one; it is negative when this packet has been processed already.
  */
-static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta pending_turns, struct UserState *predicted_ustate)
+static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta pending_turns, TbBool include_drop_preview, struct UserState *predicted_ustate)
 {
     NetUserId user = get_local_user();
     struct UserState *ustate = get_local_user_state();
@@ -186,8 +181,20 @@ static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta p
             update_dungeon_build_roomspace_preview(user, stl_x, stl_y);
         } else if (ustate->work_state == PSt_Sell) {
             update_dungeon_sell_roomspace_preview(user, stl_x, stl_y);
+        } else if (ustate->work_state != PSt_CtrlDungeon) {
+            tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         } else {
             has_roomspace = update_dig_highlight(pckt, stl_x, stl_y);
+            TbBool holding_thing = !power_hand_is_empty(get_my_player());
+            TbBool chosen_subtile_is_high = has_roomspace && holding_thing;
+            set_flag_value(ustate->additional_flags, UsrAF_ChosenSubTileIsHigh, chosen_subtile_is_high);
+            if (chosen_subtile_is_high) {
+                ustate->thing_under_hand = 0;
+            }
+            if (!has_roomspace && include_drop_preview && holding_thing) {
+                tag_cursor_blocks_thing_in_hand(user, stl_x, stl_y);
+                has_roomspace = true;
+            }
         }
     }
     *predicted_ustate = *ustate;
@@ -260,7 +267,7 @@ void update_dig_tag_input(void)
         selection_pckt.control_flags |= PCtr_LBtnClick;
     }
     struct UserState predicted_ustate;
-    TbBool has_roomspace = get_predicted_roomspace(&selection_pckt, game.input_lag_turns, &predicted_ustate);
+    TbBool has_roomspace = get_predicted_roomspace(&selection_pckt, game.input_lag_turns, false, &predicted_ustate);
     if (!dig_cursor.cursor_locked) {
         if (click && !has_roomspace && (cursor_context == CSt_PowerHand) && (local_state.local_thing_under_hand != 0)) {
             dig_cursor.cursor_button_down = false;
@@ -302,35 +309,20 @@ unsigned char get_dig_prediction_render_flags(MapSubtlCoord stl_x, MapSubtlCoord
 
 void update_dig_prediction_cursor_preview(void)
 {
-    dig_render_roomspace_active = false;
     set_local_user_state_prediction(NULL);
-    box_lag_compensation_x = 0;
-    box_lag_compensation_y = 0;
     if (!dig_input_is_enabled()) {
         return;
     }
-    const struct Packet *direct_packet = get_local_packet();
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
-    reconcile_dig_predictions(&dig_tags, direct_packet->turn);
-    struct UserState predicted_ustate;
-    dig_render_roomspace_active = get_predicted_roomspace(pckt, game.input_lag_turns - 1, &predicted_ustate);
-    set_local_user_state_prediction(&predicted_ustate);
-    if (pckt == NULL) {
-        return;
-    }
-    if ((pckt->control_flags & PCtr_LBtnRelease) != 0) {
-        dig_cursor.cursor_button_down = false;
-    }
-    if (dig_render_roomspace_active) {
-        return;
-    }
-    const struct UserState *ustate = get_local_user_state();
-    TbBool digging_cursor = (ustate->primary_cursor_state == CSt_PickAxe) || ((ustate->primary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0));
-    if (((ustate->work_state == PSt_CtrlDungeon) && digging_cursor) || (predicted_ustate.work_state != ustate->work_state)) {
+    reconcile_dig_predictions(&dig_tags, get_local_packet()->turn);
+    if (get_local_user_state()->work_state != PSt_OrderCreatr) {
         map_volume_box.visible = 0;
-    } else if ((direct_packet->control_flags & PCtr_MapCoordsValid) != 0) {
-        box_lag_compensation_x = slab_coord(coord_slab(direct_packet->pos_x) - coord_slab(pckt->pos_x));
-        box_lag_compensation_y = slab_coord(coord_slab(direct_packet->pos_y) - coord_slab(pckt->pos_y));
+    }
+    struct UserState predicted_ustate;
+    get_predicted_roomspace(pckt, game.input_lag_turns - 1, true, &predicted_ustate);
+    set_local_user_state_prediction(&predicted_ustate);
+    if ((pckt != NULL) && ((pckt->control_flags & PCtr_LBtnRelease) != 0)) {
+        dig_cursor.cursor_button_down = false;
     }
 }
 /******************************************************************************/

@@ -82,8 +82,7 @@ TbBool packets_process_cheats(
     switch (ustate->work_state)
     {
         case PSt_MkDigger:
-        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_place_thing(user, stl_x, stl_y);
+        allowed = tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, "%d", ustate->cheatselection.chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -100,8 +99,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_MkGoodCreatr:
-        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_place_thing(user, stl_x, stl_y);
+        allowed = tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         if (ustate->cheatselection.chosen_hero_kind == 0)
         {
@@ -156,8 +154,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_MkGoldPot:
-        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_place_thing(user, stl_x, stl_y);
+        allowed = tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -193,14 +190,10 @@ TbBool packets_process_cheats(
         else
             ustate->thing_under_hand = thing->index;
         thing = thing_get(get_user_state(user)->controlled_thing_idx);
-        if (thing_is_creature(thing))
-        {
+        allowed = false;
+        if (thing_is_creature(thing)) {
             ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
             allowed = tag_cursor_blocks_order_creature(user, stl_x, stl_y, thing);
-        }
-        else
-        {
-            allowed = false;
         }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
@@ -248,8 +241,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_MkBadCreatr:
-        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_place_thing(user, stl_x, stl_y);
+        allowed = tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         if (ustate->cheatselection.chosen_creature_kind == 0)
         {
@@ -401,8 +393,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_StealSlab:
-        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_steal_slab(user, stl_x, stl_y);
+        allowed = tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -634,8 +625,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_PlaceTerrain:
         {
-            ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-            tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
+            tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
             struct SlabConfigStats *slabst = get_slab_kind_stats(ustate->cheatselection.chosen_terrain_kind);

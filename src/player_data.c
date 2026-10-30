@@ -241,8 +241,8 @@ void set_local_user_state_prediction(const struct UserState *ustate)
 const struct UserState *get_user_state_prediction(NetUserId user)
 {
     const struct UserState *ustate = get_user_state(user);
-    if (local_user_state_prediction_active && !user_state_invalid(ustate) && ustate == get_local_user_state()) {
-        return &local_user_state_prediction;
+    if (!user_state_invalid(ustate) && ustate == get_local_user_state()) {
+        return get_local_user_state_prediction();
     }
     return ustate;
 }
@@ -250,6 +250,22 @@ const struct UserState *get_user_state_prediction(NetUserId user)
 const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player)
 {
     return get_user_state_prediction(get_player_primary_user(player));
+}
+
+const struct UserState *get_local_user_state_prediction(void)
+{
+    if (local_user_state_prediction_active) {
+        return &local_user_state_prediction;
+    }
+    return get_local_user_state();
+}
+
+ThingIndex get_user_thing_under_hand(NetUserId user)
+{
+    if (is_my_player(get_user_player(user))) {
+        return local_state.local_thing_under_hand;
+    }
+    return get_user_state(user)->thing_under_hand;
 }
 
 struct UserState *get_local_user_state(void)
@@ -262,7 +278,7 @@ struct UserState *get_local_user_state(void)
 
 uint32_t get_local_minimap_zoom(void)
 {
-    const struct UserState *ustate = get_local_user_state();
+    const struct UserState *ustate = get_local_user_state_prediction();
     if (user_state_invalid(ustate))
         return MINIMAP_ZOOM_DEFAULT;
     return clamp(ustate->prefs[UPref_MinimapZoom], MINIMAP_ZOOM_MIN, MINIMAP_ZOOM_MAX);

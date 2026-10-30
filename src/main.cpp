@@ -1120,12 +1120,6 @@ void reset_creature_max_levels(void)
     }
 }
 
-void change_engine_window_relative_size(long w_delta, long h_delta)
-{
-    setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
-        local_state.engine_window_width+w_delta, local_state.engine_window_height+h_delta);
-}
-
 void PaletteSetUserPalette(NetUserId user, unsigned char *pal)
 {
     struct UserState* ustate = get_user_state(user);
@@ -1190,16 +1184,6 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
     if (!result)
       ERRORLOG("Can't load palette file.");
     return result;
-}
-
-void centre_engine_window(void)
-{
-    long window_center_x;
-    long window_center_y;
-    int32_t reserved = engine_window_reserved_left();
-    window_center_x = (MyScreenWidth-local_state.engine_window_width-reserved) / 2 + reserved;
-    window_center_y = (MyScreenHeight-local_state.engine_window_height) / 2;
-    setup_engine_window(window_center_x, window_center_y, local_state.engine_window_width, local_state.engine_window_height);
 }
 
 void turn_off_query(NetUserId user)

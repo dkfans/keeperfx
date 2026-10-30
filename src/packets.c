@@ -236,8 +236,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
         break;
     }
 
-    if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
-    {
+    if (flag_is_set(pckt->control_flags, PCtr_LBtnHeld) && !flag_is_set(pckt->control_flags, PCtr_Gui)) {
         struct PowerConfigStats *powerst = get_power_model_stats(ustate->chosen_power_kind);
 
         switch (powerst->overcharge_check_idx)
@@ -715,9 +714,39 @@ static void process_dungeon_camera_action(NetUserId user, const struct Packet *p
     }
 }
 
-static TbBool process_local_packet_action(struct PlayerInfo *player, struct UserState *ustate, const struct Packet *pckt)
+void apply_user_pref_packet_action(struct UserState *ustate, const struct Packet *pckt)
 {
-    const TbBool local_action = is_my_player(player) && (!replay.load_enable || observer_is_active());
+    if ((pckt->action == PckA_SetUserPref) && (pckt->actn_par1 >= 0) && (pckt->actn_par1 < UPref_Count)) {
+        ustate->prefs[pckt->actn_par1] = pckt->actn_par2;
+    }
+}
+
+void apply_creature_input_packet_values(struct UserState *ustate, const struct Packet *pckt)
+{
+    ustate->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
+    ustate->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
+}
+
+void apply_first_person_packet_action(struct UserState *ustate, const struct Packet *pckt)
+{
+    switch (pckt->action) {
+    case PckA_SetFirstPersonDigMode:
+        ustate->first_person_dig_claim_mode = pckt->actn_par1;
+        break;
+    case PckA_SwitchTeleportDest:
+        ustate->teleport_destination = pckt->actn_par1;
+        break;
+    case PckA_SelectFPPickup:
+        ustate->selected_fp_thing_pickup = pckt->actn_par1;
+        break;
+    case PckA_SetNearestTeleport:
+        ustate->nearest_teleport = pckt->actn_par1;
+        break;
+    }
+}
+
+static TbBool process_local_packet_action(struct UserState *ustate, const struct Packet *pckt)
+{
     switch (pckt->action) {
     case PckA_PlyrMsgEnd:
         return false;
@@ -727,27 +756,8 @@ static TbBool process_local_packet_action(struct PlayerInfo *player, struct User
         if (ustate == get_local_user_state())
             memset(local_state.mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         return false;
-    case PckA_SwitchScrnRes:
-        if (local_action) {
-            switch_to_next_video_mode_wrapper();
-        }
-        return true;
-    case PckA_ChangeWindowSize:
-        if (local_action) {
-            change_engine_window_relative_size(pckt->actn_par1, pckt->actn_par2);
-            centre_engine_window();
-        }
-        return false;
-    case PckA_SetGammaLevel:
-        if (local_action) {
-            set_gamma(pckt->actn_par1, 1);
-            save_settings();
-        }
-        return false;
     case PckA_SetUserPref:
-        if (pckt->actn_par1 >= 0 && pckt->actn_par1 < UPref_Count) {
-            ustate->prefs[pckt->actn_par1] = pckt->actn_par2;
-        }
+        apply_user_pref_packet_action(ustate, pckt);
         return false;
     default:
         return true;
@@ -772,7 +782,7 @@ static TbBool process_observer_global_packet_action(void)
         if (observer_process_packet_action(pckt)) {
             return true;
         }
-        return process_local_packet_action(get_my_player(), get_local_user_state(), pckt);
+        return process_local_packet_action(get_local_user_state(), pckt);
     }
 }
 
@@ -879,11 +889,8 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
   case PckA_PlyrMsgEnd:
   case PckA_PlyrMsgClear:
-  case PckA_SwitchScrnRes:
-  case PckA_ChangeWindowSize:
-  case PckA_SetGammaLevel:
   case PckA_SetUserPref:
-      return process_local_packet_action(player, ustate, pckt);
+      return process_local_packet_action(ustate, pckt);
   case PckA_ToggleLights:
       if (is_my_player(player))
       {
@@ -1175,8 +1182,7 @@ void process_user_packet(NetUserId user)
     if (flag_is_set(game.operation_flags, GOF_Paused))
         replay_record_paused_action(user, pckt);
     struct UserState* ustate = get_user_state(user);
-    ustate->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
-    ustate->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
+    apply_creature_input_packet_values(ustate, pckt);
 
   if (!process_user_global_packet_action(user) && !network_user_is_spectator(user)) {
       // Different changes to the game are possible for different views.
@@ -1469,26 +1475,9 @@ void process_user_creature_control_packet_action(NetUserId user)
          direct_control_pick_up_or_drop(user, thing);
          break;
       }
-    case PckA_SetFirstPersonDigMode:
-    {
-        ustate->first_person_dig_claim_mode = pckt->actn_par1;
+    default:
+        apply_first_person_packet_action(ustate, pckt);
         break;
-    }
-    case PckA_SwitchTeleportDest:
-    {
-        ustate->teleport_destination = pckt->actn_par1;
-        break;
-    }
-    case PckA_SelectFPPickup:
-    {
-        ustate->selected_fp_thing_pickup = pckt->actn_par1;
-        break;
-    }
-    case PckA_SetNearestTeleport:
-    {
-        ustate->nearest_teleport = pckt->actn_par1;
-        break;
-    }
   }
 }
 
