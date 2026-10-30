@@ -220,10 +220,10 @@ function ItemStatus()
     end
     --Rooms
     local room_id_max = 14
-    for itemid=101, 100 + id_width_limit do
+    for itemid=101, 100 + room_id_max do
         local item_subtile_x = 97 + 12*(itemid % 100)
         local item_subtile_y = 142
-        if itemid <= room_id_max then
+        if itemid <= 100 + room_id_max then
             --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
@@ -237,23 +237,28 @@ function ItemStatus()
         end
     end
     --Traps
+
+
+    --todo: just hide FX additions only.
+
+
     local trap_id_max = 6
     if APSettings.KeeperFXTraps then trap_id_max = 9 end
     for itemid=201, 200 + id_width_limit do
         local item_subtile_x = 121 + 12*(itemid % 100)
         local item_subtile_y = 250
-        if itemid <= trap_id_max then
+        --if itemid <= 200 + trap_id_max then
             --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
                 AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x, item_subtile_y+12, 0)
             end
-        else
-            local slab_x = SubtileToSlab(item_subtile_x)
-            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
-                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
-            end
-        end
+        --else
+        --    local slab_x = SubtileToSlab(item_subtile_x)
+        --    for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
+        --        ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+        --    end
+        --end
     end
     --Doors
     local door_id_max = 4
@@ -261,7 +266,7 @@ function ItemStatus()
     for itemid=301, 300 + door_id_max do
         local item_subtile_x = 145 + 12*(itemid % 100)
         local item_subtile_y = 274
-        if itemid <= door_id_max then
+        if itemid <= 300 + door_id_max then
             --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
@@ -281,7 +286,7 @@ function ItemStatus()
     for itemid=401, 400 + id_width_limit do
         local item_subtile_x = 73 + 12*(itemid % 100)
         local item_subtile_y = 196
-        if itemid <= spell_id_max then
+        if itemid <= 400 + spell_id_max then
             --AddObjectToLevelAtPos("SPELLBOOK_IMP",item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
@@ -299,7 +304,7 @@ function ItemStatus()
     
     --todo: recipes
 
-    for itemid=601, 700 do
+    for itemid=601, 600 + 20 do
         local item_subtile_x = 34
         local item_subtile_y = 28 + 6*(itemid % 100)
         if ChecksTable[itemid] then
@@ -308,16 +313,53 @@ function ItemStatus()
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x+24, item_subtile_y, 0) --unlocked
                 AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x+30, item_subtile_y, 0) --active
             end
-            if SentLocations.Has(11000+(itemid % 100)) then --check this is the id we will use for having done a recipe
+            if SentLocations.Has(11000+(itemid % 100)) and APSettings.temple_locations then --check this is the id we will use for having done a recipe
                 AddObjectToLevelAtPos("HEARTFLAME_GREEN", item_subtile_x+36, item_subtile_y, 0) --sent
             end
-        else
-            local slab_y = SubtileToSlab(item_subtile_y)
-            for slab_x = SubtileToSlab(item_subtile_x)-1,SubtileToSlab(item_subtile_y)+13 do
-                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+        --else
+        --    local slab_y = SubtileToSlab(item_subtile_y)
+        --    for slab_x = SubtileToSlab(item_subtile_x)-1,SubtileToSlab(item_subtile_x)+13 do
+        --        ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+        --    end
+        end
+    end
+    if not APSettings.temple_locations then
+        for slab_x = 23,24 do
+            for slab_y = 10,60 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
             end
         end
     end
+    if not APSettings.PositiveRecipes then
+        for slab_x = 10,24 do
+            for slab_y = 10,23 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
+            end
+        end
+    end
+    if not APSettings.NegativeRecipes then
+        for slab_x = 10,24 do
+            for slab_y = 25,32 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
+            end
+        end
+    end
+    if not APSettings.KeeperFXRecipes then
+        for slab_x = 10,24 do
+            for slab_y = 33,54 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
+            end
+        end
+    end
+    --not used atm, remove this
+        for slab_x = 10,24 do
+            for slab_y = 55,60 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE") --remove green "done recipe" flame
+            end
+        end
+
+
+
     --progressives
     local levelcapcount = ReceivedLocationsTable.Count(701)
     local creaturelimitcount = ReceivedLocationsTable.Count(702)

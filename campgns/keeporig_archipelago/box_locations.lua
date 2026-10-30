@@ -29,6 +29,8 @@ local BoxLocations = {
     [105] = {2601, 2602, 2603, 2604, 2605, 2606, 2607, 2608, 2609},
 }
 
+local recipe_location_count = 21 -- pretty crummy way to do this, is there a better way?
+
 Game.APBox = {}
 
 function BoxLocations.Total()
@@ -37,6 +39,9 @@ function BoxLocations.Total()
         if type(level_id) == "number" then
             total = total + #location_ids
         end
+    end
+    if APSettings.temple_locations then
+        total = total + recipe_location_count
     end
     return total
 end
