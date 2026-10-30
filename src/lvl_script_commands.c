@@ -321,6 +321,7 @@ const struct NamedCommand variable_desc[] = {
     {"CREATURES_ANNOYED",           SVar_CREATURES_ANNOYED},
     {"BATTLES_LOST",                SVar_BATTLES_LOST},
     {"BATTLES_WON",                 SVar_BATTLES_WON},
+    {"BATTLES_WON_VS",              SVar_BATTLES_WON_VS},
     {"ROOMS_DESTROYED",             SVar_ROOMS_DESTROYED},
     {"SPELLS_STOLEN",               SVar_SPELLS_STOLEN},
     {"TIMES_BROKEN_INTO",           SVar_TIMES_BROKEN_INTO},
@@ -596,6 +597,15 @@ TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib
                 *varib_id = get_id(cmpgn_human_player_options, arg);
             }
             *varib_type = SVar_DESTROYED_KEEPER;
+        }
+        else if (2 == sscanf(varib_name, "BATTLES_WON_VS[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(player_desc, arg);
+            if (*varib_id == -1)
+            {
+                *varib_id = get_id(cmpgn_human_player_options, arg);
+            }
+            *varib_type = SVar_BATTLES_WON_VS;
         }
         else if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {

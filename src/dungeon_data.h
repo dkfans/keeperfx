@@ -195,6 +195,7 @@ struct Dungeon {
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
     unsigned short battles_won;
+    unsigned short battles_won_vs[PLAYERS_COUNT];
     /** Amount of room tiles a player had which were destroyed (vandalized or damaged by enemy). */
     unsigned short rooms_destroyed;
     unsigned short spells_stolen;
