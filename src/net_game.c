@@ -984,7 +984,6 @@ void process_disconnected_network_players(void)
     remove_remote_users_after_host_lost(netstate.my_id);
     replay_record_network_stopped();
     stop_network_game_and_continue_locally();
-    process_pause_packet(1, 0);
 }
 
 void apply_recorded_network_stop(void)
