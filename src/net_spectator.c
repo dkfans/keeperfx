@@ -290,34 +290,36 @@ static TbBool seat_is_open(PlayerNumber plyr_idx)
     return player_exists(player) && player_is_placeholder(player) && player->victory_state == VicS_Undecided;
 }
 
-static PlayerNumber find_open_seat(const char *owner_name)
+static TbBool user_can_reconnect(NetUserId user, const struct NetUser *returning)
 {
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        const struct PlayerInfo *player = get_player(plyr_idx);
-        if (seat_is_open(plyr_idx) && (owner_name == NULL || strncmp(player->player_name, owner_name, sizeof(player->player_name) - 1) == 0)) {
-            return plyr_idx;
-        }
+    const struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate) || netstate.users[user].progress != USER_UNUSED || user_present(user) || ustate->reconnect_player_id == PLAYER_NONE || netstate.reconnect_tokens[user] == 0) {
+        return false;
     }
-    return PLAYER_NONE;
+    if (returning != NULL && returning->reconnect_token != netstate.reconnect_tokens[user]) {
+        return false;
+    }
+    return seat_is_open(ustate->reconnect_player_id);
 }
 
-TbBool network_spectator_seat_open(const char *owner_name)
-{
-    return find_open_seat(owner_name) != PLAYER_NONE;
-}
-
-static NetUserId find_unseated_user_id(void)
+static NetUserId find_reconnecting_user(const struct NetUser *returning)
 {
     for (NetUserId id = SERVER_ID + 1; id < (NetUserId)netstate.max_users; id++) {
-        if (netstate.users[id].progress == USER_UNUSED && !user_present(id)) {
+        if (user_can_reconnect(id, returning)) {
             return id;
         }
     }
     return INVALID_USER_ID;
 }
 
-static void seat_spectator(NetUserId spectator_id, NetUserId player_id, PlayerNumber plyr_idx)
+TbBool network_spectator_seat_open(const struct NetUser *returning)
 {
+    return find_reconnecting_user(returning) != INVALID_USER_ID;
+}
+
+static void seat_spectator(NetUserId spectator_id, NetUserId player_id)
+{
+    PlayerNumber plyr_idx = get_user_state(player_id)->reconnect_player_id;
     NETLOG("Spectator %d takes over player %d as user %d", spectator_id, plyr_idx, player_id);
     netstate.users[spectator_id].spectator_icon = 0;
     send_spectator_notice(spectator_id, SpectatorNotice_BecamePlayer, ALL_NET_CONNECTIONS_MASK);
@@ -352,14 +354,8 @@ void network_spectator_seat_users(void)
             continue;
         }
         spectator->seat_requested = false;
-        if (!seat_is_open(spectator->seat_player)) {
-            continue;
-        }
-        NetUserId player_id = find_unseated_user_id();
-        if (player_id != INVALID_USER_ID) {
-            seat_spectator(spectator_id, player_id, spectator->seat_player);
-        } else {
-            netstate.sp->drop_user(spectator_id, NetJoin_Full);
+        if (user_can_reconnect(spectator->seat_user, spectator)) {
+            seat_spectator(spectator_id, spectator->seat_user);
         }
     }
 }
@@ -439,8 +435,8 @@ TbError process_network_spectator_ready(NetUserId source, const char *buffer, si
         user->spectator_state = NetSpectator_SnapshotPending;
         memcpy(user->seat_prefs, buffer, sizeof(user->seat_prefs));
         assign_spectator_icon(source);
-        user->seat_player = find_open_seat(user->name);
-        user->seat_requested = user->seat_player != PLAYER_NONE;
+        user->seat_user = find_reconnecting_user(user);
+        user->seat_requested = user->seat_user != INVALID_USER_ID;
     }
     return Lb_OK;
 }

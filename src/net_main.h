@@ -126,9 +126,11 @@ struct GameVersionPacket {
     int32_t build;
 };
 
+#define NET_USER_NAME_SIZE 32
+
 struct NetUser {
     NetUserId id;
-    char name[32];
+    char name[NET_USER_NAME_SIZE];
     enum NetUserProgress progress;
     int ack;
     struct GameVersionPacket version;
@@ -139,8 +141,9 @@ struct NetUser {
     TbBool spectator_resync_requested;
     uint32_t spectator_resync_requested_at;
     TbBool spectator_conversion_requested;
+    uint64_t reconnect_token;
     TbBool seat_requested;
-    int8_t seat_player;
+    NetUserId seat_user;
     UserPreferences seat_prefs;
 };
 
@@ -156,6 +159,7 @@ struct NetState {
     struct NetUser users[MAX_NET_CONNECTIONS];
     TbBool users_timed_out[MAX_NET_CONNECTIONS];
     enum NetJoinRejection users_leave_reason[MAX_NET_CONNECTIONS];
+    uint64_t reconnect_tokens[MAX_NET_USERS];
     enum NetJoinRejection leave_reason;
     struct NetFrame *exchg_queue;
     char password[32];
@@ -173,7 +177,7 @@ struct NetState {
 };
 
 struct TbNetworkUserInfo {
-    char name[32];
+    char name[NET_USER_NAME_SIZE];
     int32_t network_user_active;
     uint32_t connection_id;
 };

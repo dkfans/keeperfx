@@ -453,6 +453,7 @@ void clear_players(void)
     memset(game.user_states, 0, sizeof(game.user_states));
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         game.user_states[user].player_id = PLAYER_NONE;
+        game.user_states[user].reconnect_player_id = PLAYER_NONE;
     }
     struct LocalState prev_local_state = local_state;
     memset(&local_state, 0, sizeof(local_state));
