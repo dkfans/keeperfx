@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from Options import OptionGroup, ItemDict, Toggle, Choice
+from Options import OptionGroup, ItemDict, Toggle, Choice, ItemSet, Range
 from worlds.AutoWorld import PerGameCommonOptions
 from .items import CREATURES, ROOMS, SPELLS, LEVELS, POSITIVE_RECIPES
 from .enums import KeeperLevelName, KeeperPowerName, KeeperRoomName, KeeperCreatureName, KeeperRecipe
@@ -141,7 +141,7 @@ class RemoveNeutralRooms(Toggle):
     display_name = "Remove Neutral Rooms"
 
 class CrueltyMode(Toggle):
-    """Choose if you want to enable cruelty mode (experimental). If you claim a room/creature/spell/trap/etc. you haven't unlocked, it's taken away from you."""
+    """(Experimental, currently Rooms only). Anything you haven't earnt is taken away from you."""
     display_name = "Cruelty Mode"        
 
 class FlatTempleGuardPost(Toggle):
@@ -157,17 +157,22 @@ class FlatTempleGuardPost(Toggle):
 #    #If you assume an initial level cap of 3, a creature cap of 10, and only bugs, demonspawn and warlocks I would say definitely levels 1-4 are doable, as are 101,103-105.
 #    #Maybe others too, but I think it would be extremely hard.
 
-class StartingLevels(ItemDict):
-    """Levels available at the start of the game."""
+class StartingLevels(ItemSet):
+    """Possible levels available at the start of the game."""
     display_name = "Starting Levels"
-    min = 1
-    max = 5
-    default: Dict[str, int] = {
-        get_val(KeeperLevelName.LEVEL_001): 1,
-        get_val(KeeperLevelName.LEVEL_002): 1,
-        get_val(KeeperLevelName.LEVEL_003): 1,
+    default = {
+        get_val(KeeperLevelName.LEVEL_001),
+        get_val(KeeperLevelName.LEVEL_002),
+        get_val(KeeperLevelName.LEVEL_003),
     }
     valid_keys = set(get_val(k) for k in LEVELS.keys())
+
+class StartingLevelCount(Range):
+    """Maximum number of levels unlocked at the start."""
+    display_name = "Starting Level Count"
+    range_start = 1
+    range_end = 20
+    default = 3
 
 class StartingSpells(ItemDict):
     """Spells available at the start of the game."""
@@ -182,8 +187,10 @@ class StartingSpells(ItemDict):
     }
     valid_keys = set(get_val(k) for k in SPELLS.keys())
 
+#add traps and doors maybe? And heroes.
+
 class StartingCreatures(ItemDict):
-    """Creatures available at the start of the game."""
+    """Creatures available at the start of the game (min. 1, max. 5). You need the corresponding rooms to attract them!"""
     display_name = "Starting Creatures"
     min = 1
     max = 5
@@ -195,9 +202,9 @@ class StartingCreatures(ItemDict):
     valid_keys = set(get_val(k) for k in CREATURES.keys())
 
 class StartingRooms(ItemDict):
-    """Rooms available at the start of the game."""
+    """Rooms available at the start of the game (min. 1, max. 5)."""
     display_name = "Starting Rooms"
-    min = 0
+    min = 1
     max = 5
     default: Dict[str, int] = {
         get_val(KeeperRoomName.TREASURE): 1,
@@ -210,6 +217,7 @@ class StartingRooms(ItemDict):
 class DungeonKeeperOptions(PerGameCommonOptions):
     secret_levels: secret_levels
     starting_levels: StartingLevels
+    starting_level_count: StartingLevelCount
     starting_spells: StartingSpells
     starting_rooms: StartingRooms
     starting_creatures: StartingCreatures
@@ -262,6 +270,7 @@ option_groups = [
     ]),
     OptionGroup("Starting Items", [
         StartingLevels,
+        StartingLevelCount,
         StartingSpells,
         StartingRooms,
         StartingCreatures,

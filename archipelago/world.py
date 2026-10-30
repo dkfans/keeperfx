@@ -245,8 +245,18 @@ class DungeonKeeperWorld(World):
         )
 
     def generate_early(self) -> None:
+
+        possible_start_levels = list(self.options.starting_levels.value)
+        if not possible_start_levels:
+            possible_start_levels.append("Level 1")
+        number_of_levels = min(self.options.starting_level_count.value, len(possible_start_levels))
+        starting_levels = self.random.sample(possible_start_levels, number_of_levels)
+
+        for level_name in starting_levels:
+            item = self.create_item(level_name)
+            self.multiworld.push_precollected(item)
+
         starting_options = [
-            self.options.starting_levels,
             self.options.starting_spells,
             self.options.starting_rooms,
             self.options.starting_creatures,
@@ -258,8 +268,23 @@ class DungeonKeeperWorld(World):
                     item = self.create_item(item_name)
                     self.multiworld.push_precollected(item)
 
-        self.multiworld.early_items[self.player]["Library"] = 1
-        self.multiworld.early_items[self.player]["Training Room"] = 1
+        precollected_names = {item.name for item in self.multiworld.precollected_items[self.player]}
+
+        #creatures which require only base rooms
+        early_creatures = {"Attract Fly", "Attract Beetle", "Attract Spider",
+                           #"Attract Demon Spawn","Attract Warlock",
+                           "Attract Bile Demon","Attract Dragon",
+                           #"Attract Wizard","Attract Fairy",
+                           "Attract Thief",
+                           #"Attract Barbarian","Attract Knight","Attract Avatar",
+        }
+        #partial protection - if player starts with no creatures that are unlocked with the base 3 rooms, put the Fly really early.
+        if not early_creatures.intersection(precollected_names):
+            self.multiworld.early_items[self.player]["Attract Fly"] = 1
+        if "Library" not in precollected_names:
+            self.multiworld.early_items[self.player]["Library"] = 1
+        if "Training Room" not in precollected_names:
+            self.multiworld.early_items[self.player]["Training Room"] = 1
 
     # For features such as item links and panic-method start inventory, AP may ask your world to create extra filler.
     # The way it does this is by calling get_filler_item_name.
