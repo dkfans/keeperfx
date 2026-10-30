@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Literal
 
 from .items import CREATURES, ROOMS, SPELLS, LEVELS, KEEPERFX_CREATURES
 from .enums import KeeperLevelName, KeeperPowerName, KeeperRoomName, KeeperCreatureName, KeeperFXCreatureName, KeeperFXCreature
+from .options import ChangeNeutrals, RemoveNeutralRooms, CrueltyMode
 
 from rule_builder.rules import (Rule, CanReachEntrance, CanReachLocation, Has, HasAll, HasAny, HasFromListUnique, HasGroupUnique, HasGroup,
                                 OptionFilter, True_, HasFromList)
@@ -23,104 +24,140 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
 #Some require Bridge to get, one requires Destroy Walls, some aren't really possible to get to without having basically beaten the level anyway
     #Extra safety net to avoid weird starting seeds where the player only picks creatures which cannot research and their associated required rooms
     #(giant, troll, tunneller)
-    have_base_creature_who_can_research = HasAny("Attract Fly", "Attract Beetle", "Attract Spider", "Attract Demon Spawn", "Attract Warlock", "Attract Bile Demon", "Attract Dragon", "Attract Wizard", "Attract Fairy", "Attract Thief", "Attract Barbarian", "Attract Knight", "Attract Avatar")
+    have_base_researcher = HasAny("Attract Fly", "Attract Beetle", "Attract Spider", "Attract Demon Spawn", "Attract Warlock", "Attract Bile Demon", "Attract Dragon", "Attract Wizard", "Attract Fairy", "Attract Thief", "Attract Barbarian", "Attract Knight", "Attract Avatar")
     #Extra safety net to avoid weird starting seeds where the player only picks creatures which cannot manufacture and their associated required rooms
     #(fairy, warlock, time mage, vampire, wizard)
-    have_base_creature_who_can_manufacture = HasAny("Attract Fly", "Attract Beetle", "Attract Spider", "Attract Demon Spawn", "Attract Bile Demon", "Attract Dragon", "Attract Troll", "Attract Thief", "Attract Barbarian", "Attract Giant", "Attract Knight", "Attract Avatar")
+    have_base_manufacturer = HasAny("Attract Fly", "Attract Beetle", "Attract Spider", "Attract Demon Spawn", "Attract Bile Demon", "Attract Dragon", "Attract Troll", "Attract Thief", "Attract Barbarian", "Attract Giant", "Attract Knight", "Attract Avatar")
 
-    location_rules["Eversmile Water Patch"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    have_library_if_cruelty_mode = (OptionFilter(CrueltyMode, 0) | (Has("Library") & OptionFilter(CrueltyMode, 1)))
+    have_base_researcher_if_changed_neutrals = (OptionFilter(ChangeNeutrals, 0) | (have_base_researcher & OptionFilter(ChangeNeutrals, 0, operator="gt")))
+    have_base_manufacturer_if_changed_neutrals = (OptionFilter(ChangeNeutrals, 0) | (have_base_manufacturer & OptionFilter(ChangeNeutrals, 0, operator="gt")))
+    have_library_if_remove_neutral_rooms = (OptionFilter(RemoveNeutralRooms, 0) | (Has("Library") & OptionFilter(RemoveNeutralRooms, 1)))
+    
 
-    location_rules["Cosyton East Water"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Cosyton Hero Fortress"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
 
-    location_rules["Waterdream Warm South Water"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Waterdream Warm Hero Fortress"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    #level 3 - neutral skeletons
+    #4 - spiders
+    #5 - bile and spiders
+    #6 - mistresses
+    #8 - demon sapwn, hound, barbarian
+    #9 - mistress, troll, bile
+    #10 - dragon, flies
+    #12 - vampires
+    #13 - dragons
+    #14 - troll and horny
+    #15 - ghost and skeleton
+    #17 - archers
+    #18 - tentacles, biles, spiders, skeletons, giants, dragons, vampire
+    #19 - vampire, dragon
+    #20, fly, bug, horny
 
-    location_rules["Flowerhat Hero Fortress NE"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Flowerhat Hero Fortress SE"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    #102 - horny
+    #103 - witch
+    #104 - bile, mistress, vampire, giant
 
-    location_rules["Flowerhat Lava Island"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Flowerhat Spider Cave"] = HasAll("Bridge", "Library") & CanReachLocation("Level 4 Beaten") & have_base_creature_who_can_research
+    #starting creatures:
+    #11 - bile troll demonspawn
+    #16 - horny
+    #100 demonspawn
+    #101 - later receive mistresses
+    #102 - later get hellhound
+    #103 skeleton
+    #104 - dragon
+    #105 - later get thief
 
-    location_rules["Lushmeadow-on-Down East Fort"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Lushmeadow-on-Down West Fort"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Lushmeadow-on-Down West Islet"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Eversmile Water Patch"] = HasAll("Bridge", "Library") & have_base_researcher
 
-    location_rules["Snuggledell East Water"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Snuggledell West Water"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Snuggledell Southeast Water"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Cosyton East Water"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Cosyton Hero Fortress"] = HasAll("Bridge", "Library") & have_base_researcher
 
-    location_rules["Wishvale NE Hero Fortress"] = HasAll("Bridge", "Library")  & have_base_creature_who_can_research #Technically Blue could bridge to you
-    location_rules["Wishvale East Hero Fortress"] = HasAll("Bridge", "Library")  & have_base_creature_who_can_research #Technically Blue could bridge to you
-    location_rules["Wishvale SE Hero Fortress"] = HasAll("Bridge", "Library")  & have_base_creature_who_can_research #Technically Blue could bridge to you
-    location_rules["Wishvale Blue Keeper"] = HasAll("Bridge", "Library") & CanReachLocation("Level 7 Beaten")  & have_base_creature_who_can_research #Technically Blue could bridge to you
+    location_rules["Waterdream Warm South Water"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # neutral skeletons
+    location_rules["Waterdream Warm Hero Fortress"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # neutral skeletons
 
-    location_rules["Tickle Northeast Fortress"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Flowerhat Hero Fortress NE"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # neutral spiders
+    location_rules["Flowerhat Hero Fortress SE"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # neutral spiders
+    location_rules["Flowerhat Lava Island"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # neutral spiders
+    location_rules["Flowerhat Spider Cave"] = HasAll("Bridge", "Library") & CanReachLocation("Level 4 Beaten") & have_base_researcher_if_changed_neutrals # neutral spiders
 
-    location_rules["Moonbrush Wood SW Library"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Moonbrush Wood SE Library"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Moonbrush Wood NE Library"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Moonbrush Wood NW Library"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Moonbrush Wood Neutral Fort"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Lushmeadow-on-Down East Fort"] = HasAll("Bridge", "Library") & have_base_researcher # can't get to them without a bridge
+    location_rules["Lushmeadow-on-Down West Fort"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Lushmeadow-on-Down West Islet"] = HasAll("Bridge", "Library") & have_base_researcher
 
-    location_rules["Nevergrim East Island"] = HasAll("Bridge", "Library")  & have_base_creature_who_can_research #Technically Blue could bridge to you
-    location_rules["Nevergrim West Island"] = HasAll("Bridge", "Library")  & have_base_creature_who_can_research #Technically Blue could bridge to you
-    location_rules["Nevergrim Blue Keeper"] = HasAll("Bridge", "Library") & CanReachLocation("Level 10 Beaten")  & have_base_creature_who_can_research #Technically Blue could bridge to you
+    location_rules["Snuggledell East Water"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # mistresses
+    location_rules["Snuggledell West Water"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # mistresses
+    location_rules["Snuggledell Southeast Water"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # mistresses
 
-    location_rules["Hearth NE Water"] = Has("Bridge") & have_base_creature_who_can_research #Have Library from beginning on non-cruelty mode
-    location_rules["Hearth SE Water"] = Has("Bridge") & have_base_creature_who_can_research #Have Library from beginning on non-cruelty mode
-    location_rules["Hearth SW Water"] = Has("Bridge") & have_base_creature_who_can_research #Have Library from beginning on non-cruelty mode
-    location_rules["Hearth NW Water"] = Has("Bridge") & have_base_creature_who_can_research #Have Library from beginning on non-cruelty mode
+    location_rules["Wishvale NE Hero Fortress"] = HasAll("Bridge", "Library")  & have_base_researcher #Technically Blue could bridge to you
+    location_rules["Wishvale East Hero Fortress"] = HasAll("Bridge", "Library")  & have_base_researcher #Technically Blue could bridge to you
+    location_rules["Wishvale SE Hero Fortress"] = HasAll("Bridge", "Library")  & have_base_researcher #Technically Blue could bridge to you
+    location_rules["Wishvale Blue Keeper"] = HasAll("Bridge", "Library") & CanReachLocation("Level 7 Beaten")  & have_base_researcher #Technically Blue could bridge to you
 
-    location_rules["Buffy Oak Poison Cavern"] = HasAll("Bridge", "Library")  & have_base_creature_who_can_research #Technically Blue/Green could bridge to you
-    location_rules["Buffy Oak Lava Cavern"] = HasAll("Bridge", "Library")  & have_base_creature_who_can_research #Technically Blue/Green could bridge to you
-    location_rules["Buffy Oak South Gold Seam"] = HasAll("Bridge", "Library") & CanReachLocation("Level 13 Beaten")  & have_base_creature_who_can_research #Technically Blue/Green could bridge to you
+    location_rules["Tickle Northeast Fortress"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # demonspawn, hound, barbarian
 
-    location_rules["Sleepiburgh NW Cavern"] = HasAll("Bridge", "Library") & CanReachLocation("Level 14 Beaten") & have_base_creature_who_can_research
-    location_rules["Sleepiburgh NE Cavern"] = HasAll("Bridge", "Library") & CanReachLocation("Level 14 Beaten") & have_base_creature_who_can_research
+    location_rules["Moonbrush Wood SW Library"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals # bile, troll, mistress
+    location_rules["Moonbrush Wood SE Library"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals
+    location_rules["Moonbrush Wood NE Library"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals
+    location_rules["Moonbrush Wood NW Library"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals
+    location_rules["Moonbrush Wood Neutral Fort"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals
 
-    location_rules["Woodly Rhyme Hero Fortress North"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Woodly Rhyme Hero Fortress South"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Woodly Rhyme Checkerboard 1"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Woodly Rhyme Checkerboard 2"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Woodly Rhyme Southern Tunnel"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Nevergrim East Island"] = HasAll("Bridge", "Library")  & have_base_researcher_if_changed_neutrals #dragons, flies #Technically Blue could bridge to you
+    location_rules["Nevergrim West Island"] = HasAll("Bridge", "Library")  & have_base_researcher_if_changed_neutrals #dragons, flies #Technically Blue could bridge to you
+    location_rules["Nevergrim Blue Keeper"] = HasAll("Bridge", "Library") & CanReachLocation("Level 10 Beaten")  & have_base_researcher_if_changed_neutrals #dragons, flies #Technically Blue could bridge to you
 
-    location_rules["Tulipscent NW Hero Fortress 1"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Tulipscent NW Hero Fortress 2"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Hearth NE Water"] = Has("Bridge") & have_library_if_cruelty_mode & have_base_researcher #Have Library from beginning on non-cruelty mode
+    location_rules["Hearth SE Water"] = Has("Bridge") & have_library_if_cruelty_mode & have_base_researcher #Have Library from beginning on non-cruelty mode
+    location_rules["Hearth SW Water"] = Has("Bridge") & have_library_if_cruelty_mode & have_base_researcher #Have Library from beginning on non-cruelty mode
+    location_rules["Hearth NW Water"] = Has("Bridge") & have_library_if_cruelty_mode & have_base_researcher #Have Library from beginning on non-cruelty mode
 
-    location_rules["Blaise End NW Lava"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Buffy Oak Poison Cavern"] = HasAll("Bridge", "Library")  & have_base_researcher_if_changed_neutrals #dragons #Technically Blue/Green could bridge to you
+    location_rules["Buffy Oak Lava Cavern"] = HasAll("Bridge", "Library")  & have_base_researcher_if_changed_neutrals #dragons #Technically Blue/Green could bridge to you
+    location_rules["Buffy Oak South Gold Seam"] = HasAll("Bridge", "Library") & CanReachLocation("Level 13 Beaten")  & have_base_researcher_if_changed_neutrals #dragons #Technically Blue/Green could bridge to you
+
+    location_rules["Sleepiburgh NW Cavern"] = HasAll("Bridge", "Library") & CanReachLocation("Level 14 Beaten") & have_base_researcher_if_changed_neutrals #horny
+    location_rules["Sleepiburgh NE Cavern"] = HasAll("Bridge", "Library") & CanReachLocation("Level 14 Beaten") & have_base_researcher_if_changed_neutrals #horny
+
+    location_rules["Woodly Rhyme Hero Fortress North"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals #ghost, skeleton
+    location_rules["Woodly Rhyme Hero Fortress South"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals #ghost, skeleton
+    location_rules["Woodly Rhyme Checkerboard 1"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals #ghost, skeleton
+    location_rules["Woodly Rhyme Checkerboard 2"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals #ghost, skeleton
+    location_rules["Woodly Rhyme Southern Tunnel"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals #ghost, skeleton
+
+    location_rules["Tulipscent NW Hero Fortress 1"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Tulipscent NW Hero Fortress 2"] = HasAll("Bridge", "Library") & have_base_researcher
+
+    location_rules["Blaise End NW Lava"] = HasAll("Bridge", "Library") & have_base_researcher_if_changed_neutrals #lots of neutrals
     location_rules["Blaise End NW Guard Room"] = CanReachLocation("Level 18 Beaten")
     location_rules["Blaise End Behind Wall NW"] = CanReachLocation("Level 18 Beaten")
     location_rules["Blaise End Behind Wall NE"] = CanReachLocation("Level 18 Beaten")
     location_rules["Blaise End Fortress Fairy Tunnel"] = CanReachLocation("Level 18 Beaten")
     location_rules["Blaise End Fortress Barbarian Tunnel"] = CanReachLocation("Level 18 Beaten")
-    location_rules["Blaise End Central Portal"] = (HasAll("Destroy Walls", "Library") & have_base_creature_who_can_research) | (HasAll("Demolition Trap Manufacturable", "Workshop") & have_base_creature_who_can_research & have_base_creature_who_can_manufacture)
+    location_rules["Blaise End Central Portal"] = (HasAll("Destroy Walls", "Library") & have_base_researcher_if_changed_neutrals) | (HasAll("Demolition Trap Manufacturable", "Workshop") & have_base_researcher_if_changed_neutrals & have_base_manufacturer_if_changed_neutrals) #lots of neutrals
 
-    location_rules["Mistle Prison Tunnel"] = Has("Bridge") & have_base_creature_who_can_research #Have Library from beginning on non-cruelty mode
-    location_rules["Mistle Central Water 1"] = Has("Bridge") & have_base_creature_who_can_research #Have Library from beginning on non-cruelty mode
-    location_rules["Mistle Central Water 2"] = Has("Bridge") & have_base_creature_who_can_research #Have Library from beginning on non-cruelty mode
-    location_rules["Mistle Fairy Room"] = Has("Bridge") & have_base_creature_who_can_research #Have Library from beginning on non-cruelty mode
+    location_rules["Mistle Prison Tunnel"] = Has("Bridge") & have_library_if_cruelty_mode & have_library_if_remove_neutral_rooms & have_base_researcher_if_changed_neutrals #vampire #Have Library from beginning on non-cruelty mode
+    location_rules["Mistle Central Water 1"] = Has("Bridge") & have_library_if_cruelty_mode & have_library_if_remove_neutral_rooms & have_base_researcher_if_changed_neutrals #vampire #Have Library from beginning on non-cruelty mode
+    location_rules["Mistle Central Water 2"] = Has("Bridge") & have_library_if_cruelty_mode & have_library_if_remove_neutral_rooms & have_base_researcher_if_changed_neutrals #vampire #Have Library from beginning on non-cruelty mode
+    location_rules["Mistle Fairy Room"] = Has("Bridge") & have_library_if_cruelty_mode & have_library_if_remove_neutral_rooms & have_base_researcher_if_changed_neutrals #vampire #Have Library from beginning on non-cruelty mode
 
     location_rules["Skybird Trill Hero Fortress Centre"] = Has("Training Room") # would be awful having to fight level 10 Tentacles with level 1 creatures
     location_rules["Skybird Trill Hero Fortress West"] = Has("Training Room") # would be awful having to fight level 10 Tentacles with level 1 creatures
 
-    location_rules["Secret 2 In Water"] = Has("Bridge")  & have_base_creature_who_can_research & CanReachLocation("Level 101 Beaten") #Have Library from beginning on non-cruelty mode
+    location_rules["Secret 2 In Water"] = Has("Bridge") & have_library_if_cruelty_mode  & have_base_researcher & CanReachLocation("Level 101 Beaten") #Have Library from beginning on non-cruelty mode
 
-    location_rules["Secret 4 Lava Pool"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Secret 4 Next to Witch"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Secret 4 Next to Boulder"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Secret 4 Lava Pool"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Secret 4 Next to Witch"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Secret 4 Next to Boulder"] = HasAll("Bridge", "Library") & have_base_researcher
 
     location_rules["Secret 5 Goal Area"] = HasAll("Bridge", "Library")
 
-    location_rules["Level 4 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Level 5 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Level 6 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Level 7 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Level 9 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Level 10 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Level 13 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Level 14 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
-    location_rules["Level 15 Beaten"] = HasAll("Bridge", "Library") & have_base_creature_who_can_research
+    location_rules["Level 4 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Level 5 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Level 6 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Level 7 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Level 9 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Level 10 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Level 13 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Level 14 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
+    location_rules["Level 15 Beaten"] = HasAll("Bridge", "Library") & have_base_researcher
 
     #location_rules["Level 16 Beaten"] = Has("Progressive Level Cap",4)
 
