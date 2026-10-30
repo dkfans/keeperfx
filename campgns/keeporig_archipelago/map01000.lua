@@ -167,12 +167,57 @@ end
 
 --ChecksTable, 
 
+
+--creatures:
+--imp:  29,29 to 29,34
+--rest: 32,29 to 92,34
+--fx: 80,29 to 92,34
+--
+--every 3 slabs
+--
+--heroes: 
+--tunneller: 29,38 to 29, 43
+--rest: 32,28 to 92,43
+--fx: 62,38 to 92,43
+--knight: 95,38 to 95,43
+--avatar: 98,38 to 98,43
+--
+--every 3 slabs
+--
+--rooms:
+--36,47 to 88,52
+--
+--every 4 slabs
+--
+--spells:
+--normal: 32,56 to 66,61
+--keeperfx: 68,56 to 82,61
+--split hand power: 84,56 to 90,61
+--
+--every 2 slabs
+--
+--traps: 32,65 to 52,70
+--keeperfx: 56,65 to 92,70
+--
+--every 4 slabs
+--
+--doors: 32,74 to 44,79
+--keeperfx: 48,74 to 52,79
+--
+--every 4 slabs
+
+
+
+
+
+
+
 function ItemStatus()
     local id_width_limit = 21 -- as in, width on the map itself before it starts digging into the rock.
     --Creatures
     local creature_id_max = 16
     if APSettings.KeeperFXCreatures then creature_id_max = 18 end
-    for itemid=1, id_width_limit do
+    for itemid = 1, id_width_limit do
         local item_subtile_x = 88 + 9*(itemid)
         local item_subtile_y = 88
         if itemid <= creature_id_max then
@@ -218,56 +263,85 @@ function ItemStatus()
             ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
         end
     end
-    --Rooms
-    local room_id_max = 14
-    for itemid=101, 100 + room_id_max do
-        local item_subtile_x = 97 + 12*(itemid % 100)
-        local item_subtile_y = 142
-        if itemid <= 100 + room_id_max then
-            --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
-            if ReceivedLocationsTable.Has(itemid) then
-                AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
-                AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x, item_subtile_y+12, 0)
+    --Heroes
+    if not APSettings.AddHeroes then
+        for slab_x = 32, 59 do
+            for slab_y = 38, 43 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
             end
-        else
-            local slab_x = SubtileToSlab(item_subtile_x)
-            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
+        end
+    else
+        local heroes_id_max = 10
+        for itemid = 801, 800 + heroes_id_max do
+            local item_subtile_x = 88 + 9*(itemid)
+            local item_subtile_y = 88
+            if itemid <= heroes_id_max then
+                --if itemid > 16  then
+                --    item_subtile_x = 169 + 12*(itemid-16)
+                --    item_subtile_y = 112
+                --end
+                local item_pos = {stl_x = item_subtile_x, stl_y = item_subtile_y}
+                RunDKScriptCommand("SET_CREATURE_CONFIGURATION(" .. ChecksTable[itemid].internal_name .. ",HungerRate,0)")
+                AddCreatureToLevel("PLAYER6",ChecksTable[itemid].internal_name,item_pos,1,0,"INITIALIZE")
+                if ReceivedLocationsTable.Has(itemid) then
+                    AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
+                    AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x, item_subtile_y+12, 0)
+                end
+                --be needlessly extra and replace prison with that creature sleeping or something idk
+                if not APSettings.KeeperFXCreatures and itemid >= 17 and itemid < 100 then
+                    local slab_x = SubtileToSlab(item_subtile_x)
+                    for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
+                        ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+                    end
+                end
+            else
+                local slab_x = SubtileToSlab(item_subtile_x)
+                for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
+                    ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+                end
+            end
+        end
+    end
+    if not APSettings.KeeperFXHeroes then
+        for slab_x = 62, 92 do
+            for slab_y = 38, 43 do
                 ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
             end
         end
     end
-    --Traps
-
-
-    --todo: just hide FX additions only.
-
-
-    local trap_id_max = 6
-    if APSettings.KeeperFXTraps then trap_id_max = 9 end
-    for itemid=201, 200 + id_width_limit do
-        local item_subtile_x = 121 + 12*(itemid % 100)
-        local item_subtile_y = 250
-        --if itemid <= 200 + trap_id_max then
-            --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
-            if ReceivedLocationsTable.Has(itemid) then
-                AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
-                AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x, item_subtile_y+12, 0)
+    --else
+    if not APSettings.IncludeTunnellersInPool then
+        for slab_x = 29, 29 do
+            for slab_y = 38, 43 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
             end
-        --else
-        --    local slab_x = SubtileToSlab(item_subtile_x)
-        --    for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
-        --        ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
-        --    end
-        --end
+        end
     end
-    --Doors
-    local door_id_max = 4
-    if APSettings.KeeperFXDoors then door_id_max = 6 end
-    for itemid=301, 300 + door_id_max do
-        local item_subtile_x = 145 + 12*(itemid % 100)
-        local item_subtile_y = 274
-        if itemid <= 300 + door_id_max then
-            --ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].internal_name, "NONE") --terrain and rooms are different. Just place them on the map.
+    --else
+    if not APSettings.IncludeKnightsInPool then
+        for slab_x = 95, 95 do
+            for slab_y = 38, 43 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+            end
+        end
+    end
+    --else
+    if not APSettings.IncludeAvatarsInPool then
+        for slab_x = 98, 98 do
+            for slab_y = 38, 43 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+            end
+        end
+    end
+    --else
+    --Rooms
+    local room_id_max = 14
+    for itemid = 101, 100 + room_id_max do
+        local item_subtile_x = 97 + 12*(itemid % 100)
+        local item_subtile_y = 142
+        if itemid <= 100 + room_id_max then
+            ChangeSlabType(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y), ChecksTable[itemid].thing, "NONE") --terrain and rooms are different.
+            if itemid == 106 then ChangeSlabOwner(SubtileToSlab(item_subtile_x), SubtileToSlab(item_subtile_y),PLAYER6) end
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
                 AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x, item_subtile_y+12, 0)
@@ -283,11 +357,63 @@ function ItemStatus()
     local spell_id_max = 18
     if APSettings.KeeperFXSpells then spell_id_max = 26 end
     --todo: something for SplitHandPower
-    for itemid=401, 400 + id_width_limit do
-        local item_subtile_x = 73 + 12*(itemid % 100)
-        local item_subtile_y = 196
+    for itemid = 401, 400 + spell_id_max do
+        local item_subtile_x = 91 + 6*(itemid % 100)
+        local item_subtile_y = 169
         if itemid <= 400 + spell_id_max then
-            --AddObjectToLevelAtPos("SPELLBOOK_IMP",item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
+            AddObjectToLevelAtPos(ChecksTable[itemid].thing,item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
+            if ReceivedLocationsTable.Has(itemid) then
+                AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
+                AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x, item_subtile_y+12, 0)
+            end
+        else
+            local slab_x = SubtileToSlab(item_subtile_x)
+            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+            end
+        end
+    end
+    if not APSettings.KeeperFXSpells then
+        for slab_x = 68, 82 do
+            for slab_y = 56, 61 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+            end
+        end
+    end
+    if not APSettings.SplitHandPower then
+        for slab_x = 84, 90 do
+            for slab_y = 56, 61 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+            end
+        end
+    end
+    --Traps
+    local trap_id_max = 6
+    if APSettings.KeeperFXTraps then trap_id_max = 9 end
+    for itemid = 201, 200 + id_width_limit do
+        local item_subtile_x = 85 + 12*(itemid % 100)
+        local item_subtile_y = 196
+        if itemid <= 200 + trap_id_max then
+            AddObjectToLevelAtPos(ChecksTable[itemid].thing,item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
+            if ReceivedLocationsTable.Has(itemid) then
+                AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
+                AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x, item_subtile_y+12, 0)
+            end
+        else
+            local slab_x = SubtileToSlab(item_subtile_x)
+            for slab_y = SubtileToSlab(item_subtile_y),SubtileToSlab(item_subtile_y)+5 do
+                ChangeSlabType(slab_x, slab_y, "ABYSS", "NONE")
+            end
+        end
+    end
+    --Doors
+    local door_id_max = 4
+    if APSettings.KeeperFXDoors then door_id_max = 6 end
+    for itemid = 301, 300 + id_width_limit do
+        local item_subtile_x = 85 + 12*(itemid % 100)
+        local item_subtile_y = 223
+        if itemid <= 300 + door_id_max then
+            AddObjectToLevelAtPos(ChecksTable[itemid].thing,item_subtile_x,item_subtile_y,1,"PLAYER_NEUTRAL",0)
             if ReceivedLocationsTable.Has(itemid) then
                 AddObjectToLevelAtPos("HEARTFLAME_RED", item_subtile_x, item_subtile_y+6, 0)
                 AddObjectToLevelAtPos("HEARTFLAME_BLUE", item_subtile_x, item_subtile_y+12, 0)
@@ -303,7 +429,6 @@ function ItemStatus()
     --recipes
     
     --todo: recipes
-
     for itemid=601, 600 + 20 do
         local item_subtile_x = 34
         local item_subtile_y = 28 + 6*(itemid % 100)

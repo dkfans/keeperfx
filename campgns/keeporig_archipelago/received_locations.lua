@@ -15,94 +15,94 @@ ReceivedLocations = {}
 -- Every check must have a unique integer ID associated with it.
 ChecksTable = {
 --CREATURES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
-     [1]  = {id=1,   internal_name="FLY",                 name="Fly",                          string="264",       text="Attract Fly"},           --unlocked from start in default settings
-     [2]  = {id=2,   internal_name="BUG",                 name="Beetle",                       string="260",       text="Attract Beetle"},        --unlocked from start in default settings
-     [3]  = {id=3,   internal_name="SPIDER",              name="Spider",                       string="265",       text="Attract Spider"},        --unlocked from start in default settings
-     [4]  = {id=4,   internal_name="DEMONSPAWN",          name="Demon Spawn",                  string="262",       text="Attract Demon Spawn"},   --unlocked from start in default settings
-     [5]  = {id=5,   internal_name="SORCEROR",            name="Warlock",                      string="263",       text="Attract Warlock"},       --unlocked from start in default settings
-     [6]  = {id=6,   internal_name="TROLL",               name="Troll",                        string="261",       text="Attract Troll"},
-     [7]  = {id=7,   internal_name="BILE_DEMON",          name="Bile Demon",                   string="273",       text="Attract Bile Demon"},
-     [8]  = {id=8,   internal_name="ORC",                 name="Orc",                          string="278",       text="Attract Orc"},
-     [9]  = {id=9,   internal_name="DARK_MISTRESS",       name="Mistress",                     string="272",       text="Attract Mistress"},
-     [10] = {id=10,  internal_name="DRAGON",              name="Dragon",                       string="268",       text="Attract Dragon"},
-     [11] = {id=11,  internal_name="SKELETON",            name="Skeleton",                     string="266",       text="Attract Skeleton"},      --not usually attracted from Portal but I think that's fine and adds variety
-     [12] = {id=12,  internal_name="GHOST",               name="Ghost",                        string="271",       text="Attract Ghost"},         --not usually attracted from Portal but I think that's fine and adds variety
-     [13] = {id=13,  internal_name="TENTACLE",            name="Tentacle",                     string="269",       text="Attract Tentacle"},
-     [14] = {id=14,  internal_name="HELL_HOUND",          name="Hound",                        string="270",       text="Attract Hound"},
-     [15] = {id=15,  internal_name="HORNY",               name="Horned Reaper",                string="267",       text="Attract Horned Reaper"}, --not usually attracted from Portal but I think that's fine and adds variety
-     [16] = {id=16,  internal_name="VAMPIRE",             name="Vampire",                      string="274",       text="Attract Vampire"},       --not usually attracted from Portal but I think that's fine and adds variety
+     [1]  = {id=1,   internal_name="FLY",                   name="Fly",                          string="264",       thing="FLY",                 text="Attract Fly"},           --unlocked from start in default settings
+     [2]  = {id=2,   internal_name="BUG",                   name="Beetle",                       string="260",       thing="BUG",                 text="Attract Beetle"},        --unlocked from start in default settings
+     [3]  = {id=3,   internal_name="SPIDER",                name="Spider",                       string="265",       thing="SPIDER",              text="Attract Spider"},        --unlocked from start in default settings
+     [4]  = {id=4,   internal_name="DEMONSPAWN",            name="Demon Spawn",                  string="262",       thing="DEMONSPAWN",          text="Attract Demon Spawn"},   --unlocked from start in default settings
+     [5]  = {id=5,   internal_name="SORCEROR",              name="Warlock",                      string="263",       thing="SORCEROR",            text="Attract Warlock"},       --unlocked from start in default settings
+     [6]  = {id=6,   internal_name="TROLL",                 name="Troll",                        string="261",       thing="TROLL",               text="Attract Troll"},
+     [7]  = {id=7,   internal_name="BILE_DEMON",            name="Bile Demon",                   string="273",       thing="BILE_DEMON",          text="Attract Bile Demon"},
+     [8]  = {id=8,   internal_name="ORC",                   name="Orc",                          string="278",       thing="ORC",                 text="Attract Orc"},
+     [9]  = {id=9,   internal_name="DARK_MISTRESS",         name="Mistress",                     string="272",       thing="DARK_MISTRESS",       text="Attract Mistress"},
+     [10] = {id=10,  internal_name="DRAGON",                name="Dragon",                       string="268",       thing="DRAGON",              text="Attract Dragon"},
+     [11] = {id=11,  internal_name="SKELETON",              name="Skeleton",                     string="266",       thing="SKELETON",            text="Attract Skeleton"},      --not usually attracted from Portal but I think that's fine and adds variety
+     [12] = {id=12,  internal_name="GHOST",                 name="Ghost",                        string="271",       thing="GHOST",               text="Attract Ghost"},         --not usually attracted from Portal but I think that's fine and adds variety
+     [13] = {id=13,  internal_name="TENTACLE",              name="Tentacle",                     string="269",       thing="TENTACLE",            text="Attract Tentacle"},
+     [14] = {id=14,  internal_name="HELL_HOUND",            name="Hound",                        string="270",       thing="HELL_HOUND",          text="Attract Hound"},
+     [15] = {id=15,  internal_name="HORNY",                 name="Horned Reaper",                string="267",       thing="HORNY",               text="Attract Horned Reaper"}, --not usually attracted from Portal but I think that's fine and adds variety
+     [16] = {id=16,  internal_name="VAMPIRE",               name="Vampire",                      string="274",       thing="VAMPIRE",             text="Attract Vampire"},       --not usually attracted from Portal but I think that's fine and adds variety
 --FXCreatures
-     [17] = {id=17,  internal_name="DRUID",               name="Druid",                        string="1042",      text="Attract Druid"},
-     [18] = {id=18,  internal_name="MAIDEN",              name="Maiden",                       string="1045",      text="Attract Maiden"},
+     [17] = {id=17,  internal_name="DRUID",                 name="Druid",                        string="1042",      thing="DRUID",               text="Attract Druid"},
+     [18] = {id=18,  internal_name="MAIDEN",                name="Maiden",                       string="1045",      thing="MAIDEN",              text="Attract Maiden"},
 --Imp, could be a fun alternative to having create imp
-    [100]  = {id=100,internal_name="IMP",                 name="Imp",                          string="259",       text="Attract Imp"}, -- also consider allowing imps through portal. Not sure how they work (they don't contribute towards portal limit, but can they come through when you reach your limit?)
+    [100]  = {id=100,internal_name="IMP",                   name="Imp",                          string="259",       thing="IMP",                 text="Attract Imp"}, -- also consider allowing imps through portal. Not sure how they work (they don't contribute towards portal limit, but can they come through when you reach your limit?)
      -- ROOMS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [101] = {id=101, internal_name="TREASURE",            name="Treasure Room",                string="599",       text="Treasure Room Researchable"},           --unlocked from start in default settings
-    [102] = {id=102, internal_name="LAIR",                name="Lair",                         string="609",       text="Lair Researchable"},                    --unlocked from start in default settings
-    [103] = {id=103, internal_name="GARDEN",              name="Hatchery",                     string="608",       text="Hatchery Researchable"},                --unlocked from start in default settings
-    [104] = {id=104, internal_name="TRAINING",            name="Training Room",                string="603",       text="Training Room Researchable"},           --unlocked from start in default settings
-    [105] = {id=105, internal_name="RESEARCH",            name="Library",                      string="600",       text="Library Researchable"},                 --unlocked from start in default settings
-    [106] = {id=106, internal_name="BRIDGE",              name="Bridge",                       string="610",       text="Bridge Researchable"},
-    [107] = {id=107, internal_name="GUARD_POST",          name="Guard Post",                   string="611",       text="Guard Post Researchable"},
-    [108] = {id=108, internal_name="WORKSHOP",            name="Workshop",                     string="605",       text="Workshop Researchable"},                --fine to allow trap/door creation if you somehow get one
-    [109] = {id=109, internal_name="PRISON",              name="Prison",                       string="601",       text="Prison Researchable"},     --i.e. if you get one in a map you can't make Skeletons until you unlock this
-    [110] = {id=110, internal_name="TORTURE",             name="Torture Chamber",              string="602",       text="Torture Chamber Researchable"}, --i.e. if you get one in a map you can't make Ghosts until you unlock this
-    [111] = {id=111, internal_name="BARRACKS",            name="Barracks",                     string="607",       text="Barracks Researchable"},
-    [112] = {id=112, internal_name="TEMPLE",              name="Temple",                       string="612",       text="Temple Researchable"},    --fine to allow recipes if you somehow get one
-    [113] = {id=113, internal_name="GRAVEYARD",           name="Graveyard",                    string="606",       text="Graveyard Researchable"}, --i.e. if you get one in a map you can't make Vampires until you unlock this
-    [114] = {id=114, internal_name="SCAVENGER",           name="Scavenger Room",               string="613",       text="Scavenger Room Researchable"},
+    [101] = {id=101, internal_name="TREASURE",              name="Treasure Room",                string="599",       thing="TREASURY_AREA",       text="Treasure Room Researchable"},           --unlocked from start in default settings
+    [102] = {id=102, internal_name="LAIR",                  name="Lair",                         string="609",       thing="LAIR_AREA",           text="Lair Researchable"},                    --unlocked from start in default settings
+    [103] = {id=103, internal_name="GARDEN",                name="Hatchery",                     string="608",       thing="HATCHERY",            text="Hatchery Researchable"},                --unlocked from start in default settings
+    [104] = {id=104, internal_name="TRAINING",              name="Training Room",                string="603",       thing="TRAINING_AREA",       text="Training Room Researchable"},           --unlocked from start in default settings
+    [105] = {id=105, internal_name="RESEARCH",              name="Library",                      string="600",       thing="BOOK_SHELVES",        text="Library Researchable"},                 --unlocked from start in default settings
+    [106] = {id=106, internal_name="BRIDGE",                name="Bridge",                       string="610",       thing="BRIDGE_FRAME",        text="Bridge Researchable"},
+    [107] = {id=107, internal_name="GUARD_POST",            name="Guard Post",                   string="611",       thing="GUARD_AREA",          text="Guard Post Researchable"},
+    [108] = {id=108, internal_name="WORKSHOP",              name="Workshop",                     string="605",       thing="WORKSHOP_AREA",       text="Workshop Researchable"},                --fine to allow trap/door creation if you somehow get one
+    [109] = {id=109, internal_name="PRISON",                name="Prison",                       string="601",       thing="PRISON_AREA",         text="Prison Researchable"},     --i.e. if you get one in a map you can't make Skeletons until you unlock this
+    [110] = {id=110, internal_name="TORTURE",               name="Torture Chamber",              string="602",       thing="TORTURE_AREA",        text="Torture Chamber Researchable"}, --i.e. if you get one in a map you can't make Ghosts until you unlock this
+    [111] = {id=111, internal_name="BARRACKS",              name="Barracks",                     string="607",       thing="BARRACK_AREA",        text="Barracks Researchable"},
+    [112] = {id=112, internal_name="TEMPLE",                name="Temple",                       string="612",       thing="TEMPLE_POOL",         text="Temple Researchable"},    --fine to allow recipes if you somehow get one
+    [113] = {id=113, internal_name="GRAVEYARD",             name="Graveyard",                    string="606",       thing="GRAVE_AREA",          text="Graveyard Researchable"}, --i.e. if you get one in a map you can't make Vampires until you unlock this
+    [114] = {id=114, internal_name="SCAVENGER",             name="Scavenger Room",               string="613",       thing="SCAVENGE_AREA",       text="Scavenger Room Researchable"},
 -- TRAPS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [201] = {id=201, internal_name="ALARM",               name="Alarm Trap",                   string="579",       text="Alarm Trap Manufacturable"},
-    [202] = {id=202, internal_name="POISON_GAS",          name="Poison Gas Trap",              string="580",       text="Poison Gas Trap Manufacturable"},
-    [203] = {id=203, internal_name="LIGHTNING",           name="Lightning Trap",               string="581",       text="Lightning Trap Manufacturable"},
-    [204] = {id=204, internal_name="LAVA",                name="Lava Trap",                    string="583",       text="Lava Trap Manufacturable"},
-    [205] = {id=205, internal_name="BOULDER",             name="Boulder Tap",                  string="578",       text="Boulder Tap Manufacturable"},
-    [206] = {id=206, internal_name="WORD_OF_POWER",       name="Word of Power Trap",           string="582",       text="Word of Power Trap Manufacturable"},
+    [201] = {id=201, internal_name="ALARM",                 name="Alarm Trap",                   string="579",       thing="WRKBOX_ALARM",        text="Alarm Trap Manufacturable"},
+    [202] = {id=202, internal_name="POISON_GAS",            name="Poison Gas Trap",              string="580",       thing="WRKBOX_POISONG",      text="Poison Gas Trap Manufacturable"},
+    [203] = {id=203, internal_name="LIGHTNING",             name="Lightning Trap",               string="581",       thing="WRKBOX_LIGHTNG",      text="Lightning Trap Manufacturable"},
+    [204] = {id=204, internal_name="LAVA",                  name="Lava Trap",                    string="583",       thing="WRKBOX_LAVA",         text="Lava Trap Manufacturable"},
+    [205] = {id=205, internal_name="BOULDER",               name="Boulder Tap",                  string="578",       thing="WRKBOX_BOULDER",      text="Boulder Tap Manufacturable"},
+    [206] = {id=206, internal_name="WORD_OF_POWER",         name="Word of Power Trap",           string="582",       thing="WRKBOX_WRDOFPW",      text="Word of Power Trap Manufacturable"},
 --FXTraps
-    [207] = {id=207, internal_name="TNT",                 name="Demolition Trap",              string="1036",      text="Demolition Trap Manufacturable"},
-    [208] = {id=208, internal_name="SENTRY",              name="Sentry Trap",                  string="984",       text="Sentry Trap Manufacturable"},
-    [209] = {id=209, internal_name="BALLISTA",            name="Ballista Trap",                string="1039",      text="Ballista Trap Manufacturable"},
+    [207] = {id=207, internal_name="TNT",                   name="Demolition Trap",              string="1036",      thing="WRKBOX_DEMOLTN",      text="Demolition Trap Manufacturable"},
+    [208] = {id=208, internal_name="SENTRY",                name="Sentry Trap",                  string="984",       thing="WRKBOX_SENTRY",       text="Sentry Trap Manufacturable"},
+    [209] = {id=209, internal_name="BALLISTA",              name="Ballista Trap",                string="1039",      thing="WRKBOX_BALLISTA",     text="Ballista Trap Manufacturable"},
 -- DOORS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [301] = {id=301, internal_name="WOOD",                name="Wooden Door",                  string="590",       text="Wooden Door Manufacturable"},
-    [302] = {id=302, internal_name="BRACED",              name="Braced Door",                  string="591",       text="Braced Door Manufacturable"},
-    [303] = {id=303, internal_name="STEEL",               name="Iron Door",                    string="592",       text="Iron Door Manufacturable"},
-    [304] = {id=304, internal_name="MAGIC",               name="Magic Door",                   string="593",       text="Magic Door Manufacturable"},
+    [301] = {id=301, internal_name="WOOD",                  name="Wooden Door",                  string="590",       thing="WRKBOX_WOOD",         text="Wooden Door Manufacturable"},
+    [302] = {id=302, internal_name="BRACED",                name="Braced Door",                  string="591",       thing="WRKBOX_BRACE",        text="Braced Door Manufacturable"},
+    [303] = {id=303, internal_name="STEEL",                 name="Iron Door",                    string="592",       thing="WRKBOX_STEEL",        text="Iron Door Manufacturable"},
+    [304] = {id=304, internal_name="MAGIC",                 name="Magic Door",                   string="593",       thing="WRKBOX_MAGIC",        text="Magic Door Manufacturable"},
 --FXDoorsTable = {
-    [305] = {id=305, internal_name="SECRET",              name="Secret Door",                  string="935",       text="Secret Door Manufacturable"},
-    [306] = {id=306, internal_name="MIDAS",               name="Midas Door",                   string="1076",      text="Midas Door Manufacturable"},
+    [305] = {id=305, internal_name="SECRET",                name="Secret Door",                  string="935",       thing="WRKBOX_SECRET",       text="Secret Door Manufacturable"},
+    [306] = {id=306, internal_name="MIDAS",                 name="Midas Door",                   string="1076",      thing="WRKBOX_MIDAS",        text="Midas Door Manufacturable"},
 --SPELLS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [401] = {id=401, internal_name="POWER_HAND",          name="Hand of Evil",                 string="961",       text="Hand of Evil Researchable"},     --unlocked from start in default settings
-    [402] = {id=402, internal_name="POWER_SLAP",          name="Slap",                         string="962",       text="Slap Researchable"},             --unlocked from start in default settings
-    [403] = {id=403, internal_name="POWER_POSSESS",       name="Possess Creature",             string="630",       text="Possess Creature Researchable"}, --unlocked from start in default settings
-    [404] = {id=404, internal_name="POWER_IMP",           name="Create Imp",                   string="631",       text="Create Imp Researchable"},          --unlocked from start in default settings
-    [405] = {id=405, internal_name="POWER_SIGHT",         name="Sight of Evil",                string="632",       text="Sight of Evil Researchable"},
-    [406] = {id=406, internal_name="POWER_SPEED",         name="Speed Monster",                string="637",       text="Speed Monster Researchable"},
-    [407] = {id=407, internal_name="POWER_OBEY",          name="Must Obey",                    string="636",       text="Must Obey Researchable"},
-    [408] = {id=408, internal_name="POWER_CALL_TO_ARMS",  name="Call to Arms",                 string="633",       text="Call to Arms Researchable"},
-    [409] = {id=409, internal_name="POWER_CONCEAL",       name="Conceal",                      string="639",       text="Conceal Researchable"},
-    [410] = {id=410, internal_name="POWER_HOLD_AUDIENCE", name="Hold Audience",                string="634",       text="Hold Audience Researchable"},
-    [411] = {id=411, internal_name="POWER_CAVE_IN",       name="Cave-In",                      string="635",       text="Cave-In Researchable"},
-    [412] = {id=412, internal_name="POWER_HEAL_CREATURE", name="Heal",                         string="644",       text="Heal Researchable"},
-    [413] = {id=413, internal_name="POWER_LIGHTNING",     name="Lightning Strike",             string="640",       text="Lightning Strike Researchable"},
-    [414] = {id=414, internal_name="POWER_PROTECT",       name="Protect Monster",              string="638",       text="Protect Monster Researchable"},
-    [415] = {id=415, internal_name="POWER_CHICKEN",       name="Chicken",                      string="641",       text="Chicken Researchable"},
-    [416] = {id=416, internal_name="POWER_DISEASE",       name="Disease",                      string="642",       text="Disease Researchable"},
-    [417] = {id=417, internal_name="POWER_ARMAGEDDON",    name="Armageddon",                   string="646",       text="Armageddon Researchable"},
-    [418] = {id=418, internal_name="POWER_DESTROY_WALLS", name="Destroy Walls",                string="643",       text="Destroy Walls Researchable"},
+    [401] = {id=401, internal_name="POWER_HAND",            name="Hand of Evil",                 string="961",       thing="SPELLBOOK_HOE",       text="Hand of Evil Researchable"},     --unlocked from start in default settings
+    [402] = {id=402, internal_name="POWER_SLAP",            name="Slap",                         string="962",       thing="SPELLBOOK_SLAP",      text="Slap Researchable"},             --unlocked from start in default settings
+    [403] = {id=403, internal_name="POWER_POSSESS",         name="Possess Creature",             string="630",       thing="SPELLBOOK_POSS",      text="Possess Creature Researchable"}, --unlocked from start in default settings
+    [404] = {id=404, internal_name="POWER_IMP",             name="Create Imp",                   string="631",       thing="SPELLBOOK_IMP",       text="Create Imp Researchable"},          --unlocked from start in default settings
+    [405] = {id=405, internal_name="POWER_SIGHT",           name="Sight of Evil",                string="632",       thing="SPELLBOOK_SOE",       text="Sight of Evil Researchable"},
+    [406] = {id=406, internal_name="POWER_SPEED",           name="Speed Monster",                string="637",       thing="SPELLBOOK_SPDC",      text="Speed Monster Researchable"},
+    [407] = {id=407, internal_name="POWER_OBEY",            name="Must Obey",                    string="636",       thing="SPELLBOOK_OBEY",      text="Must Obey Researchable"},
+    [408] = {id=408, internal_name="POWER_CALL_TO_ARMS",    name="Call to Arms",                 string="633",       thing="SPELLBOOK_CTA",       text="Call to Arms Researchable"},
+    [409] = {id=409, internal_name="POWER_CONCEAL",         name="Conceal",                      string="639",       thing="SPELLBOOK_CONCL",     text="Conceal Researchable"},
+    [410] = {id=410, internal_name="POWER_HOLD_AUDIENCE",   name="Hold Audience",                string="634",       thing="SPELLBOOK_HLDAUD",    text="Hold Audience Researchable"},
+    [411] = {id=411, internal_name="POWER_CAVE_IN",         name="Cave-In",                      string="635",       thing="SPELLBOOK_CAVI",      text="Cave-In Researchable"},
+    [412] = {id=412, internal_name="POWER_HEAL_CREATURE",   name="Heal",                         string="644",       thing="SPELLBOOK_HEAL",      text="Heal Researchable"},
+    [413] = {id=413, internal_name="POWER_LIGHTNING",       name="Lightning Strike",             string="640",       thing="SPELLBOOK_LIGHTN",    text="Lightning Strike Researchable"},
+    [414] = {id=414, internal_name="POWER_PROTECT",         name="Protect Monster",              string="638",       thing="SPELLBOOK_PROT",      text="Protect Monster Researchable"},
+    [415] = {id=415, internal_name="POWER_CHICKEN",         name="Chicken",                      string="641",       thing="SPELLBOOK_CHKN",      text="Chicken Researchable"},
+    [416] = {id=416, internal_name="POWER_DISEASE",         name="Disease",                      string="642",       thing="SPELLBOOK_DISEASE",   text="Disease Researchable"},
+    [417] = {id=417, internal_name="POWER_ARMAGEDDON",      name="Armageddon",                   string="646",       thing="SPELLBOOK_ARMG",      text="Armageddon Researchable"},
+    [418] = {id=418, internal_name="POWER_DESTROY_WALLS",   name="Destroy Walls",                string="643",       thing="SPELLBOOK_DWAL",      text="Destroy Walls Researchable"},
 --FXSpells
-    [419] = {id=419, internal_name="POWER_TIME_BOMB",     name="Time Bomb",                    string="645",       text="Time Bomb Researchable"},
-    [420] = {id=420, internal_name="POWER_SLOW",          name="Slow",                         string="1055",      text="Slow Researchable"},
-    [421] = {id=421, internal_name="POWER_FREEZE",        name="Freeze",                       string="1054",      text="Freeze Researchable"},
-    [422] = {id=422, internal_name="POWER_REBOUND",       name="Rebound",                      string="1053",      text="Rebound Researchable"},
-    [423] = {id=423, internal_name="POWER_FLIGHT",        name="Flight",                       string="1056",      text="Flight Researchable"},
-    [424] = {id=424, internal_name="POWER_VISION",        name="Vision",                       string="1058",      text="Vision Researchable"},
-    [425] = {id=425, internal_name="POWER_TUNNELLER",     name="Recruit Tunneller",            string="1072",      text="Recruit Tunneller Researchable"},
-    [426] = {id=426, internal_name="POWER_CLEANSE",       name="Cleanse",                      string="",          text="Cleanse Researchable"},          --not made yet
+    [419] = {id=419, internal_name="POWER_TIME_BOMB",       name="Time Bomb",                    string="645",       thing="SPELLBOOK_TBMB",      text="Time Bomb Researchable"},
+    [420] = {id=420, internal_name="POWER_SLOW",            name="Slow",                         string="1055",      thing="SPELLBOOK_SLOW",      text="Slow Researchable"},
+    [421] = {id=421, internal_name="POWER_FREEZE",          name="Freeze",                       string="1054",      thing="SPELLBOOK_FRZ",       text="Freeze Researchable"},
+    [422] = {id=422, internal_name="POWER_REBOUND",         name="Rebound",                      string="1053",      thing="SPELLBOOK_RBND",      text="Rebound Researchable"},
+    [423] = {id=423, internal_name="POWER_FLIGHT",          name="Flight",                       string="1056",      thing="SPELLBOOK_FLGT",      text="Flight Researchable"},
+    [424] = {id=424, internal_name="POWER_VISION",          name="Vision",                       string="1058",      thing="SPELLBOOK_VSN",       text="Vision Researchable"},
+    [425] = {id=425, internal_name="POWER_TUNNELLER",       name="Recruit Tunneller",            string="1072",      thing="SPELLBOOK_TUNLR",     text="Recruit Tunneller Researchable"},
+    [426] = {id=426, internal_name="POWER_CLEANSE",         name="Cleanse",                      string="",          thing="SPELLBOOK_CLNS",      text="Cleanse Researchable"},
 --SplitHandPower
-    [427] = {id=427, internal_name="POWER_PICKUP_CREATURE",                           name="Pick Up Creature",             string="961",    text="Pick Up Creature Researchable"},
-    [428] = {id=428, internal_name="POWER_PICKUP_GOLD",                               name="Pick Up Gold",                 string="961",    text="Pick Up Gold Researchable"},
-    [429] = {id=429, internal_name="POWER_PICKUP_FOOD",                               name="Pick Up Food",                 string="961",    text="Pick Up Food Researchable"},
-    [430] = {id=430, internal_name="POWER_PICKUP_OBJECT",                             name="Pick Up Object",               string="961",    text="Pick Up Object Researchable"},
+    [427] = {id=427, internal_name="POWER_PICKUP_CREATURE", name="Pick Up Creature",             string="961",       thing="",                    text="Pick Up Creature Researchable"},
+    [428] = {id=428, internal_name="POWER_PICKUP_GOLD",     name="Pick Up Gold",                 string="961",       thing="",                    text="Pick Up Gold Researchable"},
+    [429] = {id=429, internal_name="POWER_PICKUP_FOOD",     name="Pick Up Food",                 string="961",       thing="",                    text="Pick Up Food Researchable"},
+    [430] = {id=430, internal_name="POWER_PICKUP_OBJECT",   name="Pick Up Object",               string="961",       thing="",                    text="Pick Up Object Researchable"},
 -- LEVELS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --    --Levels
 --    --Three of these should be unlocked by default.
@@ -119,94 +119,98 @@ ChecksTable = {
 --   --Not sure:
 --       100: Sphere 2/3? not sure, doable with extreme care in possession, or still pretty handily with a cap of level 7. If you have certain spells and rooms you can cheese it way earlier.
 --       102: not sure, requires a way to kill imps en masse, e.g. cave-in, a transferred creature, placeable boulder traps
-    [501] = {id=501, internal_name="",                    name="1",                            string="202",       text="Level 1 Unlocked"},
-    [502] = {id=502, internal_name="",                    name="2",                            string="203",       text="Level 2 Unlocked"},
-    [503] = {id=503, internal_name="",                    name="3",                            string="204",       text="Level 3 Unlocked"},
-    [504] = {id=504, internal_name="",                    name="4",                            string="205",       text="Level 4 Unlocked"},
-    [505] = {id=505, internal_name="",                    name="5",                            string="206",       text="Level 5 Unlocked"},
-    [506] = {id=506, internal_name="",                    name="6",                            string="207",       text="Level 6 Unlocked"},
-    [507] = {id=507, internal_name="",                    name="7",                            string="208",       text="Level 7 Unlocked"},
-    [508] = {id=508, internal_name="",                    name="8",                            string="209",       text="Level 8 Unlocked"},
-    [509] = {id=509, internal_name="",                    name="9",                            string="210",       text="Level 9 Unlocked"},
-    [510] = {id=510, internal_name="",                    name="10",                           string="211",       text="Level 10 Unlocked"},
-    [511] = {id=511, internal_name="",                    name="11",                           string="212",       text="Level 11 Unlocked"},
-    [512] = {id=512, internal_name="",                    name="12",                           string="213",       text="Level 12 Unlocked"},
-    [513] = {id=513, internal_name="",                    name="13",                           string="214",       text="Level 13 Unlocked"},
-    [514] = {id=514, internal_name="",                    name="14",                           string="215",       text="Level 14 Unlocked"},
-    [515] = {id=515, internal_name="",                    name="15",                           string="216",       text="Level 15 Unlocked"},
-    [516] = {id=516, internal_name="",                    name="16",                           string="217",       text="Level 16 Unlocked"},
-    [517] = {id=517, internal_name="",                    name="17",                           string="218",       text="Level 17 Unlocked"},
-    [518] = {id=518, internal_name="",                    name="18",                           string="219",       text="Level 18 Unlocked"},
-    [519] = {id=519, internal_name="",                    name="19",                           string="220",       text="Level 19 Unlocked"},
-    [520] = {id=520, internal_name="",                    name="20",                           string="221",       text="Level 20 Unlocked"},
+    [501] = {id=501, internal_name="",                    name="1",                            string="202",       thing="",       text="Level 1 Unlocked"},
+    [502] = {id=502, internal_name="",                    name="2",                            string="203",       thing="",       text="Level 2 Unlocked"},
+    [503] = {id=503, internal_name="",                    name="3",                            string="204",       thing="",       text="Level 3 Unlocked"},
+    [504] = {id=504, internal_name="",                    name="4",                            string="205",       thing="",       text="Level 4 Unlocked"},
+    [505] = {id=505, internal_name="",                    name="5",                            string="206",       thing="",       text="Level 5 Unlocked"},
+    [506] = {id=506, internal_name="",                    name="6",                            string="207",       thing="",       text="Level 6 Unlocked"},
+    [507] = {id=507, internal_name="",                    name="7",                            string="208",       thing="",       text="Level 7 Unlocked"},
+    [508] = {id=508, internal_name="",                    name="8",                            string="209",       thing="",       text="Level 8 Unlocked"},
+    [509] = {id=509, internal_name="",                    name="9",                            string="210",       thing="",       text="Level 9 Unlocked"},
+    [510] = {id=510, internal_name="",                    name="10",                           string="211",       thing="",       text="Level 10 Unlocked"},
+    [511] = {id=511, internal_name="",                    name="11",                           string="212",       thing="",       text="Level 11 Unlocked"},
+    [512] = {id=512, internal_name="",                    name="12",                           string="213",       thing="",       text="Level 12 Unlocked"},
+    [513] = {id=513, internal_name="",                    name="13",                           string="214",       thing="",       text="Level 13 Unlocked"},
+    [514] = {id=514, internal_name="",                    name="14",                           string="215",       thing="",       text="Level 14 Unlocked"},
+    [515] = {id=515, internal_name="",                    name="15",                           string="216",       thing="",       text="Level 15 Unlocked"},
+    [516] = {id=516, internal_name="",                    name="16",                           string="217",       thing="",       text="Level 16 Unlocked"},
+    [517] = {id=517, internal_name="",                    name="17",                           string="218",       thing="",       text="Level 17 Unlocked"},
+    [518] = {id=518, internal_name="",                    name="18",                           string="219",       thing="",       text="Level 18 Unlocked"},
+    [519] = {id=519, internal_name="",                    name="19",                           string="220",       thing="",       text="Level 19 Unlocked"},
+    [520] = {id=520, internal_name="",                    name="20",                           string="221",       thing="",       text="Level 20 Unlocked"},
 --BonusLevels
-    [521] = {id=521, internal_name="",                    name="100",                          string="430",       text="Level 100 Unlocked"}, --string is just "Bonus"
-    [522] = {id=522, internal_name="",                    name="101",                          string="430",       text="Level 101 Unlocked"}, --string is just "Bonus"
-    [523] = {id=523, internal_name="",                    name="102",                          string="430",       text="Level 102 Unlocked"}, --string is just "Bonus"
-    [524] = {id=524, internal_name="",                    name="103",                          string="430",       text="Level 103 Unlocked"}, --string is just "Bonus"
-    [525] = {id=525, internal_name="",                    name="104",                          string="430",       text="Level 104 Unlocked"}, --string is just "Bonus"
-    [526] = {id=526, internal_name="",                    name="105",                          string="430",       text="Level 105 Unlocked"}, --string is just "Bonus"
+    [521] = {id=521, internal_name="",                    name="100",                          string="430",       thing="",       text="Level 100 Unlocked"}, --string is just "Bonus"
+    [522] = {id=522, internal_name="",                    name="101",                          string="430",       thing="",       text="Level 101 Unlocked"}, --string is just "Bonus"
+    [523] = {id=523, internal_name="",                    name="102",                          string="430",       thing="",       text="Level 102 Unlocked"}, --string is just "Bonus"
+    [524] = {id=524, internal_name="",                    name="103",                          string="430",       thing="",       text="Level 103 Unlocked"}, --string is just "Bonus"
+    [525] = {id=525, internal_name="",                    name="104",                          string="430",       thing="",       text="Level 104 Unlocked"}, --string is just "Bonus"
+    [526] = {id=526, internal_name="",                    name="105",                          string="430",       thing="",       text="Level 105 Unlocked"}, --string is just "Bonus"
 -- RECIPES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [601] = {id=601, internal_name="PosUniqFunc,CHEAPER_IMPS,IMP",                    name="Cheaper Imps",                 string="",       text="Cheaper Imps Recipe Unlocked"},
-    [602] = {id=602, internal_name="PosUniqFunc,COMPLETE_MANUFACTR,BUG,BUG",          name="Complete Manufacturing",       string="",       text="Complete Manufacturing Recipe Unlocked"},
-    [603] = {id=603, internal_name="PosUniqFunc,COMPLETE_RESEARCH,FLY,FLY",           name="Complete Research",            string="",       text="Complete Research Recipe Unlocked"},
-    [604] = {id=604, internal_name="MkCreature,BILE_DEMON,SPIDER,SPIDER,SPIDER",      name="Bile Demon",                   string="",       text="Bile Demon Recipe Unlocked"},
-    [605] = {id=605, internal_name="MkCreature,SORCEROR,FLY,SPIDER",                  name="Warlock",                      string="",       text="Warlock Recipe Unlocked"},
-    [606] = {id=606, internal_name="MkCreature,DARK_MISTRESS,BUG,SPIDER",             name="Mistress",                     string="",       text="Mistress Recipe Unlocked"},
-    [607] = {id=607, internal_name="MkCreature,HORNY,TROLL,BILE_DEMON,DARK_MISTRESS", name="Horned Reaper",                string="",       text="Horned Reaper Recipe Unlocked"},
+    [601] = {id=601, internal_name="PosUniqFunc,CHEAPER_IMPS,IMP",                    name="Cheaper Imps",                 string="",       thing="",       text="Cheaper Imps Recipe Unlocked"},
+    [602] = {id=602, internal_name="PosUniqFunc,COMPLETE_MANUFACTR,BUG,BUG",          name="Complete Manufacturing",       string="",       thing="",       text="Complete Manufacturing Recipe Unlocked"},
+    [603] = {id=603, internal_name="PosUniqFunc,COMPLETE_RESEARCH,FLY,FLY",           name="Complete Research",            string="",       thing="",       text="Complete Research Recipe Unlocked"},
+    [604] = {id=604, internal_name="MkCreature,BILE_DEMON,SPIDER,SPIDER,SPIDER",      name="Bile Demon",                   string="",       thing="",       text="Bile Demon Recipe Unlocked"},
+    [605] = {id=605, internal_name="MkCreature,SORCEROR,FLY,SPIDER",                  name="Warlock",                      string="",       thing="",       text="Warlock Recipe Unlocked"},
+    [606] = {id=606, internal_name="MkCreature,DARK_MISTRESS,BUG,SPIDER",             name="Mistress",                     string="",       thing="",       text="Mistress Recipe Unlocked"},
+    [607] = {id=607, internal_name="MkCreature,HORNY,TROLL,BILE_DEMON,DARK_MISTRESS", name="Horned Reaper",                string="",       thing="",       text="Horned Reaper Recipe Unlocked"},
 --NegativeRecipes
     -- 608 is wishing well
-    [609] = {id=609, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,GHOST",             name="All chickens die 1",           string="",       text="All chickens die 1 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    --[610] = {id=610, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,CHICKEN",           name="All chickens die 2",           string="",       text="All chickens die 2 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    [611] = {id=611, internal_name="NegSpellAll,SPELL_DISEASE,VAMPIRE,VAMPIRE",       name="Disease creatures",            string="",       text="Disease creatures Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    [612] = {id=612, internal_name="NegUniqFunc,ALL_CREATRS_ANGRY,HORNY",             name="All creatures angry",          string="",       text="All creatures angry Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    [613] = {id=613, internal_name="NegSpellAll,SPELL_CHICKEN,BILE_DEMON,BILE_DEMON", name="Chicken creatures",            string="",       text="Chicken creatures Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [609] = {id=609, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,GHOST",             name="All chickens die 1",           string="",       thing="",       text="All chickens die 1 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    --[610] = {id=610, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,CHICKEN",           name="All chickens die 2",           string="",       thing="",       text="All chickens die 2 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [611] = {id=611, internal_name="NegSpellAll,SPELL_DISEASE,VAMPIRE,VAMPIRE",       name="Disease creatures",            string="",       thing="",       text="Disease creatures Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [612] = {id=612, internal_name="NegUniqFunc,ALL_CREATRS_ANGRY,HORNY",             name="All creatures angry",          string="",       thing="",       text="All creatures angry Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [613] = {id=613, internal_name="NegSpellAll,SPELL_CHICKEN,BILE_DEMON,BILE_DEMON", name="Chicken creatures",            string="",       thing="",       text="Chicken creatures Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
     -- 614 is spider easter egg
 --FXRecipes
-    [615] = {id=615, internal_name="MkGoodHero,SKELETON,SKELETON,SKELETON",           name="Good Skeleton",                string="",       text="Good Skeleton Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
-    [616] = {id=616, internal_name="MkCreature,TENTACLE,TROLL,SPIDER",                name="Tentacle",                     string="",       text="Tentacle Recipe Unlocked"},
-    [617] = {id=617, internal_name="MkCreature,HELL_HOUND,DRAGON,FLY",                name="Hound",                        string="",       text="Hound Recipe Unlocked"},
-    [618] = {id=618, internal_name="PosSpellAll,SPELL_SPEED,FLY,HELL_HOUND",          name="Speed Creatures",              string="",       text="Speed Creatures Recipe Unlocked"},
-    [619] = {id=619, internal_name="PosSpellAll,SPELL_INVISIBILITY,TROLL,FLY",        name="Conceal Creatures",            string="",       text="Conceal Creatures Recipe Unlocked"},
-    [620] = {id=620, internal_name="PosSpellAll,SPELL_HEAL,ORC,SPIDER",               name="Heal Creatures",               string="",       text="Heal Creatures Recipe Unlocked"},
-    [621] = {id=621, internal_name="PosSpellAll,SPELL_REBOUND,DARK_MISTRESS,BUG",     name="Rebound Creatures",            string="",       text="Rebound Creatures Recipe Unlocked"},
-    [622] = {id=622, internal_name="PosSpellAll,SPELL_ARMOUR,BILE_DEMON,BUG",         name="Protect Creatures",            string="",       text="Protect Creatures Recipe Unlocked"},
-    [623] = {id=623, internal_name="PosSpellAll,SPELL_FLIGHT,DEMONSPAWN,FLY",         name="Flight Creatures",             string="",       text="Flight Creatures Recipe Unlocked"},
-    [624] = {id=624, internal_name="NegSpellAll,SPELL_FREEZE,VAMPIRE,SPIDER",         name="Freeze Creatures",             string="",       text="Freeze Creatures Recipe Unlocked"},
-    [625] = {id=625, internal_name="NegSpellAll,SPELL_SLOW,VAMPIRE,DEMONSPAWN",       name="Slow Creatures",               string="",       text="Slow Creatures Recipe Unlocked"},
+    [615] = {id=615, internal_name="MkGoodHero,SKELETON,SKELETON,SKELETON",           name="Good Skeleton",                string="",       thing="",       text="Good Skeleton Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+    [616] = {id=616, internal_name="MkCreature,TENTACLE,TROLL,SPIDER",                name="Tentacle",                     string="",       thing="",       text="Tentacle Recipe Unlocked"},
+    [617] = {id=617, internal_name="MkCreature,HELL_HOUND,DRAGON,FLY",                name="Hound",                        string="",       thing="",       text="Hound Recipe Unlocked"},
+    [618] = {id=618, internal_name="PosSpellAll,SPELL_SPEED,FLY,HELL_HOUND",          name="Speed Creatures",              string="",       thing="",       text="Speed Creatures Recipe Unlocked"},
+    [619] = {id=619, internal_name="PosSpellAll,SPELL_INVISIBILITY,TROLL,FLY",        name="Conceal Creatures",            string="",       thing="",       text="Conceal Creatures Recipe Unlocked"},
+    [620] = {id=620, internal_name="PosSpellAll,SPELL_HEAL,ORC,SPIDER",               name="Heal Creatures",               string="",       thing="",       text="Heal Creatures Recipe Unlocked"},
+    [621] = {id=621, internal_name="PosSpellAll,SPELL_REBOUND,DARK_MISTRESS,BUG",     name="Rebound Creatures",            string="",       thing="",       text="Rebound Creatures Recipe Unlocked"},
+    [622] = {id=622, internal_name="PosSpellAll,SPELL_ARMOUR,BILE_DEMON,BUG",         name="Protect Creatures",            string="",       thing="",       text="Protect Creatures Recipe Unlocked"},
+    [623] = {id=623, internal_name="PosSpellAll,SPELL_FLIGHT,DEMONSPAWN,FLY",         name="Flight Creatures",             string="",       thing="",       text="Flight Creatures Recipe Unlocked"},
+    [624] = {id=624, internal_name="NegSpellAll,SPELL_FREEZE,VAMPIRE,SPIDER",         name="Freeze Creatures",             string="",       thing="",       text="Freeze Creatures Recipe Unlocked"},
+    [625] = {id=625, internal_name="NegSpellAll,SPELL_SLOW,VAMPIRE,DEMONSPAWN",       name="Slow Creatures",               string="",       thing="",       text="Slow Creatures Recipe Unlocked"},
 -- PROGRESSIVES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- these work differently, see below.
-    [701] = {id=701, internal_name="",                    name="Progressive Level Cap",        string="",          text="Progressive Level Cap Unlocked"},      --Increase max creature level by 1 (starts max level 3)
-    [702] = {id=702, internal_name="",                    name="Progressive Creature Limit",   string="",          text="Progressive Creature Limit Unlocked"}, --Increase creature limit by 5 (starts at max 10)
-    [703] = {id=703, internal_name="",                    name="Progressive Starting Gold",    string="",          text="Progressive Starting Gold Unlocked"},  --Increase starting gold by 1250 (starts at 2500)
-    [704] = {id=704, internal_name="",                    name="Progressive Portal Speed",     string="",          text="Progressive Portal Speed Unlocked"},  --Increases Portal speed (decreases wait) by 125 (starts at 750)
-    [705] = {id=705, internal_name="",                    name="Progressive Hand Size",        string="",          text="Progressive Hand Size Unlocked"},  --Increase hand size by 2 (default 4)
+    [701] = {id=701, internal_name="",                    name="Progressive Level Cap",        string="",          thing="",       text="Progressive Level Cap Unlocked"},      --Increase max creature level by 1 (starts max level 3)
+    [702] = {id=702, internal_name="",                    name="Progressive Creature Limit",   string="",          thing="",       text="Progressive Creature Limit Unlocked"}, --Increase creature limit by 5 (starts at max 10)
+    [703] = {id=703, internal_name="",                    name="Progressive Starting Gold",    string="",          thing="",       text="Progressive Starting Gold Unlocked"},  --Increase starting gold by 1250 (starts at 2500)
+    [704] = {id=704, internal_name="",                    name="Progressive Portal Speed",     string="",          thing="",       text="Progressive Portal Speed Unlocked"},  --Increases Portal speed (decreases wait) by 125 (starts at 750)
+    [705] = {id=705, internal_name="",                    name="Progressive Hand Size",        string="",          thing="",       text="Progressive Hand Size Unlocked"},  --Increase hand size by 2 (default 4)
     -- also do progressive hand size, progressive starting unlocks?, progressive starting imps, progressive portal speed.
 --Heroes
-    [801]  = {id=801,   internal_name="THIEF",                                        name="Thief",                        string="",       text="Attract Thief"},           --unlocked from start in default hero settings
-    [802]  = {id=802,   internal_name="BARBARIAN",                                    name="Barbarian",                    string="",       text="Attract Barbarian"},       --unlocked from start in default hero settings
-    [803]  = {id=803,   internal_name="GIANT",                                        name="Giant",                        string="",       text="Attract Giant"},
-    [804]  = {id=804,   internal_name="WIZARD",                                       name="Wizard",                       string="",       text="Attract Wizard"},          --unlocked from start in default hero settings
-    [805]  = {id=805,   internal_name="FAIRY",                                        name="Fairy",                        string="",       text="Attract Fairy"},
-    [806]  = {id=806,   internal_name="ARCHER",                                       name="Archer",                       string="",       text="Attract Archer"},
-    [807]  = {id=807,   internal_name="DWARFA",                                       name="Mountain Dwarf",               string="",       text="Attract Mountain Dwarf"},
-    [808]  = {id=808,   internal_name="MONK",                                         name="Monk",                         string="",       text="Attract Monk"},
-    [809]  = {id=809,   internal_name="SAMURAI",                                      name="Samurai",                      string="",       text="Attract Samurai"},
-    [810]  = {id=810,   internal_name="WITCH",                                        name="Priestess",                    string="",       text="Attract Priestess"},
+    [801]  = {id=801,   internal_name="THIEF",                                        name="Thief",                        string="",       thing="THIEF",       text="Attract Thief"},           --unlocked from start in default hero settings
+    [802]  = {id=802,   internal_name="BARBARIAN",                                    name="Barbarian",                    string="",       thing="BARBARIAN",       text="Attract Barbarian"},       --unlocked from start in default hero settings
+    [803]  = {id=803,   internal_name="GIANT",                                        name="Giant",                        string="",       thing="GIANT",       text="Attract Giant"},
+    [804]  = {id=804,   internal_name="WIZARD",                                       name="Wizard",                       string="",       thing="WIZARD",       text="Attract Wizard"},          --unlocked from start in default hero settings
+    [805]  = {id=805,   internal_name="FAIRY",                                        name="Fairy",                        string="",       thing="FAIRY",       text="Attract Fairy"},
+    [806]  = {id=806,   internal_name="ARCHER",                                       name="Archer",                       string="",       thing="ARCHER",       text="Attract Archer"},
+    [807]  = {id=807,   internal_name="DWARFA",                                       name="Mountain Dwarf",               string="",       thing="DWARFA",       text="Attract Mountain Dwarf"},
+    [808]  = {id=808,   internal_name="MONK",                                         name="Monk",                         string="",       thing="MONK",       text="Attract Monk"},
+    [809]  = {id=809,   internal_name="SAMURAI",                                      name="Samurai",                      string="",       thing="SAMURAI",       text="Attract Samurai"},
+    [810]  = {id=810,   internal_name="WITCH",                                        name="Priestess",                    string="",       thing="WITCH",       text="Attract Priestess"},
 --other Heroes
-    [811]  = {id=811,   internal_name="KNIGHT",                                       name="Knight",                       string="",       text="Attract Knight"},
-    [812]  = {id=812,   internal_name="AVATAR",                                       name="Avatar",                       string="",       text="Attract Avatar"},
-    [813]  = {id=813,   internal_name="TUNNELLER",                                    name="Tunneller",                    string="",       text="Attract Tunneller"},
-    [814]  = {id=814,   internal_name="TIME_MAGE",                                    name="Time Mage",                    string="",       text="Attract Time Mage"},
+    [811]  = {id=811,   internal_name="KNIGHT",                                       name="Knight",                       string="",       thing="KNIGHT",       text="Attract Knight"},
+    [812]  = {id=812,   internal_name="AVATAR",                                       name="Avatar",                       string="",       thing="AVATAR",       text="Attract Avatar"},
+    [813]  = {id=813,   internal_name="TUNNELLER",                                    name="Tunneller",                    string="",       thing="TUNNELLER",       text="Attract Tunneller"},
+    [814]  = {id=814,   internal_name="TIME_MAGE",                                    name="Time Mage",                    string="",       thing="TIME_MAGE",       text="Attract Time Mage"},
     -- FILLER --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [901] = {id=901, internal_name="",                    name="Increase Level",               string="",          text="Increase Level"},
-    [902] = {id=902, internal_name="",                    name="Multiply Creatures",           string="",          text="Multiply Creatures"},
-    [903] = {id=903, internal_name="",                    name="Make Safe",                    string="",          text="Make Safe"},
-    [904] = {id=904, internal_name="",                    name="Steal Hero",                   string="",          text="Steal Hero"},
-    [905] = {id=905, internal_name="",                    name="Reveal Map",                   string="",          text="Reveal Map"},
-    [906] = {id=906, internal_name="",                    name="Receive Gold",                 string="",          text="Receive Gold"},
-    [907] = {id=907, internal_name="",                    name="Receive Imps",                  string="",          text="Receive Imps"},
+    [901] = {id=901, internal_name="",                    name="Increase Level",               string="",          thing="SPECBOX_INCLEV",       text="Increase Level"},
+    [902] = {id=902, internal_name="",                    name="Multiply Creatures",           string="",          thing="SPECBOX_MULTPLY",       text="Multiply Creatures"},
+    [903] = {id=903, internal_name="",                    name="Make Safe",                    string="",          thing="SPECBOX_MKSAFE",       text="Make Safe"},
+    [904] = {id=904, internal_name="",                    name="Steal Hero",                   string="",          thing="SPECBOX_STEALHR",       text="Steal Hero"},
+    [905] = {id=905, internal_name="",                    name="Reveal Map",                   string="",          thing="SPECBOX_REVMAP",       text="Reveal Map"},
+    [906] = {id=906, internal_name="",                    name="Receive Gold",                 string="",          thing="",       text="Receive Gold"},
+    [907] = {id=907, internal_name="",                    name="Receive Imps",                  string="",          thing="",       text="Receive Imps"},
 }
+--make customs dummy specboxes for these with their own strings.
+--SPECBOX_RESURCT, SPECBOX_TRANSFR, SPECBOX_CUSTOM, SPECBOX_HEALALL, SPECBOX_GETGOLD, SPECBOX_MKANGRY, SPECBOX_MKUNSAFE
+
+
 
 local IncludeBonusLevels = APSettings.SecretLevels
 local IncludeRecipes = APSettings.PositiveRecipes
@@ -255,9 +259,9 @@ end
 --  could optionally split POWER_HAND up into POWER_PICKUP_CREATURE, POWER_PICKUP_GOLD, POWER_PICKUP_FOOD
 -- RECIPES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Can't do these ones, they're hardcoded.
---  [6XX] = {id=6XX, internal_name="",                    name="Wishing Well",                 string="",       text="Wishing Well Recipe Unlocked"}, --default, might be hardcoded, would probably be stupid to include
---  [6XX] = {id=6XX, internal_name="",                    name="All chickens die 2",           string="",       text="All chickens die 2 Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
---  [6XX] = {id=6XX, internal_name="",                    name="Spider easter egg",            string="",       text="Spider easter egg Recipe Unlocked"}, --default, hardcoded easter egg and not really a recipe, would probably be stupid to include
+--  [6XX] = {id=6XX, internal_name="",                    name="Wishing Well",                 string="",       thing="",       text="Wishing Well Recipe Unlocked"}, --default, might be hardcoded, would probably be stupid to include
+--  [6XX] = {id=6XX, internal_name="",                    name="All chickens die 2",           string="",       thing="",       text="All chickens die 2 Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
+--  [6XX] = {id=6XX, internal_name="",                    name="Spider easter egg",            string="",       thing="",       text="Spider easter egg Recipe Unlocked"}, --default, hardcoded easter egg and not really a recipe, would probably be stupid to include
 --}
 
 --    --Others e.g. progressive starting imps number/level, progressive auto-researched (e.g. at 1, bridge/guardpost and SOE are unlocked, at 2, workshop and speed are unlocked and so on (IF THOSE ARE UNLOCKED)},
