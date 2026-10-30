@@ -389,7 +389,7 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
     case NETMSG_SPECTATOR_BOOTSTRAP:
         return process_network_spectator_bootstrap(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_READY:
-        return process_network_spectator_ready(source, payload_size);
+        return process_network_spectator_ready(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_CHAT:
         return process_network_spectator_chat(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_NOTICE:

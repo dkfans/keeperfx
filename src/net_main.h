@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_netsession.h"
+#include "user_prefs.h"
 #include "ver_defs.h"
 
 #ifdef __cplusplus
@@ -140,6 +141,7 @@ struct NetUser {
     TbBool spectator_conversion_requested;
     TbBool seat_requested;
     int8_t seat_player;
+    UserPreferences seat_prefs;
 };
 
 struct NetFrame {

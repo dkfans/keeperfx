@@ -55,7 +55,7 @@ const char *network_user_name(NetUserId);
 TbBool network_human_contenders_remain(void);
 void resolve_placeholders(void);
 void settle_waiting_placeholders(void);
-void seat_network_user(NetUserId user, PlayerNumber plyr_idx);
+void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferences seat_prefs);
 void process_user_leave_game_packet(NetUserId user);
 void process_disconnected_network_players(void);
 TbBool user_present(NetUserId user);
