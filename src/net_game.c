@@ -649,8 +649,10 @@ static void forget_user(NetUserId user)
             player->roomspace.is_active = false;
         }
     }
+    PlayerNumber reconnect_player_id = ustate->player_id;
     memset(ustate, 0, sizeof(*ustate));
     ustate->player_id = PLAYER_NONE;
+    ustate->reconnect_player_id = reconnect_player_id;
 }
 
 void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user)
@@ -789,16 +791,6 @@ void settle_waiting_placeholders(void)
     }
 }
 
-static NetUserId startup_user_of_player(PlayerNumber plyr_idx)
-{
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (s_startup_sync_packets[user].startup_sync_packet_valid && s_startup_sync_packets[SERVER_ID].player_slots[user] == plyr_idx) {
-            return user;
-        }
-    }
-    return SERVER_ID;
-}
-
 void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferences seat_prefs)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
@@ -809,7 +801,7 @@ void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferen
     }
     init_user_state(user, plyr_idx);
     UserPreferences prefs;
-    if (!get_startup_user_preferences(startup_user_of_player(plyr_idx), prefs)) {
+    if (!get_startup_user_preferences(user, prefs)) {
         memcpy(prefs, seat_prefs, sizeof(UserPreferences));
     }
     apply_user_preferences(user, prefs, UPF_NewGame);

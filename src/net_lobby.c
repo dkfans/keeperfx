@@ -34,11 +34,15 @@
 #include "config_campaigns.h"
 #include "game_merge.h"
 #include "player_data.h"
+#include "bflib_dernc.h"
+#include "bflib_fileio.h"
+#include "config.h"
 #include <SDL3/SDL.h>
 #include "post_inc.h"
 /******************************************************************************/
 
 #define SESSION_COUNT 32
+#define RECONNECT_TOKEN_FILE "reconnect.key"
 #define LOBBY_SETTINGS_OFFSET offsetof(struct ConfigInfo, net_lobby_name)
 #define LOBBY_SETTINGS_SIZE (sizeof(struct ConfigInfo) - LOBBY_SETTINGS_OFFSET)
 
@@ -171,11 +175,11 @@ enum NetJoinRejection net_lobby_spectator_rejection(NetUserId reservation)
         return NetJoin_SpectatorState;
     }
     const TbBool reserved = (reservation >= MAX_NET_USERS && reservation < MAX_NET_CONNECTIONS && netstate.users[reservation].progress != USER_UNUSED);
-    const char *returning_name = NULL;
+    const struct NetUser *returning = NULL;
     if (reserved) {
-        returning_name = netstate.users[reservation].name;
+        returning = &netstate.users[reservation];
     }
-    if (!net_config_info.spectators_enabled && !network_spectator_seat_open(returning_name)) {
+    if (!net_config_info.spectators_enabled && !network_spectator_seat_open(returning)) {
         return NetJoin_SpectatorsDisabled;
     }
     int32_t count = net_lobby_spectator_count();
@@ -218,6 +222,18 @@ static void AddSessionSegment(const char *start, const char *end)
 void LbNetwork_SetServerPort(int port)
 {
     server_port = port;
+}
+
+static void record_reconnect_token(NetUserId source)
+{
+    uint64_t token = netstate.users[source].reconnect_token;
+    for (NetUserId id = 0; id < MAX_NET_USERS; id++) {
+        if (id != source && IsUserActive(id) && netstate.reconnect_tokens[id] == token) {
+            NETMSG("User %d shares a reconnect token with user %d and will not be able to reconnect", (int)source, (int)id);
+            token = 0;
+        }
+    }
+    netstate.reconnect_tokens[source] = token;
 }
 
 TbError process_login_message(NetUserId source, char *read_pos, const char *end_pos)
@@ -271,14 +287,6 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
         netstate.sp->drop_user(source, NetJoin_Accepted);
         return Lb_OK;
     }
-    enum NetJoinRejection reason = net_lobby_join_rejection();
-    if (network_user_is_spectator(source)) {
-        reason = net_lobby_spectator_rejection(source);
-    }
-    if (reason != NetJoin_Accepted) {
-        netstate.sp->drop_user(source, reason);
-        return Lb_OK;
-    }
     if (end_pos - read_pos < sizeof(user->version)) {
         netstate.sp->drop_user(source, NetJoin_Version);
         return Lb_OK;
@@ -293,6 +301,20 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
     if (!net_versions_match(&user->version, &net_current_version) && !net_versions_match(&user->version, &stable_version)) {
         netstate.sp->drop_user(source, NetJoin_Version);
         return Lb_OK;
+    }
+    if (end_pos - read_pos >= 1 + sizeof(user->reconnect_token)) {
+        memcpy(&user->reconnect_token, read_pos + 1, sizeof(user->reconnect_token));
+    }
+    enum NetJoinRejection reason = net_lobby_join_rejection();
+    if (network_user_is_spectator(source)) {
+        reason = net_lobby_spectator_rejection(source);
+    }
+    if (reason != NetJoin_Accepted) {
+        netstate.sp->drop_user(source, reason);
+        return Lb_OK;
+    }
+    if (!network_user_is_spectator(source)) {
+        record_reconnect_token(source);
     }
     NETMSG("User %d (%s) successfully logged in", (int)source, user->name);
     user->progress = USER_LOGGEDIN;
@@ -362,10 +384,26 @@ void LbNetwork_InitSessionsFromCmdLine(const char *str)
     AddSessionSegment(start, end);
 }
 
+static uint64_t local_reconnect_token(void)
+{
+    static uint64_t token;
+    if (token != 0) {
+        return token;
+    }
+    const char *fname = prepare_file_path(FGrp_Save, RECONNECT_TOKEN_FILE);
+    if (LbFileLength(fname) == sizeof(token) && LbFileLoadAt(fname, &token) == sizeof(token) && token != 0) {
+        return token;
+    }
+    token = ((uint64_t)SDL_rand_bits() << 32) | SDL_rand_bits() | 1;
+    LbFileSaveAt(fname, &token, sizeof(token));
+    return token;
+}
+
 TbError LbNetwork_ExchangeLogin(char *player_name)
 {
     NETMSG("Logging in as %s", player_name);
-    if (1 + strlen(netstate.password) + 1 + strlen(player_name) + 1 + sizeof(net_current_version) >= sizeof(netstate.msg_buffer)) {
+    const uint64_t reconnect_token = local_reconnect_token();
+    if (1 + strlen(netstate.password) + 1 + strlen(player_name) + 1 + sizeof(net_current_version) + 1 + sizeof(reconnect_token) >= sizeof(netstate.msg_buffer)) {
         ERRORLOG("Login credentials too long");
         return Lb_FAIL;
     }
@@ -377,6 +415,8 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
     memcpy(write_pos, &net_current_version, sizeof(net_current_version));
     write_pos += sizeof(net_current_version);
     *write_pos++ = net_join_role;
+    memcpy(write_pos, &reconnect_token, sizeof(reconnect_token));
+    write_pos += sizeof(reconnect_token);
     send_message_buffer(SERVER_ID, write_pos);
     TbClockMSec wait_start_time = LbTimerClock();
     while (net_join_rejection == NetJoin_Accepted && LbTimerClock() - wait_start_time < TIMEOUT_JOIN_LOBBY) {
