@@ -17,6 +17,7 @@
 #include "gui_msgs.h"
 #include "custom_sprites.h"
 #include "keeperfx.hpp"
+#include "lvl_script_lib.h"
 #include "post_inc.h"
 
 
@@ -166,16 +167,23 @@ void ap_location_info_callback(std::vector<AP_NetworkItem> locations)
     }
 }
 
+void add_message(const char* text){
+    short id = 0;
+    char type = 0;
+    get_chat_icon_from_value("ARCHIPELAGO_ICON", &id, &type);
+    message_add(type, id, text);
+}
+
 void ap_hint_message(AP_HintMessage msg)
 {  
     std::string status = msg.checked ? "Checked" : "Unchecked";    
     std::string combined = msg.recvPlayer + "'s " +msg.item + " is in " + msg.sendPlayer + "'s "+ msg.location + ". it is " + status;
-    set_quick_information_default(get_icon_id("ARCHIPELAGO_ICON"),combined.c_str());
+    set_quick_information_default(get_icon_id("ARCHIPELAGO_MESSAGE"),combined.c_str());
 }
 
 void ap_command_result(std::string text)
 {
-    set_quick_information_default(get_icon_id("ARCHIPELAGO_ICON"),text.c_str());
+    set_quick_information_default(get_icon_id("ARCHIPELAGO_MESSAGE"),text.c_str());
 }
 
 void ap_print(std::string text)
@@ -184,13 +192,13 @@ void ap_print(std::string text)
 }
 
 void ap_server_chat_message(AP_ServerChatMessage msg)
-{       
-    message_add(MsgType_Custom, get_icon_id("ARCHIPELAGO_ICON"), msg.message.c_str());
+{ 
+    add_message(msg.message.c_str());
 }
 
 void ap_chat_message(AP_ChatMessage msg)
-{
-    message_add(MsgType_Custom, get_icon_id("ARCHIPELAGO_ICON"), msg.message.c_str());
+{    
+    add_message(msg.message.c_str());
 }
 
 void ap_send_message(std::string msg)
