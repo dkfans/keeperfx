@@ -998,38 +998,7 @@ void redraw_display(void)
         draw_consolelog();
     }
 
-    if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0) && !unpausing_in_progress)
-    {
-          LbTextSetFont(winfont);
-          const char * text = get_string(GUIStr_PausedMsg);
-          long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
-          long pos_x;
-          if (get_local_view_type(player) != PVT_MapScreen) {
-              pos_x = local_state.engine_window_x + (MyScreenWidth - w - local_state.engine_window_x) / 2;
-          } else {
-              pos_x = (MyScreenWidth-w)/2;
-          }
-          long pos_y = 16 * units_per_pixel / 16;
-          RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
-          long h = LbTextLineHeight() * units_per_pixel / 16;
-          int text_w = w;
-          int text_x = pos_x;
-          if (MyScreenHeight < 400)
-          {
-              w *= 2;
-              h *= 3;
-              text_w = w;
-              if (dbc_initialized && dbc_enabled)
-              {
-                  text_w += 32;
-                  text_x -= 12;
-              }
-          }
-          LbTextSetWindow(text_x, pos_y, text_w, h);
-          draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
-          LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);
-          LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    }
+    draw_paused_message(tx_units_per_px);
     if (game.armageddon_cast_turn != 0)
     {
         int i = 0;
@@ -1062,6 +1031,11 @@ void redraw_display(void)
         LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     draw_eastegg();
+    if (map_fade == PVT_None) {
+        RendererBeginOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);
+        draw_tooltip();
+        RendererEndOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);
+    }
     observer_draw_faded_cursor();
   //show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight, (int)RendererScreenHeight(), (int)RendererScreenWidth(), (int)eye_lens_width, (int)eye_lens_height);
     SYNCDBG(7,"Finished");

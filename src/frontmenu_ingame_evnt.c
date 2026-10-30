@@ -59,6 +59,7 @@
 #include "post_inc.h"
 
 #define HIGHLIGHTED_TEXT_FADE_LEVEL 48
+#define PAUSED_MESSAGE_HOVER_PADDING_HEIGHTS 3
 extern int32_t multiplayer_speed_adjustment_ns;
 
 unsigned long TimerTurns = 0;
@@ -527,7 +528,7 @@ void draw_timer(void)
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
-struct BottomRightTextLayout {
+struct TextBoxLayout {
     int32_t scr_x;
     int32_t scr_y;
     int32_t width;
@@ -535,7 +536,7 @@ struct BottomRightTextLayout {
     int32_t icon_scale;
 };
 
-static void get_bottom_right_text_layout(const char *text, int line, TbBool player_icon, struct BottomRightTextLayout *layout)
+static void get_bottom_right_text_layout(const char *text, int line, TbBool player_icon, struct TextBoxLayout *layout)
 {
     LbTextSetFont(winfont);
     int textLength = strlen(text);
@@ -563,7 +564,7 @@ static void get_bottom_right_text_layout(const char *text, int line, TbBool play
     layout->scr_y = MyScreenHeight - (line + 1) * layout->height - 16 * units_per_pixel / 16;
 }
 
-static void draw_bottom_right_text(const char *text, const struct BottomRightTextLayout *layout, TbBool highlighted)
+static void draw_bottom_right_text(const char *text, const struct TextBoxLayout *layout, TbBool highlighted)
 {
     LbTextSetFont(winfont);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
@@ -619,13 +620,13 @@ void draw_gameturn_timer(void)
     char text[32];
     if (!local_state.rewinding || !replay_rewind_at_limit() || ((get_time_tick_ns() / 250000000) % 2 == 0)) {
         snprintf(text, sizeof(text), "%sGameTurn %u", local_state.rewinding ? "< " : "", get_gameturn());
-        struct BottomRightTextLayout layout;
+        struct TextBoxLayout layout;
         get_bottom_right_text_layout(text, 0, false, &layout);
         draw_bottom_right_text(text, &layout, false);
     }
 }
 
-static TbBool get_watched_player_name_layout(char *text, size_t text_size, struct BottomRightTextLayout *layout)
+static TbBool get_watched_player_name_layout(char *text, size_t text_size, struct TextBoxLayout *layout)
 {
     const char *name = get_displayed_user_name();
     if (name == NULL && !(replay.load_enable && is_observer_camera_active())) {
@@ -647,25 +648,92 @@ static TbBool get_watched_player_name_layout(char *text, size_t text_size, struc
     return true;
 }
 
-static TbBool mouse_is_over_bottom_right_text(const struct BottomRightTextLayout *layout)
+static TbBool mouse_is_over_padded_area(int32_t x, int32_t y, int32_t width, int32_t height, int32_t padding)
 {
-    return GetMouseX() >= layout->scr_x - layout->height && GetMouseY() >= layout->scr_y - layout->height / 2;
+    int32_t mouse_x = GetMouseX();
+    int32_t mouse_y = GetMouseY();
+    return mouse_x >= x - padding && mouse_x < x + width + padding && mouse_y >= y - padding / 2 && mouse_y < y + height + padding / 2;
+}
+
+static TbBool mouse_is_over_bottom_right_text(const struct TextBoxLayout *layout)
+{
+    return mouse_is_over_padded_area(layout->scr_x, layout->scr_y, MyScreenWidth - layout->scr_x, MyScreenHeight - layout->scr_y, layout->height);
 }
 
 TbBool mouse_is_over_watched_player_name(void)
 {
     char text[sizeof(netstate.users[0].name) + 2];
-    struct BottomRightTextLayout layout;
+    struct TextBoxLayout layout;
     return get_watched_player_name_layout(text, sizeof(text), &layout) && mouse_is_over_bottom_right_text(&layout);
 }
 
 void draw_watched_player_name(void)
 {
     char text[sizeof(netstate.users[0].name) + 2];
-    struct BottomRightTextLayout layout;
+    struct TextBoxLayout layout;
     if (get_watched_player_name_layout(text, sizeof(text), &layout)) {
         draw_bottom_right_text(text, &layout, mouse_is_over_bottom_right_text(&layout));
     }
+}
+
+static TbBool get_paused_message_layout(struct TextBoxLayout *layout)
+{
+    if (((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0) || unpausing_in_progress) {
+        return false;
+    }
+    LbTextSetFont(winfont);
+    layout->width = LbTextStringWidth(get_string(GUIStr_PausedMsg)) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16);
+    layout->height = LbTextLineHeight() * units_per_pixel / 16;
+    if (get_local_view_type(get_my_player()) != PVT_MapScreen) {
+        layout->scr_x = local_state.engine_window_x + (MyScreenWidth - layout->width - local_state.engine_window_x) / 2;
+    } else {
+        layout->scr_x = (MyScreenWidth - layout->width) / 2;
+    }
+    layout->scr_y = 16 * units_per_pixel / 16;
+    layout->icon_scale = 0;
+    if (MyScreenHeight < 400) {
+        layout->width *= 2;
+        layout->height *= 3;
+    }
+    return true;
+}
+
+static TbBool mouse_is_over_paused_message_layout(const struct TextBoxLayout *layout)
+{
+    if (observer_is_active() || (get_my_player()->victory_state == VicS_LostLevel)) {
+        return false;
+    }
+    int32_t padding = PAUSED_MESSAGE_HOVER_PADDING_HEIGHTS * LbTextLineHeight() * units_per_pixel / 16;
+    return mouse_is_over_padded_area(layout->scr_x, 0, layout->width, layout->scr_y + layout->height, padding);
+}
+
+TbBool mouse_is_over_paused_message(void)
+{
+    struct TextBoxLayout layout;
+    return get_paused_message_layout(&layout) && mouse_is_over_paused_message_layout(&layout);
+}
+
+void draw_paused_message(int tx_units_per_px)
+{
+    struct TextBoxLayout layout;
+    if (!get_paused_message_layout(&layout)) {
+        return;
+    }
+    int32_t text_x = layout.scr_x;
+    int32_t text_width = layout.width;
+    if ((MyScreenHeight < 400) && (dbc_initialized && dbc_enabled)) {
+        text_x -= 12;
+        text_width += 32;
+    }
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+    LbTextSetWindow(text_x, layout.scr_y, text_width, layout.height);
+    draw_slab64k(layout.scr_x, layout.scr_y, units_per_pixel, layout.width, layout.height);
+    if (mouse_is_over_paused_message_layout(&layout)) {
+        LbTextSetRemap(&pixmap.fade_tables[HIGHLIGHTED_TEXT_FADE_LEVEL * PALETTE_COLORS]);
+    }
+    LbTextDrawResized(0, 0, tx_units_per_px, get_string(GUIStr_PausedMsg));
+    LbTextSetRemap(NULL);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
 TbBool timer_enabled(void)

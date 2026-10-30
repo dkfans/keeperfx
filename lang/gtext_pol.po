@@ -7720,3 +7720,9 @@ msgstr "Zezwól na asystenta"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s dołączył do gry."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Kliknij, aby wznowić"

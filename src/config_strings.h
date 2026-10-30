@@ -519,6 +519,7 @@ enum GUIStrings {
     GUIStr_NetAllowCheats,
     GUIStr_NetAllowAssistant,
     GUIStr_NetSpectatorBecamePlayer,
+    GUIStr_ClickToUnpause,
     GuiStrEnd
 };
 

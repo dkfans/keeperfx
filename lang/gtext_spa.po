@@ -7865,3 +7865,9 @@ msgstr "Permitir asistente"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s se ha unido a la partida."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Haz clic para reanudar"

@@ -6968,3 +6968,9 @@ msgstr "Разрешить ИИ-помощь"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s присоединился к игре."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Нажмите, чтобы продолжить"

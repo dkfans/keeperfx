@@ -7684,3 +7684,9 @@ msgstr "Дозволити асистента"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s приєднався до гри."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Натисніть, щоб продовжити"
