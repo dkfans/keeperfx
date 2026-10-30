@@ -55,6 +55,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "player_instances.h"
+#include "packets.h"
 #include "post_inc.h"
 #include "creature_states_lair.h"
 
@@ -1261,7 +1262,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     else
     {
-        if (is_thing_directly_controlled_by_player(spdigtng, my_player_number))
+        if (user_controls_thing(get_local_user(), spdigtng, UCT_Direct | UCT_Other))
         {
             play_non_3d_sample(snd_refusal);
             internal_set_thing_state(spdigtng, state);
@@ -1377,7 +1378,7 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
     if (crconf->gold_hold > spdigtng->creature.gold_carried)
     {
         MapSubtlCoord stl_x, stl_y;
-        if (is_thing_directly_controlled(spdigtng))
+        if (user_controls_thing(ANY_USER, spdigtng, UCT_Direct | UCT_PossessionEntryZoom))
         {
             struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);
             struct Thing *goldtng = thing_get(cctrl->pickup_object_id);
@@ -2068,7 +2069,7 @@ short creature_arms_trap(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (is_thing_directly_controlled(thing))
+    if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom))
     {
         return creature_arms_trap_first_person(thing);
     }

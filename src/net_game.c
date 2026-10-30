@@ -155,6 +155,7 @@ static const unsigned char user_preference_flags[UPref_Count] = {
     [UPref_StartingTendencies]    = 0,
     [UPref_MinimapZoom]           = UPF_ApplyOnLoad,
     [UPref_StartingComputerAssistantKind] = UPF_ApplyOnLoad,
+    [UPref_ComputerAssistantDisabled] = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
 };
 
 void build_local_user_preferences(UserPreferences prefs)
@@ -166,6 +167,10 @@ void build_local_user_preferences(UserPreferences prefs)
     prefs[UPref_FrontView] = front_view;
     prefs[UPref_Wibble] = wibble;
     prefs[UPref_Cheats] = start_params.easter_egg;
+    if (network_is_active() && network_is_host()) {
+        prefs[UPref_Cheats] = net_config_info.cheats_enabled;
+        prefs[UPref_ComputerAssistantDisabled] = !net_config_info.computer_assistant;
+    }
     prefs[UPref_SkipHeartZoom] = get_skip_heart_zoom_feature();
     prefs[UPref_StartingHighlightMode] = get_starting_highlight_mode();
     prefs[UPref_StartingIsometricTilt] = settings.isometric_tilt;
@@ -234,9 +239,16 @@ TbBool user_cheats_allowed(NetUserId user)
 {
     if (get_user_state(SERVER_ID)->prefs[UPref_Cheats] == 0)
         return false;
-    if (!user_present(user))
+    if ((game.game_kind == GKind_MultiGame) || !user_present(user))
         return true;
     return get_user_state(user)->prefs[UPref_Cheats] != 0;
+}
+
+TbBool computer_assistant_allowed(void)
+{
+    if (game.game_kind != GKind_MultiGame)
+        return true;
+    return get_user_state(SERVER_ID)->prefs[UPref_ComputerAssistantDisabled] == 0;
 }
 
 TbBool game_censorship_enabled(void)
@@ -614,8 +626,6 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
     // TODO: if we add reconnect, remember to undo this
     setup_a_computer_player(player->id_number, get_random_skirmish_computer_model());
     toggle_computer_player(player->id_number);
-    message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
-    JUSTLOG("p:%d computer took over", player->id_number);
 }
 
 // used when ending a netplay game or recording.
@@ -773,6 +783,9 @@ static void abandon_network_player(struct PlayerInfo *player, const char *announ
     resolve_placeholders();
     if (player->victory_state != VicS_Undecided) {
         player->allocflags &= ~PlaF_Allocated;
+    } else if (player_is_placeholder(player)) {
+        message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
+        JUSTLOG("p:%d computer took over", player->id_number);
     }
 }
 
@@ -824,7 +837,7 @@ void process_user_leave_game_packet(NetUserId user)
         struct PlayerInfo *player = get_player(get_net_user_player_number(user));
         forget_user(user);
         if (player_exists(player) && get_player_primary_user(player) < 0) {
-            player->allocflags &= ~PlaF_Allocated;
+            player->allocflags &= ~(PlaF_Allocated | PlaF_Seat);
         }
         return;
     }

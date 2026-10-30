@@ -147,8 +147,10 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,2, LOBBY_OPTION_X, 142, LOBBY_OPTION_X, 142, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {47},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,3, LOBBY_OPTION_X, 168, LOBBY_OPTION_X, 168, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {48},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,4, LOBBY_OPTION_X, 194, LOBBY_OPTION_X, 194, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {49},    0, frontnet_maintain_host_setting },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,5, LOBBY_OPTION_X, 220, LOBBY_OPTION_X, 220, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {50},    0, frontnet_maintain_host_setting },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,6, LOBBY_OPTION_X, 246, LOBBY_OPTION_X, 246, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {51},    0, frontnet_maintain_host_setting },
   { LbBtnT_EditBox, -1,-1, 0, frontnet_session_set_lobby_name, NULL, frontend_over_button,     45, LOBBY_OPTION_X,  90, LOBBY_OPTION_X,  90, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_name,          0, GUIStr_Empty, 0, {.str = net_lobby_settings.net_lobby_name}, sizeof(net_lobby_settings.net_lobby_name) - 1, frontnet_maintain_host_setting },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, 10, 278, 10, 278, LOBBY_LEFT_WIDTH, 26, frontnet_draw_lobby_section_header, 0, GUIStr_Empty, 0, {34},    0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, 10, 278, 10, 278, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET, 26, frontnet_draw_lobby_section_header, 0, GUIStr_Empty, 0, {34},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10, 304,  10, 304, LOBBY_MESSAGES_WIDTH, 86, frontnet_draw_lobby_panel,         0, GUIStr_Empty, 0,   {0},    0, frontnet_messages_wheel_maintain },
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_messages_up,NULL,  frontend_over_button,    0, 10 + LOBBY_MESSAGES_WIDTH, 303, 10 + LOBBY_MESSAGES_WIDTH, 303,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {38},    0, frontnet_messages_up_maintain },
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_messages_down,NULL,frontend_over_button,    0, 10 + LOBBY_MESSAGES_WIDTH, 377, 10 + LOBBY_MESSAGES_WIDTH, 377,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {39},    0, frontnet_messages_down_maintain },
@@ -536,6 +538,8 @@ enum LobbyOption {
     LobbyOption_LobbyName = 0,
     LobbyOption_MaximumPlayers,
     LobbyOption_ComputerPlayers,
+    LobbyOption_ComputerAssistant,
+    LobbyOption_Cheats,
     LobbyOption_OpenToSpectators,
     LobbyOption_ShowSpectatorChat,
     LobbyOption_Count,
@@ -550,6 +554,8 @@ static const enum GUIStrings lobby_option_labels[] = {
     GUIStr_NetLobbyName,
     GUIStr_NetMaximumPlayers,
     GUIStr_NetFillEmptySlots,
+    GUIStr_NetAllowAssistant,
+    GUIStr_NetAllowCheats,
     GUIStr_NetOpenToSpectators,
     GUIStr_NetShowSpectatorChat,
 };
@@ -582,6 +588,10 @@ static uint8_t *lobby_option_toggle(struct ConfigInfo *config, int32_t option)
         return &config->spectators_enabled;
     case LobbyOption_ShowSpectatorChat:
         return &config->spectator_chat;
+    case LobbyOption_Cheats:
+        return &config->cheats_enabled;
+    case LobbyOption_ComputerAssistant:
+        return &config->computer_assistant;
     default:
         return NULL;
     }

@@ -1086,7 +1086,7 @@ long get_explore_sight_distance_in_slabs(const struct Thing *thing)
         return 0;
     }
     long dist;
-    if (!is_thing_some_way_controlled(thing)) {
+    if (!user_controls_thing(ANY_USER, thing, UCT_Selected)) {
         dist = CREATURE_EXPLORE_DISTANCE;
     } else {
         dist = CREATURE_EXPLORE_DISTANCE_POSSESSED;

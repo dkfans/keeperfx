@@ -1,14 +1,11 @@
 #include "pre_inc.h"
 #include "kfx_memory.h"
+#include "kfx/platform/PlatformManager.h"
 #include "post_inc.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-/* Forward declaration -- avoids dragging in PlatformManager.h and its
- * C++-only type dependencies (TbFileHandle, TbBool, etc.) into C code. */
-// extern size_t PlatformManager_GetScratchSize(void);
 
 /* ===== OOM handler ===== */
 static void kfx_oom(size_t size, const char* file, int line)
@@ -358,8 +355,7 @@ static size_t         s_scratch_used = 0;
 
 void KfxMemInit(void)
 {
-    // size_t cap = PlatformManager_GetScratchSize();
-    size_t cap = 4 * 1024 * 1024; /* default to 16MB if platform manager not available */
+    size_t cap = PlatformManager_GetScratchSize();
     s_scratch_base = (unsigned char*)malloc(cap);
     if (!s_scratch_base) kfx_oom(cap, __FILE__, __LINE__);
     s_scratch_cap  = cap;

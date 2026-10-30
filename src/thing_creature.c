@@ -76,6 +76,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
+#include "net_game.h"
 #include "player_utils.h"
 #include "config_players.h"
 #include "power_hand.h"
@@ -264,7 +265,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       toggle_status_menu(0);
       turn_off_roaming_menus();
     }
-    set_selected_creature(player, thing);
+    set_selected_creature(ustate, thing);
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     thing->move_angle_z = 0;
@@ -317,7 +318,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
         toggle_status_menu(0);
         turn_off_roaming_menus();
     }
-    set_selected_thing(player, thing);
+    set_selected_thing(ustate, thing);
     set_user_view_type(get_player_primary_user(player), PVT_CreaturePasngr);
     thing->rendering_flags |= TRF_Invisible;
     return true;
@@ -383,8 +384,7 @@ void randomise_swipe_graphic_direction()
 
 void draw_swipe_graphic(void)
 {
-    const struct PlayerInfo *myplyr = get_displayed_player();
-    struct Thing* thing = thing_get(myplyr->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_user_state(get_displayed_user())->controlled_thing_idx);
     if (thing_is_creature(thing)) {
         const struct CreatureControl* cctrl = get_local_creature_control(thing);
         if (instance_draws_possession_swipe(cctrl->instance_id)) {
@@ -1139,10 +1139,10 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
             setup_combat_flee_position(thing);
-            if (is_thing_directly_controlled(thing))
+            if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom))
             {
                 struct PlayerInfo* player = get_player(thing->owner);
-                if (player->controlled_thing_idx == thing->index)
+                if (get_player_user_state(player)->controlled_thing_idx == thing->index)
                 {
                     char active_menu = game.active_panel_mnu_idx;
                     leave_creature_as_controller(player, thing);
@@ -1366,7 +1366,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_Fear)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
-        if (is_thing_passenger_controlled_by_player(thing,thing->owner))
+        if (user_controls_thing(ANY_USER, thing, UCT_Passenger))
         {
             struct PlayerInfo* player = get_player(thing->owner);
             char active_menu = game.active_panel_mnu_idx;
@@ -2462,7 +2462,7 @@ TbBool thing_can_be_eaten(struct Thing *thing)
     if (thing_is_mature_food(thing)
     || (thing_is_creature(thing) && creature_under_spell_effect(thing, CSAfF_Chicken)))
     {
-        if (is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing) || thing_is_picked_up(thing))
+        if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom) || thing_is_picked_up(thing))
         {
             return false;
         }
@@ -2680,6 +2680,8 @@ TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
         killer_dungeon->lvstats.friendly_kills++;
     else
         killer_dungeon->battles_won++;
+    killer_dungeon->battles_won_vs[victim->owner]++;
+    killer_dungeon->battles_won_vs[ALL_PLAYERS]++;
     return true;
 }
 
@@ -3456,6 +3458,8 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         if (flag_is_set(flags, CrDed_DiedInBattle))
         {
             dungeon->battles_lost++;
+            dungeon->battles_lost_vs[ALL_PLAYERS]++;
+            dungeon->battles_lost_vs[killertng->owner]++;
         }
     }
     update_kills_counters(creatng, killertng, killer_plyr_idx, flags);
@@ -4377,7 +4381,7 @@ void draw_creature_view(struct Thing *thing)
   unsigned char* scrmem = lens_get_render_target();
   unsigned int render_width = lens_get_render_target_width();
   unsigned int render_height = lens_get_render_target_height();
-  
+
   // Store previous graphics settings
   unsigned char* wscr_cp = lbDisplay.WScreen;
   TbGraphicsWindow grwnd;
@@ -7190,12 +7194,12 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     }
 }
 
-void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng)
+void direct_control_pick_up_or_drop(NetUserId user, struct Thing *creatng)
 {
+    const PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     if (!thing_is_invalid(dragtng))
     {
         if (thing_is_trap_crate(dragtng))
@@ -7230,7 +7234,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                 }
                 else
                 {
-                    if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
+                    if (user_controls_thing(user, creatng, UCT_Direct | UCT_Other))
                     {
                         play_player_sample(plyr_idx, snd_refusal);
                         return;
@@ -7258,7 +7262,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                     }
                     else
                     {
-                        if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
+                        if (user_controls_thing(user, creatng, UCT_Direct | UCT_Other))
                         {
                             play_player_sample(plyr_idx, snd_refusal);
                             return;
@@ -7554,13 +7558,9 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
 {
     if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
     {
-        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-        {
-            if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
-            {
-                return plyr_idx;
-            }
-        }
+        const NetUserId user = get_user_controlling_thing(creatng, UCT_Direct | UCT_Other);
+        if (user >= 0)
+            return get_net_user_player_number(user);
     }
     return creatng->owner;
 }
@@ -7854,20 +7854,22 @@ struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, Cr
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
     struct PlayerInfo *player = get_player(thing->owner);
     // Switch control if this creature is possessed.
-    if (is_thing_directly_controlled(thing))
+    if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom))
     {
         leave_creature_as_controller(player, thing);
         control_creature_as_controller(player, newtng);
     }
-    if (is_thing_passenger_controlled(thing))
+    if (user_controls_thing(ANY_USER, thing, UCT_Passenger | UCT_PossessionEntryZoom))
     {
         leave_creature_as_passenger(player, thing);
         control_creature_as_passenger(player, newtng);
     }
     // If not directly nor passenger controlled, but still player is doing something with it.
-    if (thing->index == player->controlled_thing_idx)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        set_selected_creature(player, newtng);
+        struct UserState *ustate = get_user_state(user);
+        if (ustate->controlled_thing_idx == thing->index)
+            set_selected_creature(ustate, newtng);
     }
     remove_creature_score_from_owner(thing); // kill_creature() doesn't call this.
     // Handles picked up by player case.

@@ -64,9 +64,20 @@ enum PlayerInstanceNum {
     PI_UnusedSlot18,
 };
 /******************************************************************************/
+#define ANY_USER -2
+
+enum UserControllingThing {
+    UCT_Direct           = 0x01, /* user is possessing the creature normally */
+    UCT_Passenger        = 0x02, /* possession, but unable to control */
+    UCT_Other            = 0x04, /* mainly for intro heart zoom-in and post-defeat spectating in multiplayer */
+    UCT_PossessionEntryZoom = 0x08, /* the possession-start animation instance. (Without this flag, only counts if already in first-person.) */
+    UCT_Selected         = 0x10, /* misc. for querying, cheat menu, etc. */
+};
+
 #pragma pack(1)
 
 struct Thing;
+struct UserState;
 struct PlayerInfo;
 
 typedef int32_t (*InstncInfo_Func)(NetUserId user, int32_t *n);
@@ -100,17 +111,14 @@ void process_player_instances(void);
 
 void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-#define set_selected_creature(player,thing) set_selected_creature_f(player, thing, __func__)
-TbBool set_selected_creature_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name);
-#define set_selected_thing(player,thing) set_selected_thing_f(player, thing, __func__)
-TbBool set_selected_thing_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name);
-TbBool clear_selected_thing(struct PlayerInfo *player);
+#define set_selected_creature(ustate,thing) set_selected_creature_f(ustate, thing, __func__)
+TbBool set_selected_creature_f(struct UserState *ustate, struct Thing *thing, const char *func_name);
+#define set_selected_thing(ustate,thing) set_selected_thing_f(ustate, thing, __func__)
+TbBool set_selected_thing_f(struct UserState *ustate, struct Thing *thing, const char *func_name);
+TbBool clear_selected_thing(struct UserState *ustate);
 
-TbBool is_thing_directly_controlled(const struct Thing *thing);
-TbBool is_thing_passenger_controlled(const struct Thing *thing);
-TbBool is_thing_some_way_controlled(const struct Thing *thing);
-TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
-TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool user_controls_thing(NetUserId user, const struct Thing *thing, uint32_t uct_flags);
+NetUserId get_user_controlling_thing(const struct Thing *thing, uint32_t uct_flags);
 
 void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos);
 

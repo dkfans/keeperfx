@@ -59,6 +59,8 @@ struct ConfigInfo {
     uint8_t spectators_enabled;
     uint8_t spectator_chat;
     uint8_t computer_players;
+    uint8_t cheats_enabled;
+    uint8_t computer_assistant;
 };
 
 struct TbNetworkPlayerName {

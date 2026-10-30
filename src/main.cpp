@@ -28,6 +28,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "kfx_memory.h"
 #include "bflib_sndlib.h"
 #include "bflib_cpu.h"
 #include "bflib_crash.h"
@@ -501,7 +502,7 @@ static bool players_cursor_is_at_top_of_view()
         return true;
 
     case PSt_OrderCreatr:
-        return (player->controlled_thing_idx > 0);
+        return (get_user_state(get_displayed_user())->controlled_thing_idx > 0);
 
     case PSt_CtrlDungeon:
         switch (ustate->primary_cursor_state)
@@ -774,10 +775,8 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
 
 void instant_instance_selected(CrInstance check_inst_id)
 {
-    struct PlayerInfo *player;
-    player = get_player(my_player_number);
     struct Thing *ctrltng;
-    ctrltng = thing_get(player->controlled_thing_idx);
+    ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     struct CreatureModelConfig *crconf;
     crconf = creature_stats_get_from_thing(ctrltng);
     long i;
@@ -1081,7 +1080,9 @@ void clear_game_for_summary(void)
     clear_columns();
     clear_action_points();
     clear_players();
-    clear_dungeons();
+    clear_dungeons();    
+    memset(game.script_variables, 0, sizeof(game.script_variables));
+    game.active_script_var_count = 0;
 }
 
 void clear_game(void)
@@ -1813,7 +1814,7 @@ static short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
-          smooth_on = true;
+          WARNLOG("The -%s commandline parameter is no longer functional.", parstr); //todo remove once it's no longer in the launcher
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
@@ -1979,6 +1980,25 @@ static short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.config_file, pr2str);
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
+      }
+      else if (strcasecmp(parstr, "cfg") == 0)
+      {
+        if (pr2str[0])
+        {
+            // append line to config_overrides
+            const char *line = argv[narg + 1];
+            size_t old_len = start_params.config_overrides ? strlen(start_params.config_overrides) : 0;
+            size_t add_len = strlen(line);
+            start_params.config_overrides = (char *)KfxRealloc(start_params.config_overrides, old_len + add_len + 2);
+            memcpy(start_params.config_overrides + old_len, line, add_len);
+            start_params.config_overrides[old_len + add_len] = '\n';
+            start_params.config_overrides[old_len + add_len + 1] = '\0';
+            narg++;
+        }
+        else
+        {
+            WARNMSG("No KEY=VALUE given after -cfg");
+        }
       }
       else if ( strcasecmp(parstr,"Bullfrog") == 0 ) // force playing the Bullfrog video
       {

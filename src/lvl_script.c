@@ -180,7 +180,7 @@ static struct CommandDesc const *find_command_desc(const struct CommandToken *to
     int token_len = token->end - token->start;
     for (int i = 0; cmdlist_desc[i].textptr != NULL; i++)
     {
-        if ((cmdlist_desc[i].textptr[token_len] == 0) && (strncmp(cmdlist_desc[i].textptr, token->start, token_len) == 0))
+        if (((int)strlen(cmdlist_desc[i].textptr) == token_len) && (strncmp(cmdlist_desc[i].textptr, token->start, token_len) == 0))
         {
             cmnd_desc = &cmdlist_desc[i];
             break;

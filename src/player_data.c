@@ -560,7 +560,7 @@ void set_user_work_state(NetUserId user, short nwrk_state, int32_t chosen_kind)
      && (ustate->work_state != PSt_CtrlDirect) && (ustate->work_state != PSt_CtrlPassngr)
      && (ustate->work_state != PSt_FreeCtrlDirect) && (ustate->work_state != PSt_FreeCtrlPassngr))
   {
-      clear_selected_thing(player);
+      clear_selected_thing(ustate);
   }
   set_user_work_state_kind(ustate, chosen_kind);
   switch (ustate->work_state)

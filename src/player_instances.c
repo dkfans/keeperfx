@@ -65,6 +65,7 @@
 #include "lua_triggers.h"
 #include "lens_api.h"
 #include "timer.h"
+#include "net_game.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -614,10 +615,9 @@ int32_t pinstfe_leave_creature(NetUserId user, int32_t *n)
 
 int32_t pinstfs_query_creature(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     struct Thing* thing = thing_get(ustate->influenced_thing_idx);
-    set_selected_creature(player, thing);
+    set_selected_creature(ustate, thing);
     unsigned char state = ( (ustate->work_state == PSt_QueryAll) || (ustate->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
     set_user_work_state(user, state, 0);
     return 0;
@@ -625,9 +625,8 @@ int32_t pinstfs_query_creature(NetUserId user, int32_t *n)
 
 int32_t pinstfs_unquery_creature(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     set_user_work_state(user, PSt_CtrlDungeon, 0);
-    clear_selected_thing(player);
+    clear_selected_thing(get_user_state(user));
     return 0;
 }
 
@@ -660,8 +659,7 @@ int32_t pinstfs_zoom_to_heart(NetUserId user, int32_t *n)
 
 int32_t pinstfm_zoom_to_heart(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
     if (thing_exists(thing))
     {
         struct Coord3d pos;
@@ -692,7 +690,7 @@ int32_t pinstfs_zoom_out_of_heart(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
     if (thing_exists(thing))
         leave_creature_as_controller(player, thing);
     set_user_view_type(user, PVT_DungeonTop);
@@ -807,8 +805,8 @@ int32_t pinstfs_zoom_to_position(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
-    player->controlled_thing_idx = 0;
-    player->controlled_thing_creatrn = 0;
+    get_user_state(user)->controlled_thing_idx = 0;
+    get_user_state(user)->controlled_thing_creatrn = 0;
     ustate->init_flags |= UsrIF_MouseInputDisabled;
     ustate->init_flags |= UsrIF_KeyboardInputDisabled;
     ustate->instance_remain_turns = zoom_to_position_turns(get_user_state(user));
@@ -826,13 +824,12 @@ int32_t pinstfm_zoom_to_position(NetUserId user, int32_t *n)
 
 int32_t pinstfe_zoom_to_position(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     ustate->init_flags &= ~UsrIF_MouseInputDisabled;
     ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
     if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
     {
-        player->controlled_thing_idx = ustate->influenced_thing_idx;
+        get_user_state(user)->controlled_thing_idx = ustate->influenced_thing_idx;
     }
     return 0;
 }
@@ -904,7 +901,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     struct UserState* ustate = get_player_user_state(player);
     SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
     if (((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlDirect))
-      || (thing->index != player->controlled_thing_idx))
+      || (thing->index != ustate->controlled_thing_idx))
     {
         set_user_instance(get_player_primary_user(player), PI_Unset, false);
         set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
@@ -914,10 +911,10 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         get_player_user_state(player)->dungeon_camera.x = subtile_coord_center(game.map_subtiles_x/2);
         get_player_user_state(player)->dungeon_camera.y = subtile_coord_center(game.map_subtiles_y/2);
         sync_local_camera(player);
-        clear_selected_thing(player);
+        clear_selected_thing(ustate);
         return;
     }
-    clear_selected_thing(player);
+    clear_selected_thing(ustate);
     set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
     set_player_lens(player->id_number, 0);
     thing->alloc_flags &= ~TAlF_IsControlled;
@@ -953,7 +950,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   struct UserState* ustate = get_player_user_state(player);
   SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
   if (((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlPassngr))
-    || (thing->index != player->controlled_thing_idx))
+    || (thing->index != ustate->controlled_thing_idx))
   {
     set_user_instance(get_player_primary_user(player), PI_Unset, false);
     set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
@@ -962,7 +959,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     get_player_user_state(player)->dungeon_camera.x = subtile_coord_center(game.map_subtiles_x/2);
     get_player_user_state(player)->dungeon_camera.y = subtile_coord_center(game.map_subtiles_y/2);
     sync_local_camera(player);
-    clear_selected_thing(player);
+    clear_selected_thing(ustate);
     return;
   }
   set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
@@ -974,110 +971,86 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   get_player_user_state(player)->dungeon_camera.x = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   get_player_user_state(player)->dungeon_camera.y = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   sync_local_camera(player);
-  clear_selected_thing(player);
+  clear_selected_thing(ustate);
 }
 
-TbBool is_thing_passenger_controlled(const struct Thing *thing)
+static TbBool user_controls_thing_now(NetUserId user, const struct Thing *thing, uint32_t uct_flags)
 {
-    if (!thing_exists(thing))
+    const struct UserState* ustate = get_user_state(user);
+    if (user_state_invalid(ustate))
         return false;
-    if (is_neutral_thing(thing))
-        return false;
-    struct PlayerInfo* player = get_player(thing->owner);
-    struct UserState* ustate = get_player_user_state(player);
-    if ((ustate->work_state != PSt_CtrlPassngr) && (ustate->work_state != PSt_FreeCtrlPassngr))
-        return false;
-    switch (get_player_user_state(player)->instance_num)
+    if ((uct_flags & UCT_Selected) && thing->index == ustate->controlled_thing_idx)
+        return true;
+    const TbBool direct = ustate->work_state == PSt_CtrlDirect || ustate->work_state == PSt_FreeCtrlDirect;
+    const TbBool passenger = ustate->work_state == PSt_CtrlPassngr || ustate->work_state == PSt_FreeCtrlPassngr;
+    if ((direct && (uct_flags & UCT_Direct)) || (passenger && (uct_flags & UCT_Passenger)))
     {
-    case PI_PsngrCtrl:
-        return (thing->index == ustate->influenced_thing_idx);
-    case PI_CrCtrlFade:
-        return (thing->index == player->controlled_thing_idx);
-    case PI_PsngrCtLeave:
-        return (thing->index == ustate->influenced_thing_idx);
-    case PI_Unset:
-    case PI_Whip: // Whip can be used at any time by comp. assistant
-    case PI_WhipEnd:
-        return (thing->index == player->controlled_thing_idx);
-    default:
-        ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)get_player_user_state(player)->instance_num);
-        break;
+        switch (ustate->instance_num)
+        {
+        case PI_DirctCtrl:
+        case PI_PsngrCtrl:
+            return (uct_flags & UCT_PossessionEntryZoom) && thing->index == ustate->influenced_thing_idx;
+        case PI_DirctCtLeave:
+        case PI_PsngrCtLeave:
+        case PI_ZoomToPos:
+            return false;
+        }
+        return (thing->index == ustate->controlled_thing_idx);
     }
+    if (!direct && !passenger && (uct_flags & UCT_Other) && ustate->view_type == PVT_CreatureContrl)
+        return (thing->index == ustate->controlled_thing_idx);
     return false;
 }
 
-TbBool is_thing_directly_controlled(const struct Thing *thing)
+NetUserId get_user_controlling_thing(const struct Thing *thing, uint32_t uct_flags)
 {
     if (!thing_exists(thing))
-        return false;
-    if (is_neutral_thing(thing))
-        return false;
-    struct PlayerInfo* player = get_player(thing->owner);
-    struct UserState* ustate = get_player_user_state(player);
-    if ((ustate->work_state != PSt_CtrlDirect) && (ustate->work_state != PSt_FreeCtrlDirect))
+        return -1;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        return false;
+        if (user_present(user) && user_controls_thing_now(user, thing, uct_flags))
+            return user;
     }
-    switch (get_player_user_state(player)->instance_num)
-    {
-    case PI_DirctCtrl:
-        return (thing->index == ustate->influenced_thing_idx);
-    case PI_CrCtrlFade:
-        return (thing->index == player->controlled_thing_idx);
-    case PI_DirctCtLeave:
-        return (thing->index == ustate->influenced_thing_idx);
-    case PI_Unset:
-    case PI_Whip: // Whip can be used at any time by comp. assistant
-    case PI_WhipEnd:
-        return (thing->index == player->controlled_thing_idx);
-    case PI_PsngrCtLeave: // Leaving the possessed creature
-    case PI_ZoomToPos:
-        break;
-    default:
-        ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)get_player_user_state(player)->instance_num);
-        break;
-    }
-    return false;
+    return -1;
 }
 
-TbBool is_thing_some_way_controlled(const struct Thing *thing)
+TbBool user_controls_thing(NetUserId user, const struct Thing *thing, uint32_t uct_flags)
 {
+    if (user == ANY_USER)
+        return get_user_controlling_thing(thing, uct_flags) >= 0;
     if (!thing_exists(thing))
         return false;
-    if (is_neutral_thing(thing))
-        return false;
-    struct PlayerInfo* player = get_player(thing->owner);
-    return (player->controlled_thing_idx == thing->index);
+    return user_controls_thing_now(user, thing, uct_flags);
 }
 
-TbBool set_selected_thing_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name)
+TbBool set_selected_thing_f(struct UserState *ustate, struct Thing *thing, const char *func_name)
 {
     if (thing_exists(thing))
     {
-        player->controlled_thing_idx = thing->index;
-        player->controlled_thing_creatrn = thing->creation_turn;
+        ustate->controlled_thing_idx = thing->index;
+        ustate->controlled_thing_creatrn = thing->creation_turn;
         return true;
     }
     ERRORLOG("%s: Cannot select %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     return false;
 }
 
-TbBool set_selected_creature_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name)
+TbBool set_selected_creature_f(struct UserState *ustate, struct Thing *thing, const char *func_name)
 {
     if (thing_is_creature(thing))
     {
-        player->controlled_thing_idx = thing->index;
-        player->controlled_thing_creatrn = thing->creation_turn;
+        ustate->controlled_thing_idx = thing->index;
+        ustate->controlled_thing_creatrn = thing->creation_turn;
         return true;
     }
     ERRORLOG("%s: Cannot select %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     return false;
 }
 
-TbBool clear_selected_thing(struct PlayerInfo *player)
+TbBool clear_selected_thing(struct UserState *ustate)
 {
-    player->controlled_thing_idx = 0;
-    player->controlled_thing_creatrn = 0;
+    ustate->controlled_thing_idx = 0;
+    ustate->controlled_thing_creatrn = 0;
     return true;
 }
 
@@ -1288,86 +1261,4 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     return 1;
 }
 
-TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
-{
-    if (!thing_exists(thing))
-        return false;
-     struct PlayerInfo* player = get_player(plyr_idx);
-     struct UserState* ustate = get_player_user_state(player);
-     if (player_invalid(player))
-     {
-         ERRORLOG("Bad player: %d", plyr_idx);
-         return false;
-     }
-     else
-     {
-        if ((ustate->work_state != PSt_CtrlDirect) && (ustate->work_state != PSt_FreeCtrlDirect) && (ustate->work_state != PSt_CtrlDungeon))
-        {
-            return false;
-        }
-        switch (get_player_user_state(player)->instance_num)
-        {
-            case PI_DirctCtrl:
-            case PI_HeartZoom:
-            case PI_HeartZoomOut:
-            case PI_Drop:
-            {
-                if ((thing->alloc_flags & TAlF_IsControlled) != 0)
-                {
-                    if (get_player_view_type(player) == PVT_CreatureContrl)
-                    {
-                        return ( (thing->index == ustate->influenced_thing_idx) || (get_creature_model_flags(thing) & CMF_IsSpectator) );
-                    }
-                }
-                return false;
-            }
-            case PI_CrCtrlFade:
-                return (thing->index == player->controlled_thing_idx);
-            case PI_DirctCtLeave:
-                return (thing->index == ustate->influenced_thing_idx);
-            case PI_Unset:
-            case PI_Whip: // Whip can be used at any time by comp. assistant
-            case PI_WhipEnd:
-                return (thing->index == player->controlled_thing_idx);
-            case PI_PsngrCtLeave: // Leaving the possessed creature
-                break;
-        }
-     }
-    return false;
-}
-
-TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
-{
-    if (!thing_exists(thing))
-        return false;
-     struct PlayerInfo* player = get_player(plyr_idx);
-     struct UserState* ustate = get_player_user_state(player);
-     if (player_invalid(player))
-     {
-         ERRORLOG("Bad player: %d", plyr_idx);
-         return false;
-     }
-    else
-    {
-        if ((ustate->work_state != PSt_CtrlPassngr) && (ustate->work_state != PSt_FreeCtrlPassngr))
-            return false;
-        switch (get_player_user_state(player)->instance_num)
-        {
-        case PI_PsngrCtrl:
-            return ( (thing->index == ustate->influenced_thing_idx) && (get_player_view_type(player) == PVT_CreaturePasngr) );
-        case PI_CrCtrlFade:
-            return (thing->index == player->controlled_thing_idx);
-        case PI_PsngrCtLeave:
-            return (thing->index == ustate->influenced_thing_idx);
-        case PI_Unset:
-        case PI_Whip: // Whip can be used at any time by comp. assistant
-        case PI_WhipEnd:
-            return (thing->index == player->controlled_thing_idx);
-        default:
-            ERRORLOG("Bad player %d instance %d",plyr_idx,(int)get_player_user_state(player)->instance_num);
-            break;
-        }
-    }
-    return false;
-}
 /******************************************************************************/

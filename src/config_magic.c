@@ -1447,7 +1447,7 @@ void power_lost_side_effects(PowerKind pwkind, PlayerNumber plyr_idx)
         player = get_player(plyr_idx);
         if (get_player_view_type(player) == PVT_CreatureContrl)
         {
-            thing = thing_get(player->controlled_thing_idx);
+            thing = thing_get(get_player_user_state(player)->controlled_thing_idx);
             prepare_to_controlled_creature_death(thing);
         }
         break;
