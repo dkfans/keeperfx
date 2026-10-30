@@ -518,6 +518,7 @@ enum GUIStrings {
     GUIStr_NetFillEmptySlots,
     GUIStr_NetAllowCheats,
     GUIStr_NetAllowAssistant,
+    GUIStr_NetSpectatorBecamePlayer,
     GuiStrEnd
 };
 

@@ -534,6 +534,7 @@ static char *create_resync_game_message(size_t *message_size)
 
 TbBool send_resync_game(void)
 {
+    netstate.resync_pending = false;
     pack_desync_history_for_resync();
     clear_flag(game.operation_flags, GOF_Paused);
     animate_resync_progress_bar(0, 100);
@@ -576,7 +577,9 @@ TbBool receive_resync_game(void)
 
     animate_resync_progress_bar(90, 100);
 
-    compare_desync_history_from_host();
+    if ((local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0) {
+        compare_desync_history_from_host();
+    }
 
     return true;
 }
@@ -590,6 +593,7 @@ static void finish_resync(const struct Packet *saved_packets)
     reinit_level_after_load();
     light_import_system_state(&game.lightst);
     light_rebuild_after_load();
+    network_spectator_finish_seat();
     memcpy(game.packets, saved_packets, sizeof(game.packets));
 
     if (!network_is_active() || !network_user_is_spectator(netstate.my_id)) {

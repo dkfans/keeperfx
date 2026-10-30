@@ -625,6 +625,16 @@ TbBool cmd_network_stats(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_disconnect(PlayerNumber plyr_idx, char * args)
+{
+    NETLOG("Simulating a lost connection");
+    netstate.simulating_disconnect = true;
+    turn_off_all_menus();
+    free_swipe_graphic();
+    process_user_leave_game_packet(get_local_user());
+    return true;
+}
+
 TbBool cmd_quit(PlayerNumber plyr_idx, char * args)
 {
     quit_game = 1;
@@ -2690,6 +2700,7 @@ static const struct ConsoleCommand console_commands[] = {
    { "cursor.pos", cmd_cursor_pos, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "dbc", cmd_dbc, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "digger.sendto", cmd_send_digger_to, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+   { "disconnect", cmd_disconnect, NULL, CmdS_Personal, CmdM_MultiplayerOnly, CmdC_Unrestricted },
    { "door.give", cmd_give_door, param_completion_for_give_door, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "fps", cmd_fps_turn, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
    { "fps.draw", cmd_fps_draw, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },

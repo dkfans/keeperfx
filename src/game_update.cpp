@@ -271,6 +271,7 @@ static void process_dungeons(void)
   SYNCDBG(7,"Starting");
   check_players_lost();
   resolve_placeholders();
+  settle_waiting_placeholders();
   process_dungeon_power_magic();
   process_dungeon_devastation_effects();
   process_entrance_generation();
