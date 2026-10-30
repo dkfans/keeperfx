@@ -408,6 +408,9 @@ void network_spectator_finish_seat(void)
     seat_camera_pending = false;
     game.input_lag_turns = seat_input_lag_turns;
     init_local_cameras(get_my_player());
+    local_state.show_gui = true;
+    local_state.show_panel = true;
+    reinit_all_menus();
 }
 
 TbError process_network_spectator_ready(NetUserId source, size_t size)
