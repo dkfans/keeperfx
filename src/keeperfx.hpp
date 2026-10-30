@@ -143,6 +143,7 @@ struct StartupParameters {
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
+    char *config_overrides; /**< extra lines from -cfg args */
     int renderer_type; /**< RendererType value from -opengl; only meaningful when overrides[Clo_Renderer] is set. */
     GameTurn pause_at_gameturn;
     unsigned char startup_flags;
