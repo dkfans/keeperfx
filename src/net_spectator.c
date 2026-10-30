@@ -354,10 +354,14 @@ void network_spectator_seat_users(void)
             continue;
         }
         spectator->seat_requested = false;
+        enum NetJoinRejection reason = net_lobby_spectator_rejection(spectator_id);
         if (user_can_reconnect(spectator->seat_user, spectator)) {
             seat_spectator(spectator_id, spectator->seat_user);
+        } else if (reason != NetJoin_Accepted) {
+            netstate.sp->drop_user(spectator_id, reason);
         }
     }
+    net_lobby_refresh_rejoin_open();
 }
 
 static void join_seat(NetUserId player_id, PlayerNumber plyr_idx, uint8_t input_lag_turns)
