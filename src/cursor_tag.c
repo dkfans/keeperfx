@@ -430,15 +430,6 @@ TbBool tag_cursor_blocks_for_work_state(NetUserId user, MapSubtlCoord stl_x, Map
         ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
         tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
         return true;
-    case PSt_OrderCreatr:
-    {
-        struct Thing* creatng = thing_get(ustate->controlled_thing_idx);
-        if (!thing_is_creature(creatng)) {
-            return false;
-        }
-        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        return tag_cursor_blocks_order_creature(user, stl_x, stl_y, creatng);
-    }
     default:
         return false;
     }

@@ -315,7 +315,9 @@ void update_dig_prediction_cursor_preview(void)
     }
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
     reconcile_dig_predictions(&dig_tags, get_local_packet()->turn);
-    map_volume_box.visible = 0;
+    if (get_local_user_state()->work_state != PSt_OrderCreatr) {
+        map_volume_box.visible = 0;
+    }
     struct UserState predicted_ustate;
     get_predicted_roomspace(pckt, game.input_lag_turns - 1, true, &predicted_ustate);
     set_local_user_state_prediction(&predicted_ustate);

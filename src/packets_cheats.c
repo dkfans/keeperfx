@@ -190,7 +190,11 @@ TbBool packets_process_cheats(
         else
             ustate->thing_under_hand = thing->index;
         thing = thing_get(get_user_state(user)->controlled_thing_idx);
-        allowed = tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
+        allowed = false;
+        if (thing_is_creature(thing)) {
+            ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+            allowed = tag_cursor_blocks_order_creature(user, stl_x, stl_y, thing);
+        }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
           if (ustate->thing_under_hand > 0)
