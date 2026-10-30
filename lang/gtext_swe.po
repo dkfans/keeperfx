@@ -7631,3 +7631,9 @@ msgstr "Tillåt datorhjälp"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s har gått med i spelet."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Klicka för att fortsätta"

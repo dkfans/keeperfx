@@ -7619,3 +7619,9 @@ msgstr "컴퓨터 보조 허용"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s 님이 게임에 참가했습니다."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "클릭하여 계속"

@@ -31,6 +31,7 @@
 #include "gui_frontmenu.h"
 #include "frontend.h"
 #include "front_input.h"
+#include "frontmenu_ingame_evnt.h"
 #include "thing_objects.h"
 #include "thing_traps.h"
 #include "dungeon_data.h"
@@ -517,6 +518,18 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
         reset_scrolling_tooltip();
     SYNCDBG(19,"Finished");
     return shown;
+}
+
+void update_paused_message_tooltip(void)
+{
+    static TbBool shown = false;
+    if (settings.tooltips_on && mouse_is_over_paused_message()) {
+        set_gui_tooltip_box_fmt(1, "%s", get_string(GUIStr_ClickToUnpause));
+        shown = true;
+    } else if (shown) {
+        clear_flag(tool_tip_box.flags, TTip_Visible);
+        shown = false;
+    }
 }
 
 void toggle_tooltips(void)

@@ -7886,3 +7886,9 @@ msgstr "Computer-Hilfe erlauben"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s ist dem Spiel beigetreten."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Klicken zum Fortsetzen"

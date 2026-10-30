@@ -7633,3 +7633,9 @@ msgstr "Adiumentum sinere"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s ludo accessit."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Preme ut pergas"

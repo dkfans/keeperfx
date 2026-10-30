@@ -6164,3 +6164,8 @@ msgstr "Allow computer assistant"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s has joined the game."
+
+#: guitext:1167
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Click to unpause"

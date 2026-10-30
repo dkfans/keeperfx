@@ -7549,3 +7549,9 @@ msgstr "Computerhulp toestaan"
 msgctxt "Network game message"
 msgid "%s has joined the game."
 msgstr "%s doet nu mee aan het spel."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Klik om verder te spelen"
