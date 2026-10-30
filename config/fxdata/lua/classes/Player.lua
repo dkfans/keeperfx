@@ -36,7 +36,8 @@
 ---@field CREATURES_ANNOYED integer
 ---@field ACTIVE_BATTLES integer
 ---@field BATTLES_LOST integer
----@field BATTLES_WON integer
+---@field BATTLES_WON integer enemy creatures killed
+---@field BATTLES_WON_VS integer creatures killed of specific player
 ---@field ROOMS_DESTROYED integer
 ---@field SPELLS_STOLEN integer
 ---@field TIMES_BROKEN_INTO integer
