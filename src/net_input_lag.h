@@ -35,6 +35,7 @@ void input_lag_reset(void);
 void input_lag_reset_request(int32_t input_lag_turns);
 void input_lag_get_stats(struct InputLagStats *stats);
 void input_lag_note_packet_arrival(GameTurn turn);
+void input_lag_note_wait(TbClockMSec wait_time);
 void input_lag_observe_host_packet(const struct Packet *packet);
 TbBool input_lag_needs_lookahead(void);
 GameTurn input_lag_first_pending_turn(void);

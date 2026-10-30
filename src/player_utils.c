@@ -847,6 +847,17 @@ void init_user_state(NetUserId user, PlayerNumber player_id)
     }
 }
 
+void init_user_controls(struct UserState *ustate)
+{
+    ustate->continue_work_state = PSt_CtrlDungeon;
+    ustate->work_state = PSt_CtrlDungeon;
+    ustate->roomspace_highlight_mode = ustate->prefs[UPref_StartingHighlightMode];
+    ustate->roomspace_mode = ustate->prefs[UPref_StartingHighlightMode];
+    ustate->roomspace_width = 1;
+    ustate->roomspace_height = 1;
+    ustate->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+}
+
 void init_local_player_state(void)
 {
     local_state.minimap_pos_x = 11;
@@ -868,13 +879,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         struct UserState *ustate = get_user_state(user);
         if (ustate->player_id != player->id_number)
             continue;
-        ustate->continue_work_state = PSt_CtrlDungeon;
-        ustate->work_state = PSt_CtrlDungeon;
-        ustate->roomspace_highlight_mode = ustate->prefs[UPref_StartingHighlightMode];
-        ustate->roomspace_mode = ustate->prefs[UPref_StartingHighlightMode];
-        ustate->roomspace_width = 1;
-        ustate->roomspace_height = 1;
-        ustate->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        init_user_controls(ustate);
     }
     if (is_my_player(player))
     {

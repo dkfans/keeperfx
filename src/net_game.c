@@ -43,6 +43,7 @@
 #include "config_campaigns.h"
 #include "custom_sprites.h"
 #include "dungeon_data.h"
+#include "engine_camera.h"
 #include "game_legacy.h"
 #include "gui_msgs.h"
 #include "map_events.h"
@@ -623,9 +624,11 @@ static TbBool replay_has_remote_humans(void)
 static void replace_network_player_with_ai(struct PlayerInfo *player)
 {
     player->allocflags |= PlaF_CompCtrl | PlaF_Placeholder;
-    // TODO: if we add reconnect, remember to undo this
+    // seat_network_user undoes this when a spectator takes the seat
     setup_a_computer_player(player->id_number, get_random_skirmish_computer_model());
     toggle_computer_player(player->id_number);
+    message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
+    JUSTLOG("p:%d computer took over", player->id_number);
 }
 
 // used when ending a netplay game or recording.
@@ -744,8 +747,8 @@ static TbBool placeholder_has_loadbearing_ally(const struct PlayerInfo *placehol
     return false;
 }
 
-// placeholders with no human still propping them up are marked as defeated;
-// placeholders whose outcome is settled are deallocated
+// placeholders stay open for their human to return until their outcome
+// is settled, then they are deallocated
 void resolve_placeholders(void)
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
@@ -753,18 +756,61 @@ void resolve_placeholders(void)
         if (!player_exists(player) || !player_is_placeholder(player)) {
             continue;
         }
-        if ((player->victory_state == VicS_Undecided) && !placeholder_has_loadbearing_ally(player)) {
-            JUSTLOG("p:%d defeated, no human allies remain", (int)plyr_idx);
-            event_kill_all_players_events(plyr_idx);
-            set_player_as_lost_level(player);
-        }
         if ((player->victory_state == VicS_WonLevel) || player_defeat_settled(plyr_idx)) {
             player->allocflags &= ~PlaF_Allocated;
         }
     }
 }
 
-static void abandon_network_player(struct PlayerInfo *player, const char *announce_fmt)
+void settle_waiting_placeholders(void)
+{
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        struct PlayerInfo *player = get_player(plyr_idx);
+        if (!player_exists(player) || !player_is_placeholder(player) || (player->victory_state != VicS_Undecided)) {
+            continue;
+        }
+        if (!placeholder_has_loadbearing_ally(player)) {
+            JUSTLOG("p:%d defeated, no human allies remain", (int)plyr_idx);
+            event_kill_all_players_events(plyr_idx);
+            set_player_as_lost_level(player);
+        } else if (!flag_is_set(player->allocflags, PlaF_CompCtrl)) {
+            replace_network_player_with_ai(player);
+        }
+    }
+}
+
+static NetUserId startup_user_of_player(PlayerNumber plyr_idx)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (s_startup_sync_packets[user].startup_sync_packet_valid && s_startup_sync_packets[SERVER_ID].player_slots[user] == plyr_idx) {
+            return user;
+        }
+    }
+    return SERVER_ID;
+}
+
+void seat_network_user(NetUserId user, PlayerNumber plyr_idx)
+{
+    struct PlayerInfo *player = get_player(plyr_idx);
+    JUSTLOG("p:%d user %d took over from the computer", (int)plyr_idx, (int)user);
+    player->allocflags &= ~(PlaF_CompCtrl | PlaF_Placeholder);
+    if ((get_players_dungeon(player)->computer_enabled & 0x01) != 0) {
+        toggle_computer_player(plyr_idx);
+    }
+    init_user_state(user, plyr_idx);
+    UserPreferences prefs;
+    if (!get_startup_user_preferences(startup_user_of_player(plyr_idx), prefs)) {
+        build_local_user_preferences(prefs);
+    }
+    apply_user_preferences(user, prefs, UPF_NewGame);
+    init_user_controls(get_user_state(user));
+    reset_user_view_type(user, PVT_DungeonTop);
+    init_player_cameras(player);
+    snprintf(player->player_name, sizeof(player->player_name), "%s", network_user_name(user));
+    setup_count_players();
+}
+
+static void abandon_network_player(struct PlayerInfo *player, const char *announce_fmt, TbBool forfeit)
 {
     if ((player->allocflags & PlaF_CompCtrl) == 0) {
         if (network_is_active()) {
@@ -776,22 +822,21 @@ static void abandon_network_player(struct PlayerInfo *player, const char *announ
             message_add_fmt(MsgType_Blank, 0, announce_fmt, player->player_name);
         }
         JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
-        if (player->victory_state == VicS_Undecided) {
-            replace_network_player_with_ai(player);
+        if ((player->victory_state == VicS_Undecided) && forfeit) {
+            event_kill_all_players_events(player->id_number);
+            set_player_as_lost_level(player);
+        } else if (player->victory_state == VicS_Undecided) {
+            player->allocflags |= PlaF_Placeholder;
         }
     }
     resolve_placeholders();
     if (player->victory_state != VicS_Undecided) {
         player->allocflags &= ~PlaF_Allocated;
-    } else if (player_is_placeholder(player)) {
-        message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
-        JUSTLOG("p:%d computer took over", player->id_number);
     }
 }
 
-// Take a user out of the game: their player is handed to the AI, or written
-// off if their fate was already decided. Nothing here touches the transport.
-static void remove_user_from_game(NetUserId user, const char *announce_fmt)
+// Forfeits a deliberate leaver, holds a disconnected player's seat for reconnect, or writes off a decided one.
+static void remove_user_from_game(NetUserId user, const char *announce_fmt, TbBool forfeit)
 {
     struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate) || (ustate->player_id == PLAYER_NONE)) {
@@ -804,7 +849,7 @@ static void remove_user_from_game(NetUserId user, const char *announce_fmt)
     if (!player_exists(player) || get_player_primary_user(player) >= 0) {
         return;
     }
-    abandon_network_player(player, announce_fmt);
+    abandon_network_player(player, announce_fmt, forfeit);
 }
 
 static void leave_network_if_alone(void)
@@ -848,10 +893,14 @@ void process_user_leave_game_packet(NetUserId user)
         OnDroppedUser(user, NETDROP_MANUAL);
     }
     const char *announce_fmt = get_string(GUIStr_NetPlayerLeftGame);
-    if (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT) {
+    const TbBool timed_out = (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT);
+    if (timed_out) {
         announce_fmt = get_string(GUIStr_NetPlayerTimedOut);
     }
-    remove_user_from_game(user, announce_fmt);
+    remove_user_from_game(user, announce_fmt, !timed_out);
+    if (timed_out && network_is_active()) {
+        process_pause_packet(1, 0);
+    }
     if (network_is_active()) {
         leave_network_if_alone();
     } else if (replay.load_enable && !replay_has_remote_humans()) {
@@ -894,10 +943,10 @@ void host_spoof_dropped_user_packets(void)
 
 static void remove_remote_users_after_host_lost(NetUserId local_user)
 {
-    remove_user_from_game(SERVER_ID, get_string(GUIStr_NetPlayerTimedOut));
+    remove_user_from_game(SERVER_ID, get_string(GUIStr_NetPlayerTimedOut), false);
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user != local_user) {
-            remove_user_from_game(user, NULL);
+            remove_user_from_game(user, NULL, false);
         }
     }
 }
@@ -924,6 +973,7 @@ void process_disconnected_network_players(void)
     remove_remote_users_after_host_lost(netstate.my_id);
     replay_record_network_stopped();
     stop_network_game_and_continue_locally();
+    process_pause_packet(1, 0);
 }
 
 void apply_recorded_network_stop(void)

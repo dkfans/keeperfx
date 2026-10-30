@@ -625,6 +625,16 @@ TbBool cmd_network_stats(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_disconnect(PlayerNumber plyr_idx, char * args)
+{
+    NETLOG("Simulating a lost connection");
+    netstate.simulating_disconnect = true;
+    turn_off_all_menus();
+    free_swipe_graphic();
+    process_user_leave_game_packet(get_local_user());
+    return true;
+}
+
 TbBool cmd_quit(PlayerNumber plyr_idx, char * args)
 {
     quit_game = 1;
@@ -2650,6 +2660,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "frametime.max", cmd_frametime_max, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "ft.max", cmd_frametime_max, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "netstats", cmd_network_stats, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
+    { "disconnect", cmd_disconnect, NULL, CmdS_Personal, CmdM_MultiplayerOnly, CmdC_Unrestricted },
     { "quit", cmd_quit, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
     { "time", cmd_time, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "timer.toggle", cmd_timer_toggle, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },

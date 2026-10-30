@@ -78,6 +78,7 @@ enum NetMessageType {
     NETMSG_SPECTATOR_NOTICE,
     NETMSG_SPECTATOR_CONVERSION,
     NETMSG_LOBBY_SETTINGS,
+    NETMSG_SPECTATOR_SEAT,
 };
 
 enum NetConnectionRole {
@@ -131,11 +132,14 @@ struct NetUser {
     int ack;
     struct GameVersionPacket version;
     uint32_t connected_at;
+    TbClockMSec last_message_at;
     enum NetSpectatorState spectator_state;
     uint8_t spectator_icon;
     TbBool spectator_resync_requested;
     uint32_t spectator_resync_requested_at;
     TbBool spectator_conversion_requested;
+    TbBool seat_requested;
+    int8_t seat_player;
 };
 
 struct NetFrame {
@@ -160,6 +164,7 @@ struct NetState {
     char msg_buffer[NET_MSG_BUFFER_SIZE];
     char msg_buffer_null;
     TbBool resync_pending;
+    TbBool simulating_disconnect;
     NetUserId pending_spectator_id;
     TbBool locked;
     enum NetSessionPhase phase;
