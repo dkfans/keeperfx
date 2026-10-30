@@ -43,6 +43,7 @@ TbBool tag_cursor_blocks_place_thing(NetUserId user, MapSubtlCoord stl_x, MapSub
 TbBool tag_cursor_blocks_order_creature(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing* creatng);
 TbBool tag_cursor_blocks_steal_slab(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool tag_cursor_blocks_place_trap(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trapmodel);
+TbBool tag_cursor_blocks_for_work_state(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

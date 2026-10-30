@@ -135,8 +135,6 @@ extern long const orient_to_mapV1[];
 extern long const orient_to_mapV2[];
 extern long const orient_to_mapV3[];
 extern long const orient_to_mapV4[];
-extern long box_lag_compensation_x;
-extern long box_lag_compensation_y;
 extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];

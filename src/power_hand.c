@@ -374,10 +374,7 @@ TbBool power_hand_is_empty(const struct PlayerInfo *player)
 
 TbBool power_hand_is_hovering(const struct PlayerInfo *player)
 {
-    if (is_my_player(player)) {
-        return local_state.local_thing_under_hand > 0;
-    }
-    return get_player_user_state(player)->thing_under_hand > 0;
+    return get_user_thing_under_hand(get_player_primary_user(player)) > 0;
 }
 
 TbBool power_hand_is_full(const struct PlayerInfo *player)
@@ -557,7 +554,7 @@ void draw_power_hand(void)
     struct Thing *picktng;
     struct Room *room;
     struct RoomConfigStats* roomst;
-    const struct UserState *ustate = get_user_state(get_displayed_user());
+    const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
     int32_t cursor_x;
     int32_t cursor_y;
     if (!get_gameplay_cursor_position(&cursor_x, &cursor_y)) {

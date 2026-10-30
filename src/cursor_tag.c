@@ -404,4 +404,43 @@ TbBool tag_cursor_blocks_place_trap(NetUserId user, MapSubtlCoord stl_x, MapSubt
     }
     return can_place;
 }
+
+TbBool tag_cursor_blocks_for_work_state(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
+    struct UserState* ustate = get_user_state(user);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    switch (ustate->work_state)
+    {
+    case PSt_PlaceTrap:
+        return tag_cursor_blocks_place_trap(user, stl_x, stl_y, ustate->chosen_trap_kind);
+    case PSt_PlaceDoor:
+        return tag_cursor_blocks_place_door(plyr_idx, user, stl_x, stl_y);
+    case PSt_MkDigger:
+    case PSt_MkGoodCreatr:
+    case PSt_MkBadCreatr:
+    case PSt_MkGoldPot:
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+        return tag_cursor_blocks_place_thing(user, stl_x, stl_y);
+    case PSt_StealSlab:
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+        return tag_cursor_blocks_steal_slab(user, stl_x, stl_y);
+    case PSt_PlaceTerrain:
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+        tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
+        return true;
+    case PSt_OrderCreatr:
+    {
+        struct Thing* creatng = thing_get(ustate->controlled_thing_idx);
+        if (!thing_is_creature(creatng)) {
+            return false;
+        }
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+        return tag_cursor_blocks_order_creature(user, stl_x, stl_y, creatng);
+    }
+    default:
+        return false;
+    }
+}
 /******************************************************************************/
