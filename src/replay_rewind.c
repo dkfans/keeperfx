@@ -99,7 +99,7 @@ static size_t snapshot_fragments_start;
 // kernel_memtracker init'd
 static TbBool kernel_tracking;
 
-// set on any rewind-related failure (until the next replay_rewind_reset)
+// set on any rewind-related failure (until the next replay_rewind_deinit)
 static TbBool rewind_disabled;
 
 // one bool8 per chunk to filter out large unchanged regions before diffing
@@ -141,7 +141,7 @@ extern char __stop_kfx_rwd[];
 
 static void disable_rewind(void)
 {
-    replay_rewind_reset();
+    replay_rewind_deinit();
     rewind_disabled = true;
 }
 
@@ -630,7 +630,7 @@ size_t replay_rewind_buffer_used(void)
     return (ring_head > ring_tail) ? ring_head - ring_tail : ring_wrap - ring_tail + ring_head;
 }
 
-void replay_rewind_reset(void)
+void replay_rewind_deinit(void)
 {
     rewind_disabled = false;
     newest = NULL;
