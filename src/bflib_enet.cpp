@@ -506,7 +506,7 @@ namespace
         return join_direct_session(session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV4, "direct connect fallback");
     }
 
-    int service_join_peer(ENetHost *network_host, ENetPeer *peer, ENetAddress *address)
+    int service_join_peer(ENetHost *network_host, ENetPeer *&peer, ENetAddress *address)
     {
         ENetEvent event;
         int result = enet_host_service(network_host, &event, 0);
@@ -525,12 +525,10 @@ namespace
         if (peer->state == ENET_PEER_STATE_CONNECTING && !enet_address_equal(&comparable_peer, &comparable_address)) {
             char learned_address[ENET_ADDRESS_BUFFER_SIZE] = {0};
             enet_address_get_host_ip(address, learned_address, sizeof(learned_address));
-            LbNetLog("Join: redirecting connection to learned address %s\n", learned_address);
-            peer->address = *address;
-            for (ENetListIterator current = enet_list_begin(&peer->sentReliableCommands); current != enet_list_end(&peer->sentReliableCommands); current = enet_list_next(current)) {
-                reinterpret_cast<ENetOutgoingCommand *>(current)->roundTripTimeout = 0;
-            }
-            peer->nextTimeout = network_host->serviceTime;
+            LbNetLog("Join: restarting connection on learned address %s\n", learned_address);
+            enet_peer_reset(peer);
+            peer = enet_host_connect(network_host, address, NUM_CHANNELS, net_join_role * SPECTATOR_CONNECT_DATA);
+            enet_host_flush(network_host);
         }
         return result > 0 && event.type == ENET_EVENT_TYPE_CONNECT && event.peer == peer;
     }
