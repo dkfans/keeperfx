@@ -77,8 +77,9 @@ void LuaLensEffect_SetDrawCallback(void* effect, int callback_ref);
 /******************************************************************************/
 void initialise_eye_lenses(void);
 void reset_eye_lenses(void);
-void set_player_lens(PlayerNumber plyr_idx, long lens);
-void set_all_users_lens(long lens, const char *custom_lens);
+void reset_lens_failures(void);
+void set_player_lens(PlayerNumber plyr_idx, int lens);
+void set_all_users_lens(int lens, const char *custom_lens);
 void update_local_lens(void);
 void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long viewport_x);
 TbBool lens_is_ready(void);

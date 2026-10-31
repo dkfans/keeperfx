@@ -40,6 +40,7 @@
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
+#include "lens_api.h"
 #include "config_sounds.h"
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
@@ -180,6 +181,7 @@ static TbBool init_level(void)
     // above. No-op on software / before GL is active.
     RendererClearKeeperSpriteAtlas();
     lens_mode = 0;
+    reset_lens_failures();
     setup_heap_manager();
 
     wait_for_all_players();

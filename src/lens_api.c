@@ -86,6 +86,7 @@ void reset_eye_lenses(void)
     {
         LensManager_Reset(mgr);
     }
+    reset_lens_failures();
     
     // Note: LensManager owns eye_lens_memory and eye_lens_spare_screen_memory
     // They are cleared automatically by LensManager::FreeBuffers()
@@ -142,13 +143,13 @@ TbBool lens_is_ready(void)
     return true;
 }
 
-static void set_user_lens(struct UserState *ustate, long lens, const char *custom_lens)
+static void set_user_lens(struct UserState *ustate, int lens, const char *custom_lens)
 {
     ustate->lens_type = lens;
     snprintf(ustate->custom_lens, sizeof(ustate->custom_lens), "%s", (custom_lens != NULL) ? custom_lens : "");
 }
 
-void set_player_lens(PlayerNumber plyr_idx, long lens)
+void set_player_lens(PlayerNumber plyr_idx, int lens)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
@@ -158,17 +159,26 @@ void set_player_lens(PlayerNumber plyr_idx, long lens)
     }
 }
 
-void set_all_users_lens(long lens, const char *custom_lens)
+void set_all_users_lens(int lens, const char *custom_lens)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
         set_user_lens(get_user_state(user), lens, custom_lens);
 }
 
+static short failed_lens = -1;
+static char failed_custom_lens[COMMAND_WORD_LEN] = "";
+static TbBool lens_init_failed = false;
+
+void reset_lens_failures(void)
+{
+    failed_lens = -1;
+    failed_custom_lens[0] = '\0';
+    lens_init_failed = false;
+}
+
 // user state -> local display
 void update_local_lens(void)
 {
-    static short failed_lens = 0;
-    static char failed_custom_lens[COMMAND_WORD_LEN] = "";
     const struct UserState *ustate = get_user_state(get_displayed_user());
     if (user_state_invalid(ustate) || ((features_enabled & Ft_EyeLens) == 0))
         return;
@@ -178,11 +188,14 @@ void update_local_lens(void)
     const TbBool custom = ustate->custom_lens[0] != '\0';
     if (!LensManager_IsReady(mgr))
     {
-        if (!custom && (ustate->lens_type == 0))
+        if (lens_init_failed || (!custom && ustate->lens_type == 0))
             return;
         initialise_eye_lenses();
         if (!LensManager_IsReady(mgr))
+        {
+            lens_init_failed = true;
             return;
+        }
     }
     const char *active_custom = LensManager_GetActiveCustomLensName(mgr);
     if (custom)
@@ -203,7 +216,7 @@ void update_local_lens(void)
     if (ustate->lens_type == failed_lens)
         return;
     if (LensManager_SetLens(mgr, ustate->lens_type))
-        failed_lens = 0;
+        failed_lens = -1;
     else
         failed_lens = ustate->lens_type;
 }
