@@ -164,7 +164,7 @@ static void input_lag_update_request(void)
     int32_t settled_delay = input_lag_window_delay(INPUT_LAG_DECREASE_WINDOW_TURNS);
     input_lag_decrease_level = max(input_lag_turns_for_delay(settled_delay, INPUT_LAG_TOLERATED_WAIT_MS - INPUT_LAG_DECREASE_MARGIN_MS), input_lag_increase_level);
     if (input_lag_increase_level > local_input_lag_request) {
-        JUSTLOG("Input lag request increased from %d to %d: packet delay=%dms", local_input_lag_request, input_lag_increase_level, input_lag_recent_delay);
+        MULTIPLAYER_LOG("Input lag request increased from %d to %d: packet delay=%dms", local_input_lag_request, input_lag_increase_level, input_lag_recent_delay);
         local_input_lag_request = input_lag_increase_level;
     } else if (input_lag_delay_count >= INPUT_LAG_DECREASE_WINDOW_TURNS && input_lag_decrease_level < local_input_lag_request) {
         MULTIPLAYER_LOG("Input lag request decreased from %d to %d: packet delay=%dms", local_input_lag_request, input_lag_decrease_level, settled_delay);
