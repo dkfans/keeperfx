@@ -668,7 +668,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
         return;
     }
     if (is_observer_camera_active()) {
-        if (ustate->work_state == PSt_CreatrQuery || ustate->work_state == PSt_CreatrInfo) {
+        if ((ustate->work_state == PSt_CreatrQuery || ustate->work_state == PSt_CreatrInfo) && !gameplay_cursor_is_over_gui()) {
             set_pointer_graphic(MousePG_Query);
         } else {
             set_pointer_graphic(MousePG_Arrow);

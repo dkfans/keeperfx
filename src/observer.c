@@ -16,6 +16,7 @@
 #include "engine_redraw.h"
 #include "engine_render.h"
 #include "frontend.h"
+#include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
 #include "gui_frontmenu.h"
@@ -350,7 +351,7 @@ void observer_update_cursor(void)
 TbBool gameplay_cursor_is_over_gui(void)
 {
     if (!observer_is_following_user()) {
-        return game_is_busy_doing_gui();
+        return game_is_busy_doing_gui() || mouse_is_over_clickable_hud_text();
     }
     const struct Packet *pckt = observer_get_view_packet();
     return pckt == NULL || flag_is_set(pckt->control_flags, PCtr_Gui)

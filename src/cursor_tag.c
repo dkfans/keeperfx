@@ -55,7 +55,7 @@ TbBool should_draw_cursor_box(PlayerNumber plyr_idx)
     if (get_my_player() == &local_observer_player) {
         return true;
     }
-    return !game_is_busy_doing_gui();
+    return !gameplay_cursor_is_over_gui();
 }
 
 unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, NetUserId user, const struct Packet *pckt, struct RoomSpace *render_roomspace, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
