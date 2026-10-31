@@ -1731,7 +1731,7 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
         nextslb_x = subtile_slab(*nextstl_x);
         nextslb_y = subtile_slab(*nextstl_y);
         slb = get_slabmap_block(nextslb_x, nextslb_y);
-        if (slab_good_for_computer_dig_path(slb) && (slb->kind != SlbT_WATER))
+        if (slab_good_for_computer_dig_path(slb) && (!computer_dig_ignores_liquid(comp) || (slb->kind != SlbT_WATER)))
         {
             SubtlCodedCoords stl_num;
             stl_num = get_subtile_number_at_slab_center(nextslb_x,nextslb_y);
@@ -2114,6 +2114,25 @@ long add_to_trap_locations(struct Computer2 * comp, struct Coord3d * coord)
     return false;
 }
 
+TbBool computer_dig_ignores_liquid(const struct Computer2 *comp)
+{
+    return flag_is_set(game.conf.rules[comp->dungeon->owner].gameplay.classic_bugs_flags, ClscBug_AIDigPathsIgnoreLiquid);
+}
+
+ToolDigResult simulate_bridge_on_dig_slab(struct ComputerDig *cdig)
+{
+    MapSubtlCoord stl_x = stl_slab_center_subtile(cdig->pos_next.x.stl.num);
+    MapSubtlCoord stl_y = stl_slab_center_subtile(cdig->pos_next.y.stl.num);
+    if ((subtile_slab(cdig->pos_dest.x.stl.num) == subtile_slab(stl_x)) && (subtile_slab(cdig->pos_dest.y.stl.num) == subtile_slab(stl_y))) {
+        return TDR_ReachedDestination;
+    }
+    SmallAroundIndex around_index = small_around_index_towards_destination(stl_x,stl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
+    cdig->pos_begin.x.stl.num = stl_x + STL_PER_SLB * small_around[around_index].delta_x;
+    cdig->pos_begin.y.stl.num = stl_y + STL_PER_SLB * small_around[around_index].delta_y;
+    cdig->distance = get_2d_distance(&cdig->pos_begin, &cdig->pos_dest);
+    return TDR_DigSlab;
+}
+
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx)
 {
     struct SlabMap *slb;
@@ -2206,6 +2225,9 @@ TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         dig_result = tool_dig_to_pos2(comp, &cdig, true, ToolDig_BasicOnly); // actions are simulated
         SYNCDBG(5,"retval=%d, dig.distance=%" PRId32 ", dig.calls_count=%" PRId32,
             dig_result, cdig.distance, cdig.calls_count);
+        if ((dig_result == TDR_BuildBridgeOnSlab) && !computer_dig_ignores_liquid(comp)) {
+            dig_result = simulate_bridge_on_dig_slab(&cdig);
+        }
     } while (dig_result == TDR_DigSlab); // loop until we have reached our destination, or an error has occurred
 
     SYNCDBG(6,"Finished");
