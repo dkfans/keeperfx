@@ -4526,7 +4526,7 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner) && !creature_is_hostile_to_creature(fightng, enmtng))
     {
-        if ((fighctrl->fight_til_death == 0) // This differs in creature_will_attack_creature()
+        if (((fighctrl->fight_til_death == 0) && (enmctrl->fight_til_death == 0)) // This differs in creature_will_attack_creature()
         && (!creature_under_spell_effect(fightng, CSAfF_MadKilling))
         && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
         {

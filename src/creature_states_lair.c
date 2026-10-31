@@ -211,13 +211,13 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     // Search for enemies no often than every 64 turns
-    if (((get_gameturn() + thing->index) & 0x3F) != 0)
+    if (((get_gameturn() + thing->index) & 63) != 0)
     {
         return 0;
     }
     struct Thing* enemytng;
-    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crconf->lair_enemy, &enemytng);
-    if (combat_factor < 1)
+    CrAttackType combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crconf->lair_enemy, &enemytng);
+    if (combat_factor == AttckT_Unset)
         return 0;
     if (!set_creature_in_combat_to_the_death(thing, enemytng, combat_factor))
         return 0;
