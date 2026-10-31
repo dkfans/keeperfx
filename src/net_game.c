@@ -734,31 +734,6 @@ static TbBool host_already_won_level(void)
     return false;
 }
 
-static TbBool placeholder_still_contested(const struct PlayerInfo *placeholder)
-{
-    PlayerNumber humans[PLAYERS_COUNT];
-    int32_t human_count = 0;
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        struct PlayerInfo *other = get_player(plyr_idx);
-        if (!is_active_keeper(other) || player_is_placeholder(other)
-            || flag_is_set(other->allocflags, PlaF_CompCtrl) || player_defeat_settled(plyr_idx)) {
-            continue;
-        }
-        if (players_are_mutual_allies(placeholder->id_number, plyr_idx)) {
-            return true;
-        }
-        humans[human_count++] = plyr_idx;
-    }
-    for (int32_t first = 0; first < human_count; first++) {
-        for (int32_t second = first + 1; second < human_count; second++) {
-            if (!players_are_mutual_allies(humans[first], humans[second])) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 // placeholders stay open for their human to return until their outcome
 // is settled, then they are deallocated
 void resolve_placeholders(void)
@@ -774,20 +749,15 @@ void resolve_placeholders(void)
     }
 }
 
-void settle_waiting_placeholders(void)
+void hand_waiting_placeholders_to_ai(void)
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         struct PlayerInfo *player = get_player(plyr_idx);
-        if (!player_exists(player) || !player_is_placeholder(player) || (player->victory_state != VicS_Undecided)) {
+        if (!player_exists(player) || !player_is_placeholder(player)
+            || (player->victory_state != VicS_Undecided) || flag_is_set(player->allocflags, PlaF_CompCtrl)) {
             continue;
         }
-        if (!placeholder_still_contested(player)) {
-            JUSTLOG("p:%d defeated, no human allies or rivalries remain", (int)plyr_idx);
-            event_kill_all_players_events(plyr_idx);
-            set_player_as_lost_level(player);
-        } else if (!flag_is_set(player->allocflags, PlaF_CompCtrl)) {
-            replace_network_player_with_ai(player);
-        }
+        replace_network_player_with_ai(player);
     }
 }
 

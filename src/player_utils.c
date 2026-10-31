@@ -121,7 +121,18 @@ static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
     return is_active_keeper(player)
         && player->id_number != game.neutral_player_num
         && (player->victory_state != VicS_LostLevel)
-        && !flag_is_set(player->allocflags, PlaF_CompCtrl);
+        && !flag_is_set(player->allocflags, PlaF_CompCtrl)
+        && !player_is_placeholder(player);
+}
+
+TbBool placeholder_has_human_ally(const struct PlayerInfo *placeholder)
+{
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        if (player_belongs_in_victory_kernel(get_player(plyr_idx)) && players_are_mutual_allies(placeholder->id_number, plyr_idx)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // check if all undefeated human players form a "kernel"
