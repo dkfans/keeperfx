@@ -1593,7 +1593,9 @@ enum PacketExchangeResult exchange_packets(void)
             MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
             load_old_packets();
         }
-        if (network_is_active() && checksums_different()) {
+        if (netstate.resync_pending) {
+            MULTIPLAYER_LOG("process_packets: Skipping checksums, resync data is pending");
+        } else if (network_is_active() && checksums_different()) {
             set_flag(local_system_flags, GSF_NetGameNoSync);
             clear_flag(local_system_flags, GSF_NetSeedNoSync);
         } else {
@@ -1657,6 +1659,7 @@ void process_packets(void)
     clear_packets();
     if (network_is_active()) {
         network_spectator_convert_defeated_users();
+        network_spectator_seat_users();
         network_spectator_send_snapshots();
     }
     if (quit_game || exit_keeper) {

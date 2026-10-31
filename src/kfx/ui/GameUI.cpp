@@ -12,7 +12,6 @@
 #include "frontend.h"              /* draw_gui */
 #include "engine_redraw.h"         /* draw_overlay_compass */
 #include "gui_msgs.h"              /* message_draw */
-#include "gui_tooltips.h"          /* draw_tooltip */
 #include "power_hand.h"            /* draw_power_hand */
 #include "gui_boxmenu.h"           /* gui_draw_all_boxes */
 #include "kfx/renderer/RendererManager.h"
@@ -59,9 +58,6 @@ void GameUI::DrawFrame(struct PlayerInfo* player)
     
     message_draw();
     draw_power_hand();
-    RendererBeginOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);
-    draw_tooltip();
-    RendererEndOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);
     gui_draw_all_boxes();
 }
 

@@ -332,22 +332,12 @@ static void force_application_close()
 {
     extern int frontend_menu_state;
 
-    if (frontend_menu_state == 0)
-    {
-        struct PlayerInfo* player = get_my_player();
-        if (player != INVALID_PLAYER)
-        {
-            set_players_packet_action(player, PckA_ForceApplicationClose, 0, 0, 0, 0);
-        }
-        else
-        {
-            exit_keeper = 1;
-        }
+    TbBool network_paused = network_is_active() && flag_is_set(game.operation_flags, GOF_Paused);
+    if ((frontend_menu_state == 0) && (get_my_player() != INVALID_PLAYER) && !network_paused) {
+        set_players_packet_action(get_my_player(), PckA_ForceApplicationClose, 0, 0, 0, 0);
+        return;
     }
-    else
-    {
-        exit_keeper = 1;
-    }
+    exit_keeper = 1;
 }
 
 static bool keeper_wait_for_screen_focus()
@@ -543,7 +533,9 @@ void gameplay_loop_draw()
 void network_yield_waiting_gameplay_packets()
 {
     lbBufferKeyPresses = true;
-    poll_inputs();
+    if (!poll_inputs()) {
+        exit_keeper = 1;
+    }
     lbBufferKeyPresses = false;
     gameplay_loop_draw();
     update_gameplay_delta_time();

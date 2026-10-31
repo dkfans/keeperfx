@@ -39,6 +39,7 @@
 #include "net_spectator.h"
 #include "ariadne_update.h"
 #include "keeperfx.hpp"
+#include "kjm_input.h"
 #include "kfx/save/core/save_resync.h"
 #include "post_inc.h"
 
@@ -290,8 +291,12 @@ static TbBool receive_resync_message(char **message_out, size_t *message_size_ou
     TbClockMSec start_time = LbTimerClock();
     TbClockMSec last_progress_time = start_time;
     int32_t last_progress = 0;
-    while (LbTimerClock() - start_time < RESYNC_RECEIVE_TIMEOUT_MS) {
+    while (LbTimerClock() - start_time < RESYNC_RECEIVE_TIMEOUT_MS && netstate.users[SERVER_ID].progress != USER_UNUSED) {
         netstate.sp->update(OnNewUser);
+        if (!poll_inputs()) {
+            exit_keeper = 1;
+            return false;
+        }
         int32_t progress = GetResyncProgress() * 80 / 100;
         if (progress > last_progress && LbTimerClock() - last_progress_time >= 50) {
             animate_resync_progress_bar(progress, 100);
@@ -350,7 +355,7 @@ static TbBool receive_resync_message(char **message_out, size_t *message_size_ou
         return true;
     }
 
-    ERRORLOG("Client: Timeout waiting for resync data after %dms", RESYNC_RECEIVE_TIMEOUT_MS);
+    ERRORLOG("Client: Gave up waiting for resync data after %dms", (int32_t)(LbTimerClock() - start_time));
     return false;
 }
 
@@ -534,6 +539,7 @@ static char *create_resync_game_message(size_t *message_size)
 
 TbBool send_resync_game(void)
 {
+    netstate.resync_pending = false;
     pack_desync_history_for_resync();
     clear_flag(game.operation_flags, GOF_Paused);
     animate_resync_progress_bar(0, 100);
@@ -576,7 +582,9 @@ TbBool receive_resync_game(void)
 
     animate_resync_progress_bar(90, 100);
 
-    compare_desync_history_from_host();
+    if ((local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0) {
+        compare_desync_history_from_host();
+    }
 
     return true;
 }
@@ -593,6 +601,7 @@ static void finish_resync(const struct Packet *saved_packets)
     if (network_is_active() && net_join_role == NetRole_Spectator) {
         reinitialise_eye_lens(game.applied_lens_type);
     }
+    network_spectator_finish_seat();
     memcpy(game.packets, saved_packets, sizeof(game.packets));
 
     if (!network_is_active() || !network_user_is_spectator(netstate.my_id)) {

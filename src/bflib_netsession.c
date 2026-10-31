@@ -90,7 +90,11 @@ int net_session_metadata_json(const struct TbNetworkSessionNameEntry *session, c
     if (session->spectators_enabled) {
         spectators_enabled = "true";
     }
-    int used = snprintf(output, size, "\"name\":\"%s\",\"version\":\"%s\",\"phase\":\"%s\",\"joinable\":%s,\"maxPlayers\":%d,\"spectatorSupport\":%d,\"spectatorsEnabled\":%s,\"maxSpectators\":%d,\"spectatorCount\":%d,\"players\":[", lobby_name, version, session_phase_names[session->phase], joinable, session->max_players, session->spectator_support, spectators_enabled, session->max_spectators, session->spectator_count);
+    const char *rejoin_open = "false";
+    if (session->rejoin_open) {
+        rejoin_open = "true";
+    }
+    int used = snprintf(output, size, "\"name\":\"%s\",\"version\":\"%s\",\"phase\":\"%s\",\"joinable\":%s,\"maxPlayers\":%d,\"spectatorSupport\":%d,\"spectatorsEnabled\":%s,\"maxSpectators\":%d,\"spectatorCount\":%d,\"rejoinOpen\":%s,\"players\":[", lobby_name, version, session_phase_names[session->phase], joinable, session->max_players, session->spectator_support, spectators_enabled, session->max_spectators, session->spectator_count, rejoin_open);
     for (int i = 0; i < session->player_count; i++) {
         if (used < 0 || used >= size) {
             return -1;
@@ -122,6 +126,7 @@ void net_session_parse_metadata(struct TbNetworkSessionNameEntry *session, const
     session->spectators_enabled = 0;
     session->max_spectators = 0;
     session->spectator_count = 0;
+    session->rejoin_open = 0;
     session->created_at = 0;
     session->version[0] = '\0';
     memset(session->players, 0, sizeof(session->players));
@@ -161,6 +166,10 @@ void net_session_parse_metadata(struct TbNetworkSessionNameEntry *session, const
         session->spectators_enabled = value_bool(spectators_enabled);
         session->max_spectators = value_int32(max_spectators);
         session->spectator_count = value_int32(spectator_count);
+    }
+    VALUE *rejoin_open = value_dict_get(root, "rejoinOpen");
+    if (value_type(rejoin_open) == VALUE_BOOL) {
+        session->rejoin_open = value_bool(rejoin_open);
     }
     if (value_type(capacity) == VALUE_INT32 && value_int32(capacity) > 0 && value_int32(capacity) <= SESSION_HUMANS_MAX) {
         session->max_players = value_int32(capacity);
@@ -230,7 +239,7 @@ enum NetJoinRejection net_session_spectator_rejection(const struct TbNetworkSess
     if (session->phase != NetPhase_InGame) {
         return NetJoin_SpectatorState;
     }
-    if (!session->spectators_enabled) {
+    if (!session->spectators_enabled && !session->rejoin_open) {
         return NetJoin_SpectatorsDisabled;
     }
     if (session->spectator_count >= session->max_spectators) {

@@ -30,11 +30,15 @@
 #include "bflib_sprfnt.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "net_main.h"
+#include "net_exchange_gameplay.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+/******************************************************************************/
+#define PEER_WAIT_MESSAGE_SIZE 64
 /******************************************************************************/
 char onscreen_msg_text[255]="";
 float render_onscreen_msg_time;
@@ -123,6 +127,30 @@ TbBool erstat_check(void)
     return (sdiff != 0);
 }
 
+static void draw_peer_wait_messages(int tx_units_per_px)
+{
+    LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+    TbClockMSec remaining = get_peer_timeout_remaining();
+    int seconds = remaining / 1000;
+    int tenths = remaining % 1000 / 100;
+    char text[PEER_WAIT_MESSAGE_SIZE];
+    if (is_waiting_on_user_packets(SERVER_ID)) {
+        snprintf(text, sizeof(text), get_string(GUIStr_NetConnectionUnstable), seconds, tenths);
+        LbTextDrawResized(0, 0, tx_units_per_px, text);
+        return;
+    }
+    int pos_y = 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
+        if (!is_waiting_on_user_packets(user)) {
+            continue;
+        }
+        snprintf(text, sizeof(text), get_string(GUIStr_NetWaitingOnUser), netstate.users[user].name, seconds, tenths);
+        LbTextDrawResized(0, pos_y, tx_units_per_px, text);
+        pos_y += LbTextLineHeight() * tx_units_per_px / 16;
+    }
+}
+
 /**
  * Draws the crucial warning messages on screen.
  * Requires the screen to be locked before.
@@ -168,6 +196,9 @@ TbBool draw_onscreen_direct_messages(void)
             LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "SEED OUT OF SYNC");
         }
         msg_pos += scale_value_by_vertical_resolution(20);
+    }
+    if (RendererCanDraw()) {
+        draw_peer_wait_messages(tx_units_per_px);
     }
     SYNCDBG(18,"Finished");
     return true;

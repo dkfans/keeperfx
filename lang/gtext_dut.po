@@ -7543,3 +7543,27 @@ msgstr "Cheats toestaan"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Computerhulp toestaan"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s doet nu mee aan het spel."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Klik om verder te spelen"
+
+#: guitext:1168
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Waiting on %s: %d.%d"
+msgstr "Wachten op %s: %d,%d"
+
+#: guitext:1169
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Connection unstable: %d.%d"
+msgstr "Verbinding instabiel: %d,%d"

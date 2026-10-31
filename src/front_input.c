@@ -900,6 +900,17 @@ static short get_screen_control_inputs(void)
     return true;
 }
 
+static TbBool get_paused_message_inputs(void)
+{
+    update_paused_message_tooltip();
+    if (!left_button_released || !mouse_is_over_paused_message()) {
+        return false;
+    }
+    left_button_released = 0;
+    clear_flag(tool_tip_box.flags, TTip_Visible);
+    return true;
+}
+
 static short get_global_inputs(void)
 {
   if (game_is_busy_doing_gui_string_input())
@@ -946,8 +957,9 @@ static short get_global_inputs(void)
   if (!game_is_busy_doing_gui_string_input())
     {
 
-        TbBool toggle_pause = is_game_key_pressed(Gkey_TogglePause, true, false);
-        
+        TbBool toggle_pause = get_paused_message_inputs();
+        toggle_pause |= is_game_key_pressed(Gkey_TogglePause, true, false);
+
         if (is_game_key_pressed(Gkey_PauseMenu, true, false))
         {
             TbBool active_menu_closed = false;
@@ -3033,7 +3045,7 @@ static short get_inputs(void)
             set_players_packet_position(get_local_packet(), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
-            if (is_game_key_pressed(Gkey_PauseMenu, true, false) || is_game_key_pressed(Gkey_TogglePause, true, false))
+            if (is_game_key_pressed(Gkey_PauseMenu, true, false) || is_game_key_pressed(Gkey_TogglePause, true, false) || get_paused_message_inputs())
             {
                 set_packet_pause_toggle();
             }

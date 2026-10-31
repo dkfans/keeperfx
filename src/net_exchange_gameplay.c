@@ -30,6 +30,7 @@
 #include "gui_msgs.h"
 #include "net_exchange_common.h"
 #include "net_input_lag.h"
+#include "net_lobby.h"
 #include "net_main.h"
 #include "net_spectator.h"
 #include "player_data.h"
@@ -53,10 +54,11 @@ int32_t multiplayer_speed_adjustment_ns;
 // TURN_SYNC_MAX_ADJUSTMENT_NS being set too high causes stutters.
 #define REPAIR_HISTORY_RESEND_INTERVAL 200
 #define REPAIR_HISTORY_RECOVERY_INTERVAL 50
-#define FINAL_RESORT_RESYNC_RECOVERY 10000
+#define FINAL_RESORT_RESYNC_RECOVERY (PEER_TIMEOUT_MS * 2)
 #define TURN_SYNC_INTERVAL_MS 250
 #define TURN_SYNC_MAX_ADJUSTMENT_NS 1000000
 #define TURN_SYNC_ADJUST_FACTOR 64
+#define PEER_WAIT_MESSAGE_DELAY_MS 500
 
 struct PacketHistory {
     struct Packet entries[PACKET_HISTORY_SIZE];
@@ -82,6 +84,7 @@ static int64_t server_turn_position_ns = 0;
 static TbClockMSec last_repair_history_send[MAX_NET_USERS];
 static TbClockMSec last_turn_sync_send = 0;
 static NetUserId next_repair_history_user = 0;
+static TbClockMSec missing_packets_wait_start = 0;
 
 static int64_t get_current_turn_position_ns(void)
 {
@@ -395,6 +398,19 @@ static TbBool have_all_turn_packets(NetUserId local_user)
     return true;
 }
 
+TbBool is_waiting_on_user_packets(NetUserId user)
+{
+    if (missing_packets_wait_start == 0 || LbTimerClock() - missing_packets_wait_start < PEER_WAIT_MESSAGE_DELAY_MS) {
+        return false;
+    }
+    return user != netstate.my_id && user_present(user) && !user_has_required_turn_packets(user);
+}
+
+TbClockMSec get_peer_timeout_remaining(void)
+{
+    return max(PEER_TIMEOUT_MS - (LbTimerClock() - missing_packets_wait_start), 0);
+}
+
 static TbBool host_lost(GameTurn turn, const char *state)
 {
     if (netstate.my_id == SERVER_ID || netstate.users[SERVER_ID].progress != USER_UNUSED) {
@@ -491,7 +507,6 @@ static void send_repair_history_if_due(int32_t resend_interval)
 static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, NetUserId local_user)
 {
     GameTurn expected_turn = get_gameturn() - game.input_lag_turns;
-    TbClockMSec wait_start_time = LbTimerClock();
     TbBool turn_complete = false;
     TbBool wait_timed_out = false;
     MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Missing packets for turn=%lu, collecting...", (unsigned long)expected_turn);
@@ -500,11 +515,12 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
         send_repair_history_if_due(REPAIR_HISTORY_RECOVERY_INTERVAL);
         netstate.sp->update(OnNewUser);
         host_spoof_dropped_user_packets();
+        net_lobby_refresh_rejoin_open();
         if (host_lost(expected_turn, "waiting for")) {
             return Lb_OK;
         }
         turn_complete = have_all_turn_packets(local_user);
-        for (NetUserId peer_id = 0; peer_id < netstate.max_users && !turn_complete; peer_id += 1) {
+        for (NetUserId peer_id = 0; peer_id < MAX_NET_CONNECTIONS && !turn_complete; peer_id += 1) {
             if (!can_send_to_peer(peer_id)) {
                 continue;
             }
@@ -517,7 +533,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
         if (turn_complete || netstate.resync_pending || netstate.pending_spectator_id != INVALID_USER_ID) {
             break;
         }
-        if (LbTimerClock() - wait_start_time >= FINAL_RESORT_RESYNC_RECOVERY) {
+        if (LbTimerClock() - missing_packets_wait_start >= FINAL_RESORT_RESYNC_RECOVERY) {
             set_flag(local_system_flags, GSF_NetGameNoSync);
             clear_flag(local_system_flags, GSF_NetSeedNoSync);
             wait_timed_out = true;
@@ -530,7 +546,8 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
             return Lb_OK;
         }
     }
-    TbClockMSec wait_time = LbTimerClock() - wait_start_time;
+    TbClockMSec wait_time = LbTimerClock() - missing_packets_wait_start;
+    input_lag_note_wait(wait_time);
     if (wait_timed_out) {
         WARNLOG("LbNetwork_ExchangeGameplay: Timed out waiting for turn=%lu after %dms; continuing so resync can recover",
             (unsigned long)expected_turn, (int32_t)wait_time);
@@ -577,7 +594,10 @@ TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t fram
         if (player_exists(my_player)) {
             NetUserId local_user = netstate.my_id;
             if (!have_all_turn_packets(local_user)) {
-                return wait_for_missing_packets(server_buf, frame_size, local_user);
+                missing_packets_wait_start = LbTimerClock();
+                TbError result = wait_for_missing_packets(server_buf, frame_size, local_user);
+                missing_packets_wait_start = 0;
+                return result;
             }
         }
     }

@@ -1063,11 +1063,10 @@ void redraw_parchment_view(void)
   // Draw on-screen GUIs and boxes
   draw_gui();
   gui_draw_all_boxes();
-  // Put zoom box, map name and tooltips
+  // Put zoom box and map name
   if (!a_menu_window_is_active())
       draw_zoom_box();
   draw_map_level_name();
-  draw_tooltip();
 }
 
 void redraw_minimal_overhead_view(void)

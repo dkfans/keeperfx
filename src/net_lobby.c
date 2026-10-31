@@ -34,11 +34,15 @@
 #include "config_campaigns.h"
 #include "game_merge.h"
 #include "player_data.h"
+#include "bflib_dernc.h"
+#include "bflib_fileio.h"
+#include "config.h"
 #include <SDL3/SDL.h>
 #include "post_inc.h"
 /******************************************************************************/
 
 #define SESSION_COUNT 32
+#define RECONNECT_TOKEN_FILE "reconnect.key"
 #define LOBBY_SETTINGS_OFFSET offsetof(struct ConfigInfo, net_lobby_name)
 #define LOBBY_SETTINGS_SIZE (sizeof(struct ConfigInfo) - LOBBY_SETTINGS_OFFSET)
 
@@ -50,6 +54,7 @@ static struct LobbyAdvertisement hosted_advertisement;
 static SDL_Mutex *advertisement_mutex;
 static SDL_Thread *advertisement_thread;
 static SDL_AtomicInt advertisement_running;
+static TbBool advertised_rejoin_open;
 
 void net_lobby_advertisement(struct LobbyAdvertisement *output)
 {
@@ -75,6 +80,8 @@ void net_lobby_refresh_metadata(void)
     session.max_players = netstate.max_users;
     session.spectator_support = 1;
     session.spectators_enabled = net_config_info.spectators_enabled;
+    session.rejoin_open = network_spectator_seat_open(NULL);
+    advertised_rejoin_open = session.rejoin_open;
     session.max_spectators = MAX_NET_SPECTATORS;
     session.spectator_count = net_lobby_spectator_count();
     snprintf(session.version, sizeof(session.version), "%d.%d.%d.%d", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
@@ -93,6 +100,13 @@ void net_lobby_refresh_metadata(void)
         hosted_advertisement.metadata[0] = '\0';
     }
     SDL_UnlockMutex(advertisement_mutex);
+}
+
+void net_lobby_refresh_rejoin_open(void)
+{
+    if (network_spectator_seat_open(NULL) != advertised_rejoin_open) {
+        net_lobby_refresh_metadata();
+    }
 }
 
 static char *write_lobby_settings_message(void)
@@ -170,11 +184,16 @@ enum NetJoinRejection net_lobby_spectator_rejection(NetUserId reservation)
     if (netstate.phase != NetPhase_InGame) {
         return NetJoin_SpectatorState;
     }
-    if (!net_config_info.spectators_enabled) {
+    const TbBool reserved = (reservation >= MAX_NET_USERS && reservation < MAX_NET_CONNECTIONS && netstate.users[reservation].progress != USER_UNUSED);
+    const struct NetUser *returning = NULL;
+    if (reserved) {
+        returning = &netstate.users[reservation];
+    }
+    if (!net_config_info.spectators_enabled && !network_spectator_seat_open(returning)) {
         return NetJoin_SpectatorsDisabled;
     }
     int32_t count = net_lobby_spectator_count();
-    if (reservation >= MAX_NET_USERS && reservation < MAX_NET_CONNECTIONS && netstate.users[reservation].progress != USER_UNUSED) {
+    if (reserved) {
         count--;
     }
     if (count >= MAX_NET_SPECTATORS) {
@@ -242,14 +261,6 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
         NETMSG("Peer was not in connected state");
         return Lb_OK;
     }
-    enum NetJoinRejection reason = net_lobby_join_rejection();
-    if (network_user_is_spectator(source)) {
-        reason = net_lobby_spectator_rejection(source);
-    }
-    if (reason != NetJoin_Accepted) {
-        netstate.sp->drop_user(source, reason);
-        return Lb_OK;
-    }
     const char *password;
     if (!read_network_message_text(&read_pos, &password, sizeof(netstate.password))) {
         NETDBG(6, "Connected peer sent invalid password");
@@ -288,6 +299,22 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
     if (!net_versions_match(&user->version, &net_current_version) && !net_versions_match(&user->version, &stable_version)) {
         netstate.sp->drop_user(source, NetJoin_Version);
         return Lb_OK;
+    }
+    if (end_pos - read_pos >= 1 + sizeof(user->reconnect_token)) {
+        memcpy(&user->reconnect_token, read_pos + 1, sizeof(user->reconnect_token));
+    }
+    enum NetJoinRejection reason = net_lobby_join_rejection();
+    if (network_user_is_spectator(source)) {
+        reason = net_lobby_spectator_rejection(source);
+    }
+    if (reason != NetJoin_Accepted) {
+        netstate.sp->drop_user(source, reason);
+        return Lb_OK;
+    }
+    if (network_user_is_spectator(source)) {
+        network_spectator_evict_stalled_user(user);
+    } else {
+        netstate.reconnect_tokens[source] = user->reconnect_token;
     }
     NETMSG("User %d (%s) successfully logged in", (int)source, user->name);
     user->progress = USER_LOGGEDIN;
@@ -357,10 +384,26 @@ void LbNetwork_InitSessionsFromCmdLine(const char *str)
     AddSessionSegment(start, end);
 }
 
+static uint64_t local_reconnect_token(void)
+{
+    static uint64_t token;
+    if (token != 0) {
+        return token;
+    }
+    const char *fname = prepare_file_path(FGrp_Save, RECONNECT_TOKEN_FILE);
+    if (LbFileLength(fname) == sizeof(token) && LbFileLoadAt(fname, &token) == sizeof(token) && token != 0) {
+        return token;
+    }
+    token = ((uint64_t)SDL_rand_bits() << 32) | SDL_rand_bits() | 1;
+    LbFileSaveAt(fname, &token, sizeof(token));
+    return token;
+}
+
 TbError LbNetwork_ExchangeLogin(char *player_name)
 {
     NETMSG("Logging in as %s", player_name);
-    if (1 + strlen(netstate.password) + 1 + strlen(player_name) + 1 + sizeof(net_current_version) >= sizeof(netstate.msg_buffer)) {
+    const uint64_t reconnect_token = local_reconnect_token();
+    if (1 + strlen(netstate.password) + 1 + strlen(player_name) + 1 + sizeof(net_current_version) + 1 + sizeof(reconnect_token) >= sizeof(netstate.msg_buffer)) {
         ERRORLOG("Login credentials too long");
         return Lb_FAIL;
     }
@@ -372,6 +415,8 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
     memcpy(write_pos, &net_current_version, sizeof(net_current_version));
     write_pos += sizeof(net_current_version);
     *write_pos++ = net_join_role;
+    memcpy(write_pos, &reconnect_token, sizeof(reconnect_token));
+    write_pos += sizeof(reconnect_token);
     send_message_buffer(SERVER_ID, write_pos);
     TbClockMSec wait_start_time = LbTimerClock();
     while (net_join_rejection == NetJoin_Accepted && LbTimerClock() - wait_start_time < TIMEOUT_JOIN_LOBBY) {

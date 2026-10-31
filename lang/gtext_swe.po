@@ -7625,3 +7625,27 @@ msgstr "Tillåt fusk"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "Tillåt datorhjälp"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s har gått med i spelet."
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "Klicka för att fortsätta"
+
+#: guitext:1168
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Waiting on %s: %d.%d"
+msgstr "Väntar på %s: %d,%d"
+
+#: guitext:1169
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Connection unstable: %d.%d"
+msgstr "Instabil anslutning: %d,%d"
