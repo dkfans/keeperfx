@@ -19,6 +19,7 @@
 #include "bflib_datetm.h"
 
 #include "bflib_enet.h"
+#include "net_steam.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -142,6 +143,9 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkU
     if (srvcindex == NS_ENET_UDP) {
         netstate.sp = InitEnetSP();
         NETMSG("Selecting UDP");
+    } else if (srvcindex == NS_STEAM) {
+        netstate.sp = InitSteamSP();
+        NETMSG("Selecting Steam");
     } else {
         WARNLOG("The serviceIndex value of %u is out of range", srvcindex);
     }

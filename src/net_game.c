@@ -50,6 +50,7 @@
 #include "net_input_lag.h"
 #include "net_checksums.h"
 #include "net_spectator.h"
+#include "net_steam.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -80,13 +81,17 @@ short setup_network_service(enum FrontendNetService service)
   SYNCMSG("Initializing 4-players type %d network", service);
   memset(net_user_info, 0, sizeof(net_user_info));
   network_lobby_ping = 0;
-  if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
+  if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN && service != FrontendNetSvc_Steam) {
     process_network_error(-800);
     return 0;
   }
-  if ( LbNetwork_Init(NS_ENET_UDP, MAX_NET_USERS, &net_user_info[0], init_data) )
+  if ( LbNetwork_Init((service == FrontendNetSvc_Steam) ? NS_STEAM : NS_ENET_UDP, MAX_NET_USERS, &net_user_info[0], init_data) )
   {
-    process_network_error(-800);
+    if (service == FrontendNetSvc_Steam) {
+      create_frontend_error_box(steam_net_last_error());
+    } else {
+      process_network_error(-800);
+    }
     return 0;
   }
   net_service_index_selected = service;

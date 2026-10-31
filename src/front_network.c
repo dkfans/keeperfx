@@ -52,6 +52,7 @@
 #include "net_lan.h"
 #include "config_campaigns.h"
 #include "kfx/save/SaveManager.h"
+#include "net_steam.h"
 #include <stddef.h>
 #include <SDL3/SDL.h>
 #include "post_inc.h"
@@ -860,6 +861,18 @@ void frontnet_start_update(void)
     }
 
     handle_autostart_multiplayer_messaging();
+
+    static const char *steam_lobby_announced = NULL;
+    if (!network_is_host() || !frontnet_service_selected(FrontendNetSvc_Steam)) {
+        steam_lobby_announced = NULL;
+    } else if (steam_lobby_announced != steam_net_lobby_text()) {
+        // the host reads this to friends who join by hand
+        char notice[NET_MESSAGE_LEN];
+        steam_lobby_announced = steam_net_lobby_text();
+        snprintf(notice, sizeof(notice), "Steam lobby id: %s (copied)", steam_lobby_announced);
+        add_message(SERVER_ID, notice);
+        add_message(SERVER_ID, "Friends can join from the Steam overlay");
+    }
 
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {

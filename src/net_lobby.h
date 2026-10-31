@@ -50,6 +50,7 @@ TbError process_lobby_settings_message(NetUserId source, const char *buffer, siz
 
 void LbNetwork_SetServerPort(int port);
 void LbNetwork_InitSessionsFromCmdLine(const char *str);
+void LbNetwork_ClearCmdLineSessions(void);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, int32_t *playr_num, void *optns);
 TbError LbNetwork_Create(char *plyr_name, uint32_t *plyr_num, void *optns);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
