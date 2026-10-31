@@ -54,7 +54,7 @@ int32_t multiplayer_speed_adjustment_ns;
 #define REPAIR_HISTORY_RESEND_INTERVAL 200
 #define REPAIR_HISTORY_RECOVERY_INTERVAL 50
 #define FINAL_RESORT_RESYNC_RECOVERY 10000
-#define SILENT_USER_DROP_MS PEER_TIMEOUT_MIN_MS
+#define SILENT_PEER_MS 1000
 #define TURN_SYNC_INTERVAL_MS 250
 #define TURN_SYNC_MAX_ADJUSTMENT_NS 1000000
 #define TURN_SYNC_ADJUST_FACTOR 64
@@ -489,21 +489,15 @@ static void send_repair_history_if_due(int32_t resend_interval)
     send_user_repair_history(user);
 }
 
-static void drop_silent_users(TbClockMSec wait_start_time)
+static TbBool any_peer_silent(void)
 {
     TbClockMSec now = LbTimerClock();
-    if (!network_is_host() || now - wait_start_time < SILENT_USER_DROP_MS) {
-        return;
-    }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (user_present(user) && can_send_to_peer(user) && (now - netstate.users[user].last_message_at >= SILENT_USER_DROP_MS)) {
-            NETLOG("Dropping silent user %d", user);
-            netstate.sp->drop_user(user, NetJoin_Accepted);
-            netstate.users_timed_out[user] = true;
-            host_spoof_dropped_user_packets();
-            send_user_repair_history(user);
+        if (can_send_to_peer(user) && now - netstate.users[user].last_message_at >= SILENT_PEER_MS) {
+            return true;
         }
     }
+    return false;
 }
 
 static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, NetUserId local_user)
@@ -535,8 +529,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
         if (turn_complete || netstate.resync_pending || netstate.pending_spectator_id != INVALID_USER_ID) {
             break;
         }
-        drop_silent_users(wait_start_time);
-        if (LbTimerClock() - wait_start_time >= FINAL_RESORT_RESYNC_RECOVERY) {
+        if (LbTimerClock() - wait_start_time >= FINAL_RESORT_RESYNC_RECOVERY && !any_peer_silent()) {
             set_flag(local_system_flags, GSF_NetGameNoSync);
             clear_flag(local_system_flags, GSF_NetSeedNoSync);
             wait_timed_out = true;
