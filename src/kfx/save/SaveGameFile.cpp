@@ -26,8 +26,8 @@
 
 namespace savegame {
 
-enum SaveResult Build(const Game *game_state, const IntralevelData *ilvl, const Configs *baseline,
-    const char *lua_data, uint32_t lua_len, const CatalogueEntry *centry, SaveBuffer *out, SaveError *err)
+enum SaveResult Build(const Game *game_state, const IntralevelData *ilvl, const char *custom_ilvl_data, uint32_t custom_ilvl_len,
+    const Configs *baseline, const char *lua_data, uint32_t lua_len, const CatalogueEntry *centry, SaveBuffer *out, SaveError *err)
 {
     SaveBufferOwner meta, schema_buffer, nams, conf, gamebuf, ilvlbuf;
     uint32_t root_count;
@@ -60,6 +60,8 @@ enum SaveResult Build(const Game *game_state, const IntralevelData *ilvl, const 
     add(SCID_Config, conf, true);
     add(SCID_Game, gamebuf, true);
     add(SCID_Level, ilvlbuf, true);
+    if (custom_ilvl_len > 0)
+        succeeded = succeeded && (save_chunk_add(out, SCID_CustomIntralevelData, 0, custom_ilvl_data, custom_ilvl_len, true) == 0);
     if (lua_len > 0)
         succeeded = succeeded && (save_chunk_add(out, SCID_Lua, 0, lua_data, lua_len, true) == 0);
     if ((result == SVR_Ok) && !succeeded)
@@ -86,7 +88,7 @@ bool Write(IFileSystem &filesystem, const char *fname, const CatalogueEntry *cen
         free(lua_data);
         return false;
     }
-    enum SaveResult result = Build(&game, &intralvl, conf_baseline, lua_data, (uint32_t)lua_len, centry, &out, &err);
+    enum SaveResult result = Build(&game, &intralvl, custom_intralevel_data, custom_intralevel_data_len, conf_baseline, lua_data, (uint32_t)lua_len, centry, &out, &err);
     free(lua_data);
     if (result != SVR_Ok)
     {
@@ -108,7 +110,7 @@ struct RawChunk {
 };
 
 struct RawChunks {
-    RawChunk meta, schema, nams, conf, game, ilvl, lua;
+    RawChunk meta, schema, nams, conf, game, ilvl, custom_ilvl, lua;
     uint16_t minor = 0;     /* the file's schema revision */
 };
 
@@ -123,6 +125,7 @@ RawChunk *chunk_for(RawChunks &chunks, uint32_t id)
     case SCID_Game:   return &chunks.game;
     case SCID_Level:  return &chunks.ilvl;
     case SCID_Lua:    return &chunks.lua;
+    case SCID_CustomIntralevelData: return &chunks.custom_ilvl;
     default:          return nullptr;   /* a chunk from a newer build that isn't required: skipped */
     }
 }
@@ -236,6 +239,7 @@ enum SaveResult Read(IFileSystem &filesystem, const char *fname, CatalogueEntry 
         out->nams_data = chunks.nams.data.release(); out->nams_len = chunks.nams.len;
         out->conf_data = chunks.conf.data.release(); out->conf_len = chunks.conf.len;
         out->lua_data = reinterpret_cast<char *>(chunks.lua.data.release()); out->lua_len = chunks.lua.len;
+        out->custom_ilvl_data = reinterpret_cast<char *>(chunks.custom_ilvl.data.release()); out->custom_ilvl_len = chunks.custom_ilvl.len;
     }
     return result;
 }
@@ -245,6 +249,7 @@ void FreeReadResult(ReadResult *out)
     free(out->nams_data);
     free(out->conf_data);
     free(out->lua_data);
+    free(out->custom_ilvl_data);
     memset(out, 0, sizeof(*out));
 }
 

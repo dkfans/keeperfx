@@ -31,8 +31,31 @@ extern "C" {
 #endif
 /******************************************************************************/
 kfx_rewindable struct IntralevelData intralvl;
+char *custom_intralevel_data = NULL;
+uint32_t custom_intralevel_data_len = 0;
 unsigned long game_flags2 = 0;
 /******************************************************************************/
+TbBool set_custom_intralevel_data(const void *data, uint32_t len)
+{
+    char *copy = NULL;
+    if (len > 0)
+    {
+        copy = (char *)malloc(len);
+        if (copy == NULL)
+            return false;
+        memcpy(copy, data, len);
+    }
+    free(custom_intralevel_data);
+    custom_intralevel_data = copy;
+    custom_intralevel_data_len = len;
+    return true;
+}
+
+void clear_custom_intralevel_data(void)
+{
+    set_custom_intralevel_data(NULL, 0);
+}
+
 /******************************************************************************/
 /**
  * Informs if we're going to emulate overflow for integer values with given amount of bits.

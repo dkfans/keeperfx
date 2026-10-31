@@ -74,12 +74,14 @@ int SaveManager_WriteHighScores(const char *fname, const struct HighScore *table
 
 /** The KFXS header of a replay (.pck) file, written to and read from an open file handle. The header is
  *  followed by the streamed turn data, which stays the replay code's own. The IntralevelData is always
- *  stored, even for skirmishes. g may be NULL to leave out the mid-level Game snapshot. */
+ *  stored, even for skirmishes. g may be NULL to leave out the mid-level Game snapshot. custom_ilvl is the
+ *  custom intralevel data the replay starts with. */
 enum SaveResult SaveManager_WriteReplayHeader(TbFileHandle file, const struct CatalogueEntry *centry,
     const struct PacketSaveHead *phead, const struct Game *game_state, const struct IntralevelData *ilvl,
-    struct SaveError *err);
+    const char *custom_ilvl, uint32_t custom_ilvl_len, struct SaveError *err);
 /** Reads the header from fh, at the start of the file, into *centry and *phead. A Game snapshot, if the
- *  file has one, is decoded into *g and *g_present set; otherwise *g is untouched. On success fh is at
+ *  file has one, is decoded into *g and *g_present set; otherwise *g is untouched. The custom intralevel
+ *  data is replaced with the replay's. On success fh is at
  *  the first byte of the turn stream, and *out_schema and *out_dec are set up and must be kept for the
  *  per-turn decodes, then freed with save_schema_free/save_decoder_free. Nothing needs freeing on failure. */
 enum SaveResult SaveManager_ReadReplayHeader(TbFileHandle file, struct CatalogueEntry *centry,
@@ -123,7 +125,8 @@ public:
     bool WriteHighScores(const char *fname, const HighScore *table, uint32_t count);
 
     static enum SaveResult WriteReplayHeader(TbFileHandle file, const CatalogueEntry *centry,
-        const PacketSaveHead *phead, const Game *game_state, const IntralevelData *ilvl, SaveError *err);
+        const PacketSaveHead *phead, const Game *game_state, const IntralevelData *ilvl,
+        const char *custom_ilvl, uint32_t custom_ilvl_len, SaveError *err);
     static enum SaveResult ReadReplayHeader(TbFileHandle file, CatalogueEntry *centry, PacketSaveHead *phead,
         Game *game_state, IntralevelData *ilvl, bool *g_present, SaveFileSchema *out_schema, SaveDecoder *out_dec,
         SaveError *err);
@@ -133,7 +136,7 @@ private:
     int CountSavedGames();
     void UpdateLastFileAfterSave(int slot);
     enum ContinueTargets FindContinueTarget(int *slot, char *campaign_fname, size_t fname_len);
-    bool LoadCampaignProgress(const GameCampaign *campgn, IntralevelData *ilvl, LevelNumber *continue_lvnum);
+    bool LoadCampaignProgress(const GameCampaign *campgn, IntralevelData *ilvl, LevelNumber *continue_lvnum, std::vector<uint8_t> *custom = nullptr);
 
     std::vector<CatalogueEntry> catalogue_;
     long slot_count_ = 0;      // logical length: the slots the menus range over

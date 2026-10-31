@@ -120,3 +120,37 @@ function SetSerializedData(serialized_data)
     anon_functions.finish("restored")
     Game = restored
 end
+
+-- Deepcopy tables, booleans, numbers and strings only.
+local function plain_copy(value, copies)
+    local kind = type(value)
+    if kind == "nil" or kind == "boolean" or kind == "number" or kind == "string" then
+        return value
+    end
+    if kind ~= "table" then
+        error("can't store a " .. kind, 0)
+    end
+    if copies[value] then
+        return copies[value]
+    end
+    local copy = {}
+    copies[value] = copy
+    for k, v in next, value do
+        local key_kind = type(k)
+        if key_kind ~= "boolean" and key_kind ~= "number" and key_kind ~= "string" then
+            error("can't store a " .. key_kind .. " key", 0)
+        end
+        copy[k] = plain_copy(v, copies)
+    end
+    return copy
+end
+
+function SerializeCustomIntralevelData(value)
+    return binser.serialize(plain_copy(value, {}))
+end
+
+function DeserializeCustomIntralevelData(serialized_data)
+    local values, count = binser.deserialize(serialized_data)
+    assert(count == 1, "Custom intralevel data must hold one value")
+    return values[1]
+end

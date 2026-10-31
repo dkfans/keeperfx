@@ -174,7 +174,7 @@ static bool chunk_id_known(uint32_t id)
     switch (id)
     {
     case SCID_Meta: case SCID_Schema: case SCID_Names: case SCID_Game: case SCID_Config: case SCID_Level:
-    case SCID_Lua: case SCID_Records: case SCID_PacketHead: case SCID_TurnData:
+    case SCID_Lua: case SCID_CustomIntralevelData: case SCID_Records: case SCID_PacketHead: case SCID_TurnData:
         return true;
     default:
         return false;

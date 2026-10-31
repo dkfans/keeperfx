@@ -31,6 +31,7 @@
 #include "net_game.h"
 #include "net_lobby.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "lua_base.h"
@@ -397,7 +398,15 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
     return true;
 }
 
-// The full resync data: [u32 game_len][game bytes][u32 lua_len][lua bytes]
+// The full resync data: [u32 len][game] [u32 len][lua] [u32 len][intralevel] [u32 len][custom intralevel] [navigation]
+enum ResyncSection {
+    RSec_Game,
+    RSec_Intralevel,
+    RSec_Lua,
+    RSec_CustomIntralevel,
+    RSec_COUNT
+};
+
 char *build_resync_game_data(size_t *full_resync_len)
 {
     // Light system state lives outside Game; the same as for a savegame
@@ -405,9 +414,11 @@ char *build_resync_game_data(size_t *full_resync_len)
 
     // Field-table encode, not a raw memcpy: lets host and client resync even when
     // their struct Game layouts differ (mixed Windows/Linux, x86/x64 lobbies).
-    struct SaveBuffer game_buf = {};
+    SaveBufferOwner game_buf;
+    SaveBufferOwner ilvl_buf;
     struct SaveError save_err;
-    if (save_resync_encode_game(&game_buf, &game, &save_err) != SVR_Ok) {
+    if ((save_resync_encode_game(&game_buf, &game, &save_err) != SVR_Ok)
+     || (save_resync_encode_intralevel(&ilvl_buf, &intralvl, &save_err) != SVR_Ok)) {
         ERRORLOG("Resync game encode failed: %s", save_err.message);
         return NULL;
     }
@@ -417,84 +428,93 @@ char *build_resync_game_data(size_t *full_resync_len)
     if (Lvl_script != NULL) {
         lua_data = lua_get_serialised_data(&lua_data_len);
         if (lua_data == NULL) {
-            save_buf_free(&game_buf);
             return NULL;
         }
     }
-    size_t lua_data_offset = sizeof(uint32_t) + game_buf.len + sizeof(uint32_t);
+    const void *section_data[RSec_COUNT] = { game_buf.data, lua_data, ilvl_buf.data, custom_intralevel_data };
+    const size_t section_len[RSec_COUNT] = { game_buf.len, lua_data_len, ilvl_buf.len, custom_intralevel_data_len };
     size_t navigation_size = transfer_navigation_state(NULL, NavigationState_Store);
-    if (lua_data_len > UINT32_MAX - lua_data_offset - navigation_size) {
-        ERRORLOG("Full resync data too large");
-        save_buf_free(&game_buf);
-        free(lua_data);
-        return NULL;
+    size_t total_len = navigation_size;
+    for (int i = 0; i < RSec_COUNT; i++) {
+        if (section_len[i] > UINT32_MAX - sizeof(uint32_t) - total_len) {
+            ERRORLOG("Full resync data too large");
+            free(lua_data);
+            return NULL;
+        }
+        total_len += sizeof(uint32_t) + section_len[i];
     }
 
-    *full_resync_len = lua_data_offset + lua_data_len + navigation_size;
-    char * full_resync_data = (char *) malloc(*full_resync_len);
+    char * full_resync_data = (char *) malloc(total_len);
     if (full_resync_data == NULL) {
         ERRORLOG("Failed to allocate full resync buffer");
-        save_buf_free(&game_buf);
         free(lua_data);
         return NULL;
     }
-
-    uint32_t game_len32 = (uint32_t)game_buf.len;
-    uint32_t lua_data_len32 = (uint32_t)lua_data_len;
-    memcpy(full_resync_data, &game_len32, sizeof(game_len32));
-    memcpy(full_resync_data + sizeof(game_len32), game_buf.data, game_buf.len);
-    memcpy(full_resync_data + sizeof(game_len32) + game_buf.len, &lua_data_len32, sizeof(lua_data_len32));
-    if (lua_data_len > 0) {
-        memcpy(full_resync_data + lua_data_offset, lua_data, lua_data_len);
+    char *pos = full_resync_data;
+    for (int i = 0; i < RSec_COUNT; i++) {
+        uint32_t len32 = (uint32_t)section_len[i];
+        memcpy(pos, &len32, sizeof(len32));
+        pos += sizeof(len32);
+        if (len32 > 0) {
+            memcpy(pos, section_data[i], len32);
+        }
+        pos += len32;
     }
-    save_buf_free(&game_buf);
-    transfer_navigation_state(full_resync_data + lua_data_offset + lua_data_len, NavigationState_Store);
+    transfer_navigation_state(pos, NavigationState_Store);
     free(lua_data);
+    *full_resync_len = total_len;
     return full_resync_data;
 }
 
 static TbBool apply_resync_game_data(const char * full_resync_data, size_t full_resync_len)
 {
-    if (full_resync_len < sizeof(uint32_t)) {
-        ERRORLOG("Full resync data too small: %u bytes", (uint32_t)full_resync_len);
-        return false;
+    const char *section_data[RSec_COUNT];
+    uint32_t section_len[RSec_COUNT];
+    size_t offset = 0;
+    for (int i = 0; i < RSec_COUNT; i++) {
+        if (full_resync_len - offset < sizeof(uint32_t)) {
+            ERRORLOG("Full resync data too small: %u bytes", (uint32_t)full_resync_len);
+            return false;
+        }
+        memcpy(&section_len[i], full_resync_data + offset, sizeof(uint32_t));
+        offset += sizeof(uint32_t);
+        if (section_len[i] > full_resync_len - offset) {
+            ERRORLOG("Received resync section %d with wrong size: %u > %u", i, section_len[i], (uint32_t)(full_resync_len - offset));
+            return false;
+        }
+        section_data[i] = full_resync_data + offset;
+        offset += section_len[i];
     }
-    uint32_t game_len = 0;
-    memcpy(&game_len, full_resync_data, sizeof(game_len));
-    size_t lua_len_offset = sizeof(uint32_t) + (size_t)game_len;
-    if (full_resync_len < lua_len_offset + sizeof(uint32_t)) {
-        ERRORLOG("Full resync data too small: %u bytes", (uint32_t)full_resync_len);
-        return false;
-    }
-    uint32_t lua_data_len = 0;
-    memcpy(&lua_data_len, full_resync_data + lua_len_offset, sizeof(lua_data_len));
-    size_t lua_data_offset = lua_len_offset + sizeof(uint32_t);
-    if (lua_data_len > full_resync_len - lua_data_offset) {
-        ERRORLOG("Received lua data with wrong size: %u != %u", lua_data_len, (uint32_t)(full_resync_len - lua_data_offset));
-        return false;
-    }
-    size_t navigation_size = full_resync_len - lua_data_offset - lua_data_len;
+    size_t navigation_size = full_resync_len - offset;
     if (navigation_size != 0 && navigation_size != transfer_navigation_state(NULL, NavigationState_Store)) {
         ERRORLOG("Received navigation data with wrong size: %u", (uint32_t)navigation_size);
         return false;
     }
-    if (Lvl_script == NULL && lua_data_len > 0) {
+    if (Lvl_script == NULL && section_len[RSec_Lua] > 0) {
         ERRORLOG("Lua state is not initialized");
         return false;
     }
-    if (Lvl_script != NULL && !lua_set_serialised_data(full_resync_data + lua_data_offset, lua_data_len)) {
+    if (Lvl_script != NULL && !lua_set_serialised_data(section_data[RSec_Lua], section_len[RSec_Lua])) {
+        return false;
+    }
+    if (!set_custom_intralevel_data(section_data[RSec_CustomIntralevel], section_len[RSec_CustomIntralevel])) {
+        ERRORLOG("Failed to allocate custom intralevel data: %u bytes", section_len[RSec_CustomIntralevel]);
         return false;
     }
     // Decoded in place: fields the table excludes from sync (local UI/per-player
     // state -- see save_resync_decode_game) are left exactly as they already are
     // in game, not zeroed.
     struct SaveError save_err;
-    if (save_resync_decode_game((const uint8_t *)(full_resync_data + sizeof(uint32_t)), game_len, &game, &save_err) != SVR_Ok) {
+    if (save_resync_decode_intralevel((const uint8_t *)section_data[RSec_Intralevel], section_len[RSec_Intralevel], &intralvl, &save_err) != SVR_Ok) {
+        ERRORLOG("Resync intralevel decode failed: %s", save_err.message);
+        return false;
+    }
+    if (save_resync_decode_game((const uint8_t *)section_data[RSec_Game], section_len[RSec_Game], &game, &save_err) != SVR_Ok) {
         ERRORLOG("Resync game decode failed: %s", save_err.message);
         return false;
     }
     if (navigation_size != 0) {
-        transfer_navigation_state((char *)full_resync_data + lua_data_offset + lua_data_len, NavigationState_Restore);
+        transfer_navigation_state((char *)full_resync_data + offset, NavigationState_Restore);
     } else {
         init_navigation();
     }

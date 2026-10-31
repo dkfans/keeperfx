@@ -230,6 +230,11 @@ static TbBool apply_game_kfxs(const char *fname, struct LoadedSave *loaded_save,
     save_copy_runtime(&save_desc_Game, loaded_save->game.get(), &game);
     memcpy(&game, loaded_save->game.get(), sizeof(game));
     memcpy(&intralvl, loaded_save->ilvl.get(), sizeof(intralvl));
+    if (!set_custom_intralevel_data(read_result->custom_ilvl_data, read_result->custom_ilvl_len))
+    {
+        SAVEERR("out of memory loading the custom intralevel data of \"%s\"", fname);
+        return false;
+    }
     // Apply the save's config changes on top of the fresh config.
     if (save_config_overlay_apply(read_result->conf_data, read_result->conf_len, &game.conf, &err) != SVR_Ok)
     {
