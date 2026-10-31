@@ -311,7 +311,9 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
         netstate.sp->drop_user(source, reason);
         return Lb_OK;
     }
-    if (!network_user_is_spectator(source)) {
+    if (network_user_is_spectator(source)) {
+        network_spectator_evict_stalled_user(user);
+    } else {
         netstate.reconnect_tokens[source] = user->reconnect_token;
     }
     NETMSG("User %d (%s) successfully logged in", (int)source, user->name);

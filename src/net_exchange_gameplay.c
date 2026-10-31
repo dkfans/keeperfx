@@ -30,6 +30,7 @@
 #include "gui_msgs.h"
 #include "net_exchange_common.h"
 #include "net_input_lag.h"
+#include "net_lobby.h"
 #include "net_main.h"
 #include "net_spectator.h"
 #include "player_data.h"
@@ -514,11 +515,12 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
         send_repair_history_if_due(REPAIR_HISTORY_RECOVERY_INTERVAL);
         netstate.sp->update(OnNewUser);
         host_spoof_dropped_user_packets();
+        net_lobby_refresh_rejoin_open();
         if (host_lost(expected_turn, "waiting for")) {
             return Lb_OK;
         }
         turn_complete = have_all_turn_packets(local_user);
-        for (NetUserId peer_id = 0; peer_id < netstate.max_users && !turn_complete; peer_id += 1) {
+        for (NetUserId peer_id = 0; peer_id < MAX_NET_CONNECTIONS && !turn_complete; peer_id += 1) {
             if (!can_send_to_peer(peer_id)) {
                 continue;
             }

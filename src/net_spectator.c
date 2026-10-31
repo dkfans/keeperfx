@@ -294,13 +294,16 @@ static TbBool seat_is_open(PlayerNumber plyr_idx)
 static TbBool user_can_reconnect(NetUserId user, const struct NetUser *returning)
 {
     const struct UserState *ustate = get_user_state(user);
-    if (user_state_invalid(ustate) || netstate.users[user].progress != USER_UNUSED || user_present(user) || ustate->reconnect_player_id == PLAYER_NONE || netstate.reconnect_tokens[user] == 0) {
+    if (user_state_invalid(ustate) || netstate.reconnect_tokens[user] == 0) {
         return false;
     }
     if (returning != NULL && returning->reconnect_token != netstate.reconnect_tokens[user]) {
         return false;
     }
-    return seat_is_open(ustate->reconnect_player_id);
+    if (netstate.users[user].progress != USER_UNUSED) {
+        return is_waiting_on_user_packets(user);
+    }
+    return user_present(user) || (ustate->reconnect_player_id != PLAYER_NONE && seat_is_open(ustate->reconnect_player_id));
 }
 
 static NetUserId find_reconnecting_user(const struct NetUser *returning)
@@ -316,6 +319,17 @@ static NetUserId find_reconnecting_user(const struct NetUser *returning)
 TbBool network_spectator_seat_open(const struct NetUser *returning)
 {
     return find_reconnecting_user(returning) != INVALID_USER_ID;
+}
+
+void network_spectator_evict_stalled_user(const struct NetUser *returning)
+{
+    NetUserId user = find_reconnecting_user(returning);
+    if (user == INVALID_USER_ID || netstate.users[user].progress == USER_UNUSED) {
+        return;
+    }
+    NETLOG("User %d reconnected while stalled, dropping the stale connection", user);
+    netstate.sp->drop_user(user, NetJoin_Accepted);
+    netstate.users_timed_out[user] = true;
 }
 
 static void seat_spectator(NetUserId spectator_id, NetUserId player_id)
@@ -354,12 +368,17 @@ void network_spectator_seat_users(void)
         if (!IsUserActive(spectator_id) || !spectator->seat_requested) {
             continue;
         }
-        spectator->seat_requested = false;
-        enum NetJoinRejection reason = net_lobby_spectator_rejection(spectator_id);
-        if (user_can_reconnect(spectator->seat_user, spectator)) {
+        if (!user_can_reconnect(spectator->seat_user, spectator)) {
+            spectator->seat_requested = false;
+            enum NetJoinRejection reason = net_lobby_spectator_rejection(spectator_id);
+            if (reason != NetJoin_Accepted) {
+                netstate.sp->drop_user(spectator_id, reason);
+            }
+            continue;
+        }
+        if (!user_present(spectator->seat_user)) {
+            spectator->seat_requested = false;
             seat_spectator(spectator_id, spectator->seat_user);
-        } else if (reason != NetJoin_Accepted) {
-            netstate.sp->drop_user(spectator_id, reason);
         }
     }
     net_lobby_refresh_rejoin_open();
