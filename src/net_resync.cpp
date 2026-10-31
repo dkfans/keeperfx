@@ -290,7 +290,7 @@ static TbBool receive_resync_message(char **message_out, size_t *message_size_ou
     TbClockMSec start_time = LbTimerClock();
     TbClockMSec last_progress_time = start_time;
     int32_t last_progress = 0;
-    while (LbTimerClock() - start_time < RESYNC_RECEIVE_TIMEOUT_MS) {
+    while (LbTimerClock() - start_time < RESYNC_RECEIVE_TIMEOUT_MS && netstate.users[SERVER_ID].progress != USER_UNUSED) {
         netstate.sp->update(OnNewUser);
         int32_t progress = GetResyncProgress() * 80 / 100;
         if (progress > last_progress && LbTimerClock() - last_progress_time >= 50) {
@@ -350,7 +350,7 @@ static TbBool receive_resync_message(char **message_out, size_t *message_size_ou
         return true;
     }
 
-    ERRORLOG("Client: Timeout waiting for resync data after %dms", RESYNC_RECEIVE_TIMEOUT_MS);
+    ERRORLOG("Client: Gave up waiting for resync data after %dms", (int32_t)(LbTimerClock() - start_time));
     return false;
 }
 

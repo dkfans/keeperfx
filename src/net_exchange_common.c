@@ -318,7 +318,6 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
         ERRORLOG("Problem reading message from %u", source);
         return Lb_FAIL;
     }
-    netstate.users[source].last_message_at = LbTimerClock();
     if (source == SERVER_ID && network_user_is_spectator(netstate.my_id) && message_buffer[0] == NETMSG_RESYNC_DATA) {
         TbError result = Lb_FAIL;
         if (expected_frame_type != NETMSG_SPECTATOR_BOOTSTRAP && message_size <= 16 * 1024 * 1024 && apply_recorded_resync(message_buffer, message_size)) {

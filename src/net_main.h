@@ -35,8 +35,7 @@ extern "C" {
 #define TIMEOUT_LOBBY_EXCHANGE 5000
 #define TIMEOUT_WAIT_FOR_ALL_PLAYERS 30000
 #define PEER_TIMEOUT_LIMIT 0
-#define PEER_TIMEOUT_MIN_MS 30000
-#define PEER_TIMEOUT_MAX_MS 30000
+#define PEER_TIMEOUT_MS 5000
 
 #define MIN_NET_USERS 2
 #define MAX_NET_USERS 4
@@ -135,7 +134,6 @@ struct NetUser {
     int ack;
     struct GameVersionPacket version;
     uint32_t connected_at;
-    TbClockMSec last_message_at;
     enum NetSpectatorState spectator_state;
     uint8_t spectator_icon;
     TbBool spectator_resync_requested;
