@@ -2234,6 +2234,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         api_init_server();
         game_loop();
+        LbNetwork_Stop();
     }
     reset_game();
     RendererResetScreen(true);
