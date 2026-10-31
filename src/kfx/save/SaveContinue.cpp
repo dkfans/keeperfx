@@ -109,7 +109,10 @@ bool read_raw_progress(const std::vector<uint8_t> &file, const char *progress_fn
     return false;
 }
 
-/** SCHM, the IntralevelData as ILVL (or RECS, before CILD existed), and CILD when there is custom data. */
+/** 
+ * Old format (alphas 1.4.0.5523~1.4.0.5582): SCHM + RECS
+ * New format: SCHM + ILVL [+ CILD]
+ * */
 SaveResult read_kfxs_progress(const std::vector<uint8_t> &file, IntralevelData *ilvl, std::vector<uint8_t> *custom, SaveError *err)
 {
     SaveReader reader;
@@ -214,7 +217,7 @@ bool write_progress_file(const char *progress_fname, const IntralevelData *ilvl)
     if (save_file_begin(&out, SFK_Continue) != 0
      || save_chunk_add_buffer(&out, SCID_Schema, SCF_Required, &schema_buffer, 1) != 0
      || save_chunk_add_buffer(&out, SCID_Level, SCF_Required, &ilvl_buffer, 1) != 0
-     || (custom_intralevel_data_len > 0 && save_chunk_add(&out, SCID_CustomIntralevelData, 0, custom_intralevel_data, custom_intralevel_data_len, true) != 0))
+     || (custom_intralevel_data_len > 0 && save_chunk_add(&out, SCID_CustomIntralevelData, 0, custom_intralevel_data, custom_intralevel_data_len, false) != 0))
     {
         SAVEWARN("can't build \"%s\": out of memory", fname);
         return false;

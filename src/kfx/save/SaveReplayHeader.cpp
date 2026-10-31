@@ -64,7 +64,7 @@ enum SaveResult SaveManager::WriteReplayHeader(TbFileHandle file, const Catalogu
     if (with_game)
         add(SCID_Game, gamebuf, true);
     if (custom_ilvl_len > 0)
-        succeeded = succeeded && (save_chunk_add(&out, SCID_CustomIntralevelData, 0, custom_ilvl, custom_ilvl_len, true) == 0);
+        succeeded = succeeded && (save_chunk_add(&out, SCID_CustomIntralevelData, 0, custom_ilvl, custom_ilvl_len, false) == 0);
     succeeded = succeeded && (save_chunk_add(&out, SCID_TurnData, SCF_Required, &empty, 0, 0) == 0);
     if (!succeeded)
         return save_fail(err, SVR_NoMemory, "out of memory");

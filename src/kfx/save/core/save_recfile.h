@@ -1,7 +1,7 @@
 /******************************************************************************/
 /** @file save_recfile.h
  *     Files that hold a run of records of one type: a schema chunk and a records chunk. The high
- *     score table, the network config and the continue files are all this.
+ *     score table, the network config and the continue link are all this.
  */
 /******************************************************************************/
 #ifndef KFX_SAVE_RECFILE_H

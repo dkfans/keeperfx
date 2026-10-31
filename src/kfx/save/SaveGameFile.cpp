@@ -61,7 +61,7 @@ enum SaveResult Build(const Game *game_state, const IntralevelData *ilvl, const 
     add(SCID_Game, gamebuf, true);
     add(SCID_Level, ilvlbuf, true);
     if (custom_ilvl_len > 0)
-        succeeded = succeeded && (save_chunk_add(out, SCID_CustomIntralevelData, 0, custom_ilvl_data, custom_ilvl_len, true) == 0);
+        succeeded = succeeded && (save_chunk_add(out, SCID_CustomIntralevelData, 0, custom_ilvl_data, custom_ilvl_len, false) == 0);
     if (lua_len > 0)
         succeeded = succeeded && (save_chunk_add(out, SCID_Lua, 0, lua_data, lua_len, true) == 0);
     if ((result == SVR_Ok) && !succeeded)
