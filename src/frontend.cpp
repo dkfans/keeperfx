@@ -3011,6 +3011,8 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
         net_lobby_set_phase(NetPhase_InLandview);
     } else if (frontend_menu_state == FeSt_NET_START) {
         net_lobby_set_phase(NetPhase_Lobby);
+    } else if (frontend_menu_state == FeSt_START_MPLEVEL) {
+        net_lobby_set_phase(NetPhase_Loading);
     }
     return frontend_menu_state;
 }
