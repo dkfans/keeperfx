@@ -234,18 +234,6 @@ void LbNetwork_SetServerPort(int port)
     server_port = port;
 }
 
-static void record_reconnect_token(NetUserId source)
-{
-    uint64_t token = netstate.users[source].reconnect_token;
-    for (NetUserId id = 0; id < MAX_NET_USERS; id++) {
-        if (id != source && IsUserActive(id) && netstate.reconnect_tokens[id] == token) {
-            NETMSG("User %d shares a reconnect token with user %d and will not be able to reconnect", (int)source, (int)id);
-            token = 0;
-        }
-    }
-    netstate.reconnect_tokens[source] = token;
-}
-
 TbError process_login_message(NetUserId source, char *read_pos, const char *end_pos)
 {
     if (source == SERVER_ID) {
@@ -324,7 +312,7 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
         return Lb_OK;
     }
     if (!network_user_is_spectator(source)) {
-        record_reconnect_token(source);
+        netstate.reconnect_tokens[source] = user->reconnect_token;
     }
     NETMSG("User %d (%s) successfully logged in", (int)source, user->name);
     user->progress = USER_LOGGEDIN;
