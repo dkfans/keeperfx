@@ -136,7 +136,7 @@ static void draw_peer_wait_messages(int tx_units_per_px)
     int tenths = remaining % 1000 / 100;
     char text[PEER_WAIT_MESSAGE_SIZE];
     if (is_waiting_on_user_packets(SERVER_ID)) {
-        snprintf(text, sizeof(text), "Connection unstable: %d.%d", seconds, tenths);
+        snprintf(text, sizeof(text), get_string(GUIStr_NetConnectionUnstable), seconds, tenths);
         LbTextDrawResized(0, 0, tx_units_per_px, text);
         return;
     }
@@ -145,7 +145,7 @@ static void draw_peer_wait_messages(int tx_units_per_px)
         if (!is_waiting_on_user_packets(user)) {
             continue;
         }
-        snprintf(text, sizeof(text), "Waiting on %s: %d.%d", netstate.users[user].name, seconds, tenths);
+        snprintf(text, sizeof(text), get_string(GUIStr_NetWaitingOnUser), netstate.users[user].name, seconds, tenths);
         LbTextDrawResized(0, pos_y, tx_units_per_px, text);
         pos_y += LbTextLineHeight() * tx_units_per_px / 16;
     }
