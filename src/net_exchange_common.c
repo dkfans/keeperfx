@@ -579,6 +579,10 @@ void wait_for_all_players(void)
             }
         }
         if (result != Lb_OK) {
+            if (!poll_inputs()) {
+                exit_keeper = 1;
+                return;
+            }
             SDL_Delay(1);
         }
     }

@@ -198,7 +198,9 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
         tmdelta = 10;
     while (LbTimerClock() < end_time)
     {
-        poll_inputs();
+        if (!poll_inputs()) {
+            break;
+        }
         copy_raw8_image_to_screen_center(raw, width, height);
         if (is_key_pressed(KC_SPACE, KMod_DONTCARE)
          || is_key_pressed(KC_ESCAPE, KMod_DONTCARE)
