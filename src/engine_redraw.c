@@ -1070,6 +1070,7 @@ void redraw_display(void)
 TbBool keeper_screen_redraw(void)
 {
     SYNCDBG(5,"Starting");
+    update_local_view_effects();
     RendererClearScreen(144);
     if (RendererBeginFrame())
     {

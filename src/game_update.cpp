@@ -488,17 +488,16 @@ void update(void)
         return;
     }
     player = get_my_player();
-    struct UserState *ustate = get_user_state(get_local_user());
 
     if (!flag_is_set(game.operation_flags,GOF_Paused))
     {
         for (int i = 1; i < EVENTS_COUNT; i++) {
             game.event[i].flags &= ~EvF_BtnFalling;
         }
-        if (flag_is_set(ustate->additional_flags,UsrAF_LightningPaletteIsActive))
+        if (local_state.lightning_palette_active)
         {
             PaletteSetUserPalette(get_local_user(), engine_palette);
-            clear_flag(ustate->additional_flags, UsrAF_LightningPaletteIsActive);
+            local_state.lightning_palette_active = false;
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();

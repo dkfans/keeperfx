@@ -96,8 +96,8 @@ enum UserInitFlags {
 enum UserAdditionalFlags {
     UsrAF_None                      = 0x00,
     UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    UsrAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell. TODO: move to LocalState
-    UsrAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell. TODO: move to LocalState
+    UsrAF_Unkn04                    = 0x04,
+    UsrAF_Unkn08                    = 0x08,
     UsrAF_UnlockedLordTorture       = 0x10, // if this flag is set, the user will be sent to the Lord Torture Mini-game
     UsrAF_Unkn20                    = 0x20,
     UsrAF_Unkn40                    = 0x40,
@@ -261,6 +261,9 @@ struct UserState {
     MapCoord zoom_to_pos_y;
     /** Overcharge level while casting keeper powers. */
     int32_t cast_expand_level;
+    /** A lenses.cfg index, or Lua if when custom_lens is set. */
+    short lens_type;
+    char custom_lens[COMMAND_WORD_LEN];
 };
 
 /******************************************************************************/
@@ -307,6 +310,8 @@ extern struct LocalState {
     TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char *lens_palette;
     unsigned char *main_palette;
+    TbBool lightning_palette_active;
+    TbBool freeze_palette_active;
     TbBool map_fade_prepared;
     unsigned char map_fade_view_type;
     int32_t map_fade_turns;

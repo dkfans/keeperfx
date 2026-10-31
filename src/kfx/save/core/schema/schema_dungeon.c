@@ -673,6 +673,8 @@ SAVE_STRUCT(UserState, struct UserState,
     SAVE_FIELD_EX(struct UserState, zoom_to_pos_x, SV_I32, .flags = SVF_SAVE),
     SAVE_FIELD_EX(struct UserState, zoom_to_pos_y, SV_I32, .flags = SVF_SAVE),
     SAVE_FIELD(struct UserState, cast_expand_level, SV_I32),
+    SAVE_FIELD(struct UserState, lens_type, SV_I16),
+    SAVE_ARRAY(struct UserState, custom_lens, SV_STR),  /* plain-char */
 );
 
 SAVE_STRUCT(Wander, struct Wander,
