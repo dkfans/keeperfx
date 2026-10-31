@@ -500,6 +500,8 @@ static void drop_silent_users(TbClockMSec wait_start_time)
             NETLOG("Dropping silent user %d", user);
             netstate.sp->drop_user(user, NetJoin_Accepted);
             netstate.users_timed_out[user] = true;
+            host_spoof_dropped_user_packets();
+            send_user_repair_history(user);
         }
     }
 }

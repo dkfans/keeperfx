@@ -385,6 +385,7 @@ static void join_seat(NetUserId player_id, PlayerNumber plyr_idx, uint8_t input_
     UserPreferences prefs;
     build_local_user_preferences(prefs);
     seat_network_user(player_id, plyr_idx, prefs);
+    netstate.resync_pending = true;
 }
 
 TbError process_network_spectator_seat(NetUserId source, const char *buffer, size_t size)
