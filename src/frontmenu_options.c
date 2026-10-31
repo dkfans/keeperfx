@@ -37,6 +37,7 @@
 #include "front_input.h"
 #include "kjm_input.h"
 #include "packets.h"
+#include "vidmode.h"
 #include "config_settings.h"
 #include "local_camera.h"
 #include "keeperfx.hpp"
@@ -267,9 +268,9 @@ void gui_video_cluedo_mode(struct GuiButton *gbtn)
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
     video_gamma_correction = (video_gamma_correction + 1) % GAMMA_LEVELS_COUNT;
-    set_players_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
+    set_gamma(video_gamma_correction, 1);
+    save_settings();
 }
 
 int make_audio_slider_linear(int a)
@@ -330,8 +331,7 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 
 void gui_switch_video_mode(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
+    switch_to_next_video_mode_wrapper();
 }
 
 void gui_display_current_resolution(struct GuiButton *gbtn)

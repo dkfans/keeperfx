@@ -73,17 +73,18 @@ enum SaveResult SaveManager_ReadHighScores(const char *fname, struct HighScore *
 int SaveManager_WriteHighScores(const char *fname, const struct HighScore *table, uint32_t count);
 
 /** The KFXS header of a replay (.pck) file, written to and read from an open file handle. The header is
- *  followed by the streamed turn data, which stays the replay code's own. g may be NULL to leave out the
- *  mid-level Game snapshot. */
+ *  followed by the streamed turn data, which stays the replay code's own. The IntralevelData is always
+ *  stored, even for skirmishes. g may be NULL to leave out the mid-level Game snapshot. */
 enum SaveResult SaveManager_WriteReplayHeader(TbFileHandle file, const struct CatalogueEntry *centry,
-    const struct PacketSaveHead *phead, const struct Game *game_state, struct SaveError *err);
+    const struct PacketSaveHead *phead, const struct Game *game_state, const struct IntralevelData *ilvl,
+    struct SaveError *err);
 /** Reads the header from fh, at the start of the file, into *centry and *phead. A Game snapshot, if the
  *  file has one, is decoded into *g and *g_present set; otherwise *g is untouched. On success fh is at
  *  the first byte of the turn stream, and *out_schema and *out_dec are set up and must be kept for the
  *  per-turn decodes, then freed with save_schema_free/save_decoder_free. Nothing needs freeing on failure. */
 enum SaveResult SaveManager_ReadReplayHeader(TbFileHandle file, struct CatalogueEntry *centry,
-    struct PacketSaveHead *phead, struct Game *game_state, TbBool *g_present, struct SaveFileSchema *out_schema,
-    struct SaveDecoder *out_dec, struct SaveError *err);
+    struct PacketSaveHead *phead, struct Game *game_state, struct IntralevelData *ilvl, TbBool *g_present,
+    struct SaveFileSchema *out_schema, struct SaveDecoder *out_dec, struct SaveError *err);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -122,9 +123,10 @@ public:
     bool WriteHighScores(const char *fname, const HighScore *table, uint32_t count);
 
     static enum SaveResult WriteReplayHeader(TbFileHandle file, const CatalogueEntry *centry,
-        const PacketSaveHead *phead, const Game *game_state, SaveError *err);
+        const PacketSaveHead *phead, const Game *game_state, const IntralevelData *ilvl, SaveError *err);
     static enum SaveResult ReadReplayHeader(TbFileHandle file, CatalogueEntry *centry, PacketSaveHead *phead,
-        Game *game_state, bool *g_present, SaveFileSchema *out_schema, SaveDecoder *out_dec, SaveError *err);
+        Game *game_state, IntralevelData *ilvl, bool *g_present, SaveFileSchema *out_schema, SaveDecoder *out_dec,
+        SaveError *err);
 
 private:
     bool EnsureSlot(long slot);

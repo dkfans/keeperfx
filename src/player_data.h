@@ -367,6 +367,8 @@ struct UserState *get_local_user_state(void);
 void set_local_user_state_prediction(const struct UserState *ustate);
 const struct UserState *get_user_state_prediction(NetUserId user);
 const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player);
+const struct UserState *get_local_user_state_prediction(void);
+ThingIndex get_user_thing_under_hand(NetUserId user);
 uint32_t get_local_minimap_zoom(void);
 TbBool user_state_invalid(const struct UserState *ustate);
 int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view);

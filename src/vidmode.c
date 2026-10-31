@@ -1031,7 +1031,7 @@ TbBool switch_to_next_video_mode(void)
   return true;
 }
 
-/** Needed until its contents are refactored, then we can just call switch_to_next_video_mode from PckA_SwitchScrnRes. */
+/** Needed until its contents are refactored, then callers can just call switch_to_next_video_mode. */
 void switch_to_next_video_mode_wrapper(void)
 {
   char percent_x = ((float)lbDisplay.MMouseX / (float)(lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth)) * 100;

@@ -25,6 +25,7 @@
 #include "bflib_datetm.h"
 #include "frontend.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "game_saves.h"
 #include "kfx/save/SaveManager.h"
 #include "kfx/save/core/save_schema.h"
@@ -971,7 +972,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
     TbBool g_present = false;
     struct SaveError err;
     enum SaveResult r = SaveManager_ReadReplayHeader(replay.fp, centry, &replay.head,
-        &game, &g_present, &packet_load_schema, &packet_load_dec, &err);
+        &game, &intralvl, &g_present, &packet_load_schema, &packet_load_dec, &err);
     if (r != SVR_Ok)
     {
         set_replay_crashlog(0, 0);
@@ -1592,7 +1593,7 @@ TbBool open_new_packet_file_for_save(void)
     SaveManager_FillEntry(&centry, "Packet file");
     struct SaveError err;
     enum SaveResult r = SaveManager_WriteReplayHeader(replay.fp, &centry, &replay.head,
-        (get_gameturn() != 0) ? &game : NULL, &err);
+        (get_gameturn() != 0) ? &game : NULL, &intralvl, &err);
     if (r != SVR_Ok)
     {
         WARNMSG("Cannot write to packet file, \"%s\": %s", replay.fname, err.message);

@@ -738,10 +738,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
             set_pointer_graphic(MousePG_LockMark);
             break;
         case CSt_PowerHand:
-            thing_under_hand = ustate->thing_under_hand;
-            if (is_my_player(player) && local_state.local_thing_under_hand > 0) {
-                thing_under_hand = local_state.local_thing_under_hand;
-            }
+            thing_under_hand = get_user_thing_under_hand(user);
             thing = thing_get(thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;

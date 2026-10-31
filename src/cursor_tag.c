@@ -32,6 +32,7 @@
 #include "frontend.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
+#include "thing_creature.h"
 #include "packets.h"
 #include "local_camera.h"
 #include "post_inc.h"
@@ -109,27 +110,29 @@ unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, NetUserId user, c
     return line_color;
 }
 
-void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool allow_unclaimed_path, TbBool full_slab)
+void tag_cursor_blocks_thing_in_hand(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  SYNCDBG(7,"Starting");
-  MapSlabCoord slb_x = subtile_slab(stl_x);
-  MapSlabCoord slb_y = subtile_slab(stl_y);  
-  if (should_draw_cursor_box(plyr_idx)) {
+    SYNCDBG(7,"Starting");
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
+    struct UserState* ustate = get_user_state(user);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+    if (should_draw_cursor_box(plyr_idx)) {
+        TbBool full_slab = (ustate->roomspace_mode != single_subtile_mode);
+        TbBool allow_unclaimed_path = is_creature_droppable_on_path(get_first_thing_in_power_hand(get_player(plyr_idx)));
         map_volume_box.visible = true;
         map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, allow_unclaimed_path);
-        if (full_slab)
-        {
+        if (full_slab) {
             map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
             map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
             map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 0) + STL_PER_SLB, 0);
             map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 0) + STL_PER_SLB, 0);
-        }
-        else
-        {
+        } else {
             map_volume_box.beg_x = subtile_coord(stl_x, 0);
             map_volume_box.beg_y = subtile_coord(stl_y, 0);
             map_volume_box.end_x = subtile_coord(stl_x + 1, 0);
-            map_volume_box.end_y = subtile_coord(stl_y + 1, 0); 
+            map_volume_box.end_y = subtile_coord(stl_y + 1, 0);
         }
         map_volume_box.floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     }
@@ -400,5 +403,35 @@ TbBool tag_cursor_blocks_place_trap(NetUserId user, MapSubtlCoord stl_x, MapSubt
         draw_map_volume_box(subtile_coord(stl_x, 0), subtile_coord(stl_y, 0), subtile_coord(stl_x + box_size, 0), subtile_coord(stl_y + box_size, 0), floor_height, can_place);
     }
     return can_place;
+}
+
+TbBool tag_cursor_blocks_for_work_state(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
+    struct UserState* ustate = get_user_state(user);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    switch (ustate->work_state)
+    {
+    case PSt_PlaceTrap:
+        return tag_cursor_blocks_place_trap(user, stl_x, stl_y, ustate->chosen_trap_kind);
+    case PSt_PlaceDoor:
+        return tag_cursor_blocks_place_door(plyr_idx, user, stl_x, stl_y);
+    case PSt_MkDigger:
+    case PSt_MkGoodCreatr:
+    case PSt_MkBadCreatr:
+    case PSt_MkGoldPot:
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+        return tag_cursor_blocks_place_thing(user, stl_x, stl_y);
+    case PSt_StealSlab:
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+        return tag_cursor_blocks_steal_slab(user, stl_x, stl_y);
+    case PSt_PlaceTerrain:
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
+        tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
+        return true;
+    default:
+        return false;
+    }
 }
 /******************************************************************************/
