@@ -526,6 +526,7 @@ void clear_complete_game(void)
         game.user_states[user].player_id = PLAYER_NONE;
     }
     memset(&intralvl, 0, sizeof(struct IntralevelData));
+    clear_custom_intralevel_data();
     replay.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     replay.checksum_verify = start_params.packet_checksum_verify;

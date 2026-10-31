@@ -161,7 +161,13 @@ extern unsigned long game_flags2; // Should be reset to zero on new level
 
 /******************************************************************************/
 extern struct IntralevelData intralvl;
+#define CUSTOM_INTRALEVEL_DATA_MAX_SIZE (1024 * 1024)
+
+extern char *custom_intralevel_data;
+extern uint32_t custom_intralevel_data_len;
 /******************************************************************************/
+TbBool set_custom_intralevel_data(const void *data, uint32_t len);
+void clear_custom_intralevel_data(void);
 LevelNumber get_loaded_level_number(void);
 LevelNumber set_loaded_level_number(LevelNumber lvnum);
 LevelNumber get_continue_level_number(void);

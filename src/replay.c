@@ -1598,7 +1598,7 @@ TbBool open_new_packet_file_for_save(void)
     SaveManager_FillEntry(&centry, "Packet file");
     struct SaveError err;
     enum SaveResult r = SaveManager_WriteReplayHeader(replay.fp, &centry, &replay.head,
-        (get_gameturn() != 0) ? &game : NULL, &intralvl, &err);
+        (get_gameturn() != 0) ? &game : NULL, &intralvl, custom_intralevel_data, custom_intralevel_data_len, &err);
     if (r != SVR_Ok)
     {
         WARNMSG("Cannot write to packet file, \"%s\": %s", replay.fname, err.message);

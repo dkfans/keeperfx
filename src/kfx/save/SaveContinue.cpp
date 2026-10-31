@@ -36,6 +36,7 @@
 #include <strings.h>
 
 #include "kfx/save/SaveManager_Internal.h"
+#include "kfx/save/core/save_bytes.h"
 #include "kfx/save/core/schema/save_tables_decl.h"
 
 namespace {
@@ -108,19 +109,90 @@ bool read_raw_progress(const std::vector<uint8_t> &file, const char *progress_fn
     return false;
 }
 
-bool read_progress_file(const char *progress_fname, IntralevelData *ilvl)
+/** 
+ * Old format (alphas 1.4.0.5523~1.4.0.5582): SCHM + RECS
+ * New format: SCHM + ILVL [+ CILD]
+ * */
+SaveResult read_kfxs_progress(const std::vector<uint8_t> &file, IntralevelData *ilvl, std::vector<uint8_t> *custom, SaveError *err)
+{
+    SaveReader reader;
+    SaveResult result = save_reader_open(&reader, file.data(), (uint32_t)file.size(), err);
+    if (result != SVR_Ok)
+        return result;
+    if (reader.kind != SFK_Continue)
+        return save_fail(err, SVR_Damaged, "this is not the kind of file expected here");
+    savebytes::MallocBytes schema_bytes;
+    savebytes::MallocBytes ilvl_bytes;
+    savebytes::MallocBytes custom_bytes;
+    uint32_t schema_len = 0;
+    uint32_t ilvl_len = 0;
+    uint32_t ilvl_flags = 0;
+    uint32_t custom_len = 0;
+    SaveChunk chunk;
+    while ((result = save_reader_next(&reader, &chunk, err)) == SVR_Ok)
+    {
+        uint8_t *raw = nullptr;
+        switch (chunk.id)
+        {
+        case SCID_Schema:
+            result = save_chunk_unpack(&chunk, &raw, &schema_len, err);
+            schema_bytes.reset(raw);
+            break;
+        case SCID_Level:
+        case SCID_Records:
+            result = save_chunk_unpack(&chunk, &raw, &ilvl_len, err);
+            ilvl_bytes.reset(raw);
+            ilvl_flags = chunk.flags;
+            break;
+        case SCID_CustomIntralevelData:
+            result = save_chunk_unpack(&chunk, &raw, &custom_len, err);
+            custom_bytes.reset(raw);
+            break;
+        }
+        if (result != SVR_Ok)
+            return result;
+    }
+    if (result != SVR_NotFound)
+        return result;
+    if (!schema_bytes || !ilvl_bytes)
+        return save_fail(err, SVR_Damaged, "the file is missing a required chunk");
+    SaveFileSchemaOwner file_schema;
+    result = save_schema_decode(schema_bytes.get(), schema_len, &file_schema, err);
+    if (result != SVR_Ok)
+        return result;
+    SaveDecoderOwner decoder;
+    save_decoder_init(&decoder, &file_schema, SVM_Save);
+    save_decoder_set_chunk_flags(&decoder, ilvl_flags);
+    IntralevelData decoded;
+    memset(&decoded, 0, sizeof(decoded));
+    uint32_t used = 0;
+    result = save_decode_record(&decoder, &save_desc_IntralevelData, ilvl_bytes.get(), ilvl_len, &used, &decoded, err);
+    if (result != SVR_Ok)
+        return result;
+    memcpy(ilvl, &decoded, sizeof(decoded));
+    if (custom != nullptr)
+        custom->assign(custom_bytes.get(), custom_bytes.get() + custom_len);
+    return SVR_Ok;
+}
+
+bool read_progress_file(const char *progress_fname, IntralevelData *ilvl, std::vector<uint8_t> *custom)
 {
     IFileSystem &filesystem = Fs();
     const char *fname = prepare_file_path(FGrp_Save, progress_fname);
     if (!filesystem.Exists(fname))
         return false;
+    std::vector<uint8_t> file;
     if (is_kfxs_file(filesystem, fname))
     {
         SaveError err;
-        return (savefile::ReadRecord(filesystem, fname, *ilvl, &err) == SVR_Ok);
+        SaveResult result = savefile::ReadFile(filesystem, fname, file, &err);
+        if (result == SVR_Ok)
+            result = read_kfxs_progress(file, ilvl, custom, &err);
+        if (result != SVR_Ok)
+            SAVEWARN("can't read \"%s\": %s", progress_fname, err.message);
+        return result == SVR_Ok;
     }
     // Raw chunk format (before the container): import once, the caller rewrites it through write_progress_file.
-    std::vector<uint8_t> file;
     if (filesystem.ReadAll(fname, file) != FsStatus::Ok)
         return false;
     return read_raw_progress(file, progress_fname, ilvl);
@@ -128,7 +200,29 @@ bool read_progress_file(const char *progress_fname, IntralevelData *ilvl)
 
 bool write_progress_file(const char *progress_fname, const IntralevelData *ilvl)
 {
-    return savefile::WriteRecord(Fs(), prepare_file_path(FGrp_Save, progress_fname), *ilvl);
+    const char *fname = prepare_file_path(FGrp_Save, progress_fname);
+    SaveBufferOwner schema_buffer;
+    SaveBufferOwner ilvl_buffer;
+    SaveBufferOwner out;
+    SaveError err;
+    const SaveStructDesc *roots[1] = { &save_desc_IntralevelData };
+    SaveResult result = save_schema_encode(&schema_buffer, roots, 1, SVM_Save, &err);
+    if (result == SVR_Ok)
+        result = save_encode_record(&ilvl_buffer, &save_desc_IntralevelData, ilvl, SVM_Save, &err);
+    if (result != SVR_Ok)
+    {
+        SAVEWARN("can't build \"%s\": %s", fname, err.message);
+        return false;
+    }
+    if (save_file_begin(&out, SFK_Continue) != 0
+     || save_chunk_add_buffer(&out, SCID_Schema, SCF_Required, &schema_buffer, 1) != 0
+     || save_chunk_add_buffer(&out, SCID_Level, SCF_Required, &ilvl_buffer, 1) != 0
+     || (custom_intralevel_data_len > 0 && save_chunk_add(&out, SCID_CustomIntralevelData, 0, custom_intralevel_data, custom_intralevel_data_len, false) != 0))
+    {
+        SAVEWARN("can't build \"%s\": out of memory", fname);
+        return false;
+    }
+    return savefile::WriteFile(Fs(), fname, out.data, out.len);
 }
 
 /** The oldest progress file, fx1contn.sav: a campaign name, a level and the progress data of version 0. */
@@ -239,11 +333,13 @@ void delete_last_file_link()
 
 /******************************************************************************/
 
-bool SaveManager::LoadCampaignProgress(const GameCampaign *campgn, IntralevelData *ilvl, LevelNumber *continue_lvnum)
+bool SaveManager::LoadCampaignProgress(const GameCampaign *campgn, IntralevelData *ilvl, LevelNumber *continue_lvnum, std::vector<uint8_t> *custom)
 {
     char progress_fname[DISKPATH_SIZE];
     get_progress_filename(campgn->fname, progress_fname, sizeof(progress_fname));
-    bool found = read_progress_file(progress_fname, ilvl);
+    if (custom != nullptr)
+        custom->clear();
+    bool found = read_progress_file(progress_fname, ilvl, custom);
     if (!found)
         found = read_legacy_progress(campgn->fname, ilvl);
     if (!found)
@@ -387,13 +483,16 @@ bool SaveManager::ResumeCampaign(const char *cmpgn_fname)
         return false;
     }
     LevelNumber lvnum;
-    if (!LoadCampaignProgress(&campaign, &progress_scratch, &lvnum))
+    std::vector<uint8_t> custom;
+    if (!LoadCampaignProgress(&campaign, &progress_scratch, &lvnum, &custom))
         return false;
     if (!is_singleplayer_like_level(lvnum))
     {
         SAVEWARN("continue level %d of \"%s\" is incorrect", (int)lvnum, cmpgn_fname);
         return false;
     }
+    if (!set_custom_intralevel_data(custom.data(), (uint32_t)custom.size()))
+        return false;
     memcpy(&intralvl, &progress_scratch, sizeof(IntralevelData));
     set_continue_level_number(lvnum);
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);

@@ -17,6 +17,21 @@ function GetGameTimestamp() end
 ---@field tz integer seconds east of UTC
 ---@field turn integer the game turn the timestamp was taken on
 
+---Stores data for the campaign that persists between levels.
+---Replaces what was previously stored.
+---Only simple data (nil, booleans, numbers, strings and tables thereof) can be stored here.
+---The data is limited to 1MiB compressed, but you should aim to keep this as small as possible
+---for the sake of save files, multiplayer resyncs, and replay rewinding.
+---@param data any The data to store (nil to clear it.)
+---@return integer|false bytes the stored (compressed) size, or false if the previous data couldn't be overwritten.
+function SetCustomCampaignData(data) end
+
+---Returns a deepcopy of the data stored with `SetCustomCampaignData`.
+---To store it after modifying it, use `SetCustomCampaignData`.
+---@return any data nil if nothing is stored
+---@nodiscard
+function GetCustomCampaignData() end
+
 ---Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
 ---@param action_point actionpoint Action Point number
 ---@param player playerrange

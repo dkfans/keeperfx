@@ -23,7 +23,8 @@
 #include "kfx/save/core/schema/save_tables_decl.h"
 /******************************************************************************/
 enum SaveResult SaveManager::WriteReplayHeader(TbFileHandle file, const CatalogueEntry *centry,
-    const PacketSaveHead *phead, const Game *game_state, const IntralevelData *ilvl, SaveError *err)
+    const PacketSaveHead *phead, const Game *game_state, const IntralevelData *ilvl,
+    const char *custom_ilvl, uint32_t custom_ilvl_len, SaveError *err)
 {
     SaveBufferOwner schema_buffer;
     SaveBufferOwner meta;
@@ -62,6 +63,8 @@ enum SaveResult SaveManager::WriteReplayHeader(TbFileHandle file, const Catalogu
     add(SCID_Level, ilvlbuf, true);
     if (with_game)
         add(SCID_Game, gamebuf, true);
+    if (custom_ilvl_len > 0)
+        succeeded = succeeded && (save_chunk_add(&out, SCID_CustomIntralevelData, 0, custom_ilvl, custom_ilvl_len, false) == 0);
     succeeded = succeeded && (save_chunk_add(&out, SCID_TurnData, SCF_Required, &empty, 0, 0) == 0);
     if (!succeeded)
         return save_fail(err, SVR_NoMemory, "out of memory");
@@ -128,6 +131,7 @@ enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry 
     bool have_meta = false;
     bool have_phdr = false;
     bool have_ilvl = false;
+    clear_custom_intralevel_data();
     for (bool done = false; !done;)
     {
         uint32_t id = 0;
@@ -174,6 +178,13 @@ enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry 
             else *g_present = true;
             break;
         }
+        case SCID_CustomIntralevelData:
+            if (!set_custom_intralevel_data(data.get(), len))
+            {
+                save_fail(err, SVR_NoMemory, "out of memory");
+                return have_schema ? fail_freeing_decoder(out_dec, out_schema, SVR_NoMemory) : SVR_NoMemory;
+            }
+            break;
         case SCID_TurnData:
             done = true;
             break;
@@ -191,9 +202,9 @@ enum SaveResult SaveManager::ReadReplayHeader(TbFileHandle file, CatalogueEntry 
 /******************************************************************************/
 extern "C" enum SaveResult SaveManager_WriteReplayHeader(TbFileHandle file, const struct CatalogueEntry *centry,
     const struct PacketSaveHead *phead, const struct Game *game_state, const struct IntralevelData *ilvl,
-    struct SaveError *err)
+    const char *custom_ilvl, uint32_t custom_ilvl_len, struct SaveError *err)
 {
-    return SaveManager::WriteReplayHeader(file, centry, phead, game_state, ilvl, err);
+    return SaveManager::WriteReplayHeader(file, centry, phead, game_state, ilvl, custom_ilvl, custom_ilvl_len, err);
 }
 
 extern "C" enum SaveResult SaveManager_ReadReplayHeader(TbFileHandle file, struct CatalogueEntry *centry,

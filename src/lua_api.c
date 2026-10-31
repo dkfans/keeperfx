@@ -16,6 +16,7 @@
 #include "gui_soundmsgs.h"
 #include "map_data.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "bflib_datetm.h"
 #include "player_utils.h"
 #include "lvl_script_lib.h"
@@ -32,6 +33,8 @@
 #include "lua_params.h"
 #include "lua_api_sound.h"
 
+
+#include <zlib.h>
 
 #include "post_inc.h"
 
@@ -2280,6 +2283,97 @@ static int lua_print(lua_State *L)
     return 0;
 }
 
+// [u32 magic, big-endian][u32 decompressed length, little-endian][zlib(binser)]
+#define CUSTOM_INTRALEVEL_DATA_LUA_MAGIC 0x4C434901 /* LCI\1 (Lua Custom Intralevel v1) */
+
+static int lua_set_custom_intralevel_data(lua_State *L)
+{
+    lua_settop(L, 1);
+    if (lua_isnil(L, 1))
+    {
+        clear_custom_intralevel_data();
+        lua_pushinteger(L, 0);
+        return 1;
+    }
+    lua_getglobal(L, "SerializeCustomIntralevelData");
+    lua_pushvalue(L, 1);
+    if (lua_pcall(L, 1, 1, 0) != 0)
+    {
+        WARNLOG("SetCustomCampaignData: %s", lua_tostring(L, -1));
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    size_t decompressed_len;
+    const char *raw = lua_tolstring(L, -1, &decompressed_len);
+    uLongf zlen = compressBound(decompressed_len);
+    unsigned char *data = decompressed_len <= UINT32_MAX ? (unsigned char *)malloc(8 + zlen) : NULL;
+    if (data == NULL || compress2(data + 8, &zlen, (const Bytef *)raw, decompressed_len, Z_BEST_COMPRESSION) != Z_OK)
+    {
+        free(data);
+        WARNLOG("SetCustomCampaignData: can't compress %u bytes", (unsigned)decompressed_len);
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    const uint32_t header[2] = { u32be(CUSTOM_INTRALEVEL_DATA_LUA_MAGIC), u32le((uint32_t)decompressed_len) };
+    memcpy(data, header, 8);
+    size_t len = 8 + zlen;
+    if (len > CUSTOM_INTRALEVEL_DATA_MAX_SIZE)
+    {
+        free(data);
+        WARNLOG("SetCustomCampaignData: %u bytes is over the maximum of %u", (unsigned)len, (unsigned)CUSTOM_INTRALEVEL_DATA_MAX_SIZE);
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    TbBool ok = set_custom_intralevel_data(data, (uint32_t)len);
+    free(data);
+    if (!ok)
+    {
+        WARNLOG("SetCustomCampaignData: can't allocate %u bytes", (unsigned)len);
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    lua_pushinteger(L, (lua_Integer)len);
+    return 1;
+}
+
+static int lua_get_custom_intralevel_data(lua_State *L)
+{
+    if (custom_intralevel_data_len == 0)
+    {
+        lua_pushnil(L);
+        return 1;
+    }
+    const unsigned char *data = (const unsigned char *)custom_intralevel_data;
+    uint32_t header[2] = { 0, 0 };
+    if (custom_intralevel_data_len > 8)
+        memcpy(header, data, 8);
+    if (u32be(header[0]) != CUSTOM_INTRALEVEL_DATA_LUA_MAGIC)
+    {
+        ERRORLOG("GetCustomCampaignData: stored data format not recognized.");
+        lua_pushnil(L);
+        return 1;
+    }
+    uLongf decompressed_len = u32le(header[1]);
+    char *raw = (char *)malloc(decompressed_len);
+    uLongf len = decompressed_len;
+    if (raw == NULL || uncompress((Bytef *)raw, &len, data + 8, custom_intralevel_data_len - 8) != Z_OK || len != decompressed_len)
+    {
+        free(raw);
+        ERRORLOG("GetCustomCampaignData: the stored data is damaged");
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_getglobal(L, "DeserializeCustomIntralevelData");
+    lua_pushlstring(L, raw, decompressed_len);
+    free(raw);
+    if (lua_pcall(L, 1, 1, 0) != 0)
+    {
+        ERRORLOG("GetCustomCampaignData: %s", lua_tostring(L, -1));
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 
 static int lua_get_things_of_class(lua_State *L)
 {
@@ -2701,6 +2795,8 @@ static const luaL_Reg global_methods[] = {
 
 //debug stuff
     {"print"                             ,lua_print                     },
+    {"SetCustomCampaignData"             ,lua_set_custom_intralevel_data},
+    {"GetCustomCampaignData"             ,lua_get_custom_intralevel_data},
     {"RunDKScriptCommand"                ,lua_run_dkscript_command      },
 
 //retrieving lua vars

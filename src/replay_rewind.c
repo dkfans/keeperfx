@@ -26,6 +26,7 @@
 #include "ariadne_tringls.h"
 #include "config_keeperfx.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "kernel_memtracker.h"
 #include "keeperfx.hpp"
 #include "lua_base.h"
@@ -66,7 +67,7 @@ struct MemFragment {
 };
 
 /*
- * Ring buffer record: [RewindKeyframe][diffs...][lua][header offset].
+ * Ring buffer record: [RewindKeyframe][diffs...][lua][custom intralevel data][header offset].
  * A record may wrap to the start of the ring between those parts, but not within one.
  */
 struct RewindKeyframe {
@@ -79,6 +80,8 @@ struct RewindKeyframe {
     size_t lua_off;
     size_t lua_len;
     size_t lua_raw_len;
+    size_t custom_ilvl_off;
+    size_t custom_ilvl_len;
 };
 
 #define RING_ALIGN 8
@@ -123,7 +126,7 @@ static struct RewindKeyframe *snapshot_kf;
 static struct RewindKeyframe *newest;
 static int keyframes_count;
 
-// diffs and lua are encoded here, then copied into the ring
+// diffs, lua and custom intralevel data are encoded here, then copied into the ring
 static unsigned char *stage;
 static size_t stage_cap;
 
@@ -416,6 +419,19 @@ static TbBool stage_reserve(size_t need)
     return true;
 }
 
+static TbBool ring_store(const void *data, size_t len, size_t *off, size_t *stored_len)
+{
+    if (len == 0)
+        return true;
+    unsigned char *dst = ring_alloc(len, false);
+    if (dst == NULL)
+        return false;
+    memcpy(dst, data, len);
+    *off = dst - ring;
+    *stored_len = len;
+    return true;
+}
+
 static TbBool capture_lua(struct RewindKeyframe *kf)
 {
     if (Lvl_script == NULL)
@@ -429,15 +445,8 @@ static TbBool capture_lua(struct RewindKeyframe *kf)
         uLongf dst_len = stage_cap;
         if (ok && (compress2(stage, &dst_len, (const Bytef *)data, len, Z_BEST_SPEED) == Z_OK))
         {
-            unsigned char *dst = ring_alloc(dst_len, false);
-            ok = dst != NULL;
-            if (ok)
-            {
-                memcpy(dst, stage, dst_len);
-                kf->lua_off = dst - ring;
-                kf->lua_len = dst_len;
-                kf->lua_raw_len = len;
-            }
+            ok = ring_store(stage, dst_len, &kf->lua_off, &kf->lua_len);
+            kf->lua_raw_len = len;
         }
     }
     free(data);
@@ -450,18 +459,23 @@ static TbBool restore_lua(const struct RewindKeyframe *kf)
         return true;
     if (kf->lua_len > 0)
     {
-        char *data = (char *)malloc(kf->lua_raw_len);
-        if (data == NULL)
-            return false;
         uLongf len = kf->lua_raw_len;
-        TbBool ok = (uncompress((Bytef *)data, &len, ring + kf->lua_off, kf->lua_len) == Z_OK) && (len == kf->lua_raw_len)
-            && lua_set_serialised_data(data, len);
-        free(data);
-        if (!ok)
+        if (!stage_reserve(len) || uncompress(stage, &len, ring + kf->lua_off, kf->lua_len) != Z_OK
+         || len != kf->lua_raw_len || !lua_set_serialised_data((const char *)stage, len))
             return false;
     }
     lua_set_random_seed(game.action_random_seed);
     return true;
+}
+
+static TbBool capture_custom_intralevel_data(struct RewindKeyframe *kf)
+{
+    return ring_store(custom_intralevel_data, custom_intralevel_data_len, &kf->custom_ilvl_off, &kf->custom_ilvl_len);
+}
+
+static TbBool restore_custom_intralevel_data(const struct RewindKeyframe *kf)
+{
+    return set_custom_intralevel_data(ring + kf->custom_ilvl_off, kf->custom_ilvl_len);
 }
 
 static TbBool apply_diff(unsigned char *snap, const struct RewindKeyframe *kf)
@@ -556,7 +570,7 @@ void replay_rewind_capture(void)
     kf->diff_start = ring_head;
     TbBool ok = first || diff_snapshot_against_live();
     kf->diff_end = ring_head;
-    ok = ok && capture_lua(kf);
+    ok = ok && capture_lua(kf) && capture_custom_intralevel_data(kf);
     size_t *trailer = ok ? (size_t *)ring_alloc(RING_ALIGN, true) : NULL;
     if (trailer == NULL)
     {
@@ -593,7 +607,7 @@ void replay_rewind_step(void)
     local_state.view_type = PVT_None;
     local_state.camera.move_cam = NULL;
     update_engine_view(get_my_player(), false);
-    if (!restore_lua(kf) || !replay_restore_reader_pos(&kf->reader_pos))
+    if (!restore_lua(kf) || !restore_custom_intralevel_data(kf) || !replay_restore_reader_pos(&kf->reader_pos))
     {
         ERRORLOG("Cannot restore replay rewind keyframe; rewind disabled");
         set_flag_value(game.operation_flags, GOF_Paused, paused);
