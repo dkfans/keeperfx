@@ -713,6 +713,11 @@ TbBool mouse_is_over_paused_message(void)
     return get_paused_message_layout(&layout) && mouse_is_over_paused_message_layout(&layout);
 }
 
+TbBool mouse_is_over_clickable_hud_text(void)
+{
+    return mouse_is_over_paused_message() || mouse_is_over_watched_player_name();
+}
+
 void draw_paused_message(int tx_units_per_px)
 {
     struct TextBoxLayout layout;
