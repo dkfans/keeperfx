@@ -11,6 +11,7 @@
 #include "gui_frontmenu.h"
 #include "gui_msgs.h"
 #include "gui_topmsg.h"
+#include "kjm_input.h"
 #include "local_camera.h"
 #include "net_exchange_common.h"
 #include "net_exchange_gameplay.h"
@@ -624,6 +625,10 @@ TbBool network_spectator_wait(enum NetMessageType message_type)
     TbClockMSec started = LbTimerClock();
     while (LbTimerClock() - started < timeout && net_join_rejection == NetJoin_Accepted) {
         netstate.sp->update(NULL);
+        if (!poll_inputs()) {
+            exit_keeper = 1;
+            return false;
+        }
         if (attempting_to_join_cancel_requested() || netstate.users[SERVER_ID].progress == USER_UNUSED) {
             return false;
         }

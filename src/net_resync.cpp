@@ -39,6 +39,7 @@
 #include "net_spectator.h"
 #include "ariadne_update.h"
 #include "keeperfx.hpp"
+#include "kjm_input.h"
 #include "kfx/save/core/save_resync.h"
 #include "post_inc.h"
 
@@ -292,6 +293,10 @@ static TbBool receive_resync_message(char **message_out, size_t *message_size_ou
     int32_t last_progress = 0;
     while (LbTimerClock() - start_time < RESYNC_RECEIVE_TIMEOUT_MS && netstate.users[SERVER_ID].progress != USER_UNUSED) {
         netstate.sp->update(OnNewUser);
+        if (!poll_inputs()) {
+            exit_keeper = 1;
+            return false;
+        }
         int32_t progress = GetResyncProgress() * 80 / 100;
         if (progress > last_progress && LbTimerClock() - last_progress_time >= 50) {
             animate_resync_progress_bar(progress, 100);

@@ -29,6 +29,7 @@
 #include "net_lobby.h"
 #include "bflib_netsession.h"
 #include "bflib_guibtns.h"
+#include "bflib_inputctrl.h"
 #include "bflib_keybrd.h"
 #include "bflib_sound.h"
 #include "bflib_vidraw.h"
@@ -900,7 +901,7 @@ void reset_attempting_to_join_cancel(void)
 
 TbBool attempting_to_join_cancel_requested(void)
 {
-    return attempting_to_join_cancelled;
+    return attempting_to_join_cancelled || lbUserQuit;
 }
 
 /** Makes a config read from a file safe to use: strings terminated, the player limit in range, flags 0 or 1. */
