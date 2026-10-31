@@ -57,6 +57,8 @@ void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord
 void queue_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
 void load_gameplay_chat_messages(const struct QueuedGameplayChat *messages, int32_t count);
 void process_queued_chat_messages(void);
+TbBool is_waiting_on_user_packets(NetUserId user);
+TbClockMSec get_peer_timeout_remaining(void);
 
 #ifdef __cplusplus
 }
