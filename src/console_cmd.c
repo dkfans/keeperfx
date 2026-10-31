@@ -999,6 +999,15 @@ TbBool cmd_comp_kill(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_gg(PlayerNumber plyr_idx, char* args)
+{
+    struct Thing* thing = get_player_soul_container(plyr_idx);
+    if (thing_is_invalid(thing))
+        return false;
+    thing->health = 0;
+    return true;
+}
+
 TbBool cmd_player_score(PlayerNumber plyr_idx, char * args)
 {
     char * pr1str = strsep_param_with_space(&args);
@@ -2691,6 +2700,7 @@ static const struct ConsoleCommand console_commands[] = {
    { "game.check", cmd_game_check, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
    { "game.load", cmd_game_load, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
    { "game.save", cmd_game_save, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
+   { "gg", cmd_gg, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
    { "give.door", cmd_give_door, param_completion_for_give_door, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "give.trap", cmd_give_trap, param_completion_for_give_trap, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "gold.create", cmd_create_gold, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
@@ -2718,7 +2728,7 @@ static const struct ConsoleCommand console_commands[] = {
    { "power.give", cmd_give_power, param_completion_for_give_power, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "quick.show", cmd_quick_show, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "quit", cmd_quit, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
-   { "resync", cmd_resync, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired }
+   { "resync", cmd_resync, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "reveal", cmd_reveal, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "room.available", cmd_room_available, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "room.get", cmd_get_room, NULL, CmdS_SyncedOwnPlayer, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
@@ -2754,7 +2764,7 @@ static const struct ConsoleCommand console_commands[] = {
    { "zoomto.actionpoint", cmd_zoom_to_action_point, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "zoomto.herogate", cmd_zoom_to_hero_gate, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "zoomto.slabcoord", cmd_zoom_to_slabcoord, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-   { "zoomto.subtilecoord", cmd_zoom_to_subtilecoord, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+   { "zoomto.subtilecoord", cmd_zoom_to_subtilecoord, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired }
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 
