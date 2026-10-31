@@ -374,7 +374,7 @@ namespace
         LbNetLog("Join: connected successfully via %s (%s)\n", join_type, ip_version);
         net_join_rejection = NetJoin_Accepted;
         punch_phase_active = 0;
-        enet_peer_timeout(next_peer, PEER_TIMEOUT_LIMIT, PEER_TIMEOUT_MS, PEER_TIMEOUT_MS);
+        enet_peer_timeout(next_peer, PEER_TIMEOUT_LIMIT, PEER_LOADING_TIMEOUT_MS, PEER_LOADING_TIMEOUT_MS);
         cleanup_join_host(old_host, old_peer);
         log_peer_connection(next_peer, SERVER_ID, "connected");
         enet_host_set_intercept_callback(next_host, nullptr);
@@ -417,7 +417,7 @@ namespace
                 LbNetLog("Join: connected successfully via %s\n", join_type);
                 log_peer_connection(client_peer, SERVER_ID, "connected");
                 net_join_rejection = NetJoin_Accepted;
-                enet_peer_timeout(client_peer, PEER_TIMEOUT_LIMIT, PEER_TIMEOUT_MS, PEER_TIMEOUT_MS);
+                enet_peer_timeout(client_peer, PEER_TIMEOUT_LIMIT, PEER_LOADING_TIMEOUT_MS, PEER_LOADING_TIMEOUT_MS);
                 return Lb_OK;
             }
             if (service_result > 0 && (enet_event.type == ENET_EVENT_TYPE_DISCONNECT || enet_event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)) {
@@ -742,7 +742,8 @@ namespace
         }
         for (size_t peer_index = 0; peer_index < host->peerCount; peer_index++) {
             ENetPeer *peer = &host->peers[peer_index];
-            if (peer->state == ENET_PEER_STATE_CONNECTED && peer->earliestTimeout != 0 && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= PEER_TIMEOUT_MS) {
+            NetUserId destination = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
+            if (peer->state == ENET_PEER_STATE_CONNECTED && peer->earliestTimeout != 0 && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= network_user_timeout(destination)) {
                 enet_peer_disconnect_now(peer, NetJoin_Accepted);
                 report_dropped_peer(peer, NetJoin_Accepted, NETDROP_TIMEOUT);
             }
@@ -757,7 +758,6 @@ namespace
                 peer->windowSize = RESYNC_WINDOW_SIZE;
                 peer->packetThrottle = max(peer->packetThrottle, ENET_PEER_PACKET_THROTTLE_SCALE / 2U);
             }
-            NetUserId destination = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
             bool spectator_peer = client_peer == nullptr && destination >= MAX_NET_USERS;
             if (resync_saved_window[peer_index] == 0 && !spectator_peer) {
                 continue;
@@ -809,7 +809,7 @@ namespace
                 }
                 if (reason == NetJoin_Accepted) {
                     log_peer_connection(enet_event.peer, user_id, "accepted");
-                    enet_peer_timeout(enet_event.peer, PEER_TIMEOUT_LIMIT, PEER_TIMEOUT_MS, PEER_TIMEOUT_MS);
+                    enet_peer_timeout(enet_event.peer, PEER_TIMEOUT_LIMIT, PEER_LOADING_TIMEOUT_MS, PEER_LOADING_TIMEOUT_MS);
                     enet_event.peer->data = reinterpret_cast<void *>(user_id);
                 } else {
                     log_peer_connection(enet_event.peer, INVALID_USER_ID, "rejected");

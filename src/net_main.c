@@ -32,6 +32,14 @@ TbBool IsUserActive(NetUserId id)
     return id >= 0 && id < MAX_NET_CONNECTIONS && netstate.users[id].progress == USER_LOGGEDIN;
 }
 
+uint32_t network_user_timeout(NetUserId id)
+{
+    if (netstate.phase == NetPhase_Loading || (network_user_is_spectator(id) && netstate.users[id].spectator_state != NetSpectator_Streaming)) {
+        return PEER_LOADING_TIMEOUT_MS;
+    }
+    return PEER_TIMEOUT_MS;
+}
+
 NetUserId find_unused_user_id(NetUserId first_id, NetUserId last_id)
 {
     for (NetUserId id = first_id; id < last_id; id += 1) {

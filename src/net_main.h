@@ -33,9 +33,10 @@ extern "C" {
 #define TIMEOUT_CONNECT_DIRECT_IPV4 5000
 #define TIMEOUT_JOIN_LOBBY 5000
 #define TIMEOUT_LOBBY_EXCHANGE 5000
-#define TIMEOUT_WAIT_FOR_ALL_PLAYERS 30000
+#define TIMEOUT_WAIT_FOR_ALL_PLAYERS 20000
 #define PEER_TIMEOUT_LIMIT 0
 #define PEER_TIMEOUT_MS 5000
+#define PEER_LOADING_TIMEOUT_MS TIMEOUT_WAIT_FOR_ALL_PLAYERS
 
 #define MIN_NET_USERS 2
 #define MAX_NET_USERS 4
@@ -208,6 +209,7 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkU
 enum NetJoinRejection OnNewUser(NetUserId *assigned_id, enum NetConnectionRole role);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 TbBool IsUserActive(NetUserId id);
+uint32_t network_user_timeout(NetUserId id);
 NetUserId find_unused_user_id(NetUserId first_id, NetUserId last_id);
 int32_t GetRemoteUserCount(void);
 void UpdateLocalPlayerInfo(NetUserId id);

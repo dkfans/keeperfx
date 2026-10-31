@@ -407,10 +407,13 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
 TbError exchange_frame_block(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t frame_size)
 {
     TbBool frontend_exchange;
+    TbClockMSec exchange_timeout;
     if (msg_type == NETMSG_FRONTEND) {
         frontend_exchange = true;
+        exchange_timeout = TIMEOUT_LOBBY_EXCHANGE;
     } else if (msg_type == NETMSG_STARTUP_SYNC) {
         frontend_exchange = false;
+        exchange_timeout = TIMEOUT_WAIT_FOR_ALL_PLAYERS;
     } else {
         ERRORLOG("exchange_frame_block unsupported message type %d", (int)msg_type);
         return Lb_FAIL;
@@ -424,7 +427,7 @@ TbError exchange_frame_block(enum NetMessageType msg_type, void *send_buf, void 
     TbBool is_host = network_is_host();
     TbClockMSec wait_start_time = LbTimerClock();
     TbBool stop_waiting = false;
-    while (LbTimerClock() - wait_start_time < TIMEOUT_LOBBY_EXCHANGE) {
+    while (LbTimerClock() - wait_start_time < exchange_timeout) {
         if (frontend_exchange && frontend_menu_state == FeSt_START_MPLEVEL) {
             break;
         }
