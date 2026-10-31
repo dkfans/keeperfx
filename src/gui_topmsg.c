@@ -131,14 +131,21 @@ static void draw_peer_wait_messages(int tx_units_per_px)
 {
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+    TbClockMSec remaining = get_peer_timeout_remaining();
+    int seconds = remaining / 1000;
+    int tenths = remaining % 1000 / 100;
+    char text[PEER_WAIT_MESSAGE_SIZE];
+    if (is_waiting_on_user_packets(SERVER_ID)) {
+        snprintf(text, sizeof(text), "Connection unstable: %d.%d", seconds, tenths);
+        LbTextDrawResized(0, 0, tx_units_per_px, text);
+        return;
+    }
     int pos_y = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
         if (!is_waiting_on_user_packets(user)) {
             continue;
         }
-        TbClockMSec remaining = get_peer_timeout_remaining();
-        char text[PEER_WAIT_MESSAGE_SIZE];
-        snprintf(text, sizeof(text), "Waiting on %s: %d.%d", netstate.users[user].name, (int)(remaining / 1000), (int)(remaining % 1000 / 100));
+        snprintf(text, sizeof(text), "Waiting on %s: %d.%d", netstate.users[user].name, seconds, tenths);
         LbTextDrawResized(0, pos_y, tx_units_per_px, text);
         pos_y += LbTextLineHeight() * tx_units_per_px / 16;
     }
