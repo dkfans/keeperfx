@@ -16,6 +16,7 @@
 #include "gui_soundmsgs.h"
 #include "map_data.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "bflib_datetm.h"
 #include "player_utils.h"
 #include "lvl_script_lib.h"
@@ -2280,6 +2281,58 @@ static int lua_print(lua_State *L)
     return 0;
 }
 
+static int lua_set_custom_intralevel_data(lua_State *L)
+{
+    lua_settop(L, 1);
+    if (lua_isnil(L, 1))
+    {
+        clear_custom_intralevel_data();
+        lua_pushinteger(L, 0);
+        return 1;
+    }
+    lua_getglobal(L, "SerializeCustomIntralevelData");
+    lua_pushvalue(L, 1);
+    if (lua_pcall(L, 1, 1, 0) != 0)
+    {
+        WARNLOG("SetCustomCampaignData: %s", lua_tostring(L, -1));
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    size_t len;
+    const char *data = lua_tolstring(L, -1, &len);
+    if (len > CUSTOM_INTRALEVEL_DATA_MAX_SIZE)
+    {
+        WARNLOG("SetCustomCampaignData: %u bytes is over the maximum of %u", (unsigned)len, (unsigned)CUSTOM_INTRALEVEL_DATA_MAX_SIZE);
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    if (!set_custom_intralevel_data(data, (uint32_t)len))
+    {
+        WARNLOG("SetCustomCampaignData: can't allocate %u bytes", (unsigned)len);
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    lua_pushinteger(L, (lua_Integer)len);
+    return 1;
+}
+
+static int lua_get_custom_intralevel_data(lua_State *L)
+{
+    if (custom_intralevel_data_len == 0)
+    {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_getglobal(L, "DeserializeCustomIntralevelData");
+    lua_pushlstring(L, custom_intralevel_data, custom_intralevel_data_len);
+    if (lua_pcall(L, 1, 1, 0) != 0)
+    {
+        ERRORLOG("GetCustomCampaignData: %s", lua_tostring(L, -1));
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 
 static int lua_get_things_of_class(lua_State *L)
 {
@@ -2701,6 +2754,8 @@ static const luaL_Reg global_methods[] = {
 
 //debug stuff
     {"print"                             ,lua_print                     },
+    {"SetCustomCampaignData"             ,lua_set_custom_intralevel_data},
+    {"GetCustomCampaignData"             ,lua_get_custom_intralevel_data},
     {"RunDKScriptCommand"                ,lua_run_dkscript_command      },
 
 //retrieving lua vars
