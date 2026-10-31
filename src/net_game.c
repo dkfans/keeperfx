@@ -813,7 +813,7 @@ void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferen
     setup_count_players();
 }
 
-static void abandon_network_player(struct PlayerInfo *player, const char *announce_fmt, TbBool forfeit)
+static TbBool abandon_network_player(struct PlayerInfo *player, const char *announce_fmt)
 {
     if ((player->allocflags & PlaF_CompCtrl) == 0) {
         if (network_is_active()) {
@@ -825,34 +825,33 @@ static void abandon_network_player(struct PlayerInfo *player, const char *announ
             message_add_fmt(MsgType_Blank, 0, announce_fmt, player->player_name);
         }
         JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
-        if ((player->victory_state == VicS_Undecided) && forfeit) {
-            event_kill_all_players_events(player->id_number);
-            set_player_as_lost_level(player);
-        } else if (player->victory_state == VicS_Undecided) {
+        if (player->victory_state == VicS_Undecided) {
             player->allocflags |= PlaF_Placeholder;
         }
     }
     resolve_placeholders();
     if (player->victory_state != VicS_Undecided) {
         player->allocflags &= ~PlaF_Allocated;
+        return false;
     }
+    return player_is_placeholder(player);
 }
 
-// Forfeits a deliberate leaver, holds a disconnected player's seat for reconnect, or writes off a decided one.
-static void remove_user_from_game(NetUserId user, const char *announce_fmt, TbBool forfeit)
+// Holds a departed player's seat for reconnect, or writes off a decided one.
+static TbBool remove_user_from_game(NetUserId user, const char *announce_fmt)
 {
     struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate) || (ustate->player_id == PLAYER_NONE)) {
-        return;
+        return false;
     }
     struct PlayerInfo *player = get_player(ustate->player_id);
     JUSTLOG("u:%d user left the game (player %d)", (int)user, (int)ustate->player_id);
     forget_user(user);
     // another user may still be driving this keeper
     if (!player_exists(player) || get_player_primary_user(player) >= 0) {
-        return;
+        return false;
     }
-    abandon_network_player(player, announce_fmt, forfeit);
+    return abandon_network_player(player, announce_fmt);
 }
 
 static void leave_network_if_alone(void)
@@ -896,12 +895,10 @@ void process_user_leave_game_packet(NetUserId user)
         OnDroppedUser(user, NETDROP_MANUAL);
     }
     const char *announce_fmt = get_string(GUIStr_NetPlayerLeftGame);
-    const TbBool timed_out = (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT);
-    if (timed_out) {
+    if (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT) {
         announce_fmt = get_string(GUIStr_NetPlayerTimedOut);
     }
-    remove_user_from_game(user, announce_fmt, !timed_out);
-    if (timed_out && network_is_active()) {
+    if (remove_user_from_game(user, announce_fmt) && network_is_active() && (user != SERVER_ID)) {
         process_pause_packet(1, 0);
         net_lobby_refresh_metadata();
     }
@@ -947,10 +944,10 @@ void host_spoof_dropped_user_packets(void)
 
 static void remove_remote_users_after_host_lost(NetUserId local_user)
 {
-    remove_user_from_game(SERVER_ID, get_string(GUIStr_NetPlayerTimedOut), false);
+    remove_user_from_game(SERVER_ID, get_string(GUIStr_NetPlayerTimedOut));
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user != local_user) {
-            remove_user_from_game(user, NULL, false);
+            remove_user_from_game(user, NULL);
         }
     }
 }
