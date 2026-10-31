@@ -95,7 +95,7 @@ CONTENTS
 --------------------------------------------------------------------------------
   kind  name        holds
   SAVE  Save        a saved game                      fx1gNNNN.sav
-  CONT  Continue    continue link, campaign progress  fx1lastf.sav, progress
+  CONT  Continue    continue link, campaign progress  fx1lastf.sav, <campaign>.cid
   REPL  Replay      a replay header, then packets     .pck
   HSCR  HighScore   high score table of a campaign
   NCFG  NetConfig   network config
@@ -121,7 +121,7 @@ CONTENTS
     CONF                                    REQ     yes
     GAME                                    REQ     yes
     ILVL                                    REQ     yes
-    CILD                                    -       yes   only when there is data
+    CILD                                    -       no    only when there is data
     LUA                                     -       yes   only when Lua has state
 
   Record file (continue link, HighScore, NetConfig)
@@ -130,8 +130,8 @@ CONTENTS
 
   Campaign progress (Continue)
     SCHM                                    REQ     yes
-    ILVL                                    REQ     yes   RECS in older files
-    CILD                                    -       yes   only when there is data
+    ILVL                                    REQ     yes   (RECS in older files)
+    CILD                                    -       no    only when there is data
 
   Replay                                    see 12
 
@@ -432,7 +432,7 @@ CONTENTS
     META   REQ  raw    CatalogueEntry
     ILVL   REQ  zlib   the interlevel state at the start of the replay
     GAME   -    zlib   optional, the game at the start of the replay
-    CILD   -    zlib   optional, the custom intralevel data at the start of the replay
+    CILD   -    raw    optional, the custom intralevel data at the start of the replay
     PHDR   REQ  raw    PacketSaveHead
     TURN   REQ  raw    raw_len 0, stored_len 0
   Everything after TURN belongs to the replay codec and is not described here.
@@ -483,5 +483,6 @@ CONTENTS
   core/schema/schema_*.c          field tables, one per area
   SaveGameFile.cpp                the Save file                        4
   SaveReplayHeader.cpp            the replay header                    12
+  SaveContinue.cpp                continue link, campaign progress     4
   SaveUnionArms.h                 thing_arm selector                   7.2
   SaveManager.cpp                 slots, load, save

@@ -20,10 +20,10 @@ function GetGameTimestamp() end
 ---Stores data for the campaign that persists between levels.
 ---Replaces what was previously stored.
 ---Only simple data (nil, booleans, numbers, strings and tables thereof) can be stored here.
----The data is limited 1MiB, but you should aim to keep this as small as possible
+---The data is limited to 1MiB compressed, but you should aim to keep this as small as possible
 ---for the sake of save files, multiplayer resyncs, and replay rewinding.
 ---@param data any The data to store (nil to clear it.)
----@return integer|false bytes the stored size, or false if the data couldn't be stored (the previous data is kept)
+---@return integer|false bytes the stored (compressed) size, or false if the previous data couldn't be overwritten.
 function SetCustomCampaignData(data) end
 
 ---Returns a deepcopy of the data stored with `SetCustomCampaignData`.

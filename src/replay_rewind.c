@@ -82,7 +82,6 @@ struct RewindKeyframe {
     size_t lua_raw_len;
     size_t custom_ilvl_off;
     size_t custom_ilvl_len;
-    size_t custom_ilvl_raw_len;
 };
 
 #define RING_ALIGN 8
@@ -420,44 +419,36 @@ static TbBool stage_reserve(size_t need)
     return true;
 }
 
-// compresses len bytes of data into the ring
-static TbBool capture_bytes(const char *data, size_t len, size_t *off, size_t *stored_len, size_t *raw_len)
+static TbBool ring_store(const void *data, size_t len, size_t *off, size_t *stored_len)
 {
     if (len == 0)
         return true;
-    if (!stage_reserve(compressBound(len)))
-        return false;
-    uLongf dst_len = stage_cap;
-    if (compress2(stage, &dst_len, (const Bytef *)data, len, Z_BEST_SPEED) != Z_OK)
-        return true;
-    unsigned char *dst = ring_alloc(dst_len, false);
+    unsigned char *dst = ring_alloc(len, false);
     if (dst == NULL)
         return false;
-    memcpy(dst, stage, dst_len);
+    memcpy(dst, data, len);
     *off = dst - ring;
-    *stored_len = dst_len;
-    *raw_len = len;
+    *stored_len = len;
     return true;
-}
-
-// bytes stored by capture_bytes, decompressed into the stage, or NULL
-static const char *restore_bytes(const unsigned char *src, size_t stored_len, size_t raw_len)
-{
-    if (!stage_reserve(raw_len))
-        return NULL;
-    uLongf len = raw_len;
-    if (uncompress(stage, &len, src, stored_len) != Z_OK || len != raw_len)
-        return NULL;
-    return (const char *)stage;
 }
 
 static TbBool capture_lua(struct RewindKeyframe *kf)
 {
     if (Lvl_script == NULL)
         return true;
+    TbBool ok = true;
     size_t len = 0;
     char *data = lua_get_serialised_data(&len);
-    TbBool ok = (data == NULL) || capture_bytes(data, len, &kf->lua_off, &kf->lua_len, &kf->lua_raw_len);
+    if ((data != NULL) && (len > 0))
+    {
+        ok = stage_reserve(compressBound(len));
+        uLongf dst_len = stage_cap;
+        if (ok && (compress2(stage, &dst_len, (const Bytef *)data, len, Z_BEST_SPEED) == Z_OK))
+        {
+            ok = ring_store(stage, dst_len, &kf->lua_off, &kf->lua_len);
+            kf->lua_raw_len = len;
+        }
+    }
     free(data);
     return ok;
 }
@@ -468,8 +459,9 @@ static TbBool restore_lua(const struct RewindKeyframe *kf)
         return true;
     if (kf->lua_len > 0)
     {
-        const char *data = restore_bytes(ring + kf->lua_off, kf->lua_len, kf->lua_raw_len);
-        if (data == NULL || !lua_set_serialised_data(data, kf->lua_raw_len))
+        uLongf len = kf->lua_raw_len;
+        if (!stage_reserve(len) || uncompress(stage, &len, ring + kf->lua_off, kf->lua_len) != Z_OK
+         || len != kf->lua_raw_len || !lua_set_serialised_data((const char *)stage, len))
             return false;
     }
     lua_set_random_seed(game.action_random_seed);
@@ -478,20 +470,12 @@ static TbBool restore_lua(const struct RewindKeyframe *kf)
 
 static TbBool capture_custom_intralevel_data(struct RewindKeyframe *kf)
 {
-    if (!capture_bytes(custom_intralevel_data, custom_intralevel_data_len, &kf->custom_ilvl_off, &kf->custom_ilvl_len, &kf->custom_ilvl_raw_len))
-        return false;
-    return (kf->custom_ilvl_raw_len == custom_intralevel_data_len);
+    return ring_store(custom_intralevel_data, custom_intralevel_data_len, &kf->custom_ilvl_off, &kf->custom_ilvl_len);
 }
 
 static TbBool restore_custom_intralevel_data(const struct RewindKeyframe *kf)
 {
-    if (kf->custom_ilvl_len == 0)
-    {
-        clear_custom_intralevel_data();
-        return true;
-    }
-    const char *data = restore_bytes(ring + kf->custom_ilvl_off, kf->custom_ilvl_len, kf->custom_ilvl_raw_len);
-    return data != NULL && set_custom_intralevel_data(data, kf->custom_ilvl_raw_len);
+    return set_custom_intralevel_data(ring + kf->custom_ilvl_off, kf->custom_ilvl_len);
 }
 
 static TbBool apply_diff(unsigned char *snap, const struct RewindKeyframe *kf)
