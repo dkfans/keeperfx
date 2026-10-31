@@ -413,7 +413,7 @@ TbError exchange_frame_block(enum NetMessageType msg_type, void *send_buf, void 
         exchange_timeout = TIMEOUT_LOBBY_EXCHANGE;
     } else if (msg_type == NETMSG_STARTUP_SYNC) {
         frontend_exchange = false;
-        exchange_timeout = TIMEOUT_WAIT_FOR_ALL_PLAYERS;
+        exchange_timeout = PEER_TIMEOUT_MS;
     } else {
         ERRORLOG("exchange_frame_block unsupported message type %d", (int)msg_type);
         return Lb_FAIL;
@@ -524,7 +524,7 @@ void wait_for_all_players(void)
     TbClockMSec wait_start_time = LbTimerClock();
     TbClockMSec last_send_time = wait_start_time - resend_interval;
     TbError result = Lb_FAIL;
-    while (result != Lb_OK && LbTimerClock() - wait_start_time < TIMEOUT_WAIT_FOR_ALL_PLAYERS) {
+    while (result != Lb_OK && LbTimerClock() - wait_start_time < PEER_TIMEOUT_MS) {
         TbClockMSec now = LbTimerClock();
         if (now - last_send_time >= resend_interval) {
             if (!is_host || all_expected_exchange_frames_received(has_received_frame, is_host)) {
@@ -584,6 +584,6 @@ void wait_for_all_players(void)
     }
     netstate.seq_nbr += 1;
     if (result != Lb_OK) {
-        ERRORLOG("Network synchronization wait failed: TIMEOUT_WAIT_FOR_ALL_PLAYERS expired after %d ms", TIMEOUT_WAIT_FOR_ALL_PLAYERS);
+        ERRORLOG("Network synchronization wait failed: PEER_TIMEOUT_MS expired after %d ms", PEER_TIMEOUT_MS);
     }
 }

@@ -476,7 +476,7 @@ void network_spectator_service(void)
         if (user->progress == USER_UNUSED || (user->progress == USER_LOGGEDIN && (id < MAX_NET_USERS || user->spectator_state == NetSpectator_Streaming))) {
             continue;
         }
-        if (LbTimerClock() - user->connected_at >= TIMEOUT_WAIT_FOR_ALL_PLAYERS) {
+        if (LbTimerClock() - user->connected_at >= PEER_TIMEOUT_MS) {
             netstate.sp->drop_user(id, NetJoin_Locked);
         }
     }
@@ -616,7 +616,7 @@ void network_spectator_finish_conversion(void)
 
 TbBool network_spectator_wait(enum NetMessageType message_type)
 {
-    TbClockMSec timeout = TIMEOUT_WAIT_FOR_ALL_PLAYERS;
+    TbClockMSec timeout = PEER_TIMEOUT_MS;
     if (message_type == NETMSG_SPECTATOR_BOOTSTRAP) {
         netstate.phase = NetPhase_Unknown;
         timeout = TIMEOUT_JOIN_LOBBY;
