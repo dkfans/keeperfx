@@ -53,8 +53,7 @@ int32_t multiplayer_speed_adjustment_ns;
 // TURN_SYNC_MAX_ADJUSTMENT_NS being set too high causes stutters.
 #define REPAIR_HISTORY_RESEND_INTERVAL 200
 #define REPAIR_HISTORY_RECOVERY_INTERVAL 50
-#define FINAL_RESORT_RESYNC_RECOVERY 10000
-#define SILENT_PEER_MS 1000
+#define FINAL_RESORT_RESYNC_RECOVERY (PEER_TIMEOUT_MS * 2)
 #define TURN_SYNC_INTERVAL_MS 250
 #define TURN_SYNC_MAX_ADJUSTMENT_NS 1000000
 #define TURN_SYNC_ADJUST_FACTOR 64
@@ -489,17 +488,6 @@ static void send_repair_history_if_due(int32_t resend_interval)
     send_user_repair_history(user);
 }
 
-static TbBool any_peer_silent(void)
-{
-    TbClockMSec now = LbTimerClock();
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (can_send_to_peer(user) && now - netstate.users[user].last_message_at >= SILENT_PEER_MS) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, NetUserId local_user)
 {
     GameTurn expected_turn = get_gameturn() - game.input_lag_turns;
@@ -529,7 +517,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
         if (turn_complete || netstate.resync_pending || netstate.pending_spectator_id != INVALID_USER_ID) {
             break;
         }
-        if (LbTimerClock() - wait_start_time >= FINAL_RESORT_RESYNC_RECOVERY && !any_peer_silent()) {
+        if (LbTimerClock() - wait_start_time >= FINAL_RESORT_RESYNC_RECOVERY) {
             set_flag(local_system_flags, GSF_NetGameNoSync);
             clear_flag(local_system_flags, GSF_NetSeedNoSync);
             wait_timed_out = true;
