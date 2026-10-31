@@ -520,6 +520,8 @@ enum GUIStrings {
     GUIStr_NetAllowAssistant,
     GUIStr_NetSpectatorBecamePlayer,
     GUIStr_ClickToUnpause,
+    GUIStr_NetWaitingOnUser,
+    GUIStr_NetConnectionUnstable,
     GuiStrEnd
 };
 
