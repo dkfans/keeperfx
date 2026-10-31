@@ -6169,3 +6169,15 @@ msgstr "%s has joined the game."
 msgctxt "In-game interface description"
 msgid "Click to unpause"
 msgstr "Click to unpause"
+
+#: guitext:1168
+#, c-format
+msgctxt "On-screen message"
+msgid "Waiting on %s: %d.%d"
+msgstr "Waiting on %s: %d.%d"
+
+#: guitext:1169
+#, c-format
+msgctxt "On-screen message"
+msgid "Connection unstable: %d.%d"
+msgstr "Connection unstable: %d.%d"

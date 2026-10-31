@@ -7625,3 +7625,15 @@ msgstr "%s 님이 게임에 참가했습니다."
 msgctxt "In-game interface description"
 msgid "Click to unpause"
 msgstr "클릭하여 계속"
+
+#: guitext:1168
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Waiting on %s: %d.%d"
+msgstr "%s 대기 중: %d.%d"
+
+#: guitext:1169
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Connection unstable: %d.%d"
+msgstr "연결 불안정: %d.%d"

@@ -7690,3 +7690,15 @@ msgstr "%s приєднався до гри."
 msgctxt "In-game interface description"
 msgid "Click to unpause"
 msgstr "Натисніть, щоб продовжити"
+
+#: guitext:1168
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Waiting on %s: %d.%d"
+msgstr "Очікування %s: %d,%d"
+
+#: guitext:1169
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Connection unstable: %d.%d"
+msgstr "Нестабільне з'єднання: %d,%d"

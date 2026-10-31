@@ -7892,3 +7892,15 @@ msgstr "%s ist dem Spiel beigetreten."
 msgctxt "In-game interface description"
 msgid "Click to unpause"
 msgstr "Klicken zum Fortsetzen"
+
+#: guitext:1168
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Waiting on %s: %d.%d"
+msgstr "Warte auf %s: %d,%d"
+
+#: guitext:1169
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Connection unstable: %d.%d"
+msgstr "Verbindung instabil: %d,%d"

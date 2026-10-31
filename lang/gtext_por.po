@@ -7840,3 +7840,15 @@ msgstr "%s entrou no jogo."
 msgctxt "In-game interface description"
 msgid "Click to unpause"
 msgstr "Clique para continuar"
+
+#: guitext:1168
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Waiting on %s: %d.%d"
+msgstr "A aguardar %s: %d,%d"
+
+#: guitext:1169
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Connection unstable: %d.%d"
+msgstr "Ligação instável: %d,%d"
