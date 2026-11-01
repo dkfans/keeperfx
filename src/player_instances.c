@@ -288,7 +288,7 @@ int32_t pinstfs_hand_whip(NetUserId user, int32_t *n)
     return 0;
 }
 
-TbBool slap_thing(struct PlayerInfo *player, struct Thing *thing)
+TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing)
 {
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
     struct TrapConfigStats *trapst;
@@ -312,8 +312,8 @@ TbBool slap_thing(struct PlayerInfo *player, struct Thing *thing)
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
           thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-          thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, get_player_dungeon_yaw(player));
-          thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, get_player_dungeon_yaw(player));
+          thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, get_user_dungeon_yaw(user));
+          thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, get_user_dungeon_yaw(user));
       }
       break;
   }
@@ -321,7 +321,7 @@ TbBool slap_thing(struct PlayerInfo *player, struct Thing *thing)
       shotst = get_shot_model_stats(thing->model);
       if (shotst->model_flags & ShMF_Boulder)
       {
-          thing->move_angle_xy = get_player_dungeon_yaw(player);
+          thing->move_angle_xy = get_user_dungeon_yaw(user);
           if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
               thing->health -= game.conf.rules[thing->owner].gameplay.boulder_reduce_health_slap;
@@ -336,7 +336,7 @@ TbBool slap_thing(struct PlayerInfo *player, struct Thing *thing)
       trapst = get_trap_model_stats(thing->model);
       if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          activate_trap_by_slap(player, thing);
+          activate_trap_by_slap(user, thing);
 
           struct Dungeon* dungeon = get_dungeon(thing->owner);
           if (!dungeon_invalid(dungeon))
@@ -370,7 +370,7 @@ int32_t pinstfe_hand_whip(NetUserId user, int32_t *n)
 {
     struct UserState* ustate = get_user_state(user);
     struct Thing* thing = thing_get(ustate->influenced_thing_idx);
-    if (thing->creation_turn != ustate->influenced_thing_creation || !slap_thing(get_user_player(user), thing))
+    if (thing->creation_turn != ustate->influenced_thing_creation || !slap_thing(get_user_player(user), user, thing))
     {
         ustate->influenced_thing_creation = 0;
         ustate->influenced_thing_idx = 0;
@@ -801,10 +801,9 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
 
 int32_t pinstfs_zoom_to_position(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
-    get_user_state(user)->controlled_thing_idx = 0;
-    get_user_state(user)->controlled_thing_creatrn = 0;
+    ustate->controlled_thing_idx = 0;
+    ustate->controlled_thing_creatrn = 0;
     ustate->init_flags |= UsrIF_MouseInputDisabled;
     ustate->init_flags |= UsrIF_KeyboardInputDisabled;
     ustate->instance_remain_turns = zoom_to_position_turns(get_user_state(user));

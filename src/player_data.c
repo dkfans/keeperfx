@@ -250,21 +250,6 @@ NetUserId get_player_primary_user(const struct PlayerInfo *player)
     return -1;
 }
 
-// the user in first person on this keeper's creature, or the primary user
-NetUserId get_player_possessing_user(const struct PlayerInfo *player)
-{
-    if (player != &local_observer_player && player != NULL && !player_invalid(player)) {
-        for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
-            const unsigned char view_type = game.user_states[user].view_type;
-            if (game.user_states[user].player_id == player->id_number
-             && (view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr)) {
-                return user;
-            }
-        }
-    }
-    return get_player_primary_user(player);
-}
-
 struct UserState *get_player_user_state(const struct PlayerInfo *player)
 {
     return get_user_state(get_player_primary_user(player));

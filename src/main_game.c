@@ -382,9 +382,8 @@ TbBool startup_saved_packet_game(void)
     init_players();
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        const PlayerNumber plyr_idx = get_net_user_player_number(user);
-        if ((plyr_idx >= 0) && (replay.head.user_players[user] >= 0))
-            apply_user_start_tendencies(get_player(plyr_idx));
+        if ((get_net_user_player_number(user) >= 0) && (replay.head.user_players[user] >= 0))
+            apply_user_start_tendencies(user);
     }
     frontend_alliances = replay.head.frontend_alliances;
     setup_alliances();

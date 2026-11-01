@@ -372,9 +372,9 @@ TbBool power_hand_is_empty(const struct PlayerInfo *player)
     return (dungeon->num_things_in_hand <= 0);
 }
 
-TbBool power_hand_is_hovering(const struct PlayerInfo *player)
+TbBool power_hand_is_hovering(NetUserId user)
 {
-    return get_user_thing_under_hand(get_player_primary_user(player)) > 0;
+    return get_user_thing_under_hand(user) > 0;
 }
 
 TbBool power_hand_is_full(const struct PlayerInfo *player)
@@ -605,7 +605,7 @@ void draw_power_hand(void)
         draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
         return;
     }
-    TbBool hover_hand = power_hand_is_hovering(player);
+    TbBool hover_hand = power_hand_is_hovering(get_displayed_user());
     thing = thing_get(ustate->hand_thing_idx);
     if (!thing_exists(thing)) {
         if (hover_hand && ustate->work_state == PSt_CtrlDungeon) {

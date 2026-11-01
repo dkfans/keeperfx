@@ -1208,8 +1208,9 @@ long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterPa
     return -1;
 }
 
-void level_lost_go_first_person(PlayerNumber plyr_idx)
+void level_lost_go_first_person(NetUserId user)
 {
+    const PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct CreatureControl *cctrl;
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -1230,7 +1231,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         return;
     }
     struct Coord3d mappos = spawn_creatng->mappos;
-    thing = create_and_control_creature_as_controller(get_player_primary_user(player), spectator_breed, &mappos);
+    thing = create_and_control_creature_as_controller(user, spectator_breed, &mappos);
     if (thing_is_invalid(thing)) {
         ERRORLOG("Unable to create spectator creature");
         return;

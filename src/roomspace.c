@@ -1189,7 +1189,7 @@ static void process_box_roomspace_inputs(struct Packet *pckt)
 
 void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 {
-    const struct UserState* ustate = get_player_user_state_prediction(get_player(plyr_idx));
+    const struct UserState* ustate = get_local_user_state_prediction();
     struct Packet* pckt = get_local_packet() /* local input path */;
     if (room_role_matches(ustate->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater|RoRoF_PassAbyss)) {
         local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
@@ -1237,7 +1237,7 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    const struct UserState* ustate = get_player_user_state_prediction(player);
+    const struct UserState* ustate = get_local_user_state_prediction();
     if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) {
         set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode ^ 1, settings.highlight_mode, 0, 0);
         reset_roomspace = true;

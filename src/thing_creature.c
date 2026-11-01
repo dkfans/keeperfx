@@ -1141,13 +1141,12 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
             setup_combat_flee_position(thing);
-            if (user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom))
+            const NetUserId user = get_user_controlling_thing(thing, UCT_Direct | UCT_PossessionEntryZoom);
+            if (user >= 0)
             {
-                struct PlayerInfo* player = get_player(thing->owner);
-                if (get_player_user_state(player)->controlled_thing_idx == thing->index)
+                if (get_user_state(user)->controlled_thing_idx == thing->index)
                 {
                     char active_menu = game.active_panel_mnu_idx;
-                    const NetUserId user = get_player_possessing_user(player);
                     leave_creature_as_controller(user, thing);
                     control_creature_as_passenger(user, thing);
                     if (is_local_user(user))
@@ -1369,11 +1368,10 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_Fear)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
-        if (user_controls_thing(ANY_USER, thing, UCT_Passenger))
+        const NetUserId user = get_user_controlling_thing(thing, UCT_Passenger);
+        if (user >= 0)
         {
-            struct PlayerInfo* player = get_player(thing->owner);
             char active_menu = game.active_panel_mnu_idx;
-            const NetUserId user = get_player_possessing_user(player);
             leave_creature_as_passenger(user, thing);
             control_creature_as_controller(user, thing);
             if (is_local_user(user))
@@ -3333,8 +3331,10 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
+    const NetUserId user = get_user_controlling_thing(thing, UCT_Selected | UCT_Direct | UCT_Passenger | UCT_Other);
+    if (user < 0)
+        return;
     struct PlayerInfo* player = get_player(thing->owner);
-    const NetUserId user = get_player_possessing_user(player);
     leave_creature_as_controller(user, thing);
     struct UserState *ustate = get_user_state(user);
     if (!user_state_invalid(ustate)) {
@@ -7699,9 +7699,10 @@ void query_creature(NetUserId user, ThingIndex index, TbBool reset, TbBool zoom)
     set_user_instance(user, PI_QueryCrtr, 0);
 }
 
-TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
+TbBool creature_can_be_queried(NetUserId user, struct Thing *creatng)
 {
-    struct UserState* ustate = get_player_user_state(player);
+    struct PlayerInfo *player = get_user_player(user);
+    struct UserState* ustate = get_user_state(user);
     if (creature_is_leaving_and_cannot_be_stopped(creatng))
         return false;
 

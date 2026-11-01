@@ -724,7 +724,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(user) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player)) {

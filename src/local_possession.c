@@ -299,7 +299,6 @@ static void play_predicted_sounds(struct Thing *thing)
 
 void update_local_possession(void)
 {
-    struct PlayerInfo *player = get_my_player();
     struct Thing *thing = thing_get(get_local_user_state()->controlled_thing_idx);
     if (!network_is_active() || observer_is_active() || (get_user_view_type(get_my_user()) != PVT_CreatureContrl) || !thing_is_creature(thing)
      || !flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {

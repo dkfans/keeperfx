@@ -64,7 +64,7 @@ void sync_initial_network_seed(void);
 void build_local_user_preferences(UserPreferences prefs);
 void apply_user_preferences(NetUserId user, const UserPreferences prefs, unsigned char flags);
 void apply_local_user_preferences(NetUserId user, unsigned char flags);
-void apply_user_start_tendencies(struct PlayerInfo *player);
+void apply_user_start_tendencies(NetUserId user);
 TbBool user_cheats_allowed(NetUserId user);
 TbBool computer_assistant_allowed(void);
 TbBool game_censorship_enabled(void);

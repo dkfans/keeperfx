@@ -35,8 +35,9 @@ struct LuaCameraView {
     int32_t view_mode;
 };
 
-static void get_lua_camera_view(const struct PlayerInfo *player, const struct UserState *ustate, struct LuaCameraView *view)
+static void get_lua_camera_view(NetUserId user, struct LuaCameraView *view)
 {
+    const struct UserState *ustate = get_user_state(user);
     const struct DungeonCamera dcam = ustate->dungeon_camera;
     memset(view, 0, sizeof(*view));
     view->pos.x.val = dcam.x;
@@ -68,7 +69,7 @@ static void get_lua_camera_view(const struct PlayerInfo *player, const struct Us
     }
     case PVT_MapScreen:
     {
-        const struct Packet *pckt = get_packet(get_player_primary_user(player));
+        const struct Packet *pckt = get_packet(user);
         if (packet_camera_context(pckt) == CamIV_Parchment)
         {
             view->pos.x.val = pckt->pos_x;
@@ -131,14 +132,13 @@ static const struct luaL_Reg camera_methods[] = {
         return 1;
     }
 
-    struct PlayerInfo *player = get_player(playerId);
-    const struct UserState *ustate = get_player_user_state(player);
-    if (user_state_invalid(ustate)) {
+    const NetUserId user = get_player_primary_user(get_player(playerId));
+    if (user_state_invalid(get_user_state(user))) {
         lua_pushnil(L);
         return 1;
     }
     struct LuaCameraView view;
-    get_lua_camera_view(player, ustate, &view);
+    get_lua_camera_view(user, &view);
 
     if (strcmp(key, "pos") == 0) {
         lua_pushPos(L, &view.pos);

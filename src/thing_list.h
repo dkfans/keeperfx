@@ -24,6 +24,7 @@
 
 #include "thing_data.h"
 #include "config.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -323,7 +324,7 @@ struct Thing* find_players_backup_dungeon_heart(PlayerNumber plyridx);
 
 struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room);
 
-ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player);
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, NetUserId user);
 struct Thing* get_timebomb_target(struct Thing *creatng);
 
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);

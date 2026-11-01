@@ -1804,7 +1804,7 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     }
     player->slap_cooldown_until_turn = get_gameturn() + player_instance_info[PI_Whip].length_turns;
     if (user_state_invalid(ustate)) {
-        slap_thing(player, thing);
+        slap_thing(player, user, thing);
     } else {
         ustate->influenced_thing_idx = thing->index;
         ustate->influenced_thing_creation = thing->creation_turn;

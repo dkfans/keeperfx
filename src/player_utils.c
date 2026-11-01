@@ -196,7 +196,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     if (lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        get_player_user_state(player)->additional_flags |= UsrAF_UnlockedLordTorture;
+        get_local_user_state()->additional_flags |= UsrAF_UnlockedLordTorture;
     }
     output_message(SMsg_LevelWon, 0);
   }
@@ -241,26 +241,16 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    const NetUserId possessing_user = get_player_possessing_user(player);
-    if (get_user_view_type(possessing_user) == PVT_CreatureContrl)
-    {
-        struct Thing *thing = thing_get(get_user_state(possessing_user)->controlled_thing_idx);
-        leave_creature_as_controller(possessing_user, thing);
-    }
-    else if (get_user_view_type(possessing_user) == PVT_CreaturePasngr)
-    {
-        struct Thing *thing = thing_get(get_user_state(possessing_user)->controlled_thing_idx);
-        leave_creature_as_passenger(possessing_user, thing);
-    }
-    else
-    {
-        if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
-        {
-            for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-                if (get_net_user_player_number(user) == player->id_number)
-                    set_user_view_type(user, PVT_DungeonTop);
-            }
-        }
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (get_net_user_player_number(user) != player->id_number)
+            continue;
+        struct Thing *thing = thing_get(get_user_state(user)->controlled_thing_idx);
+        if (get_user_view_type(user) == PVT_CreatureContrl)
+            leave_creature_as_controller(user, thing);
+        else if (get_user_view_type(user) == PVT_CreaturePasngr)
+            leave_creature_as_passenger(user, thing);
+        else if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
+            set_user_view_type(user, PVT_DungeonTop);
     }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (get_net_user_player_number(user) == player->id_number)
@@ -1261,7 +1251,7 @@ void init_players_local_game(void)
     build_local_user_preferences(prefs);
     apply_user_preferences(SOLO_HUMAN_ID, prefs, UPF_NewGame);
     init_player(player, 0);
-    apply_user_start_tendencies(player);
+    apply_user_start_tendencies(SOLO_HUMAN_ID);
 }
 
 void process_player_states(void)

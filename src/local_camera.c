@@ -90,7 +90,7 @@ void camera_packet_set_state(struct Packet *pckt)
     struct PlayerInfo* player = get_my_player();
     packet_set_camera_context(pckt, get_local_active_camera_index(player));
     local_state.camera.has_rotation_pivot = get_packet_rotation_pivot(pckt, &local_state.camera.rotation_pivot_x, &local_state.camera.rotation_pivot_y);
-    if (!local_state.camera.ready || is_observer_camera_active() || (get_local_view_type(player) != PVT_DungeonTop) || (get_player_view_type(player) != PVT_DungeonTop)
+    if (!local_state.camera.ready || is_observer_camera_active() || (get_local_view_type(player) != PVT_DungeonTop) || (get_user_view_type(get_my_user()) != PVT_DungeonTop)
      || player_instance_controls_camera(get_local_user_state()->instance_num)) {
         // senseless to transmit camera coords during these times, and a camera instance is computed from the dungeon camera it started with
         packet_clear_camera_position(pckt);
@@ -251,7 +251,7 @@ void init_local_cameras(struct PlayerInfo *player)
     cam->view_mode = PVM_FrontView;
 
     apply_dungeon_camera(cams);
-    if (player == &local_observer_player && get_player_active_camera_index(player) == CamIV_FirstPerson) {
+    if (player == &local_observer_player && get_user_active_camera_index(OBSERVER_USER) == CamIV_FirstPerson) {
         update_first_person_camera(&cams[CamIV_FirstPerson], get_user_state(get_displayed_user()), false);
     }
     for (int i = 0; i < CamIV_EndList; i++) {

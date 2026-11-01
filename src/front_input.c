@@ -286,7 +286,7 @@ TbBool check_current_gui_layer(long layer_id)
 
 static void update_gui_layer(void)
 {
-    const struct UserState* ustate = get_player_user_state_prediction(get_my_player());
+    const struct UserState* ustate = get_local_user_state_prediction();
     // Determine the current/correct GUI Layer to use at this moment
 
     if ( ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom) || (ustate->render_roomspace.highlight_mode))  &&
@@ -1476,7 +1476,7 @@ static long get_dungeon_small_map_inputs(struct Packet *pckt)
 static TbBool get_dungeon_control_action_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    const struct UserState* ustate = get_player_user_state_prediction(player);
+    const struct UserState* ustate = get_local_user_state_prediction();
     if (get_players_packet_action(player) != PckA_None)
         return true;
     if (get_dungeon_small_map_inputs(get_local_packet()))
@@ -2067,7 +2067,7 @@ static short get_creature_control_action_inputs(void)
 static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
 {
     struct PlayerInfo* player = get_my_player();
-    const struct UserState* ustate = get_player_user_state_prediction(player);
+    const struct UserState* ustate = get_local_user_state_prediction();
     if ((get_local_view_type(player) != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_state.local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
         return;
     }
@@ -2528,7 +2528,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
 static void get_dungeon_control_nonaction_inputs(void)
 {
   struct PlayerInfo* player = get_my_player();
-  const struct UserState* ustate = get_player_user_state_prediction(player);
+  const struct UserState* ustate = get_local_user_state_prediction();
   struct Coord3d pos;
   my_mouse_x = GetMouseX();
   my_mouse_y = GetMouseY();
@@ -2895,7 +2895,7 @@ static void get_player_gui_clicks(void)
     return;
   struct PlayerInfo *player = get_my_player();
   struct UserState *ustate = get_local_user_state();
-  const struct UserState *predicted_ustate = get_player_user_state_prediction(player);
+  const struct UserState *predicted_ustate = get_local_user_state_prediction();
   switch (get_local_view_type(player))
   {
   case PVT_CreaturePasngr:
