@@ -27,7 +27,6 @@
 struct Game;
 struct IntralevelData;
 struct Configs;
-struct ConfigInfo;
 struct HighScore;
 
 namespace savefile {
@@ -44,10 +43,6 @@ bool KeepUnreadable(IFileSystem &filesystem, const char *fname);
 
 /** The file kind and field table of each type kept in a file of records. */
 template <typename T> struct RecordTraits;
-template <> struct RecordTraits<ConfigInfo> {
-    static constexpr uint32_t kind = SFK_NetConfig;
-    static const SaveStructDesc &Desc() { return save_desc_ConfigInfo; }
-};
 template <> struct RecordTraits<HighScore> {
     static constexpr uint32_t kind = SFK_HighScore;
     static const SaveStructDesc &Desc() { return save_desc_HighScore; }

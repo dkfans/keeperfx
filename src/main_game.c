@@ -159,9 +159,6 @@ static void init_keepers_map_exploration(void)
 
 static TbBool init_level(void)
 {
-    if (network_is_active() && net_join_role == NetRole_Player) {
-        net_lobby_set_phase(NetPhase_Loading);
-    }
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
     //memcpy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));

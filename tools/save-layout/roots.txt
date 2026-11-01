@@ -13,7 +13,6 @@ include game_legacy.h
 include game_merge.h
 include packets.h
 include config_campaigns.h
-include front_network.h
 
 root Game                  savegame replay resync
 root CatalogueEntry        savegame replay
@@ -24,4 +23,3 @@ root typedef:LevelNumber   continue
 root PacketSaveHead        replay
 root Packet                replay
 root HighScore             highscores
-root ConfigInfo            netconfig

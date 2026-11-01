@@ -372,16 +372,6 @@ enum SaveLoadOutcome SaveManager::Load(int slot_num, enum SaveCheckResult *why)
 
 /******************************************************************************/
 
-enum SaveResult SaveManager::ReadNetConfig(const char *fname, ConfigInfo *config, SaveError *err)
-{
-    return savefile::ReadRecord(Fs(), fname, *config, err);
-}
-
-bool SaveManager::WriteNetConfig(const char *fname, const ConfigInfo *config)
-{
-    return savefile::WriteRecord(Fs(), fname, *config);
-}
-
 enum SaveResult SaveManager::ReadHighScores(const char *fname, HighScore **table, uint32_t *count, SaveError *err)
 {
     std::vector<HighScore> scores;
@@ -439,16 +429,6 @@ int SaveManager_ResumeCampaign(const char *campaign_fname) { return GetSaveManag
 int SaveManager_CampaignHasProgress(const struct GameCampaign *campgn) { return GetSaveManager().CampaignHasProgress(campgn); }
 void SaveManager_UpdateCampaignPercents(struct CampaignsList *clist) { GetSaveManager().UpdateCampaignPercents(clist); }
 void SaveManager_DeleteContinueLink(void) { GetSaveManager().DeleteContinueLink(); }
-
-enum SaveResult SaveManager_ReadNetConfig(const char *fname, struct ConfigInfo *config, struct SaveError *err)
-{
-    return GetSaveManager().ReadNetConfig(fname, config, err);
-}
-
-int SaveManager_WriteNetConfig(const char *fname, const struct ConfigInfo *config)
-{
-    return GetSaveManager().WriteNetConfig(fname, config);
-}
 
 enum SaveResult SaveManager_ReadHighScores(const char *fname, struct HighScore **table, uint32_t *count,
     struct SaveError *err)

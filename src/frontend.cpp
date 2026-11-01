@@ -1442,7 +1442,7 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
         screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
         nspck->action_par1 = (fe_computer_players == 0);
         net_config_info.computer_players = nspck->action_par1;
-        net_write_config_file();
+        save_settings();
     }
 }
 
@@ -2886,6 +2886,9 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           play_music_track(7);
           break;
       case FeSt_LEVEL_STATS:
+          if (network_is_active()) {
+              LbNetwork_Stop();
+          }
           turn_on_menu(GMnu_FESTATISTICS);
           frontstats_set_timer();
           set_pointer_graphic_menu();
@@ -3011,6 +3014,8 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
         net_lobby_set_phase(NetPhase_InLandview);
     } else if (frontend_menu_state == FeSt_NET_START) {
         net_lobby_set_phase(NetPhase_Lobby);
+    } else if (frontend_menu_state == FeSt_START_MPLEVEL) {
+        net_lobby_set_phase(NetPhase_Loading);
     }
     return frontend_menu_state;
 }

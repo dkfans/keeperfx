@@ -31,6 +31,7 @@
 #include "bflib_sprfnt.h"
 
 #include "front_network.h"
+#include "config_settings.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -163,7 +164,7 @@ void frontnet_session_set_player_name(struct GuiButton *gbtn)
 {
     strcpy(net_player_name, tmp_net_player_name);
     strcpy(net_config_info.net_player_name, tmp_net_player_name);
-    net_write_config_file();
+    save_settings();
 }
 
 static void draw_tiled_bar(struct GuiButton *gbtn, int left_index, int first_middle_index, int middle_count, int right_index)

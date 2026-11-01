@@ -14,7 +14,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define INPUT_LAG_SAMPLE_START_TURN 50
+#define INPUT_LAG_SETTLE_TURNS 50
 #define INPUT_LAG_UNDROPPABLE_CONTROLS (PCtr_LBtnClick | PCtr_RBtnClick | PCtr_LBtnRelease | PCtr_RBtnRelease | PCtr_ViewTiltReset)
 
 static GameTurn input_lag_sent_turns[PACKET_HISTORY_SIZE];
@@ -28,6 +28,7 @@ static int32_t input_lag_decrease_level;
 static int32_t local_input_lag_request;
 static int32_t input_lag_target;
 static GameTurn input_lag_processed_turn;
+static GameTurn input_lag_sample_start_turn;
 static TbBool input_lag_sampling;
 
 static void input_lag_reset_samples(void)
@@ -47,13 +48,26 @@ void input_lag_reset_request(int32_t input_lag_turns)
     local_input_lag_request = input_lag_turns;
 }
 
-void input_lag_reset(void)
+static void input_lag_restart_sampling(void)
 {
     input_lag_reset_samples();
+    input_lag_sample_start_turn = get_gameturn() + INPUT_LAG_SETTLE_TURNS;
+    input_lag_sampling = false;
+}
+
+void input_lag_reset(void)
+{
+    input_lag_restart_sampling();
     local_input_lag_request = game.input_lag_turns;
     input_lag_target = game.input_lag_turns;
     input_lag_processed_turn = 0;
-    input_lag_sampling = false;
+}
+
+void input_lag_note_wait(TbClockMSec wait_time)
+{
+    if (wait_time * turns_per_second > MAXIMUM_INPUT_LAG_TURNS * 1000) {
+        input_lag_restart_sampling();
+    }
 }
 
 void input_lag_get_stats(struct InputLagStats *stats)
@@ -168,10 +182,10 @@ void input_lag_update(struct Packet *packet)
     packet->input_lag_turns = 0;
     if (!network_is_active()) { return; }
     GameTurn turn = get_gameturn();
-    input_lag_sent_turns[turn % PACKET_HISTORY_SIZE] = turn;
-    input_lag_sent_times[turn % PACKET_HISTORY_SIZE] = LbTimerClock();
-    input_lag_sampling = (game.operation_flags & GOF_Paused) == 0 && game.skip_initial_input_turns == 0 && turn >= INPUT_LAG_SAMPLE_START_TURN;
+    input_lag_sampling = (game.operation_flags & GOF_Paused) == 0 && game.skip_initial_input_turns == 0 && (GameTurnDelta)(turn - input_lag_sample_start_turn) >= 0;
     if (input_lag_sampling) {
+        input_lag_sent_turns[turn % PACKET_HISTORY_SIZE] = turn;
+        input_lag_sent_times[turn % PACKET_HISTORY_SIZE] = LbTimerClock();
         input_lag_update_request();
     }
     packet->input_lag_turns = local_input_lag_request;

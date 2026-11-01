@@ -93,6 +93,7 @@ struct TbNetworkSessionNameEntry {
     uint8_t spectators_enabled;
     uint8_t max_spectators;
     uint8_t spectator_count;
+    uint8_t rejoin_open;
 };
 
 struct TbNetworkPlayerEntry {

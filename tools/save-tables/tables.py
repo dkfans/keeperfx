@@ -25,7 +25,7 @@ AREA_FILE = {"game": "schema_game.c", "things": "schema_things.c", "world": "sch
              "dungeon": "schema_dungeon.c", "script": "schema_script.c", "config": "schema_config.c",
              "misc": "schema_misc.c"}
 ROOT_ORDER = ["Game", "CatalogueEntry", "FileChunkHeader", "IntralevelData", "PacketSaveHead", "Packet",
-              "HighScore", "ConfigInfo"]
+              "HighScore"]
 
 # Unions that have a discriminator field. A group with one member gets that member's own table; a group
 # with several members stores the bytes of the largest; a group without members stores nothing. Values

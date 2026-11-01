@@ -121,7 +121,18 @@ static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
     return is_active_keeper(player)
         && player->id_number != game.neutral_player_num
         && (player->victory_state != VicS_LostLevel)
-        && !flag_is_set(player->allocflags, PlaF_CompCtrl);
+        && !flag_is_set(player->allocflags, PlaF_CompCtrl)
+        && !player_is_placeholder(player);
+}
+
+TbBool placeholder_has_human_ally(const struct PlayerInfo *placeholder)
+{
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        if (player_belongs_in_victory_kernel(get_player(plyr_idx)) && players_are_mutual_allies(placeholder->id_number, plyr_idx)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // check if all undefeated human players form a "kernel"
@@ -847,6 +858,17 @@ void init_user_state(NetUserId user, PlayerNumber player_id)
     }
 }
 
+void init_user_controls(struct UserState *ustate)
+{
+    ustate->continue_work_state = PSt_CtrlDungeon;
+    ustate->work_state = PSt_CtrlDungeon;
+    ustate->roomspace_highlight_mode = ustate->prefs[UPref_StartingHighlightMode];
+    ustate->roomspace_mode = ustate->prefs[UPref_StartingHighlightMode];
+    ustate->roomspace_width = 1;
+    ustate->roomspace_height = 1;
+    ustate->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+}
+
 void init_local_player_state(void)
 {
     local_state.minimap_pos_x = 11;
@@ -868,13 +890,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         struct UserState *ustate = get_user_state(user);
         if (ustate->player_id != player->id_number)
             continue;
-        ustate->continue_work_state = PSt_CtrlDungeon;
-        ustate->work_state = PSt_CtrlDungeon;
-        ustate->roomspace_highlight_mode = ustate->prefs[UPref_StartingHighlightMode];
-        ustate->roomspace_mode = ustate->prefs[UPref_StartingHighlightMode];
-        ustate->roomspace_width = 1;
-        ustate->roomspace_height = 1;
-        ustate->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        init_user_controls(ustate);
     }
     if (is_my_player(player))
     {

@@ -7562,3 +7562,27 @@ msgstr "チートを許可"
 msgctxt "Network game interface"
 msgid "Allow computer assistant"
 msgstr "CPU補助を許可"
+
+#: guitext:1166
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined the game."
+msgstr "%s がゲームに参加しました。"
+
+#: guitext:1167
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Click to unpause"
+msgstr "クリックで再開"
+
+#: guitext:1168
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Waiting on %s: %d.%d"
+msgstr "%s を待っています：%d.%d"
+
+#: guitext:1169
+#, fuzzy, c-format
+msgctxt "On-screen message"
+msgid "Connection unstable: %d.%d"
+msgstr "接続が不安定です：%d.%d"

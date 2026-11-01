@@ -98,7 +98,6 @@ CONTENTS
   CONT  Continue    continue link, campaign progress  fx1lastf.sav, progress
   REPL  Replay      a replay header, then packets     .pck
   HSCR  HighScore   high score table of a campaign
-  NCFG  NetConfig   network config
   RSYN  Resync      reserved, never written
 
   chunk ids
@@ -122,7 +121,7 @@ CONTENTS
     ILVL                                    REQ     yes
     LUA                                     -       yes   only when Lua has state
 
-  Record file (Continue, HighScore, NetConfig)
+  Record file (Continue, HighScore)
     SCHM                                    REQ     yes
     RECS                                    REQ     yes
 
