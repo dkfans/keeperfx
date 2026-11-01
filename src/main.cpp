@@ -891,6 +891,18 @@ void rederive_local_state(void)
     observer_validate_query();
 }
 
+// user (or spectator-attaché) state -> local render state
+// (lens and palette)
+void update_local_view_effects(void)
+{
+    update_local_lens();
+    struct Thing *thing = thing_get(get_user_state(get_displayed_user())->controlled_thing_idx);
+    TbBool frozen = thing_is_creature(thing) && flag_is_set(thing->alloc_flags, TAlF_IsControlled)
+        && creature_under_spell_effect(thing, CSAfF_Freeze);
+    if (frozen != local_state.freeze_palette_active)
+        PaletteSetUserPalette(get_local_user(), frozen ? blue_palette : engine_palette);
+}
+
 /**
  * Sets to defaults some basic parameters which are
  * later copied into Game structure.
@@ -1125,19 +1137,19 @@ void PaletteSetUserPalette(NetUserId user, unsigned char *pal)
     struct UserState* ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         return;
-    if (pal == blue_palette) // if the requested palette is the Freeze palette
-    {
-      if ((ustate->additional_flags & UsrAF_FreezePaletteIsActive) != 0)
-        return; // Freeze palette is already on
-      ustate->additional_flags |= UsrAF_FreezePaletteIsActive; // flag Freeze palette is active
-    } else
-    {
-      ustate->additional_flags &= ~UsrAF_FreezePaletteIsActive; // flag Freeze palette is not active
-    }
     // an observer following a player sees that player's palette
     if ((user != get_local_user())
      && !(observer_is_active() && (get_player(get_net_user_player_number(user)) == get_displayed_player())))
         return;
+    if (pal == blue_palette) // if the requested palette is the Freeze palette
+    {
+      if (local_state.freeze_palette_active)
+        return; // Freeze palette is already on
+      local_state.freeze_palette_active = true;
+    } else
+    {
+      local_state.freeze_palette_active = false;
+    }
     if ( (local_state.lens_palette == 0) || ((pal != local_state.main_palette) && (pal == local_state.lens_palette)) )
     {
         local_state.main_palette = pal;

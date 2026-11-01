@@ -761,7 +761,7 @@ int32_t pinstfe_control_creature_fade(NetUserId user, int32_t *n)
   struct UserState* ustate = get_user_state(user);
   if (user == get_displayed_user())
   {
-    if ((ustate->additional_flags & UsrAF_FreezePaletteIsActive) != 0)
+    if (local_state.freeze_palette_active)
       PaletteSetPlayerPalette(player,blue_palette);
     else
       PaletteSetPlayerPalette(player,engine_palette);
@@ -905,6 +905,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     {
         set_user_instance(get_player_primary_user(player), PI_Unset, false);
         set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
+        set_player_lens(player->id_number, 0);
         ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
         update_engine_view(player, false);
         get_player_user_state(player)->dungeon_camera.x = subtile_coord_center(game.map_subtiles_x/2);
@@ -915,9 +916,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     }
     clear_selected_thing(ustate);
     set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
-    if (is_my_player(player)) {
-        setup_eye_lens(0);
-    }
+    set_player_lens(player->id_number, 0);
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->rendering_flags &= ~TRF_Invisible;
     ustate->init_flags &= ~UsrIF_CreaturePassengerMode;

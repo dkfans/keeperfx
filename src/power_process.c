@@ -250,13 +250,12 @@ void process_disease(struct Thing *creatng)
 void lightning_modify_palette(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
-    struct UserState* ustate = get_user_state(get_local_user());
     struct Camera* camera = get_local_active_camera(myplyr);
 
     if (thing->health == 0)
     {
       PaletteSetUserPalette(get_local_user(), engine_palette);
-      ustate->additional_flags &= ~UsrAF_LightningPaletteIsActive;
+      local_state.lightning_palette_active = false;
       return;
     }
     if (camera == NULL)
@@ -266,24 +265,24 @@ void lightning_modify_palette(struct Thing *thing)
     }
     if (((thing->health % 8) != 7) && (thing->health != 1) && (UNSYNC_RANDOM(4) != 0))
     {
-        if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) != 0)
+        if (local_state.lightning_palette_active)
         {
             if (get_chessboard_distance(&camera->mappos, &thing->mappos) < 11520)
             {
                 PaletteSetUserPalette(get_local_user(), engine_palette);
-                ustate->additional_flags &= ~UsrAF_LightningPaletteIsActive;
+                local_state.lightning_palette_active = false;
             }
         }
         return;
     }
     if (get_local_view_type(myplyr) != PVT_MapScreen)
     {
-        if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) == 0)
+        if (!local_state.lightning_palette_active)
         {
                         if (get_chessboard_distance(&camera->mappos, &thing->mappos) < 11520)
             {
               PaletteSetUserPalette(get_local_user(), lightning_palette);
-              ustate->additional_flags |= UsrAF_LightningPaletteIsActive;
+              local_state.lightning_palette_active = true;
             }
         }
     }

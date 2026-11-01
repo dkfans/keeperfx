@@ -1802,7 +1802,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                       if ((thing->parent_idx > 0) && (get_local_user_state()->controlled_thing_idx == thing->parent_idx))
                       {
                           PaletteSetUserPalette(get_local_user(), lightning_palette);
-                          get_user_state(get_local_user())->additional_flags |= UsrAF_LightningPaletteIsActive;
+                          local_state.lightning_palette_active = true;
                       }
                   }
                 }

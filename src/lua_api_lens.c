@@ -27,6 +27,9 @@
 #include "globals.h"
 #include "game_legacy.h"
 #include "lens_api.h"
+#include "config_lenses.h"
+#include "player_data.h"
+#include "net_main.h"
 
 #include "keeperfx.hpp"
 #include "kfx/renderer/RendererManager.h"
@@ -66,6 +69,13 @@ static int lua_Create_lens(lua_State *L)
 {
     const char* lens_name = luaL_checkstring(L, 1);
     // Config table is optional (lua_type returns LUA_TNIL if not provided)
+
+    // users store by name with a max length
+    if (strlen(lens_name) >= COMMAND_WORD_LEN) {
+        ERRORLOG("LUA: Lens name '%s' is longer than %d characters", lens_name, COMMAND_WORD_LEN - 1);
+        lua_pushboolean(L, 0);
+        return 1;
+    }
     
     // Get LensManager instance
     void* mgr = LensManager_GetInstance();
@@ -177,24 +187,24 @@ static int lua_Set_lens_draw_callback(lua_State *L)
  */
 static int lua_Set_active_lens(lua_State *L)
 {
-    void* mgr = LensManager_GetInstance();
-    
-    if (mgr == NULL || !LensManager_IsReady(mgr)) {
-        WARNLOG("LUA: Lens system not initialized");
-        lua_pushboolean(L, 0);
-        return 1;
-    }
-    
     TbBool success = false;
     
     if (lua_isnumber(L, 1)) {
         // Built-in lens by index
         long lens_idx = luaL_checkinteger(L, 1);
-        success = LensManager_SetLens(mgr, lens_idx);
+        success = (lens_idx >= 0) && (lens_idx < LENS_ITEMS_MAX);
+        if (success)
+            set_all_users_lens(lens_idx, NULL);
+        else
+            ERRORLOG("LUA: Invalid lens index %ld", lens_idx);
     } else if (lua_isstring(L, 1)) {
         // Custom lens by name
         const char* lens_name = luaL_checkstring(L, 1);
-        success = LensManager_SetLensByName(mgr, lens_name);
+        success = LensManager_GetCustomLens(LensManager_GetInstance(), lens_name) != NULL;
+        if (success)
+            set_all_users_lens(0, lens_name);
+        else
+            WARNLOG("LUA: Custom lens '%s' not found", lens_name);
     } else {
         ERRORLOG("LUA: SetActiveLens requires number or string");
         success = false;
@@ -217,25 +227,14 @@ static int lua_Set_active_lens(lua_State *L)
  */
 static int lua_Get_active_lens(lua_State *L)
 {
-    void* mgr = LensManager_GetInstance();
+    const struct UserState* ustate = get_user_state(SERVER_ID);
     
-    if (mgr == NULL || !LensManager_IsReady(mgr)) {
-        lua_pushinteger(L, 0);
+    if (ustate->custom_lens[0] != '\0') {
+        lua_pushstring(L, ustate->custom_lens);
         return 1;
     }
     
-    long active_lens = LensManager_GetActiveLens(mgr);
-    
-    // If it's a custom lens (-1), return the name instead of index
-    if (active_lens == -1) {
-        const char* custom_name = LensManager_GetActiveCustomLensName(mgr);
-        if (custom_name != NULL) {
-            lua_pushstring(L, custom_name);
-            return 1;
-        }
-    }
-    
-    lua_pushinteger(L, active_lens);
+    lua_pushinteger(L, ustate->lens_type);
     return 1;
 }
 

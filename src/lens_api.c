@@ -26,6 +26,8 @@
 #include "game_legacy.h"
 #include "bflib_vidraw.h"
 #include "config_keeperfx.h"
+#include "config_lenses.h"
+#include "player_data.h"
 
 #include "keeperfx.hpp"
 
@@ -47,7 +49,6 @@ void initialise_eye_lenses(void)
     if ((features_enabled & Ft_EyeLens) == 0)
     {
         SYNCDBG(7, "Eye lens feature disabled");
-        clear_flag(game.mode_flags, MFlg_EyeLensReady);
         return;
     }
     
@@ -56,79 +57,19 @@ void initialise_eye_lenses(void)
     if (mgr == NULL)
     {
         ERRORLOG("Failed to get LensManager instance");
-        clear_flag(game.mode_flags, MFlg_EyeLensReady);
         return;
     }
     
     if (!LensManager_Init(mgr))
     {
         ERRORLOG("Failed to initialize LensManager");
-        clear_flag(game.mode_flags, MFlg_EyeLensReady);
         return;
     }
     
     // Note: eye_lens_width, eye_lens_height, eye_lens_memory, and eye_lens_spare_screen_memory
     // are set automatically by LensManager::AllocateBuffers()
     
-    // Mark system as ready
-    set_flag(game.mode_flags, MFlg_EyeLensReady);
-    
     SYNCDBG(9, "Lens system initialized");
-}
-
-/**
- * Setup a specific lens effect.
- * 
- * @param nlens Lens index (0 = no lens, >0 = specific lens type)
- */
-void setup_eye_lens(long nlens)
-{
-    // Check if lens system is initialized
-    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
-    {
-        WARNLOG("Can't setup lens - system not initialized");
-        return;
-    }
-    
-    SYNCDBG(7, "Setting up lens %ld", nlens);
-    
-    // Get LensManager and set the lens
-    void* mgr = LensManager_GetInstance();
-    if (mgr == NULL)
-    {
-        ERRORLOG("Failed to get LensManager instance");
-        return;
-    }
-    
-    if (!LensManager_SetLens(mgr, nlens))
-    {
-        WARNLOG("Failed to set lens %ld", nlens);
-        return;
-    }
-    
-    // Note: LensManager updates game.active_lens_type and game.applied_lens_type internally
-    SYNCDBG(8, "Lens %ld setup complete", nlens);
-}
-
-/**
- * Reinitialize with a specific lens.
- * Clears and reinitializes the entire system with the given lens active.
- * 
- * @param nlens Lens index to activate after reinit
- */
-void reinitialise_eye_lens(long nlens)
-{
-    SYNCDBG(7, "Reinitializing with lens %ld", nlens);
-    
-    // Reset and reinitialize
-    reset_eye_lenses();
-    initialise_eye_lenses();
-    
-    // Apply the requested lens
-    if ((game.mode_flags & MFlg_EyeLensReady) != 0)
-    {
-        setup_eye_lens(nlens);
-    }
 }
 
 /**
@@ -145,12 +86,10 @@ void reset_eye_lenses(void)
     {
         LensManager_Reset(mgr);
     }
+    reset_lens_failures();
     
     // Note: LensManager owns eye_lens_memory and eye_lens_spare_screen_memory
     // They are cleared automatically by LensManager::FreeBuffers()
-    
-    // Clear game state (LensManager already cleared active_lens_type/applied_lens_type)
-    clear_flag(game.mode_flags, MFlg_EyeLensReady);
     
     SYNCDBG(9, "Done");
 }
@@ -165,37 +104,14 @@ void reset_eye_lenses(void)
  * @param width Viewport width
  * @param height Viewport height
  * @param viewport_x X offset of viewport in source buffer
- * @param effect Lens effect index (0 = no effect)
  */
 void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, 
-                     long width, long height, long viewport_x, long effect)
+                     long width, long height, long viewport_x)
 {
     void* mgr = LensManager_GetInstance();
     if (mgr == NULL) {
         ERRORLOG("LensManager not available");
         return;
-    }
-    
-    // If effect doesn't match active lens, set it now (Manager updates game state internally)
-    long active_lens = LensManager_GetActiveLens(mgr);
-    
-    // Special handling for custom lenses (effect=255): don't override them with standard lenses
-    // Custom lenses return active_lens=-1, but effect will be 255 if custom lens is active
-    if (effect == 255) {
-        // Custom lens should be active - don't change it
-        SYNCDBG(9, "Custom lens active (effect=255), skipping SetLens");
-    } else if (active_lens == -1) {
-        // Custom lens is active but caller wants standard lens - switch to it
-        SYNCDBG(8, "Switching from custom lens to standard lens %ld", effect);
-        if (!LensManager_SetLens(mgr, effect)) {
-            WARNLOG("Failed to set lens %ld during draw", effect);
-        }
-    } else if (active_lens != effect) {
-        // Standard lens mismatch - update to requested lens
-        SYNCDBG(8, "Switching lens from %ld to %ld", active_lens, effect);
-        if (!LensManager_SetLens(mgr, effect)) {
-            WARNLOG("Failed to set lens %ld during draw", effect);
-        }
     }
     
     // Draw via LensManager (handles all fallbacks internally)
@@ -212,10 +128,6 @@ TbBool lens_is_ready(void)
     if ((features_enabled & Ft_EyeLens) == 0)
         return false;
     
-    // Check mode flag
-    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
-        return false;
-    
     // Check manager is initialized
     void* mgr = LensManager_GetInstance();
     if (mgr == NULL)
@@ -225,10 +137,88 @@ TbBool lens_is_ready(void)
         return false;
     
     // Check if a lens is actually applied
-    if (game.applied_lens_type == 0)
+    if (LensManager_GetActiveLens(mgr) == 0)
         return false;
     
     return true;
+}
+
+static void set_user_lens(struct UserState *ustate, int lens, const char *custom_lens)
+{
+    ustate->lens_type = lens;
+    snprintf(ustate->custom_lens, sizeof(ustate->custom_lens), "%s", (custom_lens != NULL) ? custom_lens : "");
+}
+
+void set_player_lens(PlayerNumber plyr_idx, int lens)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        struct UserState *ustate = get_user_state(user);
+        if (ustate->player_id == plyr_idx)
+            set_user_lens(ustate, lens, NULL);
+    }
+}
+
+void set_all_users_lens(int lens, const char *custom_lens)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+        set_user_lens(get_user_state(user), lens, custom_lens);
+}
+
+static short failed_lens = -1;
+static char failed_custom_lens[COMMAND_WORD_LEN] = "";
+static TbBool lens_init_failed = false;
+
+void reset_lens_failures(void)
+{
+    failed_lens = -1;
+    failed_custom_lens[0] = '\0';
+    lens_init_failed = false;
+}
+
+// user state -> local display
+void update_local_lens(void)
+{
+    const struct UserState *ustate = get_user_state(get_displayed_user());
+    if (user_state_invalid(ustate) || ((features_enabled & Ft_EyeLens) == 0))
+        return;
+    void* mgr = LensManager_GetInstance();
+    if (mgr == NULL)
+        return;
+    const TbBool custom = ustate->custom_lens[0] != '\0';
+    if (!LensManager_IsReady(mgr))
+    {
+        if (lens_init_failed || (!custom && ustate->lens_type == 0))
+            return;
+        initialise_eye_lenses();
+        if (!LensManager_IsReady(mgr))
+        {
+            lens_init_failed = true;
+            return;
+        }
+    }
+    const char *active_custom = LensManager_GetActiveCustomLensName(mgr);
+    if (custom)
+    {
+        if ((active_custom != NULL) && (strcmp(active_custom, ustate->custom_lens) == 0))
+            return;
+        if (strcmp(failed_custom_lens, ustate->custom_lens) == 0)
+            return;
+        if (LensManager_SetLensByName(mgr, ustate->custom_lens))
+            failed_custom_lens[0] = '\0';
+        else
+            snprintf(failed_custom_lens, sizeof(failed_custom_lens), "%s", ustate->custom_lens);
+        return;
+    }
+    failed_custom_lens[0] = '\0';
+    if ((active_custom == NULL) && (LensManager_GetActiveLens(mgr) == ustate->lens_type))
+        return;
+    if (ustate->lens_type == failed_lens)
+        return;
+    if (LensManager_SetLens(mgr, ustate->lens_type))
+        failed_lens = -1;
+    else
+        failed_lens = ustate->lens_type;
 }
 
 /******************************************************************************/
@@ -244,7 +234,7 @@ TbBool lens_is_ready(void)
  */
 unsigned char* lens_get_render_target(void)
 {
-    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
+    if (!LensManager_IsReady(LensManager_GetInstance()))
         return NULL;
     
     return eye_lens_spare_screen_memory;
@@ -257,7 +247,7 @@ unsigned char* lens_get_render_target(void)
  */
 unsigned int lens_get_render_target_width(void)
 {
-    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
+    if (!LensManager_IsReady(LensManager_GetInstance()))
         return 0;
     
     return eye_lens_width;
@@ -270,7 +260,7 @@ unsigned int lens_get_render_target_width(void)
  */
 unsigned int lens_get_render_target_height(void)
 {
-    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
+    if (!LensManager_IsReady(LensManager_GetInstance()))
         return 0;
     
     return eye_lens_height;
