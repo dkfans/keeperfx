@@ -864,12 +864,15 @@ void process_user_leave_game_packet(NetUserId user)
     if (network_is_active()) {
         OnDroppedUser(user, NETDROP_MANUAL);
     }
+    const TbBool timed_out = (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT);
     const char *announce_fmt = get_string(GUIStr_NetPlayerLeftGame);
-    if (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT) {
+    if (timed_out) {
         announce_fmt = get_string(GUIStr_NetPlayerTimedOut);
     }
     if (remove_user_from_game(user, announce_fmt) && network_is_active() && (user != SERVER_ID)) {
-        process_pause_packet(1, 0);
+        if (timed_out) {
+            process_pause_packet(1, 0);
+        }
         net_lobby_refresh_metadata();
     }
     if (network_is_active()) {
