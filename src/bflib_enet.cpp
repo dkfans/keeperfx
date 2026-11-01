@@ -743,7 +743,7 @@ namespace
         for (size_t peer_index = 0; peer_index < host->peerCount; peer_index++) {
             ENetPeer *peer = &host->peers[peer_index];
             if (peer->state == ENET_PEER_STATE_CONNECTED && peer->earliestTimeout != 0 && ENET_TIME_DIFFERENCE(host->serviceTime, peer->earliestTimeout) >= PEER_TIMEOUT_MS) {
-                enet_peer_disconnect_now(peer, NetJoin_Accepted);
+                enet_peer_reset(peer);
                 report_dropped_peer(peer, NetJoin_Accepted, NETDROP_TIMEOUT);
             }
             if (peer->state == ENET_PEER_STATE_DISCONNECTED) {
