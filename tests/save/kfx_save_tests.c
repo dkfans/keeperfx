@@ -1090,7 +1090,7 @@ static void test_recfile(void)
     struct Rec src[40];
     void *out = NULL;
     uint32_t count = 99;
-    enum { KIND_A = SFK_HighScore, KIND_B = SFK_NetConfig };
+    enum { KIND_A = SFK_HighScore, KIND_B = SFK_Continue };
 
     section("record files");
     make_recs(src, 40);
