@@ -29,7 +29,8 @@ TbError process_network_spectator_notice(NetUserId source, const char *buffer, s
 void network_spectator_notify(NetUserId user, TbBool joined);
 void network_spectator_service(void);
 TbBool network_spectator_request_conversion(void);
-void network_spectator_convert_defeated_users(void);
+void network_spectator_convert_requested_users(void);
+TbBool network_spectator_convert_seatless_users(void);
 TbError process_network_spectator_conversion(NetUserId source, const char *buffer, size_t size);
 void network_spectator_finish_conversion(void);
 TbBool network_spectator_seat_open(const struct NetUser *returning);

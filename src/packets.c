@@ -1657,7 +1657,7 @@ void process_packets(void)
     // Clear all packets
     clear_packets();
     if (network_is_active()) {
-        network_spectator_convert_defeated_users();
+        network_spectator_convert_requested_users();
         network_spectator_seat_users();
         network_spectator_send_snapshots();
     }

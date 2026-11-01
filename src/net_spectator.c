@@ -544,7 +544,7 @@ TbBool network_spectator_start(void)
 
 static TbBool user_can_become_spectator(NetUserId user)
 {
-    return user_present(user) && player_has_lost(get_net_user_player_number(user)) && network_human_contenders_remain()
+    return (!user_present(user) || (player_has_lost(get_net_user_player_number(user)) && network_human_contenders_remain()))
         && net_versions_match(&netstate.users[SERVER_ID].version, &net_current_version)
         && net_versions_match(&netstate.users[user].version, &net_current_version);
 }
@@ -563,14 +563,14 @@ TbBool network_spectator_request_conversion(void)
     return true;
 }
 
-void network_spectator_convert_defeated_users(void)
+void network_spectator_convert_requested_users(void)
 {
     if (!network_is_host()) {
         return;
     }
     for (NetUserId player_id = SERVER_ID + 1; player_id < MAX_NET_USERS; player_id++) {
         if (!netstate.users[player_id].spectator_conversion_requested || !user_can_become_spectator(player_id)
-         || !player_defeat_settled(get_net_user_player_number(player_id))) {
+         || (user_present(player_id) && !player_defeat_settled(get_net_user_player_number(player_id)))) {
             continue;
         }
         NetUserId spectator_id = find_unused_user_id(MAX_NET_USERS, MAX_NET_CONNECTIONS);
@@ -611,21 +611,49 @@ TbError process_network_spectator_conversion(NetUserId source, const char *buffe
     return Lb_OK;
 }
 
-void network_spectator_finish_conversion(void)
+static void adopt_pending_spectator_id(void)
 {
     NetUserId spectator_id = netstate.pending_spectator_id;
-    if (spectator_id == INVALID_USER_ID) {
-        return;
-    }
-    NETLOG("Spectating the rest of the game as user %d", spectator_id);
-    PlayerNumber camera_player_number = my_player_number;
     NetUserId player_id = netstate.my_id;
+    NETLOG("Spectating the rest of the game as user %d", spectator_id);
     netstate.pending_spectator_id = INVALID_USER_ID;
     netstate.users[spectator_id] = netstate.users[player_id];
     netstate.users[spectator_id].id = spectator_id;
     netstate.my_id = spectator_id;
     OnDroppedUser(player_id, NETDROP_MANUAL);
     net_join_role = NetRole_Spectator;
+    my_player_number = PLAYER_NEUTRAL;
+    netstate.phase = NetPhase_InGame;
+}
+
+TbBool network_spectator_convert_seatless_users(void)
+{
+    if (network_is_host()) {
+        network_spectator_convert_requested_users();
+        for (NetUserId player_id = SERVER_ID + 1; player_id < MAX_NET_USERS; player_id++) {
+            if (network_user_active(player_id) && !user_present(player_id)) {
+                netstate.sp->drop_user(player_id, NetJoin_Full);
+            }
+        }
+        return true;
+    }
+    if (user_present(netstate.my_id)) {
+        return true;
+    }
+    if (!network_spectator_wait(NETMSG_SPECTATOR_CONVERSION)) {
+        return false;
+    }
+    adopt_pending_spectator_id();
+    return true;
+}
+
+void network_spectator_finish_conversion(void)
+{
+    if (netstate.pending_spectator_id == INVALID_USER_ID) {
+        return;
+    }
+    PlayerNumber camera_player_number = my_player_number;
+    adopt_pending_spectator_id();
     stop_replay_recording("spectating the rest of the game");
     turn_off_all_menus();
     LbStopTextInput();
@@ -659,6 +687,7 @@ TbBool network_spectator_wait(enum NetMessageType message_type)
             SDL_Delay(1);
         }
         if ((message_type == NETMSG_SPECTATOR_BOOTSTRAP && netstate.phase == NetPhase_InGame)
+         || (message_type == NETMSG_SPECTATOR_CONVERSION && netstate.pending_spectator_id != INVALID_USER_ID)
          || (message_type == NETMSG_GAMEPLAY_UNSEQUENCED && (network_spectator_resync_pending || !network_user_is_spectator(netstate.my_id)))) {
             return true;
         }

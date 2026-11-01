@@ -231,10 +231,23 @@ static void resolve_random_teams(int8_t teams[MAX_NET_USERS])
 
 void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances)
 {
+    PlayerNumber seats_left = colours_count;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        PlayerNumber colour = net_player_colour[user];
+        player_colours[user] = -1;
+        if (colour < 0 || seats_left == 0) {
+            continue;
+        }
+        seats_left--;
+        player_colours[user] = NET_PLAYER_COLOUR_RANDOM;
+        if (colour < colours_count && net_user_with_value(net_player_colour, colour) == user) {
+            player_colours[user] = colour;
+        }
+    }
     PlayerNumber free_colours[MAX_NET_USERS];
     PlayerNumber free_count = 0;
     for (PlayerNumber colour = 0; colour < colours_count; colour++) {
-        if (net_user_with_value(net_player_colour, colour) < 0) {
+        if (net_user_with_value(player_colours, colour) < 0) {
             free_colours[free_count] = colour;
             free_count++;
         }
@@ -242,12 +255,7 @@ void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colour
     shuffle_values(free_colours, free_count);
     PlayerNumber next_free = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        player_colours[user] = net_player_colour[user];
-        if (player_colours[user] < 0 || (player_colours[user] < colours_count && net_user_with_value(net_player_colour, player_colours[user]) == user)) {
-            continue;
-        }
-        player_colours[user] = -1;
-        if (next_free < free_count) {
+        if (player_colours[user] == NET_PLAYER_COLOUR_RANDOM) {
             player_colours[user] = free_colours[next_free];
             next_free++;
         }

@@ -434,11 +434,12 @@ static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USE
         if (!net_user_info[i].network_user_active) {
             continue;
         }
-        if (player_slots[i] < 0 || player_slots[i] >= MAX_NET_USERS) {
+        if (player_slots[i] < PLAYER_NONE || player_slots[i] >= MAX_NET_USERS) {
             ERRORLOG("Network user %d has invalid player slot %d", (int)i, (int)player_slots[i]);
             return false;
         }
         set_net_user_player_number(i, player_slots[i]);
+        netstate.users[i].spectator_conversion_requested = (player_slots[i] == PLAYER_NONE);
     }
     my_player_number = get_net_user_player_number(netstate.my_id);
     return true;
@@ -497,7 +498,7 @@ void setup_count_players(void)
     game.human_players_count = 0;
     for (int i = 0; i < MAX_NET_USERS; i++)
     {
-      if (net_user_info[i].network_user_active)
+      if (user_present(i))
         game.human_players_count++;
     }
   }
@@ -531,7 +532,7 @@ TbBool init_players_network_game(void)
     }
     if (initialized) {
         build_local_startup_sync();
-        initialized = net_startup_sync_exchange_and_apply();
+        initialized = net_startup_sync_exchange_and_apply() && network_spectator_convert_seatless_users();
     }
     if (!initialized) {
         LbNetwork_Stop();
