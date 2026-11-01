@@ -796,12 +796,12 @@ static int32_t lobby_player_column_at_mouse(struct GuiButton *gbtn)
 
 static TbBool lobby_player_cell_editable(NetUserId user, int32_t column)
 {
-    TbBool player_editable = net_player_colour[user] >= 0 && (network_is_host() || user == my_player_number);
+    TbBool player_editable = user == my_player_number || (network_is_host() && (network_user_active(user) || net_lobby_computer_player(user)));
     if (column == LobbyPlayerColumn_Name) {
         return player_editable;
     }
     if (column == LobbyPlayerColumn_Team) {
-        return frontend_alliances != -1 && (player_editable || (network_is_host() && net_lobby_computer_player(user)));
+        return frontend_alliances != -1 && player_editable;
     }
     return false;
 }
@@ -862,7 +862,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         int y = gbtn->scr_pos_y + user * height;
         frontnet_draw_player_icon(user, column_x[LobbyPlayerColumn_Name], y + (height - icon->SHeight * icon_scale / 16) / 2, icon_scale);
         TbBool computer = net_lobby_computer_player(user);
-        if (net_player_colour[user] < 0 && !computer) {
+        if (!network_user_active(user) && !computer) {
             continue;
         }
         char ping[LOBBY_NUMBER_TEXT_LENGTH] = "-";

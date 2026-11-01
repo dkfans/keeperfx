@@ -405,16 +405,6 @@ static uint8_t calculate_initial_input_lag(void)
     return input_lag_turns;
 }
 
-static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
-{
-    PlayerNumber slots_count = MAX_NET_USERS;
-    struct LevelInformation *level = get_level_info(get_loaded_level_number());
-    if (level) {
-        slots_count = min(max(level->players, 2), slots_count);
-    }
-    net_resolve_player_colours(slots_count, sync->player_slots, &sync->frontend_alliances);
-}
-
 static void build_local_startup_sync(void)
 {
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
@@ -424,7 +414,7 @@ static void build_local_startup_sync(void)
     build_local_user_preferences(s_local_startup_sync.user_prefs);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
-    resolve_startup_player_slots(&s_local_startup_sync);
+    net_resolve_player_colours(s_local_startup_sync.player_slots, &s_local_startup_sync.frontend_alliances);
 }
 
 static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USERS])
