@@ -138,17 +138,18 @@ static void draw_peer_wait_messages(int tx_units_per_px)
     if (is_waiting_on_user_packets(SERVER_ID)) {
         snprintf(text, sizeof(text), get_string(GUIStr_NetConnectionUnstable), seconds, tenths);
         LbTextDrawResized(0, 0, tx_units_per_px, text);
-        return;
-    }
-    int pos_y = 0;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
-        if (!is_waiting_on_user_packets(user)) {
-            continue;
+    } else {
+        int pos_y = 0;
+        for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
+            if (!is_waiting_on_user_packets(user)) {
+                continue;
+            }
+            snprintf(text, sizeof(text), get_string(GUIStr_NetWaitingOnUser), netstate.users[user].name, seconds, tenths);
+            LbTextDrawResized(0, pos_y, tx_units_per_px, text);
+            pos_y += LbTextLineHeight() * tx_units_per_px / 16;
         }
-        snprintf(text, sizeof(text), get_string(GUIStr_NetWaitingOnUser), netstate.users[user].name, seconds, tenths);
-        LbTextDrawResized(0, pos_y, tx_units_per_px, text);
-        pos_y += LbTextLineHeight() * tx_units_per_px / 16;
     }
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
 }
 
 /**
