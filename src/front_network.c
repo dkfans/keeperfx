@@ -75,6 +75,12 @@ const struct ConfigInfo default_net_config_info = {
     .spectator_chat = 1,
 };
 
+const struct ConfigInfo default_skirmish_config_info = {
+    .max_players = MAX_NET_USERS,
+    .cheats_enabled = 1,
+    .computer_assistant = 1,
+};
+
 int fe_network_active;
 int net_service_index_selected;
 struct TbNetworkSessionNameEntry *net_session[SESSION_ENTRIES_COUNT];
@@ -83,6 +89,7 @@ long net_session_index_active;
 struct TbNetworkPlayerName net_player[MAX_NET_USERS];
 struct ConfigInfo net_config_info;
 struct ConfigInfo net_lobby_settings;
+struct ConfigInfo skirmish_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 char tmp_net_player_name[24];
