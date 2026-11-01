@@ -37,6 +37,8 @@ unsigned long game_flags2 = 0;
 /******************************************************************************/
 TbBool set_custom_intralevel_data(const void *data, uint32_t len)
 {
+    if (len > CUSTOM_INTRALEVEL_DATA_MAX_SIZE)
+        return false;
     char *copy = NULL;
     if (len > 0)
     {

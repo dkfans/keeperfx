@@ -29,6 +29,7 @@ function SetCustomCampaignData(data) end
 ---Returns a deepcopy of the data stored with `SetCustomCampaignData`.
 ---To store it after modifying it, use `SetCustomCampaignData`.
 ---@return any data nil if nothing is stored
+---@return integer bytes the stored (compressed) size, as returned by `SetCustomCampaignData`
 ---@nodiscard
 function GetCustomCampaignData() end
 

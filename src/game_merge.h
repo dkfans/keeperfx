@@ -162,6 +162,7 @@ extern unsigned long game_flags2; // Should be reset to zero on new level
 /******************************************************************************/
 extern struct IntralevelData intralvl;
 #define CUSTOM_INTRALEVEL_DATA_MAX_SIZE (1024 * 1024)
+#define CUSTOM_INTRALEVEL_DATA_MAX_COMPRESSION_RATIO 64
 
 extern char *custom_intralevel_data;
 extern uint32_t custom_intralevel_data_len;
