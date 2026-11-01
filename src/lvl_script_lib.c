@@ -137,8 +137,8 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
                 {
                     thing->valuable.gold_stored = arg;
                 }
-                check_and_asimilate_thing_by_room(thing);
             }
+            check_and_asimilate_thing_by_room(thing);
     }
     return thing;
 }
