@@ -70,15 +70,9 @@ extern int autostart_multiplayer_users_expected;
 
 /******************************************************************************/
 const struct ConfigInfo default_net_config_info = {
-    "",
-    "",
-    "",
-    MAX_NET_USERS,
-    1,
-    1,
-    0,
-    0,
-    0,
+    .max_players = MAX_NET_USERS,
+    .spectators_enabled = 1,
+    .spectator_chat = 1,
 };
 
 int fe_network_active;
