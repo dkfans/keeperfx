@@ -41,6 +41,13 @@ bool WriteFile(IFileSystem &filesystem, const char *fname, const void *data, siz
  *  misconfigured), and nothing happens if there is no file. Returns true if the file was kept. */
 bool KeepUnreadable(IFileSystem &filesystem, const char *fname);
 
+/** A campaign progress file: the IntralevelData, and optional custom intralevel.
+  * ilvl and custom are untouched on failure. */
+enum SaveResult ReadCampaignProgress(IFileSystem &filesystem, const char *fname, IntralevelData *ilvl, std::vector<uint8_t> *custom, SaveError *err);
+
+/** Writes a campaign progress file. Failures are logged. */
+bool WriteCampaignProgress(IFileSystem &filesystem, const char *fname, const IntralevelData *ilvl, const void *custom, uint32_t custom_len);
+
 /** The file kind and field table of each type kept in a file of records. */
 template <typename T> struct RecordTraits;
 template <> struct RecordTraits<HighScore> {

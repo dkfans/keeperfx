@@ -403,7 +403,7 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
     return true;
 }
 
-// The full resync data: [u32 len][game] [u32 len][lua] [u32 len][intralevel] [u32 len][custom intralevel] [navigation]
+// The full resync data: [u32 len][game] [u32 len][intralevel] [u32 len][lua] [u32 len][custom intralevel] [navigation]
 enum ResyncSection {
     RSec_Game,
     RSec_Intralevel,
@@ -436,8 +436,16 @@ char *build_resync_game_data(size_t *full_resync_len)
             return NULL;
         }
     }
-    const void *section_data[RSec_COUNT] = { game_buf.data, lua_data, ilvl_buf.data, custom_intralevel_data };
-    const size_t section_len[RSec_COUNT] = { game_buf.len, lua_data_len, ilvl_buf.len, custom_intralevel_data_len };
+    const void *section_data[RSec_COUNT];
+    size_t section_len[RSec_COUNT];
+    section_data[RSec_Game] = game_buf.data;
+    section_len[RSec_Game] = game_buf.len;
+    section_data[RSec_Intralevel] = ilvl_buf.data;
+    section_len[RSec_Intralevel] = ilvl_buf.len;
+    section_data[RSec_Lua] = lua_data;
+    section_len[RSec_Lua] = lua_data_len;
+    section_data[RSec_CustomIntralevel] = custom_intralevel_data;
+    section_len[RSec_CustomIntralevel] = custom_intralevel_data_len;
     size_t navigation_size = transfer_navigation_state(NULL, NavigationState_Store);
     size_t total_len = navigation_size;
     for (int i = 0; i < RSec_COUNT; i++) {

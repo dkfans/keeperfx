@@ -11,8 +11,7 @@
 static enum SaveResult decode_synced(const SaveStructDesc *desc, const uint8_t *data, uint32_t len, void *dst, struct SaveError *err)
 {
     SaveBufferOwner schema_buffer;
-    const SaveStructDesc *roots[1] = { desc };
-    enum SaveResult result = save_schema_encode(&schema_buffer, roots, 1, SVM_Sync, err);
+    enum SaveResult result = save_schema_encode(&schema_buffer, &desc, 1, SVM_Sync, err);
     if (result != SVR_Ok)
         return result;
     SaveFileSchemaOwner schema;
