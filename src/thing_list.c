@@ -1514,14 +1514,18 @@ void setup_computer_player(int plr_idx)
     }
 }
 
-void setup_computer_players(void)
+void setup_computer_players(PlayerBitFlags zombie_players)
 {
     for (int plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
     {
         struct PlayerInfo* player = get_player(plr_idx);
-        if (!player_exists(player))
-        {
-          setup_computer_player(plr_idx);
+        if (player_exists(player)) {
+            continue;
+        }
+        if (flag_is_set(zombie_players, to_flag(plr_idx))) {
+            script_support_setup_player_as_zombie_keeper(plr_idx);
+        } else {
+            setup_computer_player(plr_idx);
         }
     }
 }

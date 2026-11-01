@@ -96,6 +96,7 @@ char tmp_net_player_name[24];
 int8_t net_player_colour[MAX_NET_USERS];
 int8_t net_player_team[MAX_NET_USERS];
 int32_t net_lobby_max_players;
+PlayerBitFlags net_lobby_empty_seats;
 static TbBool attempting_to_join_cancelled = false;
 static int32_t previous_active_players = 0;
 static struct ScreenPacket last_sent_screen_packet;
@@ -276,6 +277,16 @@ void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colour
     }
     resolve_random_teams(slot_teams);
     *alliances = alliances_from_teams(slot_teams);
+}
+
+void net_store_lobby_empty_seats(const int8_t player_slots[MAX_NET_USERS])
+{
+    net_lobby_empty_seats = 0;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS; plyr_idx++) {
+        if (net_user_with_value(player_slots, plyr_idx) < 0) {
+            set_flag(net_lobby_empty_seats, to_flag(plyr_idx));
+        }
+    }
 }
 
 TbBool net_lobby_computer_player(NetUserId user)

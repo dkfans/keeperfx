@@ -485,6 +485,7 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         initial_replay_seed = host_sync->initial_action_seed;
     }
     frontend_alliances = host_sync->frontend_alliances;
+    net_store_lobby_empty_seats(host_sync->player_slots);
     if (!setup_network_player_numbers(host_sync->player_slots)) {
         return false;
     }

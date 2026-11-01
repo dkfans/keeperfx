@@ -413,6 +413,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         game.local_plyr_idx = default_loc_player;
         my_player_number = default_loc_player;
     }
+    net_lobby_empty_seats = 0;
     if (!init_level()) {
         coroutine_clear(context, true);
         return;
@@ -457,7 +458,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
-        setup_computer_players();
+        setup_computer_players(net_lobby_empty_seats);
     } else
     {
         SYNCDBG(5,"Setting up uninitialized players as zombie players");

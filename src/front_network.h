@@ -85,6 +85,7 @@ extern char tmp_net_player_name[24];
 extern int8_t net_player_colour[MAX_NET_USERS];
 extern int8_t net_player_team[MAX_NET_USERS];
 extern int32_t net_lobby_max_players;
+extern PlayerBitFlags net_lobby_empty_seats;
 
 #pragma pack()
 /******************************************************************************/
@@ -92,6 +93,7 @@ TbBool net_player_colours_conflict(void);
 TbBool net_lobby_computer_player(NetUserId user);
 void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId user, TbBool backwards);
 void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances);
+void net_store_lobby_empty_seats(const int8_t player_slots[MAX_NET_USERS]);
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);
 void display_attempting_to_join_message(int remaining_s);
