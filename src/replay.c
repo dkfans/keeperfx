@@ -1364,6 +1364,11 @@ void close_packet_file(void)
         replay.fp = NULL;
     }
     free_packet_load_decoder();
+    replay_rewind_deinit();
+    free(pending_resync);
+    pending_resync = NULL;
+    pending_resync_len = 0;
+    replay_checksum_pending = false;
 }
 
 TbBool reinit_packets_after_load(void)
@@ -1687,7 +1692,6 @@ void disable_packet_mode(void)
 {
     const NetUserId local_user = get_local_user();
     close_packet_file();
-    replay_rewind_reset();
     replay.load_enable = false;
     replay.save_enable = false;
     remap_user_to_solo(get_my_player(), local_user);

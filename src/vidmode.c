@@ -649,7 +649,6 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
   }
   TbBool hi_res = ((RendererScreenHeight() < 400) ? false : true);
-  long lens_mem = game.applied_lens_type;
   unsigned int flg_mem = RendererGetDrawFlags();
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();
@@ -729,7 +728,6 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
   update_screen_mode_data(new_mdinfo->Width, new_mdinfo->Height);
   if (parchment_loaded)
     reload_parchment_file(hi_res);
-  reinitialise_eye_lens(lens_mem);
   RendererSetDrawFlags(flg_mem);
   setup_heap_manager();
   force_video_mode_reset = false;

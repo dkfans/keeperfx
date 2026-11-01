@@ -99,6 +99,7 @@ public:
     LensEffect* GetCustomLens(const char* name);
     TbBool SetLensByName(const char* name);
     const char* GetActiveCustomLensName() const;
+    void ClearCustomLenses();
     
     // State query
     TbBool IsReady() const { return m_initialized; }

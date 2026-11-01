@@ -590,9 +590,6 @@ static void finish_resync(const struct Packet *saved_packets)
     reinit_level_after_load();
     light_import_system_state(&game.lightst);
     light_rebuild_after_load();
-    if (network_is_active() && net_join_role == NetRole_Spectator) {
-        reinitialise_eye_lens(game.applied_lens_type);
-    }
     memcpy(game.packets, saved_packets, sizeof(game.packets));
 
     if (!network_is_active() || !network_user_is_spectator(netstate.my_id)) {

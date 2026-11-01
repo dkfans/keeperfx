@@ -338,9 +338,8 @@ enum SaveLoadOutcome SaveManager::Load(int slot_num, enum SaveCheckResult *why)
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_user_state(get_local_user());
-    clear_flag(ustate->additional_flags, UsrAF_LightningPaletteIsActive);
-    clear_flag(ustate->additional_flags, UsrAF_FreezePaletteIsActive);
+    local_state.lightning_palette_active = false;
+    local_state.freeze_palette_active = false;
     local_state.view_type = PVT_None;
     local_state.show_panel = true;
     local_state.palette_fade_step_pain = 0;
@@ -349,10 +348,7 @@ enum SaveLoadOutcome SaveManager::Load(int slot_num, enum SaveCheckResult *why)
     local_state.minimap_pos_x = 11;
     local_state.minimap_pos_y = 11;
     local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
-    // Reinitialize lens first (restores lens_palette pointer from config)
-    reinitialise_eye_lens(game.applied_lens_type);
-    // Apply the appropriate palette (lens palette if active, otherwise engine default)
-    PaletteSetUserPalette(get_local_user(), local_state.lens_palette ? local_state.lens_palette : engine_palette);
+    PaletteSetUserPalette(get_local_user(), engine_palette);
     apply_local_user_preferences(get_local_user(), UPF_ApplyOnLoad);
     init_local_cameras(player);
     // Update the lights system state

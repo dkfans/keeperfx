@@ -55,7 +55,7 @@ TbBool replay_rewind_available(void);
 void replay_rewind_step(void);
 TbBool replay_rewind_at_limit(void);
 size_t replay_rewind_buffer_used(void);
-void replay_rewind_reset(void);
+void replay_rewind_deinit(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

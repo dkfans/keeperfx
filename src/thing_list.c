@@ -2756,6 +2756,29 @@ GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
             break;
         }
     }
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature (%d) detected for %s.", i, player_code_name(dungeon->owner));
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        total_pay += calculate_correct_creature_pay(thing);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping diggers list");
+            break;
+        }
+    }
+
     SYNCDBG(19,"Finished");
     return total_pay;
 }

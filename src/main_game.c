@@ -35,11 +35,11 @@
 #include "game_heap.h"
 #include "game_legacy.h"
 #include "replay.h"
-#include "replay_rewind.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
+#include "lens_api.h"
 #include "config_sounds.h"
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
@@ -180,6 +180,7 @@ static TbBool init_level(void)
     // above. No-op on software / before GL is active.
     RendererClearKeeperSpriteAtlas();
     lens_mode = 0;
+    reset_lens_failures();
     setup_heap_manager();
 
     wait_for_all_players();
@@ -324,7 +325,6 @@ TbBool startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
     clear_packets();
-    replay_rewind_reset();
     if (!open_packet_file_for_load(replay.fname,&centry))
     {
         ERRORLOG("Cannot replay \"%s\": unreadable, or written by an incompatible version",
