@@ -34,15 +34,12 @@
 #include "config_campaigns.h"
 #include "game_merge.h"
 #include "player_data.h"
-#include "bflib_dernc.h"
-#include "bflib_fileio.h"
-#include "config.h"
+#include "config_settings.h"
 #include <SDL3/SDL.h>
 #include "post_inc.h"
 /******************************************************************************/
 
 #define SESSION_COUNT 32
-#define RECONNECT_TOKEN_FILE "reconnect.key"
 #define LOBBY_SETTINGS_OFFSET offsetof(struct ConfigInfo, net_lobby_name)
 #define LOBBY_SETTINGS_SIZE (sizeof(struct ConfigInfo) - LOBBY_SETTINGS_OFFSET)
 
@@ -386,17 +383,11 @@ void LbNetwork_InitSessionsFromCmdLine(const char *str)
 
 static uint64_t local_reconnect_token(void)
 {
-    static uint64_t token;
-    if (token != 0) {
-        return token;
+    if (settings.reconnect_token == 0) {
+        settings.reconnect_token = ((uint64_t)SDL_rand_bits() << 32) | SDL_rand_bits() | 1;
+        save_settings();
     }
-    const char *fname = prepare_file_path(FGrp_Save, RECONNECT_TOKEN_FILE);
-    if (LbFileLength(fname) == sizeof(token) && LbFileLoadAt(fname, &token) == sizeof(token) && token != 0) {
-        return token;
-    }
-    token = ((uint64_t)SDL_rand_bits() << 32) | SDL_rand_bits() | 1;
-    LbFileSaveAt(fname, &token, sizeof(token));
-    return token;
+    return settings.reconnect_token;
 }
 
 TbError LbNetwork_ExchangeLogin(char *player_name)

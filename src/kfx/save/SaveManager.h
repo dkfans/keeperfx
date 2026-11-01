@@ -15,7 +15,6 @@
 #include "kfx/save/core/save_codec.h"
 #include "kfx/save/core/save_schema.h"
 
-struct ConfigInfo;
 struct HighScore;
 struct IntralevelData;
 struct GameCampaign;
@@ -61,10 +60,6 @@ int SaveManager_ResumeCampaign(const char *campaign_fname);
 int SaveManager_CampaignHasProgress(const struct GameCampaign *campgn);
 void SaveManager_UpdateCampaignPercents(struct CampaignsList *clist);
 void SaveManager_DeleteContinueLink(void);
-
-/** Network config file (fxconfig.net). On any read failure *cfg is left untouched. */
-enum SaveResult SaveManager_ReadNetConfig(const char *fname, struct ConfigInfo *config, struct SaveError *err);
-int SaveManager_WriteNetConfig(const char *fname, const struct ConfigInfo *config);
 
 /** A campaign's high score table. The table comes back malloc'd, to be freed with free(); it is
  *  NULL when there are no entries or on any error. */
@@ -117,8 +112,6 @@ public:
     void UpdateCampaignPercents(CampaignsList *clist);
     void DeleteContinueLink();
 
-    enum SaveResult ReadNetConfig(const char *fname, ConfigInfo *config, SaveError *err);
-    bool WriteNetConfig(const char *fname, const ConfigInfo *config);
     enum SaveResult ReadHighScores(const char *fname, HighScore **table, uint32_t *count, SaveError *err);
     bool WriteHighScores(const char *fname, const HighScore *table, uint32_t count);
 

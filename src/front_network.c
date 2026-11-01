@@ -52,7 +52,6 @@
 #include "net_matchmaking.h"
 #include "net_lan.h"
 #include "config_campaigns.h"
-#include "kfx/save/SaveManager.h"
 #include <stddef.h>
 #include <SDL3/SDL.h>
 #include "post_inc.h"
@@ -70,11 +69,9 @@ extern int autostart_multiplayer_level;
 extern int autostart_multiplayer_users_expected;
 
 /******************************************************************************/
-const char *keeper_netconf_file = "fxconfig.net";
-
 const struct ConfigInfo default_net_config_info = {
     "",
-    "Player",
+    "",
     "",
     MAX_NET_USERS,
     1,
@@ -904,41 +901,6 @@ TbBool attempting_to_join_cancel_requested(void)
     return attempting_to_join_cancelled || lbUserQuit;
 }
 
-/** Makes a config read from a file safe to use: strings terminated, the player limit in range, flags 0 or 1. */
-static void net_config_sanitise(void)
-{
-    net_config_info.net_player_name[sizeof(net_config_info.net_player_name) - 1] = '\0';
-    net_config_info.net_lobby_name[sizeof(net_config_info.net_lobby_name) - 1] = '\0';
-    if (net_config_info.max_players < MIN_NET_USERS || net_config_info.max_players > MAX_NET_USERS)
-        net_config_info.max_players = MAX_NET_USERS;
-    net_config_info.spectators_enabled = net_config_info.spectators_enabled != 0;
-    net_config_info.spectator_chat = net_config_info.spectator_chat != 0;
-    net_config_info.computer_players = net_config_info.computer_players != 0;
-    net_config_info.cheats_enabled = net_config_info.cheats_enabled != 0;
-    net_config_info.computer_assistant = net_config_info.computer_assistant != 0;
-}
-
-void net_load_config_file(void)
-{
-    // Try to load the config file
-    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
-    struct SaveError err;
-    if (SaveManager_ReadNetConfig(fname, &net_config_info, &err) == SVR_Ok)
-    {
-        net_config_sanitise();
-        return;
-    }
-    // If can't load, then use default config
-    memcpy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
-    snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", get_string(GUIStr_MnuNoName));
-}
-
-void net_write_config_file(void)
-{
-    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
-    SaveManager_WriteNetConfig(fname, &net_config_info);
-}
-
 void frontnet_service_setup(void)
 {
     net_number_of_services = 0;
@@ -951,7 +913,9 @@ void frontnet_service_setup(void)
         snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetServiceSkirmish));
         net_number_of_services++;
     }
-    net_load_config_file();
+    if (net_config_info.net_player_name[0] == '\0') {
+        snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", get_string(GUIStr_MnuNoName));
+    }
 }
 
 void frontnet_session_setup(void)

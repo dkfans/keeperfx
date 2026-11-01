@@ -1442,7 +1442,7 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
         screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
         nspck->action_par1 = (fe_computer_players == 0);
         net_config_info.computer_players = nspck->action_par1;
-        net_write_config_file();
+        save_settings();
     }
 }
 

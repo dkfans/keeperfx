@@ -34,18 +34,6 @@ SAVE_STRUCT(Column, struct Column,
     SAVE_ARRAY(struct Column, cubes, SV_U16),
 );
 
-SAVE_STRUCT(ConfigInfo, struct ConfigInfo,
-    SAVE_STRING(struct ConfigInfo, str_join),  /* plain-char */
-    SAVE_STRING(struct ConfigInfo, net_player_name),  /* plain-char */
-    SAVE_STRING(struct ConfigInfo, net_lobby_name),  /* plain-char */
-    SAVE_FIELD(struct ConfigInfo, max_players, SV_U8),
-    SAVE_FIELD(struct ConfigInfo, spectators_enabled, SV_U8),
-    SAVE_FIELD(struct ConfigInfo, spectator_chat, SV_U8),
-    SAVE_FIELD(struct ConfigInfo, computer_players, SV_U8),
-    SAVE_FIELD(struct ConfigInfo, cheats_enabled, SV_U8),
-    SAVE_FIELD(struct ConfigInfo, computer_assistant, SV_U8),
-);
-
 SAVE_STRUCT(ContinueData, struct ContinueData,
     SAVE_RUNTIME(struct ContinueData, reserved),
     SAVE_STRING(struct ContinueData, link_fname),  /* plain-char */

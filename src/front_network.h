@@ -73,6 +73,7 @@ extern struct TbNetworkSessionNameEntry *net_session[SESSION_ENTRIES_COUNT];
 extern long net_number_of_sessions;
 extern long net_session_index_active;
 extern struct TbNetworkPlayerName net_player[MAX_NET_USERS];
+extern const struct ConfigInfo default_net_config_info;
 extern struct ConfigInfo net_config_info;
 extern struct ConfigInfo net_lobby_settings;
 extern char net_service[16][NET_SERVICE_LEN];
@@ -105,9 +106,6 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum);
 void process_frontend_chat_message(NetUserId user, const char *message);
 TbBool frontnet_service_selected(enum FrontendNetService service);
 void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
-
-void net_load_config_file(void);
-void net_write_config_file(void);
 
 void frontnet_send_campaign_change_message(const char *campaign_fname);
 /******************************************************************************/
