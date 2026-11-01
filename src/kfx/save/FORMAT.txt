@@ -483,5 +483,6 @@ CONTENTS
   SaveGameFile.cpp                the Save file                        4
   SaveReplayHeader.cpp            the replay header                    12
   SaveContinue.cpp                continue link, campaign progress     4
+  SaveCampaignProgress.cpp        the campaign progress file           4
   SaveUnionArms.h                 thing_arm selector                   7.2
   SaveManager.cpp                 slots, load, save

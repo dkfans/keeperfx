@@ -118,7 +118,7 @@ bool read_progress_file(const char *progress_fname, IntralevelData *ilvl, std::v
     if (is_kfxs_file(filesystem, fname))
     {
         SaveError err;
-        if (savefile::ReadCampaignProgress(filesystem, fname, ilvl, custom, &err) == SVR_Ok)
+        if (campaignprogress::Read(filesystem, fname, ilvl, custom, &err) == SVR_Ok)
             return true;
         SAVEWARN("can't read \"%s\": %s", progress_fname, err.message);
         return false;
@@ -132,7 +132,7 @@ bool read_progress_file(const char *progress_fname, IntralevelData *ilvl, std::v
 
 bool write_progress_file(const char *progress_fname, const IntralevelData *ilvl)
 {
-    return savefile::WriteCampaignProgress(Fs(), prepare_file_path(FGrp_Save, progress_fname), ilvl,
+    return campaignprogress::Write(Fs(), prepare_file_path(FGrp_Save, progress_fname), ilvl,
         custom_intralevel_data, custom_intralevel_data_len);
 }
 
