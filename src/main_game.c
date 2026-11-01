@@ -423,6 +423,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     if (local)
     {
         game.game_kind = GKind_LocalGame;
+        frontnet_skirmish_resolve_seats();
         init_players_local_game();
         if (AssignCpuKeepers || campaign.assignCpuKeepers) {
             ShouldAssignCpuKeepers = 1;
@@ -464,9 +465,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
         SYNCDBG(5,"Setting up uninitialized players as zombie players");
         setup_zombie_players();
     }
-    if (game.game_kind == GKind_MultiGame) {
-        setup_alliances();
-    }
+    setup_alliances();
     post_init_level();
     post_init_players();
     post_init_packets();

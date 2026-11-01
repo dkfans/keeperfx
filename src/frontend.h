@@ -87,7 +87,7 @@ enum FrontendMenuStates {
   FeSt_DRAG,
   FeSt_CAMPAIGN_INTRO,
   FeSt_MAPPACK_SELECT,
-  FeSt_MP_MAPPACK_SELECT,
+  FeSt_SKIRMISH_LOBBY,
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };

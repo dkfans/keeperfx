@@ -169,9 +169,15 @@ void build_local_user_preferences(UserPreferences prefs)
     prefs[UPref_FrontView] = front_view;
     prefs[UPref_Wibble] = wibble;
     prefs[UPref_Cheats] = start_params.easter_egg;
+    const struct ConfigInfo *lobby_config = NULL;
     if (network_is_active() && network_is_host()) {
-        prefs[UPref_Cheats] = net_config_info.cheats_enabled;
-        prefs[UPref_ComputerAssistantDisabled] = !net_config_info.computer_assistant;
+        lobby_config = &net_config_info;
+    } else if (frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+        lobby_config = &skirmish_config_info;
+    }
+    if (lobby_config != NULL) {
+        prefs[UPref_Cheats] = lobby_config->cheats_enabled;
+        prefs[UPref_ComputerAssistantDisabled] = !lobby_config->computer_assistant;
     }
     prefs[UPref_SkipHeartZoom] = get_skip_heart_zoom_feature();
     prefs[UPref_StartingHighlightMode] = get_starting_highlight_mode();
@@ -248,8 +254,6 @@ TbBool user_cheats_allowed(NetUserId user)
 
 TbBool computer_assistant_allowed(void)
 {
-    if (game.game_kind != GKind_MultiGame)
-        return true;
     return get_user_state(SERVER_ID)->prefs[UPref_ComputerAssistantDisabled] == 0;
 }
 

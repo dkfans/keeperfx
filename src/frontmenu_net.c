@@ -559,10 +559,8 @@ void frontnet_service_select(struct GuiButton *gbtn)
   if ( ((local_system_flags & GSF_AllowOnePlayer) != 0)
      && (srvidx+1 >= net_number_of_services) )
   {
-      frontend_set_player_number(default_loc_player);
-      fe_network_active = 0;
-      net_service_index_selected = FrontendNetSvc_Skirmish;
-      frontend_set_state(FeSt_MP_MAPPACK_SELECT);
+      frontnet_skirmish_setup();
+      frontend_set_state(FeSt_SKIRMISH_LOBBY);
   } else
   if (srvidx < 0)
   {

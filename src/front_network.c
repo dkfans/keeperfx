@@ -992,4 +992,47 @@ void frontnet_start_setup(void)
     local_state.mp_message_text[0] = '\0';
 }
 
+struct ConfigInfo *active_lobby_config(void)
+{
+    if (frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+        return &skirmish_config_info;
+    }
+    return &net_config_info;
+}
+
+void frontnet_skirmish_setup(void)
+{
+    netstate.my_id = SERVER_ID;
+    net_service_index_selected = FrontendNetSvc_Skirmish;
+    fe_network_active = 0;
+    fe_computer_players = 1;
+    frontend_set_player_number(SOLO_HUMAN_ID);
+    memset(net_user_info, 0, sizeof(net_user_info));
+    net_user_info[SOLO_HUMAN_ID].network_user_active = 1;
+    snprintf(net_user_info[SOLO_HUMAN_ID].name, sizeof(net_user_info[SOLO_HUMAN_ID].name), "%s", net_config_info.net_player_name);
+    set_default_mp_mappack();
+    frontnet_start_setup();
+}
+
+void frontnet_skirmish_update(void)
+{
+    host_update_players();
+    frontend_alliances = alliances_from_teams(net_player_team);
+}
+
+void frontnet_skirmish_resolve_seats(void)
+{
+    if (!frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+        return;
+    }
+    int8_t player_slots[MAX_NET_USERS];
+    net_resolve_player_colours(player_slots, &frontend_alliances);
+    net_store_lobby_empty_seats(player_slots);
+    if (player_slots[SOLO_HUMAN_ID] < 0) {
+        return;
+    }
+    my_player_number = player_slots[SOLO_HUMAN_ID];
+    game.local_plyr_idx = my_player_number;
+}
+
 /******************************************************************************/
