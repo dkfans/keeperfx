@@ -743,7 +743,7 @@ static void process_frontend_packets(void)
   }
   if (LbNetwork_ExchangeLobby(nspckt, &net_screen_packet, sizeof(struct ScreenPacket), send_frame, process_frontend_packet)) {
       ERRORLOG("LbNetwork_Exchange failed");
-      net_service_index_selected = -1;
+      net_service_index_selected = FrontendNetSvc_None;
   }
   if (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED) {
     LbNetwork_Stop();

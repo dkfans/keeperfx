@@ -42,6 +42,7 @@ enum NetPlayerSettingKind {
 };
 
 enum FrontendNetService {
+    FrontendNetSvc_None = -2,
     FrontendNetSvc_Skirmish = -1,
     FrontendNetSvc_Online = 0,
     FrontendNetSvc_LAN = 1,
