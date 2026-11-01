@@ -2886,6 +2886,9 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           play_music_track(7);
           break;
       case FeSt_LEVEL_STATS:
+          if (network_is_active()) {
+              LbNetwork_Stop();
+          }
           turn_on_menu(GMnu_FESTATISTICS);
           frontstats_set_timer();
           set_pointer_graphic_menu();
