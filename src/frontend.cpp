@@ -2390,6 +2390,7 @@ unsigned long toggle_status_menu(short visible)
     if ( visible )
     {
       set_menu_visible_on(GMnu_MAIN);
+      set_menu_visible_on(game.active_panel_mnu_idx);
       if ( room_on )
         set_menu_visible_on(GMnu_ROOM);
       if ( room_2_on )

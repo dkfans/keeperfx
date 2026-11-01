@@ -421,6 +421,8 @@ void observer_update_view(void)
             turn_on_menu(GMnu_CREATURE_QUERY1);
             toggle_first_person_menu(false);
             toggle_first_person_menu(local_state.show_gui);
+        } else if (view_type == PVT_DungeonTop) {
+            turn_on_main_panel_menu();
         }
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     }

@@ -31,6 +31,7 @@
 #include "net_resync.h"
 
 #include "player_data.h"
+#include "player_instances.h"
 #include "front_landview.h"
 #include "player_utils.h"
 #include "light_data.h"
@@ -441,7 +442,10 @@ static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USE
         set_net_user_player_number(i, player_slots[i]);
         netstate.users[i].spectator_conversion_requested = (player_slots[i] == PLAYER_NONE);
     }
-    my_player_number = get_net_user_player_number(netstate.my_id);
+    my_player_number = PLAYER_NEUTRAL;
+    if (user_present(netstate.my_id)) {
+        my_player_number = get_net_user_player_number(netstate.my_id);
+    }
     return true;
 }
 
