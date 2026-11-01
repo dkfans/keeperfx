@@ -524,6 +524,9 @@ void update_paused_message_tooltip(void)
 {
     static TbBool shown = false;
     if (settings.tooltips_on && mouse_is_over_paused_message()) {
+        if (!shown) {
+            reset_scrolling_tooltip();
+        }
         set_gui_tooltip_box_fmt(1, "%s", get_string(GUIStr_ClickToUnpause));
         shown = true;
     } else if (shown) {
