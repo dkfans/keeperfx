@@ -209,7 +209,7 @@ static void console_cmd_cursor(MapCoord *x, MapCoord *y)
 void console_cmd_default_cursor(const struct PlayerInfo *player, MapCoord *x, MapCoord *y)
 {
     if (player == &local_observer_player) {
-        const struct Camera *cam = get_local_active_camera(&local_observer_player);
+        const struct Camera *cam = get_local_active_camera();
         *x = cam->mappos.x.val;
         *y = cam->mappos.y.val;
         return;

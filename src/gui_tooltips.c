@@ -499,7 +499,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
             mappos.x.val = watched->pos_x;
             mappos.y.val = watched->pos_y;
         } else {
-            struct Camera *camera = get_local_active_camera(get_my_player());
+            struct Camera *camera = get_local_active_camera();
             if (camera == NULL) {
                 ERRORLOG("No active camera");
                 return false;
@@ -507,7 +507,8 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
             valid_position = screen_to_map(camera, GetMouseX(), GetMouseY(), &mappos);
         }
         if (valid_position && subtile_revealed(mappos.x.stl.num, mappos.y.stl.num, player->id_number)) {
-            if (get_local_view_type(player) != PVT_CreatureContrl && get_local_view_type(player) != PVT_CreaturePasngr) {
+            const unsigned char view_type = get_displayed_view_type();
+            if (view_type != PVT_CreatureContrl && view_type != PVT_CreaturePasngr) {
                 shown = setup_scrolling_tooltips(&mappos);
             }
         }
@@ -672,10 +673,9 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   long ttwidth = LbTextStringWidth(tttext);
   long ttheight = LbTextStringHeight(tttext);
   RendererSetDrawFlags(flg_mem);
-  const struct PlayerInfo *player = get_displayed_player();
   long pos_x = ttpos_x;
   long pos_y = ttpos_y;
-  if (get_local_view_type(player) == PVT_MapScreen)
+  if (get_displayed_view_type() == PVT_MapScreen)
   {
       pos_y = GetMouseY() + scale_ui_value(24);
       if (pos_y > MyScreenHeight - scale_ui_value(104))

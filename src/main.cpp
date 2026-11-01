@@ -564,7 +564,7 @@ TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, 
     result = false;
     if (camera != NULL)
     {
-      if (get_local_view_type(get_my_player()) == PVT_MapScreen)
+      if (get_local_view_type() == PVT_MapScreen)
           result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
       else
           result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
@@ -1390,7 +1390,6 @@ static void set_mouse_light(NetUserId user, TbBool valid, struct Coord3d pos)
 void update_local_mouse_light(void)
 {
     SYNCDBG(6,"Starting");
-    struct PlayerInfo *player = get_my_player();
 
     // Avoid glitching during level intro or possess animation
     if (get_local_user_state()->instance_num != PI_Unset)
@@ -1402,10 +1401,10 @@ void update_local_mouse_light(void)
     if (game_is_busy_doing_gui_string_input())
         return;
     // ... or in first person
-    if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
+    if ((get_local_view_type() == PVT_CreatureContrl) || (get_local_view_type() == PVT_CreaturePasngr))
         return;
 
-    struct Camera *cam = get_local_active_camera(player);
+    struct Camera *cam = get_local_active_camera();
     struct Coord3d pos;
     const TbBool valid = screen_to_map(cam, GetMouseX(), GetMouseY(), &pos);
 

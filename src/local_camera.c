@@ -55,7 +55,7 @@ static TbBool camera_step_due = true;
 extern float interpolate_time;
 /******************************************************************************/
 static unsigned char get_local_user_view_type(NetUserId user);
-static int get_local_active_camera_index(struct PlayerInfo *player);
+static int get_local_active_camera_index(void);
 static struct Camera *get_local_dungeon_camera(void);
 
 static TbBool local_camera_shows_user(NetUserId user)
@@ -87,16 +87,15 @@ static TbBool get_packet_rotation_pivot(const struct Packet *pckt, MapCoord *x, 
 
 void camera_packet_set_state(struct Packet *pckt)
 {
-    struct PlayerInfo* player = get_my_player();
-    packet_set_camera_context(pckt, get_local_active_camera_index(player));
+    packet_set_camera_context(pckt, get_local_active_camera_index());
     local_state.camera.has_rotation_pivot = get_packet_rotation_pivot(pckt, &local_state.camera.rotation_pivot_x, &local_state.camera.rotation_pivot_y);
-    if (!local_state.camera.ready || is_observer_camera_active() || (get_local_view_type(player) != PVT_DungeonTop) || (get_user_view_type(get_my_user()) != PVT_DungeonTop)
+    if (!local_state.camera.ready || is_observer_camera_active() || (get_local_view_type() != PVT_DungeonTop) || (get_user_view_type(get_my_user()) != PVT_DungeonTop)
      || player_instance_controls_camera(get_local_user_state()->instance_num)) {
         // senseless to transmit camera coords during these times, and a camera instance is computed from the dungeon camera it started with
         packet_clear_camera_position(pckt);
         return;
     }
-    const int cam_idx = get_local_active_camera(player) - local_state.camera.current;
+    const int cam_idx = get_local_active_camera() - local_state.camera.current;
     if ((cam_idx != CamIV_Isometric) && (cam_idx != CamIV_FrontView)) {
         packet_clear_camera_position(pckt);
         return;
@@ -135,7 +134,7 @@ static void apply_local_camera_rotation(void)
     memset(&rotation, 0, sizeof(rotation));
     rotation.action = PckA_SetMapRotation;
     rotation.actn_par1 = local_state.camera.rotation_angle;
-    packet_set_camera_context(&rotation, get_local_active_camera_index(get_my_player()));
+    packet_set_camera_context(&rotation, get_local_active_camera_index());
     process_camera_action(local_state.camera.destination, &rotation);
 }
 
@@ -271,7 +270,7 @@ void move_local_camera_to_position(MapCoord x, MapCoord y)
         observer_camera_jump(coord_subtile(x), coord_subtile(y));
         return;
     }
-    int cam_idx = get_local_active_camera(get_my_player()) - local_state.camera.current;
+    int cam_idx = get_local_active_camera() - local_state.camera.current;
     struct Camera *cam = &local_state.camera.destination[cam_idx];
     local_state.camera.move_cam = cam;
     local_state.camera.move_target[0] = x;
@@ -437,7 +436,7 @@ void update_local_cameras(void)
     }
     struct Thing *ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
-    const int active_cam_idx = get_local_active_camera(player) - local_state.camera.current;
+    const int active_cam_idx = get_local_active_camera() - local_state.camera.current;
     const TbBool following_player = observer_is_active() && !is_observer_camera_active();
     const TbBool move_camera = camera_step_due || following_player;
     const struct LocalCameraRotation rotation = take_local_camera_rotation();
@@ -519,7 +518,7 @@ void update_local_cameras(void)
     if (local_state.camera.move_cam != cam) {
         // Same as the packet camera: a parchment map jump ignores the packet's camera controls.
         if (pckt->action != PckA_ZoomFromMap) {
-            if (!replay.load_enable && get_local_view_type(player) != PVT_MapScreen) {
+            if (!replay.load_enable && get_local_view_type() != PVT_MapScreen) {
                 process_local_camera_movement(cam);
                 process_local_camera_rotation(cam, local_state.camera.has_rotation_pivot,
                     local_state.camera.rotation_pivot_x, local_state.camera.rotation_pivot_y, &rotation);
@@ -549,7 +548,7 @@ void update_local_first_person_view(void)
     struct PlayerInfo *player = get_my_player();
     struct Thing *ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     if (!local_state.camera.ready || is_observer_camera_active() || (player == &local_observer_player)
-     || (get_local_active_camera_index(player) != CamIV_FirstPerson) || !thing_exists(ctrltng)) {
+     || (get_local_active_camera_index() != CamIV_FirstPerson) || !thing_exists(ctrltng)) {
         return;
     }
     update_local_first_person_camera(ctrltng);
@@ -561,7 +560,7 @@ static void interpolate_camera_deviations(void)
     if (!player_exists(my_player)) {
         return;
     }
-    struct Camera *active_camera = get_local_active_camera(my_player);
+    struct Camera *active_camera = get_local_active_camera();
     if (active_camera->view_mode != PVM_IsoWibbleView && active_camera->view_mode != PVM_IsoStraightView) {
         return;
     }
@@ -593,8 +592,7 @@ void interpolate_local_cameras(void)
     if (is_feature_on(Ft_DeltaTime)) {
         camera_fraction = interpolate_time;
     }
-    struct PlayerInfo *player = get_my_player();
-    const int camera_idx = get_local_active_camera(player) - local_state.camera.current;
+    const int camera_idx = get_local_active_camera() - local_state.camera.current;
     if (local_state.fast_forward > 1 && (!observer_is_active() || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(get_local_user_state()->instance_num)) {
         const float elapsed = (get_time_tick_ns() - camera_update_time) / 1e9f * turns_per_second;
         camera_fraction = clamp(elapsed, 0.0f, 1.0f);
@@ -748,8 +746,7 @@ static void sync_local_camera_leaving_map(const struct Packet *pckt)
 
 void update_local_view_prediction(const struct Packet *pckt)
 {
-    struct PlayerInfo *player = get_my_player();
-    const TbBool on_map = (get_local_view_type(player) == PVT_MapScreen);
+    const TbBool on_map = (get_local_view_type() == PVT_MapScreen);
     if (pckt->action == PckA_ZoomFromMap) {
         local_state.camera.move_cam = NULL;
     }
@@ -876,24 +873,26 @@ static unsigned char get_local_user_view_type(NetUserId user)
     return get_user_view_type(user);
 }
 
-unsigned char get_local_view_type(const struct PlayerInfo *player)
+unsigned char get_local_view_type(void)
 {
-    if (!is_my_player(player)) {
-        return get_player_view_type(player);
-    }
     return get_local_user_view_type(get_my_user());
 }
 
-static int get_local_active_camera_index(struct PlayerInfo *player)
+unsigned char get_displayed_view_type(void)
 {
-    return get_local_active_camera(player) - local_state.camera.current;
+    const NetUserId user = get_displayed_user();
+    if (is_local_user(user))
+        return get_local_view_type();
+    return get_user_view_type(user);
 }
 
-struct Camera* get_local_active_camera(struct PlayerInfo *player)
+static int get_local_active_camera_index(void)
 {
-    if (!is_my_player(player)) {
-        return &local_state.camera.current[get_player_active_camera_index(player)];
-    }
+    return get_local_active_camera() - local_state.camera.current;
+}
+
+struct Camera* get_local_active_camera(void)
+{
     const NetUserId user = get_my_user();
     if (!local_state.camera.ready) {
         return &local_state.camera.current[get_user_active_camera_index(user)];

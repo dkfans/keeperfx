@@ -101,7 +101,7 @@ void observer_reset(void)
 
 void observer_set_packet_cursor(struct Packet *pckt)
 {
-    if (pckt->action != PckA_None || get_local_view_type(get_my_player()) != PVT_DungeonTop) {
+    if (pckt->action != PckA_None || get_local_view_type() != PVT_DungeonTop) {
         return;
     }
     int32_t mouse_screen_x = GetMouseX();
@@ -215,7 +215,7 @@ void detach_observer_camera(void)
     if (is_observer_camera_active()) {
         return;
     }
-    const unsigned char view_type = get_local_view_type(get_my_player());
+    const unsigned char view_type = get_local_view_type();
     enter_observer_camera();
     if (view_type == PVT_MapScreen) {
         set_observer_camera_view(PVT_MapScreen);
@@ -355,7 +355,7 @@ TbBool gameplay_cursor_is_over_gui(void)
     }
     const struct Packet *pckt = observer_get_view_packet();
     return pckt == NULL || flag_is_set(pckt->control_flags, PCtr_Gui)
-        || get_local_view_type(get_my_player()) != PVT_DungeonTop
+        || get_local_view_type() != PVT_DungeonTop
         || game.small_map_state == 2 || a_menu_window_is_active();
 }
 
@@ -520,12 +520,11 @@ void observer_update_query(void)
             return;
         }
     }
-    struct PlayerInfo *player = get_my_player();
-    if (get_local_view_type(player) != PVT_DungeonTop || game_is_busy_doing_gui()) {
+    if (get_local_view_type() != PVT_DungeonTop || game_is_busy_doing_gui()) {
         return;
     }
     struct Coord3d pos = {0};
-    if (screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos)) {
+    if (screen_to_map(get_local_active_camera(),GetMouseX(), GetMouseY(), &pos)) {
         struct Thing *thing = get_creature_near(pos.x.val, pos.y.val);
         if (thing_is_creature(thing)) {
             local_state.local_thing_under_hand = thing->index;
@@ -535,7 +534,7 @@ void observer_update_query(void)
 
 TbBool observer_query_input(void)
 {
-    if (!is_observer_camera_active() || get_local_view_type(&local_observer_player) != PVT_DungeonTop) {
+    if (!is_observer_camera_active() || get_local_view_type() != PVT_DungeonTop) {
         return false;
     }
     struct Thing *thing = thing_get(local_state.local_thing_under_hand);

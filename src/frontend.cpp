@@ -2571,8 +2571,7 @@ void set_gui_visible(TbBool visible)
 {
     SYNCDBG(6,"Starting");
     local_state.show_gui = visible;
-    struct PlayerInfo* player = get_my_player();
-    switch (get_local_view_type(player)) {
+    switch (get_local_view_type()) {
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
         toggle_first_person_menu(visible);

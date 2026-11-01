@@ -514,8 +514,7 @@ static void draw_compass_label(int x, int y, int units_per_px, const char *text)
 
 void draw_overlay_compass(long base_x, long base_y)
 {
-    struct PlayerInfo* player = get_my_player();
-    struct Camera* cam = get_local_active_camera(player);
+    struct Camera* cam = get_local_active_camera();
     unsigned short flg_mem = RendererGetDrawFlags();
     LbTextSetFont(winfont);
     RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
@@ -578,7 +577,7 @@ void redraw_isometric_view(void)
     struct PlayerInfo* player = get_my_player();
     if (player_invalid(player))
         return;
-    struct Camera* render_cam = get_local_active_camera(player);
+    struct Camera* render_cam = get_local_active_camera();
     update_explored_flags_for_viewed_power_sights(player);
     engine(player,render_cam);
     remove_explored_flags_for_viewed_power_sights(player);
@@ -590,7 +589,7 @@ void redraw_frontview(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    struct Camera* render_cam = get_local_active_camera(player);
+    struct Camera* render_cam = get_local_active_camera();
     update_explored_flags_for_viewed_power_sights(player);
     draw_frontview_engine(render_cam);
      remove_explored_flags_for_viewed_power_sights(player);
@@ -845,9 +844,8 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
 
 void process_pointer_graphic(void)
 {
-    struct PlayerInfo* player = get_my_player();
     SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_user_view_type(get_my_user()),player_state_code_name(get_local_user_state()->work_state),(int)get_local_user_state()->instance_num);
-    switch (get_local_view_type(player)) {
+    switch (get_local_view_type()) {
     case PVT_DungeonTop:
         // This case is complicated
         process_dungeon_top_pointer_graphic(get_displayed_user());
@@ -877,7 +875,6 @@ void process_pointer_graphic(void)
 void redraw_display(void)
 {
     SYNCDBG(5,"Starting");
-    struct PlayerInfo* player = get_my_player();
     local_state.display_needs_update = false;
     if (game.game_kind == GKind_NonInteractiveState)
       return;
@@ -886,7 +883,7 @@ void redraw_display(void)
     else
       process_pointer_graphic();
     interpolate_local_cameras();
-    const unsigned char view_type = get_local_view_type(player);
+    const unsigned char view_type = get_local_view_type();
     if (view_type != PVT_DungeonTop) {
         observer_update_cursor();
     }
@@ -912,7 +909,7 @@ void redraw_display(void)
         redraw_parchment_view();
     } else
     {
-        if (get_local_active_camera(player)->view_mode == PVM_FrontView)
+        if (get_local_active_camera()->view_mode == PVM_FrontView)
             redraw_frontview();
         else
             redraw_isometric_view();

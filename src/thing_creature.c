@@ -4373,7 +4373,7 @@ void draw_creature_view(struct Thing *thing)
 {
   // If no eye lens required - just draw on the screen, directly
   struct PlayerInfo* player = get_my_player();
-  struct Camera* render_cam = get_local_active_camera(player);
+  struct Camera* render_cam = get_local_active_camera();
   if (!lens_is_ready())
   {
       engine(player, render_cam);

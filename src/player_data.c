@@ -73,10 +73,6 @@ int32_t get_user_dungeon_yaw(NetUserId user)
     return ustate->dungeon_camera.yaw[ustate->prefs[UPref_FrontView] != 0];
 }
 
-int32_t get_player_dungeon_yaw(const struct PlayerInfo *player)
-{
-    return get_user_dungeon_yaw(get_player_primary_user(player));
-}
 
 
 unsigned char get_user_view_type(NetUserId user)
@@ -106,12 +102,6 @@ unsigned char get_user_active_camera_index(NetUserId user)
         return (get_user_state(user)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
     }
 }
-
-unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
-{
-    return get_user_active_camera_index(get_player_primary_user(player));
-}
-
 
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
 {
@@ -275,10 +265,6 @@ const struct UserState *get_user_state_prediction(NetUserId user)
     return ustate;
 }
 
-const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player)
-{
-    return get_user_state_prediction(get_player_primary_user(player));
-}
 
 const struct UserState *get_local_user_state_prediction(void)
 {
