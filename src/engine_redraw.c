@@ -479,6 +479,8 @@ void set_user_dungeon_view(NetUserId user, TbBool front_view, TbBool wibble)
 
 void update_local_view(NetUserId user, TbBool keep_local_camera)
 {
+    if (!local_camera_shows_user(user))
+        return;
     const unsigned char view_type = get_user_view_type(user);
     if (view_type == PVT_MapFadeIn || view_type == PVT_MapFadeOut)
         return;

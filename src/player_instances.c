@@ -777,7 +777,7 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
     if (user_state_invalid(ustate))
         return;
     // Make sure we are in the normal Dungeon Top view
-    if(get_player_view_type(player) != PVT_DungeonTop)
+    if (ustate->view_type != PVT_DungeonTop)
         return;
 
     // Make sure we are not in some weird instance

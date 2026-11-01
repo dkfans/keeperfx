@@ -1670,7 +1670,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
-        struct UserState* ustate = get_player_user_state(get_player(plyr_idx));
+        struct UserState* ustate = get_player_primary_user_state(get_player(plyr_idx));
         TbBool has_user = !user_state_invalid(ustate);
         unsigned char destination = has_user ? ustate->teleport_destination : 19;
         struct Coord3d pos;

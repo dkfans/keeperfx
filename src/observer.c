@@ -556,7 +556,7 @@ void observer_init(PlayerNumber camera_player_number)
 {
     observer_reset();
     build_local_user_preferences(local_observer_user_state.prefs);
-    const struct UserState *camera_state = get_player_user_state(get_player(camera_player_number));
+    const struct UserState *camera_state = get_player_primary_user_state(get_player(camera_player_number));
     if (!user_state_invalid(camera_state)) {
         local_observer_user_state.dungeon_camera = camera_state->dungeon_camera;
         local_observer_user_state.prefs[UPref_FrontView] = camera_state->prefs[UPref_FrontView];

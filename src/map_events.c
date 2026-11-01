@@ -709,7 +709,7 @@ void event_process_events(void)
             continue;
         }
         struct PlayerInfo*player = get_player(event->owner);
-        if (get_player_view_type(player) <= PVT_DungeonTop) //Freeze lifespan of events of human player on map or possession
+        if (get_user_view_type(get_player_primary_user(player)) <= PVT_DungeonTop) //Freeze lifespan of events of human player on map or possession
         {
             if (event->lifespan_turns > 0) {
                 event->lifespan_turns--;

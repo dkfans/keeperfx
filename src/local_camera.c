@@ -58,7 +58,7 @@ static unsigned char get_local_user_view_type(NetUserId user);
 static int get_local_active_camera_index(void);
 static struct Camera *get_local_dungeon_camera(void);
 
-static TbBool local_camera_shows_user(NetUserId user)
+TbBool local_camera_shows_user(NetUserId user)
 {
     if (is_local_user(user)) {
         return true;

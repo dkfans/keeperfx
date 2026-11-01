@@ -370,7 +370,7 @@ TbBool is_my_player(const struct PlayerInfo *player);
 NetUserId get_my_user(void);
 TbBool is_local_user(NetUserId user);
 struct UserState *get_user_state(NetUserId user);
-struct UserState *get_player_user_state(const struct PlayerInfo *player);
+struct UserState *get_player_primary_user_state(const struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);
 void set_local_user_state_prediction(const struct UserState *ustate);
 const struct UserState *get_user_state_prediction(NetUserId user);
@@ -402,7 +402,6 @@ void reset_user_view_type(NetUserId user, unsigned short nview);
 void clear_players(void);
 
 unsigned char get_user_view_type(NetUserId user);
-unsigned char get_player_view_type(const struct PlayerInfo *player);
 unsigned char get_user_active_camera_index(NetUserId user);
 int32_t get_user_dungeon_yaw(NetUserId user);
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);

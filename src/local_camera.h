@@ -52,6 +52,7 @@ void carry_local_dungeon_position(NetUserId user, TbBool from_front_view);
 void look_local_first_person_camera(struct Thing *ctrltng, int32_t turn_x, int32_t turn_y, int32_t *yaw, int32_t *pitch);
 void move_local_camera_to_position(MapCoord x, MapCoord y);
 void update_local_view_prediction(const struct Packet *pckt);
+TbBool local_camera_shows_user(NetUserId user);
 unsigned char get_local_view_type(void);
 unsigned char get_displayed_view_type(void);
 struct Camera* get_local_active_camera(void);

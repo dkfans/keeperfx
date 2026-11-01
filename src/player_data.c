@@ -83,10 +83,6 @@ unsigned char get_user_view_type(NetUserId user)
     return ustate->view_type;
 }
 
-unsigned char get_player_view_type(const struct PlayerInfo *player)
-{
-    return get_user_view_type(get_player_primary_user(player));
-}
 
 /** Which of a user's local cameras shows this user's view. */
 unsigned char get_user_active_camera_index(NetUserId user)
@@ -240,7 +236,7 @@ NetUserId get_player_primary_user(const struct PlayerInfo *player)
     return -1;
 }
 
-struct UserState *get_player_user_state(const struct PlayerInfo *player)
+struct UserState *get_player_primary_user_state(const struct PlayerInfo *player)
 {
     return get_user_state(get_player_primary_user(player));
 }

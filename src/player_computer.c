@@ -1613,7 +1613,7 @@ void setup_computer_players2(void)
       if (is_active_keeper(player))
       {
         int skirmish_AI_type = get_random_skirmish_computer_model();
-        const struct UserState *ustate = get_player_user_state(player);
+        const struct UserState *ustate = get_player_primary_user_state(player);
         if (!user_state_invalid(ustate))
         {
             skirmish_AI_type = get_computer_assist_model(ustate->prefs[UPref_StartingComputerAssistantKind]);

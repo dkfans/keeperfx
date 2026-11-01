@@ -86,7 +86,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
     struct PlayerInfo* player = get_player(dungeon->owner);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_player_primary_user_state(player);
     TbBool pickup_all = !user_state_invalid(ustate) && ustate->pickup_all_gold;
     if (dungeon->gold_hoard_for_pickup != thing->index)
     {
@@ -1016,7 +1016,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_player_primary_user_state(player);
     struct Dungeon *dungeon = get_players_dungeon(player);
     // If nothing in hand - nothing to do
     if (dungeon->num_things_in_hand < 1) {
@@ -1502,7 +1502,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (thing_is_invalid(thing))
     {
-        const short under_hand = get_player_user_state(player)->thing_under_hand;
+        const short under_hand = get_player_primary_user_state(player)->thing_under_hand;
         if (under_hand > 0)
             thing = thing_get(under_hand);
     }
