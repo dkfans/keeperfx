@@ -577,7 +577,7 @@ static TbBool frontnet_session_list_in_use(void)
         last_mouse_y = mouse_y;
         last_mouse_move = now;
     }
-    return net_number_of_sessions > 0 && frontend_mouse_over_button >= 45 && frontend_mouse_over_button < 45 + frontend_sessions_menu_items_visible && now - last_mouse_move < SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS;
+    return lan_session_count + matchmaking_session_count > 0 && frontend_mouse_over_button >= 45 && frontend_mouse_over_button < 45 + frontend_sessions_menu_items_visible && now - last_mouse_move < SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS;
 }
 
 void frontnet_session_update(void)
