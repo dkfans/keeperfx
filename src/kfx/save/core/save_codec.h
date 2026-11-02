@@ -15,7 +15,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define SAVE_FORMAT_MAJOR 1
-#define SAVE_FORMAT_MINOR 8
+#define SAVE_FORMAT_MINOR 9
 #define SAVE_MIN_READABLE_MAJOR 1
 #define SAVE_MAGIC_SIZE 8
 #define SAVE_HEADER_SIZE 20
@@ -62,8 +62,6 @@ enum SaveFileKind {
     SFK_Replay = SAVE_FOURCC('R','E','P','L'),
     /** The high score table of a campaign. */
     SFK_HighScore = SAVE_FOURCC('H','S','C','R'),
-    /** The network config. */
-    SFK_NetConfig = SAVE_FOURCC('N','C','F','G'),
     /** Reserved for the game state sent to a player that fell out of sync. Nothing writes a file of this kind. BUT HEY, WE'LL SEE */
     SFK_Resync = SAVE_FOURCC('R','S','Y','N')
 };

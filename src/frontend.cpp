@@ -1014,7 +1014,7 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
 
 TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkind)
 {
-    const struct UserState* ustate = get_player_user_state_prediction(player);
+    const struct UserState* ustate = get_user_state_prediction(get_my_user());
     if (power_is_instinctive(game.chosen_spell_type) && (game.chosen_spell_type != 0))
         return false;
     const struct PowerConfigStats *powerst;
@@ -1442,7 +1442,7 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
         screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
         nspck->action_par1 = (fe_computer_players == 0);
         net_config_info.computer_players = nspck->action_par1;
-        net_write_config_file();
+        save_settings();
     }
 }
 
@@ -2390,6 +2390,7 @@ unsigned long toggle_status_menu(short visible)
     if ( visible )
     {
       set_menu_visible_on(GMnu_MAIN);
+      set_menu_visible_on(game.active_panel_mnu_idx);
       if ( room_on )
         set_menu_visible_on(GMnu_ROOM);
       if ( room_2_on )
@@ -2570,8 +2571,7 @@ void set_gui_visible(TbBool visible)
 {
     SYNCDBG(6,"Starting");
     local_state.show_gui = visible;
-    struct PlayerInfo* player = get_my_player();
-    switch (get_local_view_type(player)) {
+    switch (get_local_view_type()) {
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
         toggle_first_person_menu(visible);
@@ -2886,6 +2886,9 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           play_music_track(7);
           break;
       case FeSt_LEVEL_STATS:
+          if (network_is_active()) {
+              LbNetwork_Stop();
+          }
           turn_on_menu(GMnu_FESTATISTICS);
           frontstats_set_timer();
           set_pointer_graphic_menu();
@@ -3011,6 +3014,8 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
         net_lobby_set_phase(NetPhase_InLandview);
     } else if (frontend_menu_state == FeSt_NET_START) {
         net_lobby_set_phase(NetPhase_Lobby);
+    } else if (frontend_menu_state == FeSt_START_MPLEVEL) {
+        net_lobby_set_phase(NetPhase_Loading);
     }
     return frontend_menu_state;
 }

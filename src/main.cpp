@@ -242,7 +242,7 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
     {
       if (i == win_plyr_idx)
         continue;
-      if (player_defeat_settled(i))
+      if (player_defeat_settled(i) || player_is_placeholder(get_player(i)))
         continue;
       if (!player_is_friendly_or_defeated(i,win_plyr_idx))
         return false;
@@ -564,7 +564,7 @@ TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, 
     result = false;
     if (camera != NULL)
     {
-      if (get_local_view_type(get_my_player()) == PVT_MapScreen)
+      if (get_local_view_type() == PVT_MapScreen)
           result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
       else
           result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
@@ -675,7 +675,7 @@ void reset_gui_based_on_player_mode(void)
 {
     struct UserState* ustate = get_local_user_state();
     struct PlayerInfo *player = get_my_player();
-    if (get_player_view_type(player) == PVT_CreatureContrl)
+    if (get_user_view_type(get_my_user()) == PVT_CreatureContrl)
     {
         turn_on_menu(vid_change_query_menu);
         if (player->victory_state == VicS_LostLevel)
@@ -683,7 +683,7 @@ void reset_gui_based_on_player_mode(void)
             turn_off_query_menus();
         }
     }
-    else if (get_player_view_type(player) == PVT_CreaturePasngr)
+    else if (get_user_view_type(get_my_user()) == PVT_CreaturePasngr)
     {
         turn_on_menu(vid_change_query_menu);
         turn_off_query_menus();
@@ -841,19 +841,16 @@ TbBool toggle_computer_player(PlayerNumber plyr_idx)
 void reinit_level_after_load(void)
 {
     struct PlayerInfo *player;
-    int i;
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
-    player = get_my_player();
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
     parchment_loaded = 0;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        player = get_player(i);
-        if (player_exists(player))
+        if (user_present(user))
         {
-            update_engine_view(player, false);
+            update_local_view(user, false);
         }
     }
     start_rooms = &game.rooms[1];
@@ -1211,8 +1208,9 @@ long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterPa
     return -1;
 }
 
-void level_lost_go_first_person(PlayerNumber plyr_idx)
+void level_lost_go_first_person(NetUserId user)
 {
+    const PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct CreatureControl *cctrl;
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -1233,7 +1231,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         return;
     }
     struct Coord3d mappos = spawn_creatng->mappos;
-    thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
+    thing = create_and_control_creature_as_controller(user, spectator_breed, &mappos);
     if (thing_is_invalid(thing)) {
         ERRORLOG("Unable to create spectator creature");
         return;
@@ -1392,7 +1390,6 @@ static void set_mouse_light(NetUserId user, TbBool valid, struct Coord3d pos)
 void update_local_mouse_light(void)
 {
     SYNCDBG(6,"Starting");
-    struct PlayerInfo *player = get_my_player();
 
     // Avoid glitching during level intro or possess animation
     if (get_local_user_state()->instance_num != PI_Unset)
@@ -1404,10 +1401,10 @@ void update_local_mouse_light(void)
     if (game_is_busy_doing_gui_string_input())
         return;
     // ... or in first person
-    if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
+    if ((get_local_view_type() == PVT_CreatureContrl) || (get_local_view_type() == PVT_CreaturePasngr))
         return;
 
-    struct Camera *cam = get_local_active_camera(player);
+    struct Camera *cam = get_local_active_camera();
     struct Coord3d pos;
     const TbBool valid = screen_to_map(cam, GetMouseX(), GetMouseY(), &pos);
 
@@ -1560,7 +1557,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     SYNCDBG(9,"Starting");
 
     flg_mem = RendererGetDrawFlags();
-    update_engine_settings(player);
+    update_engine_settings();
     mx = cam->mappos.x.val;
     my = cam->mappos.y.val;
     mz = cam->mappos.z.val;
@@ -2234,6 +2231,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         api_init_server();
         game_loop();
+        LbNetwork_Stop();
     }
     reset_game();
     RendererResetScreen(true);

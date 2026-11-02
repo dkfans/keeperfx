@@ -37,6 +37,7 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "front_network.h"
+#include "config_settings.h"
 #include "front_input.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
@@ -1058,7 +1059,7 @@ void frontnet_change_lobby_option(struct GuiButton *gbtn)
         }
         *toggle = !*toggle;
     }
-    net_write_config_file();
+    save_settings();
     net_lobby_apply_settings();
 }
 
@@ -1076,7 +1077,7 @@ void frontnet_session_set_lobby_name(struct GuiButton *gbtn)
     while (length > 0 && isspace((unsigned char)net_config_info.net_lobby_name[length - 1])) {
         net_config_info.net_lobby_name[--length] = '\0';
     }
-    net_write_config_file();
+    save_settings();
     net_lobby_apply_settings();
 }
 
@@ -1084,7 +1085,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
 {
     if (net_config_info.net_lobby_name[0] == '\0') {
         snprintf(net_config_info.net_lobby_name, sizeof(net_config_info.net_lobby_name), "Dungeon%03d", rand() % 1000);
-        net_write_config_file();
+        save_settings();
     }
     uint32_t plyr_num;
     if (LbNetwork_Create(net_player_name, &plyr_num, nullptr)) {

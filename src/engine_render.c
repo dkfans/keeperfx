@@ -490,7 +490,7 @@ static void update_normal_shade(struct M33 *matx)
       normal_shade_right = 0;
 }
 
-void update_engine_settings(struct PlayerInfo *player)
+void update_engine_settings(void)
 {
     switch (settings.video_detail_level)
     {
@@ -2216,14 +2216,13 @@ static void fiddle_gamut_set_minmaxes(int32_t *floor_x, int32_t *floor_y, long m
  */
 static void fiddle_gamut(long pos_x, long pos_y)
 {
-    struct PlayerInfo *player = get_my_player();
-    struct Camera *camera = get_local_active_camera(player);
+    struct Camera *camera = get_local_active_camera();
     long ewwidth;
     long ewheight;
     long ewzoom;
     int32_t floor_x[4];
     int32_t floor_y[4];
-    const unsigned char view_type = get_local_view_type(player);
+    const unsigned char view_type = get_local_view_type();
     if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
     {
         fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
@@ -4827,7 +4826,6 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
   */
 static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, long angle, long base_sprite_size)
 {
-    struct PlayerInfo* player = get_my_player();
     struct Thing* thing = jspr->thing;
     struct ObjectConfigStats* objst;
     struct TrapConfigStats* trapst;
@@ -4857,7 +4855,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         scale = (flame.sprite_size * base_sprite_size / thing->sprite_size);
     }
 
-    if (get_local_view_type(player) == PVT_DungeonTop)
+    if (get_local_view_type() == PVT_DungeonTop)
     {
         add_x = (base_sprite_size * flame.td_add_x) >> 5;
         add_y = (base_sprite_size * flame.td_add_y) >> 5;
@@ -5064,7 +5062,6 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
 
 void draw_engine_number(struct BucketKindFloatingGoldText *num)
 {
-    struct PlayerInfo *player;
     unsigned short flg_mem;
     const struct TbSprite *spr;
     long remaining_digits;
@@ -5077,12 +5074,11 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
     flg_mem = RendererGetDrawFlags();
-    player = get_my_player();
     RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     spr = get_button_sprite(GBS_fontchars_number_dig0);
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
-    struct Camera *active_cam = get_local_active_camera(player);
+    struct Camera *active_cam = get_local_active_camera();
     if (active_cam != NULL && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_FrontView || active_cam->view_mode == PVM_IsoStraightView)) {
         // Count digits to be displayed
         ndigits=0;
@@ -5112,8 +5108,7 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
         return;
     }
-    struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_active_camera(player);
+    const struct Camera *cam = get_local_active_camera();
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5272,7 +5267,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_active_camera(player);
+    const struct Camera *cam = get_local_active_camera();
     if (cam == NULL)
     {
         return;
@@ -5280,7 +5275,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     float scale_by_zoom;
     int base_size = creature_status_size * 256;
-    const unsigned char view_type = get_local_view_type(player);
+    const unsigned char view_type = get_local_view_type();
     if (view_type == PVT_MapScreen)
     {
         scale_by_zoom = 1;
@@ -5511,8 +5506,7 @@ void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
         return;
     }
-    struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_active_camera(player);
+    const struct Camera *cam = get_local_active_camera();
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -6542,7 +6536,6 @@ static void draw_subdivided_near_polygon(struct BucketKindPolygonNearFP *polygon
 }
 void display_drawlist(void) // Draws isometric and 1st person view. Not frontview.
 {
-    struct PlayerInfo *player;
     const struct Camera *cam;
     union {
         struct BasicQ *b;
@@ -6611,8 +6604,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 draw_engine_room_flagpole(item.roomFlag);
                 break;
             case QK_JontyISOSprite: // Spinning key
-                player = get_my_player();
-                cam = get_local_active_camera(player);
+                cam = get_local_active_camera();
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
@@ -6816,7 +6808,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
-    if (map_volume_box.visible && should_draw_cursor_box(my_player_number)) {
+    if (map_volume_box.visible && should_draw_cursor_box(get_displayed_user())) {
         poly_pool_end_reserve(0);
         process_isometric_map_volume_box(x, y, z, my_player_number);
     }
@@ -7030,7 +7022,7 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
 
 TbBool map_to_screen(struct Coord3d *pos, int32_t *screen_x, int32_t *screen_y)
 {
-    struct Camera *cam = get_local_active_camera(get_my_player());
+    struct Camera *cam = get_local_active_camera();
     int32_t x;
     int32_t y;
     if (cam->view_mode == PVM_FrontView) {
@@ -7800,7 +7792,6 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
 void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_angle, unsigned char sprgroup, long scale)
 {
     struct KeeperSprite *creature_sprites;
-    struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     struct KeeperSprite *kspr;
     long kspr_idx;
@@ -7817,7 +7808,6 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     long sprite_rot;
     long cutoff;
     SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
-    player = get_my_player();
     creature_sprites = keepersprite_array(kspr_base);
     if (creature_sprites == NULL) {
         return;
@@ -7876,7 +7866,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
             lltemp = dim_oh * (48 - (long)cctrl->sacrifice.animation_counter);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
-        if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
+        if ((get_local_view_type() == PVT_CreatureContrl) || (get_local_view_type() == PVT_CreaturePasngr))
         {
             water_source_cutoff = cutoff;
             water_y_offset = (2 * scale * cutoff) >> 5;
@@ -7982,8 +7972,7 @@ static void prepare_jonty_remap_and_scale(int32_t *scale, const struct BucketKin
 static void draw_mapwho_ariadne_path(struct Thing *thing)
 {
     // Don't draw debug pathfinding lines in Possession to avoid crash
-    struct PlayerInfo *player = get_my_player();
-    if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
+    if ((get_local_view_type() == PVT_CreatureContrl) || (get_local_view_type() == PVT_CreaturePasngr))
         return;
 
     struct Ariadne *arid;
@@ -8060,13 +8049,13 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     if (!thing_is_invalid(thing))
     {
         if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
-          struct Camera *active_cam = get_local_active_camera(get_my_player());
+          struct Camera *active_cam = get_local_active_camera();
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
               RendererAddDrawFlags(Lb_SPRITE_REMAP);
               lbSpriteReMapPtr = white_pal;
           }
-          else if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
+          else if (get_displayed_view_type() == PVT_CreatureContrl || get_displayed_view_type() == PVT_CreaturePasngr)
           {
               struct Thing *creatng = thing_get(ustate->influenced_thing_idx);
               if (thing_is_creature(creatng))
@@ -9169,7 +9158,7 @@ void draw_frontview_engine(struct Camera *cam)
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     update_local_mouse_light();
-    if (map_volume_box.visible && should_draw_cursor_box(my_player_number)) {
+    if (map_volume_box.visible && should_draw_cursor_box(get_displayed_user())) {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
 

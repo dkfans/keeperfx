@@ -287,8 +287,6 @@ void fronttorture_input(void)
     if ((pckt->action & 0x01) != 0)
     {
         frontend_set_state(FeSt_LEVEL_STATS);
-        if (network_is_active())
-            LbNetwork_Stop();
         return;
     }
     // Get active door

@@ -133,7 +133,7 @@ const Magic_use_Func magic_use_func_list[] = {
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_player_primary_user_state(player);
     if (ustate->work_state == PSt_FreeDestroyWalls)
     {
         struct SlabConfigStats *slabst = get_slab_stats(get_slabmap_for_subtile(stl_x, stl_y));
@@ -1804,7 +1804,7 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     }
     player->slap_cooldown_until_turn = get_gameturn() + player_instance_info[PI_Whip].length_turns;
     if (user_state_invalid(ustate)) {
-        slap_thing(player, thing);
+        slap_thing(player, user, thing);
     } else {
         ustate->influenced_thing_idx = thing->index;
         ustate->influenced_thing_creation = thing->creation_turn;
@@ -1836,7 +1836,7 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
     }
 
     player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_player_primary_user_state(player);
     ustate->influenced_thing_idx = thing->index;
     ustate->influenced_thing_creation = thing->creation_turn;
     ustate->first_person_dig_claim_mode = false;

@@ -165,7 +165,7 @@ static TbBool console_cmd_cheats_allowed(PlayerNumber plyr_idx)
 
 static struct Thing *console_cmd_selected_thing(PlayerNumber plyr_idx)
 {
-    const struct UserState *ustate = get_player_user_state(console_cmd_player(plyr_idx));
+    const struct UserState *ustate = get_player_primary_user_state(console_cmd_player(plyr_idx));
     if (user_state_invalid(ustate))
         return INVALID_THING;
     struct Thing *thing = thing_get(ustate->cheatselection.chosen_thing_idx);
@@ -176,7 +176,7 @@ static struct Thing *console_cmd_selected_thing(PlayerNumber plyr_idx)
 
 static struct Room *console_cmd_selected_room(PlayerNumber plyr_idx)
 {
-    const struct UserState *ustate = get_player_user_state(console_cmd_player(plyr_idx));
+    const struct UserState *ustate = get_player_primary_user_state(console_cmd_player(plyr_idx));
     if (user_state_invalid(ustate))
         return INVALID_ROOM;
     struct Room *room = room_get(ustate->cheatselection.chosen_room_idx);
@@ -209,12 +209,12 @@ static void console_cmd_cursor(MapCoord *x, MapCoord *y)
 void console_cmd_default_cursor(const struct PlayerInfo *player, MapCoord *x, MapCoord *y)
 {
     if (player == &local_observer_player) {
-        const struct Camera *cam = get_local_active_camera(&local_observer_player);
+        const struct Camera *cam = get_local_active_camera();
         *x = cam->mappos.x.val;
         *y = cam->mappos.y.val;
         return;
     }
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_player_primary_user_state(player);
     if (user_state_invalid(ustate)) {
         *x = 0;
         *y = 0;
@@ -622,6 +622,16 @@ TbBool cmd_network_stats(PlayerNumber plyr_idx, char * args)
     } else {
         debug_display_network_stats = 1;
     }
+    return true;
+}
+
+TbBool cmd_disconnect(PlayerNumber plyr_idx, char * args)
+{
+    NETLOG("Simulating a lost connection");
+    netstate.simulating_disconnect = true;
+    turn_off_all_menus();
+    free_swipe_graphic();
+    process_user_leave_game_packet(get_local_user());
     return true;
 }
 
@@ -2053,7 +2063,7 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
     targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got thing ID %d %s",
                             thing->index,
                             thing_class_and_model_name(thing->class_id, thing->model));
-    struct UserState *ustate = get_player_user_state(player);
+    struct UserState *ustate = get_player_primary_user_state(player);
     if (user_state_invalid(ustate))
         return false;
     ustate->cheatselection.chosen_thing_idx = thing->index;
@@ -2145,7 +2155,7 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
         return false;
     }
     targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got room ID %d", room->index);
-    struct UserState *ustate = get_player_user_state(player);
+    struct UserState *ustate = get_player_primary_user_state(player);
     if (user_state_invalid(ustate))
         return false;
     ustate->cheatselection.chosen_room_idx = room->index;
@@ -2697,6 +2707,7 @@ static const struct ConsoleCommand console_commands[] = {
    { "cursor.pos", cmd_cursor_pos, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "dbc", cmd_dbc, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "digger.sendto", cmd_send_digger_to, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+   { "disconnect", cmd_disconnect, NULL, CmdS_Personal, CmdM_MultiplayerOnly, CmdC_Unrestricted },
    { "door.give", cmd_give_door, param_completion_for_give_door, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "fps", cmd_fps_turn, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
    { "fps.draw", cmd_fps_draw, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },

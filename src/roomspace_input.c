@@ -247,7 +247,7 @@ void update_dig_tag_input(void)
         dig_cursor.cursor_button_down = false;
         return;
     }
-    TbBool ignore_packet = ((pckt->action != PckA_None) && (pckt->action != PckA_SetRoomspaceHighlight)) || (get_player_user_state_prediction(get_my_player())->work_state != PSt_CtrlDungeon) || dig_input_is_blocked(pckt);
+    TbBool ignore_packet = ((pckt->action != PckA_None) && (pckt->action != PckA_SetRoomspaceHighlight)) || (get_local_user_state_prediction()->work_state != PSt_CtrlDungeon) || dig_input_is_blocked(pckt);
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     TbBool click = (pckt->control_flags & PCtr_LBtnClick) != 0;
     if (click) {

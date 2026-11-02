@@ -326,7 +326,7 @@ static void draw_overlay_spell_or_box(struct Thing *thing, const struct MinimapO
 
 static void draw_overlay_possessed_thing(const struct MinimapOverlay *ov, int32_t x, int32_t y, TbPixel col)
 {
-    if ((get_local_view_type(ov->player) != PVT_CreatureContrl) && (get_local_view_type(ov->player) != PVT_CreaturePasngr))
+    if ((get_local_view_type() != PVT_CreatureContrl) && (get_local_view_type() != PVT_CreaturePasngr))
         return;
     if ((get_gameturn() % (8 * gui_blink_rate)) >= 4 * gui_blink_rate)
     {
@@ -446,7 +446,7 @@ void panel_map_draw_overlay_things(int32_t units_per_px, int32_t scaled_zoom, in
     }
     struct MinimapOverlay ov;
     ov.player = get_my_player();
-    ov.cam = get_local_active_camera(ov.player);
+    ov.cam = get_local_active_camera();
     if (ov.cam == NULL)
         return;
     ov.zoom = scaled_zoom;
@@ -579,8 +579,7 @@ void panel_map_update(long x, long y, long w, long h)
 
 static void do_map_rotate_stuff(float relpos_x, float relpos_y, float *coord_x, float *coord_y, long zoom)
 {
-    struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_active_camera(player);
+    const struct Camera *cam = get_local_active_camera();
     const int angle = cam->rotation_angle_x & ANGLE_MASK_4;
     const int shift_x = -LbSinL(angle);
     const int shift_y = LbCosL(angle);
@@ -895,8 +894,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     auto_gen_tables(units_per_px);
     s_minimap_pixels = UIRenderer_AcquireMinimapBuffer(PanelMapX, PanelMapY, MapDiagonalLength);
     update_panel_colors();
-    struct PlayerInfo *player = get_my_player();
-    struct Camera *cam = get_local_active_camera(player);
+    struct Camera *cam = get_local_active_camera();
 
     if ((cam == NULL) || (MapDiagonalLength < 1) || (s_minimap_pixels == NULL))
         return;

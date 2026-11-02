@@ -58,6 +58,7 @@ struct GameSettings {
     int isometric_tilt;
     TbBool highlight_mode;
     uint8_t computer_assistant_kind;
+    uint64_t reconnect_token;
     };
 #pragma pack()
 /******************************************************************************/

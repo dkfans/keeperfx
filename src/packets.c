@@ -120,7 +120,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 extern TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* pckt);
-extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
+extern TbBool process_user_dungeon_control_cheats_packet_action(NetUserId user, struct Packet* pckt);
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
@@ -331,22 +331,17 @@ void process_pause_packet(long curr_pause, long new_pause)
 {
   struct PlayerInfo *player;
   TbBool can = true;
-  for (long i = 0; i < PLAYERS_COUNT; i++)
+  for (NetUserId user = 0; user < MAX_NET_USERS; user++)
   {
-    player = get_player(i);
-    if (is_active_keeper(player))
+    player = get_user_player(user);
+    if (is_active_keeper(player) && (player->allocflags & PlaF_CompCtrl) == 0)
     {
-        if ((player->allocflags & PlaF_CompCtrl) == 0)
+        const unsigned char inum = get_user_state(user)->instance_num;
+        if (inum == PI_CrCtrlFade || inum == PI_DirctCtrl || inum == PI_PsngrCtrl
+         || inum == PI_DirctCtLeave || inum == PI_PsngrCtLeave)
         {
-            if ((get_player_user_state(player)->instance_num == PI_CrCtrlFade)
-             || (get_player_user_state(player)->instance_num == PI_DirctCtrl)
-             || (get_player_user_state(player)->instance_num == PI_PsngrCtrl)
-             || (get_player_user_state(player)->instance_num == PI_DirctCtLeave)
-             || (get_player_user_state(player)->instance_num == PI_PsngrCtLeave))
-            {
-              can = false;
-              break;
-            }
+            can = false;
+            break;
         }
     }
   }
@@ -572,15 +567,16 @@ static TbBool is_dungeon_camera_index(unsigned char cam_idx)
     return (cam_idx == CamIV_Isometric) || (cam_idx == CamIV_FrontView);
 }
 
-static void process_dungeon_camera_controls(const struct PlayerInfo *player, struct UserState *ustate, const struct Packet *pckt)
+static void process_dungeon_camera_controls(NetUserId user, const struct Packet *pckt)
 {
+    struct UserState *ustate = get_user_state(user);
     struct DungeonCamera *dcam = &ustate->dungeon_camera;
     const unsigned char view_mode = get_dungeon_view_mode(ustate);
     const TbBool front_view = ustate->prefs[UPref_FrontView] != 0;
     MapCoord x;
     MapCoord y;
     // Iso and front share a position; any other camera's position isn't the dungeon camera's.
-    if (is_dungeon_camera_index(packet_camera_context(pckt)) && is_dungeon_camera_index(get_player_active_camera_index(player))
+    if (is_dungeon_camera_index(packet_camera_context(pckt)) && is_dungeon_camera_index(get_user_active_camera_index(user))
      && !player_instance_controls_camera(ustate->instance_num) && packet_get_camera_position(pckt, &x, &y))
         set_view_position(&dcam->x, &dcam->y, x, y);
     if (!front_view)
@@ -613,13 +609,11 @@ static void process_dungeon_camera_controls(const struct PlayerInfo *player, str
 
 void process_user_dungeon_control_packet_control(NetUserId user)
 {
-    const PlayerNumber plyr_idx = get_net_user_player_number(user);
-    struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet(user);
-    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
+    SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
     // A parchment map jump's controls were made on the parchment, not for the dungeon camera it jumps.
     if (pckt->action != PckA_ZoomFromMap)
-        process_dungeon_camera_controls(player, get_user_state(user), pckt);
+        process_dungeon_camera_controls(user, pckt);
     // update settings (unless replay)
     if (user == get_local_user() && !replay.load_enable) {
         const struct UserState *ustate = get_user_state(user);
@@ -891,7 +885,7 @@ TbBool process_user_global_packet_action(NetUserId user)
   case PckA_SetUserPref:
       return process_local_packet_action(ustate, pckt);
   case PckA_ToggleLights:
-      if (is_my_player(player))
+      if (is_local_user(user))
       {
           light_set_lights_on(game.lish.light_enabled == 0);
       }
@@ -903,7 +897,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_user_work_state(user, pckt->actn_par1, pckt->actn_par2);
       return 0;
   case PckA_SwitchView:
-      set_engine_view(player, pckt->actn_par1 != 0, pckt->actn_par2 != 0);
+      set_user_dungeon_view(user, pckt->actn_par1 != 0, pckt->actn_par2 != 0);
       return 0;
   case PckA_SetTimestamp:
       if (user != SERVER_ID) {
@@ -1077,7 +1071,7 @@ TbBool process_user_global_packet_action(NetUserId user)
           ustate->prefs[UPref_StartingComputerAssistantKind] = pckt->actn_par1;
       return 0;
   case PckA_GoSpectator:
-      level_lost_go_first_person(plyr_idx);
+      level_lost_go_first_person(user);
       return 0;
   case PckA_DumpHeldThingToOldPos:
       dungeon = get_players_num_dungeon(plyr_idx);
@@ -1253,7 +1247,7 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
         }
         break;
     default:
-        return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);
+        return process_user_dungeon_control_cheats_packet_action(user, pckt);
     }
     return true;
 }
@@ -1592,7 +1586,9 @@ enum PacketExchangeResult exchange_packets(void)
             MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
             load_old_packets();
         }
-        if (network_is_active() && checksums_different()) {
+        if (netstate.resync_pending) {
+            MULTIPLAYER_LOG("process_packets: Skipping checksums, resync data is pending");
+        } else if (network_is_active() && checksums_different()) {
             set_flag(local_system_flags, GSF_NetGameNoSync);
             clear_flag(local_system_flags, GSF_NetSeedNoSync);
         } else {
@@ -1655,7 +1651,8 @@ void process_packets(void)
     // Clear all packets
     clear_packets();
     if (network_is_active()) {
-        network_spectator_convert_defeated_users();
+        network_spectator_convert_requested_users();
+        network_spectator_seat_users();
         network_spectator_send_snapshots();
     }
     if (quit_game || exit_keeper) {

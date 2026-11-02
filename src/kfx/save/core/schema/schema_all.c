@@ -12,7 +12,6 @@ static const struct SaveStructDesc *const save_roots[] = {
     &save_desc_PacketSaveHead,
     &save_desc_Packet,
     &save_desc_HighScore,
-    &save_desc_ConfigInfo,
 };
 
 const struct SaveStructDesc *const *save_root_structs(uint32_t *count)

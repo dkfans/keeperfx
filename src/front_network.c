@@ -29,6 +29,7 @@
 #include "net_lobby.h"
 #include "bflib_netsession.h"
 #include "bflib_guibtns.h"
+#include "bflib_inputctrl.h"
 #include "bflib_keybrd.h"
 #include "bflib_sound.h"
 #include "bflib_vidraw.h"
@@ -51,7 +52,6 @@
 #include "net_matchmaking.h"
 #include "net_lan.h"
 #include "config_campaigns.h"
-#include "kfx/save/SaveManager.h"
 #include <stddef.h>
 #include <SDL3/SDL.h>
 #include "post_inc.h"
@@ -69,11 +69,9 @@ extern int autostart_multiplayer_level;
 extern int autostart_multiplayer_users_expected;
 
 /******************************************************************************/
-const char *keeper_netconf_file = "fxconfig.net";
-
 const struct ConfigInfo default_net_config_info = {
     "",
-    "Player",
+    "",
     "",
     MAX_NET_USERS,
     1,
@@ -233,10 +231,23 @@ static void resolve_random_teams(int8_t teams[MAX_NET_USERS])
 
 void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances)
 {
+    PlayerNumber seats_left = colours_count;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        PlayerNumber colour = net_player_colour[user];
+        player_colours[user] = -1;
+        if (colour < 0 || seats_left == 0) {
+            continue;
+        }
+        seats_left--;
+        player_colours[user] = NET_PLAYER_COLOUR_RANDOM;
+        if (colour < colours_count && net_user_with_value(net_player_colour, colour) == user) {
+            player_colours[user] = colour;
+        }
+    }
     PlayerNumber free_colours[MAX_NET_USERS];
     PlayerNumber free_count = 0;
     for (PlayerNumber colour = 0; colour < colours_count; colour++) {
-        if (net_user_with_value(net_player_colour, colour) < 0) {
+        if (net_user_with_value(player_colours, colour) < 0) {
             free_colours[free_count] = colour;
             free_count++;
         }
@@ -244,12 +255,7 @@ void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colour
     shuffle_values(free_colours, free_count);
     PlayerNumber next_free = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        player_colours[user] = net_player_colour[user];
-        if (player_colours[user] < 0 || (player_colours[user] < colours_count && net_user_with_value(net_player_colour, player_colours[user]) == user)) {
-            continue;
-        }
-        player_colours[user] = -1;
-        if (next_free < free_count) {
+        if (player_colours[user] == NET_PLAYER_COLOUR_RANDOM) {
             player_colours[user] = free_colours[next_free];
             next_free++;
         }
@@ -571,7 +577,7 @@ static TbBool frontnet_session_list_in_use(void)
         last_mouse_y = mouse_y;
         last_mouse_move = now;
     }
-    return net_number_of_sessions > 0 && frontend_mouse_over_button >= 45 && frontend_mouse_over_button < 45 + frontend_sessions_menu_items_visible && now - last_mouse_move < SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS;
+    return lan_session_count + matchmaking_session_count > 0 && frontend_mouse_over_button >= 45 && frontend_mouse_over_button < 45 + frontend_sessions_menu_items_visible && now - last_mouse_move < SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS;
 }
 
 void frontnet_session_update(void)
@@ -900,42 +906,7 @@ void reset_attempting_to_join_cancel(void)
 
 TbBool attempting_to_join_cancel_requested(void)
 {
-    return attempting_to_join_cancelled;
-}
-
-/** Makes a config read from a file safe to use: strings terminated, the player limit in range, flags 0 or 1. */
-static void net_config_sanitise(void)
-{
-    net_config_info.net_player_name[sizeof(net_config_info.net_player_name) - 1] = '\0';
-    net_config_info.net_lobby_name[sizeof(net_config_info.net_lobby_name) - 1] = '\0';
-    if (net_config_info.max_players < MIN_NET_USERS || net_config_info.max_players > MAX_NET_USERS)
-        net_config_info.max_players = MAX_NET_USERS;
-    net_config_info.spectators_enabled = net_config_info.spectators_enabled != 0;
-    net_config_info.spectator_chat = net_config_info.spectator_chat != 0;
-    net_config_info.computer_players = net_config_info.computer_players != 0;
-    net_config_info.cheats_enabled = net_config_info.cheats_enabled != 0;
-    net_config_info.computer_assistant = net_config_info.computer_assistant != 0;
-}
-
-void net_load_config_file(void)
-{
-    // Try to load the config file
-    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
-    struct SaveError err;
-    if (SaveManager_ReadNetConfig(fname, &net_config_info, &err) == SVR_Ok)
-    {
-        net_config_sanitise();
-        return;
-    }
-    // If can't load, then use default config
-    memcpy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
-    snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", get_string(GUIStr_MnuNoName));
-}
-
-void net_write_config_file(void)
-{
-    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
-    SaveManager_WriteNetConfig(fname, &net_config_info);
+    return attempting_to_join_cancelled || lbUserQuit;
 }
 
 void frontnet_service_setup(void)
@@ -950,7 +921,9 @@ void frontnet_service_setup(void)
         snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetServiceSkirmish));
         net_number_of_services++;
     }
-    net_load_config_file();
+    if (net_config_info.net_player_name[0] == '\0') {
+        snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", get_string(GUIStr_MnuNoName));
+    }
 }
 
 void frontnet_session_setup(void)

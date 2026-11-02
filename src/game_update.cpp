@@ -271,6 +271,7 @@ static void process_dungeons(void)
   SYNCDBG(7,"Starting");
   check_players_lost();
   resolve_placeholders();
+  hand_waiting_placeholders_to_ai();
   process_dungeon_power_magic();
   process_dungeon_devastation_effects();
   process_entrance_generation();
@@ -472,7 +473,6 @@ static void update_global_lighting()
 void update(void)
 {
     KFX_ZONE_COLOR("update", KFX_COLOR_SIMULATION);
-    struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 
     process_packets();
@@ -487,7 +487,6 @@ void update(void)
         game.map_changed_for_navigation = 0;
         return;
     }
-    player = get_my_player();
 
     if (!flag_is_set(game.operation_flags,GOF_Paused))
     {
@@ -515,13 +514,12 @@ void update(void)
             process_computer_players2();
         process_players();
         process_action_points();
-        player = get_my_player();
-        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
+        if ((get_user_view_type(get_my_user()) == PVT_CreatureContrl) || (get_user_view_type(get_my_user()) == PVT_CreaturePasngr))
         {
             struct Thing *thing = thing_get(get_user_state(get_displayed_user())->controlled_thing_idx);
             update_first_person_object_ambience(thing);
         }
-        update_footsteps_nearest_camera(get_local_active_camera(player));
+        update_footsteps_nearest_camera(get_local_active_camera());
         PaletteFadePlayer(get_displayed_player());
         process_armageddon();
         update_global_lighting();

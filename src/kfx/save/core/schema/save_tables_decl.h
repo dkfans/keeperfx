@@ -44,7 +44,6 @@ SAVE_DECLARE(ComputerTask_sacrifice_imp);
 SAVE_DECLARE(ComputerTask_sell_traps_doors);
 SAVE_DECLARE(ComputerTask_slap_imps);
 SAVE_DECLARE(Condition);
-SAVE_DECLARE(ConfigInfo);
 SAVE_DECLARE(Configs);
 SAVE_DECLARE(ContinueData);
 SAVE_DECLARE(Coord2d);

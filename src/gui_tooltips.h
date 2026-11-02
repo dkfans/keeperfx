@@ -48,6 +48,7 @@ extern struct TooltipDebugInfo tool_tip_dbg;
 #pragma pack()
 /******************************************************************************/
 void toggle_tooltips(void);
+void update_paused_message_tooltip(void);
 void draw_tooltip(void);
 TbBool input_gameplay_tooltips(TbBool gameplay_on);
 short setup_scrolling_tooltips(struct Coord3d *mappos);

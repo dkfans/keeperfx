@@ -612,6 +612,7 @@ SAVE_STRUCT(DungeonCamera, struct DungeonCamera,
 );
 
 SAVE_STRUCT(UserState, struct UserState,
+    SAVE_FIELD(struct UserState, reconnect_player_id, SV_I8),
     SAVE_FIELD(struct UserState, init_flags, SV_U8),
     SAVE_FIELD(struct UserState, additional_flags, SV_U8),
     SAVE_FIELD(struct UserState, input_crtr_control, SV_U8),

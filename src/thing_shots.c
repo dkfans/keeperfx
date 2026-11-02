@@ -1637,7 +1637,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
 
 static TbBool lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    return get_chessboard_distance(&get_local_active_camera(player)->mappos, pos) < subtile_coord(45,0);
+    return get_chessboard_distance(&get_local_active_camera()->mappos, pos) < subtile_coord(45,0);
 }
 
 static void affect_nearby_friends_with_alarm(struct Thing *traptng)

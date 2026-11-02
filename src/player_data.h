@@ -197,6 +197,7 @@ struct PlayerInfo {
  */
 struct UserState {
     PlayerNumber player_id;
+    PlayerNumber reconnect_player_id;
     unsigned char init_flags; // Uses UserInitFlags
     unsigned char additional_flags; // Uses UserAdditionalFlags
     unsigned char input_crtr_control;
@@ -366,12 +367,13 @@ TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_active_keeper(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
+NetUserId get_my_user(void);
+TbBool is_local_user(NetUserId user);
 struct UserState *get_user_state(NetUserId user);
-struct UserState *get_player_user_state(const struct PlayerInfo *player);
+struct UserState *get_player_primary_user_state(const struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);
 void set_local_user_state_prediction(const struct UserState *ustate);
 const struct UserState *get_user_state_prediction(NetUserId user);
-const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player);
 const struct UserState *get_local_user_state_prediction(void);
 ThingIndex get_user_thing_under_hand(NetUserId user);
 uint32_t get_local_minimap_zoom(void);
@@ -399,9 +401,9 @@ void reset_user_view_type(NetUserId user, unsigned short nview);
 
 void clear_players(void);
 
-unsigned char get_player_view_type(const struct PlayerInfo *player);
-unsigned char get_player_active_camera_index(const struct PlayerInfo *player);
-int32_t get_player_dungeon_yaw(const struct PlayerInfo *player);
+unsigned char get_user_view_type(NetUserId user);
+unsigned char get_user_active_camera_index(NetUserId user);
+int32_t get_user_dungeon_yaw(NetUserId user);
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
 void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
 NetUserId get_player_primary_user(const struct PlayerInfo *player);

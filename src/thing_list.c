@@ -4453,7 +4453,7 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
     WARNLOG("No change performed");
 }
 
-ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player)
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, NetUserId user)
 {
     unsigned long k = 0;
     ThingIndex i = current_creature->index;
@@ -4475,7 +4475,7 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
             {
                 if ( (thing->model == crmodel) || (crmodel == 0) )
                 {
-                    if (creature_can_be_queried(player, thing))
+                    if (creature_can_be_queried(user, thing))
                     {
                         return thing->index;
                     }
