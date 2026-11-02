@@ -65,6 +65,7 @@
 #include "game_legacy.h"
 #include "sprites.h"
 #include "lua_cfg_funcs.h"
+#include "lua_triggers.h"
 
 #include "creature_states_gardn.h"
 #include "creature_states_hero.h"
@@ -1508,7 +1509,7 @@ short cleanup_timebomb(struct Thing *creatng)
     return 0;
 }
 
-short creature_being_dropped(struct Thing *creatng)
+static short process_creature_being_dropped(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     SYNCDBG(17,"Starting for %s index %ld",thing_model_name(creatng),(long)creatng->index);
@@ -1675,6 +1676,21 @@ short creature_being_dropped(struct Thing *creatng)
         //set_creature_assigned_job(creatng, Job_NULL); -- already assigned
     }
     return CrStRet_ResetOk;
+}
+
+short creature_being_dropped(struct Thing *creatng)
+{
+    short ret = process_creature_being_dropped(creatng);
+    // Still falling - the creature has not landed yet
+    if (ret == CrStRet_Modified) {
+        return ret;
+    }
+    // Landed and the engine has chosen state and job; Lua may override them now
+    lua_on_creature_landed(creatng, creatng->holding_player);
+    if (!thing_exists(creatng) || !thing_is_creature(creatng)) {
+        return CrStRet_Deleted;
+    }
+    return ret;
 }
 
 short creature_cannot_find_anything_to_do(struct Thing *creatng)

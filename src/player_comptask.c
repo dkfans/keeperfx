@@ -60,6 +60,7 @@
 #include "game_legacy.h"
 #include "cursor_tag.h"
 #include "gui_msgs.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -792,6 +793,9 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
         ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(droptng),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
         return 0;
     }
+    if (!lua_on_creature_drop(droptng, comp->dungeon->owner, &locpos)) {
+        return 0;
+    }
     int i;
     i = max_height - height;
     if (i < 0) {
@@ -863,6 +867,7 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
     locpos.z.val = get_thing_height_at(thing, &locpos);
     drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
     comp->held_thing_idx = 0;
+    lua_on_creature_drop(thing, comp->dungeon->owner, &locpos);
     return true;
 }
 
@@ -878,6 +883,7 @@ TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Th
     locpos.z.val = get_thing_height_at(thing, &locpos);
     drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
     comp->held_thing_idx = 0;
+    lua_on_creature_drop(thing, comp->dungeon->owner, &locpos);
     return true;
 }
 

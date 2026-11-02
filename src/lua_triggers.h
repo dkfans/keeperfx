@@ -41,6 +41,8 @@ void lua_on_object_destroyed(struct Thing* objtng);
 void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx);
 void lua_on_level_up(struct Thing *thing);
 void lua_on_pick_up(struct Thing* thing, PlayerNumber plyr_idx);
+TbBool lua_on_creature_drop(struct Thing* thing, PlayerNumber plyr_idx, struct Coord3d *pos);
+void lua_on_creature_landed(struct Thing *crtng, PlayerNumber plyr_idx);
 void lua_on_slap(struct Thing* thing, PlayerNumber plyr_idx);
 void lua_on_slab_kind_change(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind old_slab);
 void lua_on_slab_owner_change(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber old_owner);
