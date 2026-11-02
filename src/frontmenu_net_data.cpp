@@ -849,13 +849,22 @@ static TbBool lobby_player_cell_editable(NetUserId user, int32_t column)
     return false;
 }
 
-static NetUserId lobby_editable_player_at_mouse(struct GuiButton *gbtn)
+static NetUserId lobby_player_at_mouse(struct GuiButton *gbtn)
 {
     if (!mouse_is_over_lobby_area(gbtn, false)) {
         return -1;
     }
     NetUserId user = (GetMouseY() - gbtn->scr_pos_y) * 16 / (LOBBY_ROW_HEIGHT * lobby_menu_scale(gbtn));
-    if (user >= net_lobby_max_players || !lobby_player_cell_editable(user, lobby_player_column_at_mouse(gbtn))) {
+    if (user >= net_lobby_max_players) {
+        return -1;
+    }
+    return user;
+}
+
+static NetUserId lobby_editable_player_at_mouse(struct GuiButton *gbtn)
+{
+    NetUserId user = lobby_player_at_mouse(gbtn);
+    if (user < 0 || !lobby_player_cell_editable(user, lobby_player_column_at_mouse(gbtn))) {
         return -1;
     }
     return user;
@@ -896,6 +905,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
     column_x[LobbyPlayerColumn_Name] = gbtn->scr_pos_x + LOBBY_PLAYER_ROW_INSET * gbtn->width / columns[LobbyPlayerColumn_Count];
     TbBool show_ping = LobbyPlayerColumn_Ping < active_player_column_count();
     NetUserId user_at_mouse = lobby_editable_player_at_mouse(gbtn);
+    NetUserId hovered_user = lobby_player_at_mouse(gbtn);
     int32_t column_at_mouse = lobby_player_column_at_mouse(gbtn);
     int font = frontend_button_caption_font(gbtn, 0);
     unsigned char *previous_glass_map = lbDisplay.GlassMap;
@@ -906,7 +916,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         int y = gbtn->scr_pos_y + user * height;
         TbBool computer = net_lobby_computer_player(user);
         unsigned short draw_flags = 0;
-        if (computer && !frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+        if (computer && user != hovered_user && !frontnet_service_selected(FrontendNetSvc_Skirmish)) {
             draw_flags = Lb_SPRITE_TRANSPAR4;
         }
         RendererSetDrawFlags(draw_flags);
