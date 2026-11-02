@@ -169,13 +169,8 @@ void build_local_user_preferences(UserPreferences prefs)
     prefs[UPref_FrontView] = front_view;
     prefs[UPref_Wibble] = wibble;
     prefs[UPref_Cheats] = start_params.easter_egg;
-    const struct ConfigInfo *lobby_config = NULL;
-    if (network_is_active() && network_is_host()) {
-        lobby_config = &net_config_info;
-    } else if (frontnet_service_selected(FrontendNetSvc_Skirmish)) {
-        lobby_config = &skirmish_config_info;
-    }
-    if (lobby_config != NULL) {
+    if (network_is_host() && (network_is_active() || frontnet_service_selected(FrontendNetSvc_Skirmish))) {
+        const struct ConfigInfo *lobby_config = active_lobby_config();
         prefs[UPref_Cheats] = lobby_config->cheats_enabled;
         prefs[UPref_ComputerAssistantDisabled] = !lobby_config->computer_assistant;
     }

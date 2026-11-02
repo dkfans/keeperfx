@@ -330,6 +330,14 @@ static const int *active_player_columns(void)
     return lobby_player_columns;
 }
 
+static int32_t active_player_column_count(void)
+{
+    if (frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+        return LobbyPlayerColumn_Ping;
+    }
+    return LobbyPlayerColumn_Count;
+}
+
 static unsigned char *get_frontend_lobby_glass_map(void)
 {
     static unsigned char *glass_map = [] {
@@ -679,11 +687,7 @@ void frontnet_draw_lobby_settings_header(struct GuiButton *gbtn)
 void frontnet_draw_lobby_players_header(struct GuiButton *gbtn)
 {
     const char *text[] = {get_string(GUIStr_MnuPlayers), get_string(GUIStr_NetTeam), get_string(GUIStr_NetPing)};
-    int count = LobbyPlayerColumn_Count;
-    if (frontnet_service_selected(FrontendNetSvc_Skirmish)) {
-        count = LobbyPlayerColumn_Ping;
-    }
-    draw_lobby_column_tabs(gbtn, active_player_columns(), count, text);
+    draw_lobby_column_tabs(gbtn, active_player_columns(), active_player_column_count(), text);
 }
 
 void frontnet_draw_lobby_name(struct GuiButton *gbtn)
@@ -890,7 +894,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         column_x[column] = gbtn->scr_pos_x + columns[column] * gbtn->width / columns[LobbyPlayerColumn_Count];
     }
     column_x[LobbyPlayerColumn_Name] = gbtn->scr_pos_x + LOBBY_PLAYER_ROW_INSET * gbtn->width / columns[LobbyPlayerColumn_Count];
-    TbBool show_ping = column_x[LobbyPlayerColumn_Count] > column_x[LobbyPlayerColumn_Ping];
+    TbBool show_ping = LobbyPlayerColumn_Ping < active_player_column_count();
     NetUserId user_at_mouse = lobby_editable_player_at_mouse(gbtn);
     int32_t column_at_mouse = lobby_player_column_at_mouse(gbtn);
     int font = frontend_button_caption_font(gbtn, 0);
