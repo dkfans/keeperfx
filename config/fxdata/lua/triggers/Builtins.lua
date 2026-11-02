@@ -126,14 +126,18 @@ function OnCreatureLanded(unit, player)
     ProcessEvent("CreatureLanded",eventData)
 end
 
---- Called when a thing is picked up. Can be Creatures, Chickens, Specials, Gold, etc.
+--- Called when a thing is about to be picked up, before it is in the hand. Can be Creatures, Chickens, Specials, Gold, etc.
+--- Set eventData.deny = true to leave it where it is.
 ---@param thing Thing
 ---@param player Player
+---@return boolean deny
 function OnPickUp(thing, player)
     local eventData = {}
     eventData.thing = thing
     eventData.player = player
+    eventData.deny = false
     ProcessEvent("PickUp",eventData)
+    return eventData.deny
 end
 
 --- Called when a thing is slapped. Can be Creatures, Traps, Shots, Objects, etc.

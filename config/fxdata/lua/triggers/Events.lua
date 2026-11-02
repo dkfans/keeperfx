@@ -212,9 +212,10 @@ function RegisterSlapEvent(action, thing, player)
     return trigger
 end
 
----Triggers when a thing is picked up
+---Triggers when a thing is about to be picked up, before it is in the hand
+---set eventData.deny = true to leave the thing where it is
 ---@param action function|string the function to call when the event happens
----@param thing? Thing the thing that got picked up
+---@param thing? Thing the thing that is being picked up
 ---@param player? Player the player picking up
 ---@return Trigger
 function RegisterPickUpEvent(action, thing, player)
