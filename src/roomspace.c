@@ -887,10 +887,9 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
 
 TbBool update_dungeon_build_roomspace_preview(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     ustate->full_slab_cursor = 1;
-    if (is_my_player(player)) {
+    if (is_local_user(user)) {
         gui_room_type_highlighted = ustate->chosen_room_kind;
     }
     get_dungeon_build_user_roomspace(&ustate->render_roomspace, user, ustate->chosen_room_kind, stl_x, stl_y, ustate->roomspace_mode);
@@ -1190,7 +1189,7 @@ static void process_box_roomspace_inputs(struct Packet *pckt)
 
 void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 {
-    const struct UserState* ustate = get_player_user_state_prediction(get_player(plyr_idx));
+    const struct UserState* ustate = get_local_user_state_prediction();
     struct Packet* pckt = get_local_packet() /* local input path */;
     if (room_role_matches(ustate->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater|RoRoF_PassAbyss)) {
         local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
@@ -1238,7 +1237,7 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    const struct UserState* ustate = get_player_user_state_prediction(player);
+    const struct UserState* ustate = get_local_user_state_prediction();
     if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) {
         set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode ^ 1, settings.highlight_mode, 0, 0);
         reset_roomspace = true;

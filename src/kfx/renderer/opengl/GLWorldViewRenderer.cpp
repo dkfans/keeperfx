@@ -2616,7 +2616,6 @@ void GLWorldViewRenderer::DrawIsometricView()
         struct BucketKindCreatureStatus *creatureStatus;
         struct BucketKindSlabSelector *slabSelector;
     } item;
-    struct PlayerInfo *player;
     struct Camera *cam;
 
     for (long bucket_num = BUCKETS_COUNT - 1; bucket_num > 0; bucket_num--)
@@ -2637,8 +2636,7 @@ void GLWorldViewRenderer::DrawIsometricView()
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_JontyISOSprite:
-                player = get_my_player();
-                cam = get_local_active_camera(player);
+                cam = get_local_active_camera();
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {

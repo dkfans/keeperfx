@@ -196,7 +196,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     if (lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        get_player_user_state(player)->additional_flags |= UsrAF_UnlockedLordTorture;
+        get_local_user_state()->additional_flags |= UsrAF_UnlockedLordTorture;
     }
     output_message(SMsg_LevelWon, 0);
   }
@@ -241,25 +241,16 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    if (get_player_view_type(player) == PVT_CreatureContrl)
-    {
-        struct Thing *thing = thing_get(get_player_user_state(player)->controlled_thing_idx);
-        leave_creature_as_controller(player, thing);
-    }
-    else if (get_player_view_type(player) == PVT_CreaturePasngr)
-    {
-        struct Thing *thing = thing_get(get_player_user_state(player)->controlled_thing_idx);
-        leave_creature_as_passenger(player, thing);
-    }
-    else
-    {
-        if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
-        {
-            for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-                if (get_net_user_player_number(user) == player->id_number)
-                    set_user_view_type(user, PVT_DungeonTop);
-            }
-        }
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (get_net_user_player_number(user) != player->id_number)
+            continue;
+        struct Thing *thing = thing_get(get_user_state(user)->controlled_thing_idx);
+        if (get_user_view_type(user) == PVT_CreatureContrl)
+            leave_creature_as_controller(user, thing);
+        else if (get_user_view_type(user) == PVT_CreaturePasngr)
+            leave_creature_as_passenger(user, thing);
+        else if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
+            set_user_view_type(user, PVT_DungeonTop);
     }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (get_net_user_player_number(user) == player->id_number)
@@ -876,6 +867,15 @@ void init_local_player_state(void)
     local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
 }
 
+static void reset_player_users_view_type(struct PlayerInfo *player)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        if (get_user_state(user)->player_id == player->id_number)
+            reset_user_view_type(user, PVT_DungeonTop);
+    }
+}
+
 void init_player(struct PlayerInfo *player, short no_explore)
 {
     SYNCDBG(5,"Starting");
@@ -908,7 +908,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     {
     case GKind_LocalGame:
         init_player_start(player, false);
-        reset_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
+        reset_player_users_view_type(player);
         if ( !no_explore ) {
           init_keeper_map_exploration_by_terrain(player);
           init_keeper_map_exploration_by_creatures(player);
@@ -921,7 +921,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
           break;
         }
         init_player_start(player, false);
-        reset_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
+        reset_player_users_view_type(player);
         init_keeper_map_exploration_by_terrain(player);
         init_keeper_map_exploration_by_creatures(player);
         break;
@@ -955,7 +955,7 @@ int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y)
     const struct DungeonCamera dcam = ustate->dungeon_camera;
     *x = dcam.x;
     *y = dcam.y;
-    switch (get_player_view_type(player))
+    switch (get_user_view_type(user))
     {
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
@@ -1251,28 +1251,30 @@ void init_players_local_game(void)
     build_local_user_preferences(prefs);
     apply_user_preferences(SOLO_HUMAN_ID, prefs, UPF_NewGame);
     init_player(player, 0);
-    apply_user_start_tendencies(player);
+    apply_user_start_tendencies(SOLO_HUMAN_ID);
 }
 
 void process_player_states(void)
 {
     SYNCDBG(6,"Starting");
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        struct PlayerInfo* player = get_player(plyr_idx);
-        struct UserState* ustate = get_player_user_state(player);
+        if (!user_present(user))
+            continue;
+        struct PlayerInfo* player = get_user_player(user);
+        struct UserState* ustate = get_user_state(user);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
             if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
             {
                 struct Thing* thing = thing_get(ustate->controlled_thing_idx);
                 if (thing_exists(thing)) {
-                    get_player_user_state(player)->dungeon_camera.x = thing->mappos.x.val;
-                    get_player_user_state(player)->dungeon_camera.y = thing->mappos.y.val;
-                    set_local_camera_destination(player);
+                    ustate->dungeon_camera.x = thing->mappos.x.val;
+                    ustate->dungeon_camera.y = thing->mappos.y.val;
+                    set_local_camera_destination(user);
                 }
             }
-            else if (get_player_view_type(player) == PVT_CreatureContrl || get_player_view_type(player) == PVT_CreaturePasngr)
+            else if (ustate->view_type == PVT_CreatureContrl || ustate->view_type == PVT_CreaturePasngr)
             {
                 struct Thing* thing = thing_get(ustate->controlled_thing_idx);
                 if (thing_exists(thing)) {

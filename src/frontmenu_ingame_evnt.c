@@ -684,7 +684,7 @@ static TbBool get_paused_message_layout(struct TextBoxLayout *layout)
     LbTextSetFont(winfont);
     layout->width = LbTextStringWidth(get_string(GUIStr_PausedMsg)) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16);
     layout->height = LbTextLineHeight() * units_per_pixel / 16;
-    if (get_local_view_type(get_my_player()) != PVT_MapScreen) {
+    if (get_local_view_type() != PVT_MapScreen) {
         layout->scr_x = local_state.engine_window_x + (MyScreenWidth - layout->width - local_state.engine_window_x) / 2;
     } else {
         layout->scr_x = (MyScreenWidth - layout->width) / 2;

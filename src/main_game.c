@@ -382,9 +382,8 @@ TbBool startup_saved_packet_game(void)
     init_players();
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        const PlayerNumber plyr_idx = get_net_user_player_number(user);
-        if ((plyr_idx >= 0) && (replay.head.user_players[user] >= 0))
-            apply_user_start_tendencies(get_player(plyr_idx));
+        if ((get_net_user_player_number(user) >= 0) && (replay.head.user_players[user] >= 0))
+            apply_user_start_tendencies(user);
     }
     frontend_alliances = replay.head.frontend_alliances;
     setup_alliances();
@@ -396,7 +395,7 @@ TbBool startup_saved_packet_game(void)
     if ((game.mode_flags & MFlg_IsDemoMode) == 0) {
         observer_init(my_player_number);
     }
-    update_engine_view(get_my_player(), false);
+    update_local_view(get_my_user(), false);
     return true;
 }
 

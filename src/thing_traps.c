@@ -648,7 +648,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     }
 }
 
-void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
+void activate_trap_by_slap(NetUserId user, struct Thing* traptng)
 {
     struct Thing* trgtng = INVALID_THING;
     struct TrapConfigStats* trapst = get_trap_model_stats(traptng->model);
@@ -689,7 +689,7 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
             {
             case TrpAcT_HeadforTarget90:
             case TrpAcT_CreatureShot:
-                external_activate_trap_shot_at_angle(traptng, get_player_dungeon_yaw(player), trgtng);
+                external_activate_trap_shot_at_angle(traptng, get_user_dungeon_yaw(user), trgtng);
                 break;
             default:
                 ERRORLOG("Illegal trap activation type %d (idx=%d)", (int)trapst->activation_type, traptng->index);
