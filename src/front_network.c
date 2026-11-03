@@ -139,15 +139,19 @@ static int8_t first_unused_value(const int8_t values[MAX_NET_USERS])
     return MAX_NET_USERS;
 }
 
+// users may share a seat (archon), but computers must be solo
 TbBool net_player_colours_conflict(void)
 {
+    PlayerNumber colours_needed = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         PlayerNumber colour = net_player_colour[user];
-        if (colour >= 0 && colour < NET_PLAYER_COLOUR_RANDOM && net_user_with_value(net_player_colour, colour) != user) {
-            return true;
+        if (net_lobby_computer_player(user) || colour == NET_PLAYER_COLOUR_RANDOM) {
+            colours_needed++;
+        } else if (colour >= 0 && net_user_with_value(net_player_colour, colour) == user) {
+            colours_needed++;
         }
     }
-    return false;
+    return colours_needed > NET_PLAYER_COLOUR_RANDOM;
 }
 
 void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId user, TbBool backwards)
@@ -232,17 +236,22 @@ static void resolve_random_teams(int8_t teams[MAX_NET_USERS])
 void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances)
 {
     PlayerNumber seats_left = colours_count;
+    TbBool shares_colour[MAX_NET_USERS] = {false};
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         PlayerNumber colour = net_player_colour[user];
         player_colours[user] = -1;
-        if (colour < 0 || seats_left == 0) {
+        if (colour < 0) {
+            continue;
+        }
+        if (colour != NET_PLAYER_COLOUR_RANDOM && net_user_with_value(net_player_colour, colour) != user) {
+            shares_colour[user] = true;
+            continue;
+        }
+        if (seats_left == 0) {
             continue;
         }
         seats_left--;
-        player_colours[user] = NET_PLAYER_COLOUR_RANDOM;
-        if (colour < colours_count && net_user_with_value(net_player_colour, colour) == user) {
-            player_colours[user] = colour;
-        }
+        player_colours[user] = colour < colours_count ? colour : NET_PLAYER_COLOUR_RANDOM;
     }
     PlayerNumber free_colours[MAX_NET_USERS];
     PlayerNumber free_count = 0;
@@ -260,6 +269,11 @@ void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colour
             next_free++;
         }
     }
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (shares_colour[user]) {
+            player_colours[user] = player_colours[net_user_with_value(net_player_colour, net_player_colour[user])];
+        }
+    }
     for (NetUserId user = 0; user < MAX_NET_USERS && next_free < free_count; user++) {
         if (net_lobby_computer_player(user)) {
             player_colours[user] = free_colours[next_free];
@@ -268,7 +282,8 @@ void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colour
     }
     int8_t slot_teams[MAX_NET_USERS];
     memset(slot_teams, -1, sizeof(slot_teams));
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    // archon keeper takes its first user's team
+    for (NetUserId user = MAX_NET_USERS; user --> 0;) {
         if (player_colours[user] >= 0) {
             slot_teams[player_colours[user]] = net_player_team[user];
         }
