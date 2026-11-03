@@ -47,6 +47,7 @@
 #include "config.h"
 #include "config_sounds.h"
 #include "config_strings.h"
+#include "config_settings.h"
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "net_matchmaking.h"
@@ -944,8 +945,9 @@ void frontnet_service_setup(void)
         snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetServiceSkirmish));
         net_number_of_services++;
     }
-    if (net_config_info.net_player_name[0] == '\0') {
-        snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", get_string(GUIStr_MnuNoName));
+    if ((net_config_info.net_player_name[0] == '\0') || (strcmp(net_config_info.net_player_name, get_string(GUIStr_MnuNoName)) == 0)) {
+        snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "Keeper%03d", rand() % NET_DEFAULT_NAME_NUMBER_RANGE);
+        save_settings();
     }
 }
 

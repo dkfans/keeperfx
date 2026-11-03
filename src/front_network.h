@@ -34,6 +34,7 @@ extern "C" {
 #define NET_PLAYER_COLOUR_RANDOM MAX_NET_USERS
 #define NET_TEAM_COUNT 4
 #define NET_TEAM_RANDOM NET_TEAM_COUNT
+#define NET_DEFAULT_NAME_NUMBER_RANGE 1000
 
 enum NetPlayerSettingKind {
     NetPlayerSetting_Colour,

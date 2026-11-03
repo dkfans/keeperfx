@@ -1143,7 +1143,7 @@ void frontnet_session_set_lobby_name(struct GuiButton *gbtn)
 void frontnet_session_create(struct GuiButton *gbtn)
 {
     if (net_config_info.net_lobby_name[0] == '\0') {
-        snprintf(net_config_info.net_lobby_name, sizeof(net_config_info.net_lobby_name), "Dungeon%03d", rand() % 1000);
+        snprintf(net_config_info.net_lobby_name, sizeof(net_config_info.net_lobby_name), "Dungeon%03d", rand() % NET_DEFAULT_NAME_NUMBER_RANGE);
         save_settings();
     }
     uint32_t plyr_num;
