@@ -421,10 +421,10 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
         return count_active_battles(plyr_idx);
     case SVar_VIEW_TYPE:
         player = get_player(plyr_idx);
-        return get_player_view_type(player);
+        return get_user_view_type(get_player_primary_user(player));
     case SVar_CONTROLLED_THING:
         player = get_player(plyr_idx);
-        return get_player_user_state(player)->controlled_thing_idx;
+        return get_player_primary_user_state(player)->controlled_thing_idx;
     case SVar_TOTAL_SLAPS:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.num_slaps;

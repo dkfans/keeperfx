@@ -247,7 +247,7 @@ void gui_video_rotate_mode(struct GuiButton *gbtn)
     } else {
         struct Packet* pckt = get_local_packet();
         TbBool front_view;
-        TbBool wibble = get_player_user_state(get_my_player())->prefs[UPref_Wibble] != 0;
+        TbBool wibble = get_local_user_state()->prefs[UPref_Wibble] != 0;
         rotate_mode_to_dungeon_view(settings.video_rotate_mode, &front_view, &wibble);
         set_packet_action(pckt, PckA_SwitchView, front_view, wibble, 0, 0);
     }
@@ -317,8 +317,7 @@ void gui_set_mentor_volume(struct GuiButton *gbtn)
 
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
-    if ((get_local_view_type(player) == PVT_DungeonTop) && (get_player_user_state(player)->prefs[UPref_FrontView] != 0))
+    if ((get_local_view_type() == PVT_DungeonTop) && (get_local_user_state()->prefs[UPref_FrontView] != 0))
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;

@@ -221,8 +221,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
     else
     {
-        struct PlayerInfo* player = get_my_player();
-        if (get_player_view_type(player) == PVT_CreatureContrl)
+        if (get_user_view_type(get_my_user()) == PVT_CreatureContrl)
         {
             const CrInstance active_inst_id = get_local_creature_control(creatng)->active_instance_id;
             if (!creature_instance_is_available(creatng, active_inst_id))
@@ -466,27 +465,31 @@ long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long
     return 1;
 }
 
-void set_engine_view(struct PlayerInfo *player, TbBool front_view, TbBool wibble)
+void set_user_dungeon_view(NetUserId user, TbBool front_view, TbBool wibble)
 {
-    struct UserState *ustate = get_player_user_state(player);
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate))
+        return;
     if ((ustate->prefs[UPref_FrontView] != 0) != front_view)
-        carry_local_dungeon_position(player, ustate->prefs[UPref_FrontView] != 0);
+        carry_local_dungeon_position(user, ustate->prefs[UPref_FrontView] != 0);
     ustate->prefs[UPref_FrontView] = front_view;
     ustate->prefs[UPref_Wibble] = wibble;
-    update_engine_view(player, true);
+    update_local_view(user, true);
 }
 
-void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera)
+void update_local_view(NetUserId user, TbBool keep_local_camera)
 {
-    if ((get_player_view_type(player) == PVT_MapFadeIn) || (get_player_view_type(player) == PVT_MapFadeOut))
+    if (!local_camera_shows_user(user))
         return;
-    const TbBool first_person = (get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr);
-    update_local_dungeon_view_mode(player);
+    const unsigned char view_type = get_user_view_type(user);
+    if (view_type == PVT_MapFadeIn || view_type == PVT_MapFadeOut)
+        return;
+    update_local_dungeon_view_mode(user);
     if (!keep_local_camera)
-        sync_local_camera(player);
-    if (!is_my_player(player))
+        sync_local_camera(user);
+    if (!is_local_user(user))
         return;
-    if (first_person)
+    if (view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr)
     {
         lens_mode = 2;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -494,10 +497,10 @@ void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera)
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
         return;
     }
-    if (get_player_view_type(player) != PVT_MapScreen)
+    if (view_type != PVT_MapScreen)
     {
         lens_mode = 0;
-        if (get_player_user_state(player)->prefs[UPref_FrontView] != 0)
+        if (get_user_state(user)->prefs[UPref_FrontView] != 0)
             temp_cluedo_mode = 0;
     }
     S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -513,8 +516,7 @@ static void draw_compass_label(int x, int y, int units_per_px, const char *text)
 
 void draw_overlay_compass(long base_x, long base_y)
 {
-    struct PlayerInfo* player = get_my_player();
-    struct Camera* cam = get_local_active_camera(player);
+    struct Camera* cam = get_local_active_camera();
     unsigned short flg_mem = RendererGetDrawFlags();
     LbTextSetFont(winfont);
     RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
@@ -577,7 +579,7 @@ void redraw_isometric_view(void)
     struct PlayerInfo* player = get_my_player();
     if (player_invalid(player))
         return;
-    struct Camera* render_cam = get_local_active_camera(player);
+    struct Camera* render_cam = get_local_active_camera();
     update_explored_flags_for_viewed_power_sights(player);
     engine(player,render_cam);
     remove_explored_flags_for_viewed_power_sights(player);
@@ -589,7 +591,7 @@ void redraw_frontview(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    struct Camera* render_cam = get_local_active_camera(player);
+    struct Camera* render_cam = get_local_active_camera();
     update_explored_flags_for_viewed_power_sights(player);
     draw_frontview_engine(render_cam);
      remove_explored_flags_for_viewed_power_sights(player);
@@ -681,7 +683,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
         return;
     }
     // Mouse over panel map
-    if (is_my_player(player) && local_state.show_gui
+    if (is_local_user(user) && local_state.show_gui
      && mouse_is_over_panel_map(local_state.minimap_pos_x, local_state.minimap_pos_y)) {
         if (game.small_map_state == 2) {
             set_pointer_graphic(MousePG_Invisible);
@@ -691,7 +693,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
         return;
     }
     // Mouse over battle message box
-    if (is_my_player(player) && battle_creature_over > 0) {
+    if (is_local_user(user) && battle_creature_over > 0) {
         PowerKind pwkind = ustate->chosen_power_kind;
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
@@ -704,7 +706,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
     }
     // GUI action being processed
     if (gameplay_cursor_is_over_gui()) {
-        if (is_my_player(player) || a_menu_window_is_active()) {
+        if (is_local_user(user) || a_menu_window_is_active()) {
             set_pointer_graphic(MousePG_Arrow);
         } else {
             set_pointer_graphic(MousePG_Invisible);
@@ -723,7 +725,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(user) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player)) {
@@ -844,9 +846,8 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
 
 void process_pointer_graphic(void)
 {
-    struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_local_user_state()->work_state),(int)get_local_user_state()->instance_num);
-    switch (get_local_view_type(player)) {
+    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_user_view_type(get_my_user()),player_state_code_name(get_local_user_state()->work_state),(int)get_local_user_state()->instance_num);
+    switch (get_local_view_type()) {
     case PVT_DungeonTop:
         // This case is complicated
         process_dungeon_top_pointer_graphic(get_displayed_user());
@@ -876,7 +877,6 @@ void process_pointer_graphic(void)
 void redraw_display(void)
 {
     SYNCDBG(5,"Starting");
-    struct PlayerInfo* player = get_my_player();
     local_state.display_needs_update = false;
     if (game.game_kind == GKind_NonInteractiveState)
       return;
@@ -885,7 +885,7 @@ void redraw_display(void)
     else
       process_pointer_graphic();
     interpolate_local_cameras();
-    const unsigned char view_type = get_local_view_type(player);
+    const unsigned char view_type = get_local_view_type();
     if (view_type != PVT_DungeonTop) {
         observer_update_cursor();
     }
@@ -911,7 +911,7 @@ void redraw_display(void)
         redraw_parchment_view();
     } else
     {
-        if (get_local_active_camera(player)->view_mode == PVM_FrontView)
+        if (get_local_active_camera()->view_mode == PVM_FrontView)
             redraw_frontview();
         else
             redraw_isometric_view();

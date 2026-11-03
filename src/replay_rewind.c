@@ -606,7 +606,7 @@ void replay_rewind_step(void)
     rederive_local_state();
     local_state.view_type = PVT_None;
     local_state.camera.move_cam = NULL;
-    update_engine_view(get_my_player(), false);
+    update_local_view(get_my_user(), false);
     if (!restore_lua(kf) || !restore_custom_intralevel_data(kf) || !replay_restore_reader_pos(&kf->reader_pos))
     {
         ERRORLOG("Cannot restore replay rewind keyframe; rewind disabled");

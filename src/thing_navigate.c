@@ -507,9 +507,8 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
 
     thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & ANGLE_MASK;
 
-    struct PlayerInfo* my_player = get_my_player();
-    if (get_local_user_state()->controlled_thing_idx == thing->index && ((get_player_view_type(my_player) == PVT_CreatureContrl) || (get_player_view_type(my_player) == PVT_CreaturePasngr))) {
-        set_local_camera_destination(my_player);
+    if (get_local_user_state()->controlled_thing_idx == thing->index && ((get_user_view_type(get_my_user()) == PVT_CreatureContrl) || (get_user_view_type(get_my_user()) == PVT_CreaturePasngr))) {
+        set_local_camera_destination(get_my_user());
     }
 
     return get_angle_difference(thing->move_angle_xy, angle);

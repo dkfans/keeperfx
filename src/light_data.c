@@ -2301,8 +2301,7 @@ void update_light_render_area(void)
     int startx;
     int starty;
     SYNCDBG(6,"Starting");
-    struct PlayerInfo* player = get_my_player();
-    const unsigned char view_type = get_local_view_type(player);
+    const unsigned char view_type = get_local_view_type();
     if ((view_type == PVT_DungeonTop || view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr) && (get_local_map_fade() != PVT_MapFadeOut)) {
         game.something_light_y = LIGHT_MAX_RANGE;
         game.something_light_x = LIGHT_MAX_RANGE;
@@ -2310,7 +2309,7 @@ void update_light_render_area(void)
     int delta_x = abs(game.something_light_x);
     int delta_y = abs(game.something_light_y);
     // Prepare the area constraints
-    struct Camera *camera = get_local_active_camera(player);
+    struct Camera *camera = get_local_active_camera();
     subtile_y = camera->mappos.y.stl.num;
     subtile_x = camera->mappos.x.stl.num;
 //SYNCMSG("LghtRng %d,%d CamTil %d,%d",game.something_light_x,game.something_light_y,tile_x,tile_y);

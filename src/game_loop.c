@@ -50,6 +50,7 @@
 #include "config_keeperfx.h"
 #include "api.h"
 #include "player_instances.h"
+#include "net_game.h"
 #include "lvl_filesdk1.h"
 #include "config_sounds.h"
 #include "lens_api.h"
@@ -1087,10 +1088,10 @@ static TbBool wait_at_frontend(void)
     return true;
 }
 
-static TbBool player_skips_heart_zoom(const struct PlayerInfo *player)
+static TbBool user_skips_heart_zoom(NetUserId user)
 {
     const struct UserState *host = get_user_state(SERVER_ID);
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         ustate = host;
     return (game.game_kind == GKind_LocalGame) && (host->prefs[UPref_SkipHeartZoom] != 0) && (ustate->prefs[UPref_SkipHeartZoom] != 0);
@@ -1118,13 +1119,15 @@ void game_loop(void)
       int32_t mspos_y_bak = lbDisplay.MMouseY;
 
       if (((game.game_kind != GKind_LocalGame) || (game.save_game_slot == -1)) && (!network_is_active() || net_join_role != NetRole_Spectator)) {
-          for (int i = 0; i < PLAYERS_COUNT; i++) {
-              struct PlayerInfo *player = get_player(i);
-              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_skips_heart_zoom(player)) {
-                  set_user_instance(get_player_primary_user(player), PI_HeartZoom, 0);
+          for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+              if (!user_present(user))
+                  continue;
+              struct PlayerInfo *player = get_user_player(user);
+              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !user_skips_heart_zoom(user)) {
+                  set_user_instance(user, PI_HeartZoom, 0);
               }
           }
-          if (player_skips_heart_zoom(get_my_player()) && !replay.load_enable) {
+          if (user_skips_heart_zoom(get_my_user()) && !replay.load_enable) {
               toggle_status_menu(1); // Required when skipping PI_HeartZoom
           }
       } else
@@ -1156,7 +1159,7 @@ void game_loop(void)
       GameT.Hours = 0;
       if (!TimerNoReset)
       {
-          if (player_skips_heart_zoom(get_my_player()))
+          if (user_skips_heart_zoom(get_my_user()))
           {
               timerstarttime = starttime;
           }

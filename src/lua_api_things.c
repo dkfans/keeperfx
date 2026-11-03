@@ -321,9 +321,9 @@ static int thing_set_field(lua_State *L) {
         struct PlayerInfo* player = get_my_player();
         if (!player_invalid(player)
             && get_local_user_state()->controlled_thing_idx == thing->index
-            && ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr)))
+            && (get_user_view_type(get_my_user()) == PVT_CreatureContrl || get_user_view_type(get_my_user()) == PVT_CreaturePasngr))
         {
-            set_local_camera_destination(player);
+            set_local_camera_destination(get_my_user());
         }        
     } else if (strcmp(key, "pitch") == 0) 
     {

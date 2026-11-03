@@ -249,8 +249,7 @@ void process_disease(struct Thing *creatng)
 
 void lightning_modify_palette(struct Thing *thing)
 {
-    struct PlayerInfo* myplyr = get_my_player();
-    struct Camera* camera = get_local_active_camera(myplyr);
+    struct Camera* camera = get_local_active_camera();
 
     if (thing->health == 0)
     {
@@ -275,7 +274,7 @@ void lightning_modify_palette(struct Thing *thing)
         }
         return;
     }
-    if (get_local_view_type(myplyr) != PVT_MapScreen)
+    if (get_local_view_type() != PVT_MapScreen)
     {
         if (!local_state.lightning_palette_active)
         {
@@ -385,8 +384,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 
 void draw_god_lightning(struct Thing *shotng)
 {
-    struct PlayerInfo* player = get_player(shotng->owner);
-    const struct Camera* cam = get_local_active_camera(player);
+    const struct Camera* cam = get_local_active_camera();
     if (cam == NULL) {
         return;
     }

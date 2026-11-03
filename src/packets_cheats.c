@@ -577,7 +577,7 @@ TbBool packets_process_cheats(
                 thing = thing_get(get_user_state(user)->controlled_thing_idx);
                 if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
                 {
-                    if (is_my_player(player))
+                    if (is_local_user(user))
                     {
                         turn_off_query_menus();
                         turn_on_main_panel_menu();
@@ -588,7 +588,7 @@ TbBool packets_process_cheats(
                 if (creature_is_dying(thing))
                 {
                     set_user_instance(user, PI_UnqueryCrtr, 0);
-                    if (is_my_player(player))
+                    if (is_local_user(user))
                     {
                         turn_off_query_menus();
                         turn_on_main_panel_menu();
@@ -915,16 +915,17 @@ TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* p
   }
 }
 
-TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt)
+TbBool process_user_dungeon_control_cheats_packet_action(NetUserId user, struct Packet* pckt)
 {
+    const PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     MapCoord x, y;
     struct Thing* thing;
     MapSubtlCoord stl_x, stl_y;
     MapSlabCoord slb_x, slb_y;
     struct Coord3d pos;
-    if (!user_cheats_allowed(get_player_primary_user(player)))
+    if (!user_cheats_allowed(user))
         return false;
     switch (pckt->action)
     {

@@ -222,11 +222,12 @@ void apply_local_user_preferences(NetUserId user, unsigned char flags)
     apply_user_preferences(user, prefs, flags);
 }
 
-void apply_user_start_tendencies(struct PlayerInfo *player)
+void apply_user_start_tendencies(NetUserId user)
 {
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         return;
+    struct PlayerInfo *player = get_user_player(user);
     TbBool imprison = (ustate->prefs[UPref_StartingTendencies] & CrTend_Imprison) != 0;
     TbBool flee = (ustate->prefs[UPref_StartingTendencies] & CrTend_Flee) != 0;
     set_creature_tendencies(player, CrTend_Imprison, imprison);
@@ -280,7 +281,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         init_user_state(i, k);
         apply_user_preferences(i, sync->user_prefs, UPF_NewGame);
         init_player(player, 0);
-        apply_user_start_tendencies(player);
+        apply_user_start_tendencies(i);
         snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", network_user_name(i));
     }
 }
