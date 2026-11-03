@@ -198,6 +198,7 @@ struct PlayerInfo {
 struct UserState {
     PlayerNumber player_id;
     PlayerNumber reconnect_player_id;
+    char name[20];
     unsigned char init_flags; // Uses UserInitFlags
     unsigned char additional_flags; // Uses UserAdditionalFlags
     unsigned char input_crtr_control;

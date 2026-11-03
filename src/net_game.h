@@ -52,6 +52,7 @@ int32_t network_session_join(void);
 
 TbBool network_user_active(NetUserId);
 const char *network_user_name(NetUserId);
+void net_set_forced_user_players(const char *list);
 TbBool network_human_contenders_remain(void);
 void resolve_placeholders(void);
 void hand_waiting_placeholders_to_ai(void);

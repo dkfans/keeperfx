@@ -822,7 +822,7 @@ void turn_user_cursor_light(NetUserId user, TbBool turn_on)
         light_turn_light_off(idx);
 }
 
-void init_user_state(NetUserId user, PlayerNumber player_id)
+void init_user_state(NetUserId user, PlayerNumber player_id, const char *name)
 {
     struct UserState* ustate = get_user_state(user);
     if (user_state_invalid(ustate))
@@ -832,6 +832,7 @@ void init_user_state(NetUserId user, PlayerNumber player_id)
     }
     memset(ustate, 0, sizeof(*ustate));
     ustate->player_id = player_id;
+    snprintf(ustate->name, sizeof(ustate->name), "%s", name != NULL ? name : "");
     ustate->teleport_destination = 19;
     ustate->battleid = 1;
     struct InitLight ilght;
@@ -1239,7 +1240,7 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated | PlaF_Seat;
-    init_user_state(SOLO_HUMAN_ID, player->id_number);
+    init_user_state(SOLO_HUMAN_ID, player->id_number, NULL);
 
     if( player->id_number == PLAYER_GOOD)
     {

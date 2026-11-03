@@ -1792,6 +1792,7 @@ static short process_command_line(unsigned short argc, char *argv[])
           narg++;
           default_loc_player = atoi(pr2str);
           force_player_num = true;
+          net_set_forced_user_players(pr2str);
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
