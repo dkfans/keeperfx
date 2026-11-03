@@ -170,7 +170,7 @@ struct PlayerInfo {
     unsigned char player_type; /* enum PlayerTypes */
     unsigned char display_flags; /* enum PlayerField6Flags -- TODO: make local state */
     unsigned char id_number;
-    char player_name[20];
+    char player_name[PLAYER_MP_NAME_LEN];
     unsigned char victory_state;
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
@@ -198,7 +198,7 @@ struct PlayerInfo {
 struct UserState {
     PlayerNumber player_id;
     PlayerNumber reconnect_player_id;
-    char name[20];
+    char name[PLAYER_MP_NAME_LEN];
     unsigned char init_flags; // Uses UserInitFlags
     unsigned char additional_flags; // Uses UserAdditionalFlags
     unsigned char input_crtr_control;

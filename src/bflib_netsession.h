@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "bflib_basics.h"
 
+#define PLAYER_MP_NAME_LEN 20
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,7 +107,7 @@ struct TbNetworkPlayerEntry {
 
 struct TbNetworkCallbackData {
   char svc_name[12];
-  char plyr_name[20];
+  char plyr_name[PLAYER_MP_NAME_LEN];
   char session_data[32];
 };
 

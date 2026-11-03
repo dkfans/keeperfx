@@ -52,8 +52,8 @@ enum FrontendNetService {
 /******************************************************************************/
 
 struct ConfigInfo {
-    char str_join[20];
-    char net_player_name[20];
+    char str_join[PLAYER_MP_NAME_LEN];
+    char net_player_name[PLAYER_MP_NAME_LEN];
     char net_lobby_name[64];
     uint8_t max_players;
     uint8_t spectators_enabled;
@@ -64,7 +64,7 @@ struct ConfigInfo {
 };
 
 struct TbNetworkPlayerName {
-    char name[20];
+    char name[PLAYER_MP_NAME_LEN];
 };
 
 extern int fe_network_active;
@@ -77,8 +77,8 @@ extern const struct ConfigInfo default_net_config_info;
 extern struct ConfigInfo net_config_info;
 extern struct ConfigInfo net_lobby_settings;
 extern char net_service[16][NET_SERVICE_LEN];
-extern char net_player_name[20];
-extern char tmp_net_player_name[24];
+extern char net_player_name[PLAYER_MP_NAME_LEN];
+extern char tmp_net_player_name[PLAYER_MP_NAME_LEN+4];
 extern int8_t net_player_colour[MAX_NET_USERS];
 extern int8_t net_player_team[MAX_NET_USERS];
 extern int32_t net_lobby_max_players;
