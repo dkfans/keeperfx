@@ -811,7 +811,10 @@ TbBool process_user_global_packet_action(NetUserId user)
         frontend_save_continue_game(true);
         free_swipe_graphic();
       }
-      player->display_flags |= PlaF6_PlyrHasQuit;
+      // a shared keeper is also other users', so only flag the local quitter's
+      if (user == get_local_user()) {
+          player->display_flags |= PlaF6_PlyrHasQuit;
+      }
       process_user_leave_game_packet(user);
       return 1;
   case PckA_ForceApplicationClose:
@@ -825,7 +828,9 @@ TbBool process_user_global_packet_action(NetUserId user)
         }
         else
         {
-          player->display_flags |= PlaF6_PlyrHasQuit;
+          if (user == get_local_user()) {
+              player->display_flags |= PlaF6_PlyrHasQuit;
+          }
           process_user_leave_game_packet(user);
         }
         return 1;

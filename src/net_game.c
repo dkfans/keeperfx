@@ -294,7 +294,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         }
         init_player(player, 0);
         apply_user_start_tendencies(user);
-        snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", network_user_name(user));
+        name_player_after_primary_user(player);
     }
 }
 
@@ -861,7 +861,7 @@ void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferen
     init_user_controls(get_user_state(user));
     reset_user_view_type(user, PVT_DungeonTop);
     init_player_cameras(player);
-    snprintf(player->player_name, sizeof(player->player_name), "%s", network_user_name(user));
+    name_player_after_primary_user(player);
     setup_count_players();
 }
 
@@ -904,14 +904,10 @@ static TbBool remove_user_from_game(NetUserId user, const char *announce_fmt)
     }
     forget_user(user);
     // another user may still be driving this keeper
-    const NetUserId survivor = get_player_primary_user(player);
-    if (survivor < 0) {
+    if (get_player_primary_user(player) < 0) {
         return abandon_network_player(player);
     }
-    const struct UserState *survivor_state = get_user_state(survivor);
-    if (survivor_state->name[0] != '\0') {
-        snprintf(player->player_name, sizeof(player->player_name), "%s", survivor_state->name);
-    }
+    name_player_after_primary_user(player);
     return false;
 }
 

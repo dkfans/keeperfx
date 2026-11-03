@@ -1029,10 +1029,7 @@ void restore_users_from_packet_save(void)
         set_net_user_player_number(user, plyr_idx);
         struct PlayerInfo *player = get_player(plyr_idx);
         init_user_state(user, plyr_idx, replay.head.user_names[user]);
-        if (get_player_primary_user(player) == user) {
-            snprintf(player->player_name, sizeof(player->player_name), "%s",
-                replay.head.user_names[user]);
-        }
+        name_player_after_primary_user(player);
         local_mapped |= (plyr_idx == my_player_number);
         SYNCLOG("Replay user %d -> player %d", (int)user, (int)plyr_idx);
     }

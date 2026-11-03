@@ -241,6 +241,14 @@ struct UserState *get_player_primary_user_state(const struct PlayerInfo *player)
     return get_user_state(get_player_primary_user(player));
 }
 
+void name_player_after_primary_user(struct PlayerInfo *player)
+{
+    const struct UserState *ustate = get_player_primary_user_state(player);
+    if (!user_state_invalid(ustate)) {
+        snprintf(player->player_name, sizeof(player->player_name), "%s", ustate->name);
+    }
+}
+
 void set_local_user_state_prediction(const struct UserState *ustate)
 {
     local_user_state_prediction_active = (ustate != NULL);

@@ -372,6 +372,7 @@ NetUserId get_my_user(void);
 TbBool is_local_user(NetUserId user);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_primary_user_state(const struct PlayerInfo *player);
+void name_player_after_primary_user(struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);
 void set_local_user_state_prediction(const struct UserState *ustate);
 const struct UserState *get_user_state_prediction(NetUserId user);
