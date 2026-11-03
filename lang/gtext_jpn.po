@@ -7586,3 +7586,9 @@ msgstr "%s を待っています：%d.%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "接続が不安定です：%d.%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host."
+msgstr "%s とホストのファイルが異なります。"

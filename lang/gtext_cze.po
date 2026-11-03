@@ -7622,3 +7622,9 @@ msgstr "Čekání na %s: %d,%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "Nestabilní připojení: %d,%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host."
+msgstr "Soubory se liší mezi %s a hostitelem."

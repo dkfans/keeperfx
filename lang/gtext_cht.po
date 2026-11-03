@@ -7247,3 +7247,9 @@ msgstr "正在等待 %s：%d.%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "連線不穩定：%d.%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host."
+msgstr "%s 與房主的檔案不同。"

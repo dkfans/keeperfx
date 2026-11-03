@@ -7637,3 +7637,9 @@ msgstr "%s 대기 중: %d.%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "연결 불안정: %d.%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host."
+msgstr "%s와(과) 호스트의 파일이 다릅니다."

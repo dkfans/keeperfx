@@ -6181,3 +6181,9 @@ msgstr "Waiting on %s: %d.%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "Connection unstable: %d.%d"
+
+#: guitext:1170
+#, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host."
+msgstr "Files differ between %s and host."
