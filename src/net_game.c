@@ -168,11 +168,10 @@ void build_local_user_preferences(UserPreferences prefs)
     rotate_mode_to_dungeon_view(settings.video_rotate_mode, &front_view, &wibble);
     prefs[UPref_FrontView] = front_view;
     prefs[UPref_Wibble] = wibble;
-    prefs[UPref_Cheats] = start_params.easter_egg;
-    if (network_is_host() && (network_is_active() || frontnet_service_selected(FrontendNetSvc_Skirmish))) {
-        const struct ConfigInfo *lobby_config = active_lobby_config();
-        prefs[UPref_Cheats] = lobby_config->cheats_enabled;
-        prefs[UPref_ComputerAssistantDisabled] = !lobby_config->computer_assistant;
+    prefs[UPref_Cheats] = start_params.easter_egg || frontnet_service_selected(FrontendNetSvc_Skirmish);
+    if (network_is_active() && network_is_host()) {
+        prefs[UPref_Cheats] = net_config_info.cheats_enabled;
+        prefs[UPref_ComputerAssistantDisabled] = !net_config_info.computer_assistant;
     }
     prefs[UPref_SkipHeartZoom] = get_skip_heart_zoom_feature();
     prefs[UPref_StartingHighlightMode] = get_starting_highlight_mode();

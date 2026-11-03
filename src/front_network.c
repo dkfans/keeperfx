@@ -80,8 +80,6 @@ const struct ConfigInfo default_net_config_info = {
 
 const struct ConfigInfo default_skirmish_config_info = {
     .max_players = MAX_NET_USERS,
-    .cheats_enabled = 1,
-    .computer_assistant = 1,
 };
 
 int fe_network_active;

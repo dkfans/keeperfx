@@ -381,22 +381,6 @@ static void escape_toml_string(char *dst, size_t dst_size, const char *src)
 }
 #endif
 /******************************************************************************/
-static void load_lobby_config(VALUE *vsec, struct ConfigInfo *config)
-{
-    VALUE *val = value_dict_get(vsec, "max_players");
-    if (val && value_type(val) == VALUE_INT32) config->max_players = (uint8_t)clamp(value_int32(val), MIN_NET_USERS, MAX_NET_USERS);
-    val = value_dict_get(vsec, "cheats_enabled");
-    if (val) config->cheats_enabled = value_coerce_bool(val);
-    val = value_dict_get(vsec, "computer_assistant");
-    if (val) config->computer_assistant = value_coerce_bool(val);
-}
-
-static int save_lobby_config(char *buf, int maxlen, const struct ConfigInfo *config)
-{
-    return snprintf(buf, maxlen, "max_players = %d\ncheats_enabled = %d\ncomputer_assistant = %d\n",
-        (int)config->max_players, (int)config->cheats_enabled, (int)config->computer_assistant);
-}
-
 void setup_default_settings(void)
 {
     settings.video_detail_level            = 0;
@@ -552,20 +536,26 @@ TbBool load_settings(void)
         if (val && value_type(val) == VALUE_STRING) snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", value_string(val));
         val = value_dict_get(vsec, "lobby_name");
         if (val && value_type(val) == VALUE_STRING) snprintf(net_config_info.net_lobby_name, sizeof(net_config_info.net_lobby_name), "%s", value_string(val));
-        load_lobby_config(vsec, &net_config_info);
+        val = value_dict_get(vsec, "max_players");
+        if (val && value_type(val) == VALUE_INT32) net_config_info.max_players = (uint8_t)clamp(value_int32(val), MIN_NET_USERS, MAX_NET_USERS);
         val = value_dict_get(vsec, "spectators_enabled");
         if (val) net_config_info.spectators_enabled = value_coerce_bool(val);
         val = value_dict_get(vsec, "spectator_chat");
         if (val) net_config_info.spectator_chat = value_coerce_bool(val);
         val = value_dict_get(vsec, "computer_players");
         if (val) net_config_info.computer_players = value_coerce_bool(val);
+        val = value_dict_get(vsec, "cheats_enabled");
+        if (val) net_config_info.cheats_enabled = value_coerce_bool(val);
+        val = value_dict_get(vsec, "computer_assistant");
+        if (val) net_config_info.computer_assistant = value_coerce_bool(val);
         val = value_dict_get(vsec, "reconnect_token");
         if (val && value_type(val) == VALUE_STRING) settings.reconnect_token = strtoull(value_string(val), NULL, 16);
     }
 
     vsec = value_dict_get(&root, "skirmish");
     if (vsec) {
-        load_lobby_config(vsec, &skirmish_config_info);
+        val = value_dict_get(vsec, "max_players");
+        if (val && value_type(val) == VALUE_INT32) skirmish_config_info.max_players = (uint8_t)clamp(value_int32(val), MIN_NET_USERS, MAX_NET_USERS);
     }
 
     value_fini(&root);
@@ -651,13 +641,15 @@ short save_settings(void)
     TOSAVE("\n[network]\n");
     TOSAVE("player_name = \"%s\"\n", player_name);
     TOSAVE("lobby_name = \"%s\"\n", lobby_name);
-    len += save_lobby_config(buf + len, maxlen - len, &net_config_info);
+    TOSAVE("max_players = %d\n", (int)net_config_info.max_players);
     TOSAVE("spectators_enabled = %d\n", (int)net_config_info.spectators_enabled);
     TOSAVE("spectator_chat = %d\n", (int)net_config_info.spectator_chat);
     TOSAVE("computer_players = %d\n", (int)net_config_info.computer_players);
+    TOSAVE("cheats_enabled = %d\n", (int)net_config_info.cheats_enabled);
+    TOSAVE("computer_assistant = %d\n", (int)net_config_info.computer_assistant);
     TOSAVE("reconnect_token = \"%016llx\"\n", (unsigned long long)settings.reconnect_token);
     TOSAVE("\n[skirmish]\n");
-    len += save_lobby_config(buf + len, maxlen - len, &skirmish_config_info);
+    TOSAVE("max_players = %d\n", (int)skirmish_config_info.max_players);
 #undef TOSAVE
 
     LbFileSaveAt(fname, buf, len);
