@@ -47,7 +47,6 @@
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "room_data.h"
-#include "room_util.h"
 #include "player_instances.h"
 #include "engine_camera.h"
 #include "map_columns.h"
@@ -1515,39 +1514,6 @@ void setup_computer_player(int plr_idx)
     }
 }
 
-static void unclaim_players_land(PlayerNumber plyr_idx)
-{
-    for (MapSlabCoord slb_y = 0; slb_y < game.map_tiles_y; slb_y++) {
-        for (MapSlabCoord slb_x = 0; slb_x < game.map_tiles_x; slb_x++) {
-            struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-            if ((slabmap_owner(slb) != plyr_idx) || slab_kind_has_no_ownership(slb->kind)) {
-                continue;
-            }
-            SlabKind slbkind = SlbT_PATH;
-            if (get_slab_kind_stats(slb->kind)->category == SlbAtCtg_FortifiedWall) {
-                slbkind = SlbT_EARTH;
-            }
-            replace_slab_from_script(slb_x, slb_y, slbkind);
-        }
-    }
-}
-
-static void remove_player_from_map(PlayerNumber plyr_idx)
-{
-    for (ThingIndex tng_idx = 1; tng_idx < THINGS_COUNT; tng_idx++) {
-        struct Thing* thing = thing_get(tng_idx);
-        if (!thing_exists(thing) || (thing->owner != plyr_idx)) {
-            continue;
-        }
-        if (thing_is_creature(thing)) {
-            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
-        } else {
-            delete_thing_structure(thing, 0);
-        }
-    }
-    unclaim_players_land(plyr_idx);
-}
-
 void setup_computer_players(PlayerBitFlags zombie_players)
 {
     for (int plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
@@ -1558,7 +1524,6 @@ void setup_computer_players(PlayerBitFlags zombie_players)
         }
         if (flag_is_set(zombie_players, to_flag(plr_idx))) {
             script_support_setup_player_as_zombie_keeper(plr_idx);
-            remove_player_from_map(plr_idx);
         } else {
             setup_computer_player(plr_idx);
         }
