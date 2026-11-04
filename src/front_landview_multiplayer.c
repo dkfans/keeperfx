@@ -546,7 +546,7 @@ static LevelNumber frontnetmap_update_players(void)
                 }
                 frontend_set_state(FeSt_NET_START);
             } else {
-                frontend_set_state(FeSt_MAIN_MENU);
+                frontend_set_state(FeSt_SKIRMISH_LOBBY);
             }
             return SINGLEPLAYER_NOTSTARTED;
         }
@@ -633,9 +633,6 @@ TbBool frontnetmap_update(void)
             map_info.state_trigger = FeSt_START_MPLEVEL;
         }
         frontmap_zoom_in_init(selected_level_number);
-        if (!fe_network_active) {
-            fe_computer_players = 1;
-        }
     }
     SYNCDBG(8,"Normal end");
     return false;
