@@ -1549,6 +1549,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
 
 /**
  * Asks the level script whether the player may pick up the thing; plays the refusal sound if not.
+ * Also false if the script removed the thing.
  */
 TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx)
 {
@@ -1556,7 +1557,8 @@ TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx)
         play_player_sample(plyr_idx, snd_refusal);
         return false;
     }
-    return true;
+    // The handler may have removed the thing; then there is nothing left to pick up
+    return thing_exists(thing);
 }
 
 void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y)

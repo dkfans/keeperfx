@@ -842,6 +842,10 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
         SYNCDBG(7,"Computer tries to pick up %s index %d which is denied by script", thing_model_name(thing),(int)thing->index);
         return 0;
     }
+    // The handler may have removed the thing
+    if (!thing_exists(thing)) {
+        return 0;
+    }
     computer_pick_thing_by_hand(comp, thing);
     comp->held_thing_idx = thing->index;
     comp->tasks_did--;
