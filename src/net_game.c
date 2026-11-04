@@ -417,7 +417,7 @@ static uint8_t calculate_initial_input_lag(void)
 }
 
 // from CLI debug arg "-human a,b,c". 
-static PlayerNumber forced_user_players[MAX_NET_USERS];
+static int forced_user_players[MAX_NET_USERS];
 static int forced_user_players_count;
 
 void net_set_forced_user_players(const char *list)
@@ -448,13 +448,13 @@ static void apply_forced_user_players(int8_t player_slots[MAX_NET_USERS])
     TbBool taken[MAX_NET_USERS] = {false};
     TbBool forced[MAX_NET_USERS] = {false};
     for (NetUserId user = 0; user < forced_user_players_count; user++) {
-        const PlayerNumber plyr_idx = forced_user_players[user];
+        const int plyr_idx = forced_user_players[user];
         // lobby computer players have slots but aren't network users
-        if (player_slots[user] < 0 || !net_user_info[user].network_user_active) {
+        if (!net_user_info[user].network_user_active) {
             continue;
         }
         if (plyr_idx < 0 || plyr_idx >= slots_count) {
-            WARNLOG("-human: level has no player %d for user %d", (int)plyr_idx, (int)user);
+            WARNLOG("-human: level has no player %d for user %d", plyr_idx, (int)user);
             continue;
         }
         player_slots[user] = plyr_idx;
@@ -493,8 +493,9 @@ static void build_local_startup_sync(void)
     build_local_user_preferences(s_local_startup_sync.user_prefs);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
-    net_resolve_player_colours(s_local_startup_sync.player_slots, &s_local_startup_sync.frontend_alliances);
+    net_resolve_player_colours(s_local_startup_sync.player_slots);
     apply_forced_user_players(s_local_startup_sync.player_slots);
+    s_local_startup_sync.frontend_alliances = net_alliances_from_player_colours(s_local_startup_sync.player_slots);
 }
 
 static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USERS])

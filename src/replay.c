@@ -1036,7 +1036,7 @@ void restore_users_from_packet_save(void)
     if (!local_mapped)
     {
         set_net_user_player_number(SOLO_HUMAN_ID, my_player_number);
-        init_user_state(SOLO_HUMAN_ID, my_player_number, NULL);
+        init_user_state(SOLO_HUMAN_ID, my_player_number, "");
         SYNCLOG("Replay local user %d -> player %d (not in the recorded map)",
             (int)SOLO_HUMAN_ID, (int)my_player_number);
     }

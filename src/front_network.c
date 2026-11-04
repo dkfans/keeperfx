@@ -268,7 +268,7 @@ static void reserve_lobby_seats(TbBool (*occupies_seat)(NetUserId), const TbBool
     }
 }
 
-void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS], char *alliances)
+void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS])
 {
     PlayerNumber level_seats = 0;
     struct LevelInformation *level = get_level_info(get_loaded_level_number());
@@ -306,6 +306,10 @@ void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS], char *alli
             player_colours[user] = player_colours[lobby_colour_human_owner(net_player_colour[user])];
         }
     }
+}
+
+char net_alliances_from_player_colours(const int8_t player_colours[MAX_NET_USERS])
+{
     int8_t slot_teams[MAX_NET_USERS];
     memset(slot_teams, -1, sizeof(slot_teams));
     // archon keeper takes its first user's team
@@ -315,7 +319,7 @@ void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS], char *alli
         }
     }
     resolve_random_teams(slot_teams);
-    *alliances = alliances_from_teams(slot_teams);
+    return alliances_from_teams(slot_teams);
 }
 
 void net_store_lobby_empty_seats(const int8_t player_slots[MAX_NET_USERS])
@@ -1054,7 +1058,8 @@ void frontnet_skirmish_resolve_seats(void)
         return;
     }
     int8_t player_slots[MAX_NET_USERS];
-    net_resolve_player_colours(player_slots, &frontend_alliances);
+    net_resolve_player_colours(player_slots);
+    frontend_alliances = net_alliances_from_player_colours(player_slots);
     net_store_lobby_empty_seats(player_slots);
     if (player_slots[SOLO_HUMAN_ID] < 0) {
         return;

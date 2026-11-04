@@ -832,7 +832,7 @@ void init_user_state(NetUserId user, PlayerNumber player_id, const char *name)
     }
     memset(ustate, 0, sizeof(*ustate));
     ustate->player_id = player_id;
-    snprintf(ustate->name, sizeof(ustate->name), "%s", name != NULL ? name : "");
+    snprintf(ustate->name, sizeof(ustate->name), "%s", name);
     ustate->teleport_destination = 19;
     ustate->battleid = 1;
     struct InitLight ilght;
@@ -1240,7 +1240,7 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated | PlaF_Seat;
-    init_user_state(SOLO_HUMAN_ID, player->id_number, NULL);
+    init_user_state(SOLO_HUMAN_ID, player->id_number, "");
 
     if( player->id_number == PLAYER_GOOD)
     {
