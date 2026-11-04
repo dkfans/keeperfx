@@ -1514,14 +1514,18 @@ void setup_computer_player(int plr_idx)
     }
 }
 
-void setup_computer_players(void)
+void setup_computer_players(PlayerBitFlags zombie_players)
 {
     for (int plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
     {
         struct PlayerInfo* player = get_player(plr_idx);
-        if (!player_exists(player))
-        {
-          setup_computer_player(plr_idx);
+        if (player_exists(player)) {
+            continue;
+        }
+        if (flag_is_set(zombie_players, to_flag(plr_idx))) {
+            script_support_setup_player_as_zombie_keeper(plr_idx);
+        } else {
+            setup_computer_player(plr_idx);
         }
     }
 }
@@ -4453,7 +4457,7 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
     WARNLOG("No change performed");
 }
 
-ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player)
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, NetUserId user)
 {
     unsigned long k = 0;
     ThingIndex i = current_creature->index;
@@ -4475,7 +4479,7 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
             {
                 if ( (thing->model == crmodel) || (crmodel == 0) )
                 {
-                    if (creature_can_be_queried(player, thing))
+                    if (creature_can_be_queried(user, thing))
                     {
                         return thing->index;
                     }

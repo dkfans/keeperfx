@@ -87,7 +87,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
     struct PlayerInfo* player = get_player(dungeon->owner);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_player_primary_user_state(player);
     TbBool pickup_all = !user_state_invalid(ustate) && ustate->pickup_all_gold;
     if (dungeon->gold_hoard_for_pickup != thing->index)
     {
@@ -373,9 +373,9 @@ TbBool power_hand_is_empty(const struct PlayerInfo *player)
     return (dungeon->num_things_in_hand <= 0);
 }
 
-TbBool power_hand_is_hovering(const struct PlayerInfo *player)
+TbBool power_hand_is_hovering(NetUserId user)
 {
-    return get_user_thing_under_hand(get_player_primary_user(player)) > 0;
+    return get_user_thing_under_hand(user) > 0;
 }
 
 TbBool power_hand_is_full(const struct PlayerInfo *player)
@@ -568,7 +568,7 @@ void draw_power_hand(void)
     if (is_observer_camera_active())
         return;
     RendererSetDrawFlags(observer_watched_cursor_draw_flags());
-    if (get_player_view_type(player) != PVT_DungeonTop)
+    if (get_user_view_type(get_displayed_user()) != PVT_DungeonTop)
         return;
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;
@@ -606,7 +606,7 @@ void draw_power_hand(void)
         draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
         return;
     }
-    TbBool hover_hand = power_hand_is_hovering(player);
+    TbBool hover_hand = power_hand_is_hovering(get_displayed_user());
     thing = thing_get(ustate->hand_thing_idx);
     if (!thing_exists(thing)) {
         if (hover_hand && ustate->work_state == PSt_CtrlDungeon) {
@@ -1017,7 +1017,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_player_primary_user_state(player);
     struct Dungeon *dungeon = get_players_dungeon(player);
     // If nothing in hand - nothing to do
     if (dungeon->num_things_in_hand < 1) {
@@ -1516,7 +1516,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (thing_is_invalid(thing))
     {
-        const short under_hand = get_player_user_state(player)->thing_under_hand;
+        const short under_hand = get_player_primary_user_state(player)->thing_under_hand;
         if (under_hand > 0)
             thing = thing_get(under_hand);
     }

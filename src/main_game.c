@@ -382,9 +382,8 @@ TbBool startup_saved_packet_game(void)
     init_players();
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        const PlayerNumber plyr_idx = get_net_user_player_number(user);
-        if ((plyr_idx >= 0) && (replay.head.user_players[user] >= 0))
-            apply_user_start_tendencies(get_player(plyr_idx));
+        if ((get_net_user_player_number(user) >= 0) && (replay.head.user_players[user] >= 0))
+            apply_user_start_tendencies(user);
     }
     frontend_alliances = replay.head.frontend_alliances;
     setup_alliances();
@@ -396,7 +395,7 @@ TbBool startup_saved_packet_game(void)
     if ((game.mode_flags & MFlg_IsDemoMode) == 0) {
         observer_init(my_player_number);
     }
-    update_engine_view(get_my_player(), false);
+    update_local_view(get_my_user(), false);
     return true;
 }
 
@@ -413,6 +412,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         game.local_plyr_idx = default_loc_player;
         my_player_number = default_loc_player;
     }
+    net_lobby_empty_seats = 0;
     if (!init_level()) {
         coroutine_clear(context, true);
         return;
@@ -422,6 +422,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     if (local)
     {
         game.game_kind = GKind_LocalGame;
+        frontnet_skirmish_resolve_seats();
         init_players_local_game();
         if (AssignCpuKeepers || campaign.assignCpuKeepers) {
             ShouldAssignCpuKeepers = 1;
@@ -457,15 +458,13 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
-        setup_computer_players();
+        setup_computer_players(net_lobby_empty_seats);
     } else
     {
         SYNCDBG(5,"Setting up uninitialized players as zombie players");
         setup_zombie_players();
     }
-    if (game.game_kind == GKind_MultiGame) {
-        setup_alliances();
-    }
+    setup_alliances();
     post_init_level();
     post_init_players();
     post_init_packets();

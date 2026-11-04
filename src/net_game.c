@@ -168,7 +168,7 @@ void build_local_user_preferences(UserPreferences prefs)
     rotate_mode_to_dungeon_view(settings.video_rotate_mode, &front_view, &wibble);
     prefs[UPref_FrontView] = front_view;
     prefs[UPref_Wibble] = wibble;
-    prefs[UPref_Cheats] = start_params.easter_egg;
+    prefs[UPref_Cheats] = start_params.easter_egg || frontnet_service_selected(FrontendNetSvc_Skirmish);
     if (network_is_active() && network_is_host()) {
         prefs[UPref_Cheats] = net_config_info.cheats_enabled;
         prefs[UPref_ComputerAssistantDisabled] = !net_config_info.computer_assistant;
@@ -222,11 +222,12 @@ void apply_local_user_preferences(NetUserId user, unsigned char flags)
     apply_user_preferences(user, prefs, flags);
 }
 
-void apply_user_start_tendencies(struct PlayerInfo *player)
+void apply_user_start_tendencies(NetUserId user)
 {
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         return;
+    struct PlayerInfo *player = get_user_player(user);
     TbBool imprison = (ustate->prefs[UPref_StartingTendencies] & CrTend_Imprison) != 0;
     TbBool flee = (ustate->prefs[UPref_StartingTendencies] & CrTend_Flee) != 0;
     set_creature_tendencies(player, CrTend_Imprison, imprison);
@@ -248,8 +249,6 @@ TbBool user_cheats_allowed(NetUserId user)
 
 TbBool computer_assistant_allowed(void)
 {
-    if (game.game_kind != GKind_MultiGame)
-        return true;
     return get_user_state(SERVER_ID)->prefs[UPref_ComputerAssistantDisabled] == 0;
 }
 
@@ -280,7 +279,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         init_user_state(i, k);
         apply_user_preferences(i, sync->user_prefs, UPF_NewGame);
         init_player(player, 0);
-        apply_user_start_tendencies(player);
+        apply_user_start_tendencies(i);
         snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", network_user_name(i));
     }
 }
@@ -405,16 +404,6 @@ static uint8_t calculate_initial_input_lag(void)
     return input_lag_turns;
 }
 
-static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
-{
-    PlayerNumber slots_count = MAX_NET_USERS;
-    struct LevelInformation *level = get_level_info(get_loaded_level_number());
-    if (level) {
-        slots_count = min(max(level->players, 2), slots_count);
-    }
-    net_resolve_player_colours(slots_count, sync->player_slots, &sync->frontend_alliances);
-}
-
 static void build_local_startup_sync(void)
 {
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
@@ -424,7 +413,7 @@ static void build_local_startup_sync(void)
     build_local_user_preferences(s_local_startup_sync.user_prefs);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
-    resolve_startup_player_slots(&s_local_startup_sync);
+    net_resolve_player_colours(s_local_startup_sync.player_slots, &s_local_startup_sync.frontend_alliances);
 }
 
 static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USERS])
@@ -485,6 +474,7 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         initial_replay_seed = host_sync->initial_action_seed;
     }
     frontend_alliances = host_sync->frontend_alliances;
+    net_store_lobby_empty_seats(host_sync->player_slots);
     if (!setup_network_player_numbers(host_sync->player_slots)) {
         return false;
     }

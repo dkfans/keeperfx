@@ -132,9 +132,9 @@ static inline void clear_gui_tooltip_button(void)
     tool_tip_box.gbutton = NULL;
 }
 
-TbBool cursor_moved_to_new_subtile(const struct PlayerInfo *player)
+TbBool cursor_moved_to_new_subtile(NetUserId user)
 {
-    const struct UserState* ustate = get_player_user_state(player);
+    const struct UserState* ustate = get_user_state(user);
     return ((ustate->cursor_subtile_x != ustate->previous_cursor_subtile_x) || (ustate->cursor_subtile_y != ustate->previous_cursor_subtile_y));
 }
 
@@ -285,12 +285,11 @@ short setup_land_tooltips(struct Coord3d *pos)
   if (string_idx_is_empty(slabst->tooltip_stridx))
     return false;
   update_gui_tooltip_target((void *)(uintptr_t)skind);
-  const struct PlayerInfo *player = get_displayed_player();
   const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
   struct Thing *handthing = thing_get(get_user_thing_under_hand(get_displayed_user()));
   TbBool in_query_mode = (ustate->work_state == PSt_CreatrQuery || ustate->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
+      if (cursor_moved_to_new_subtile(get_displayed_user()) || thing_exists(handthing)) {
           return false;
       }
       unsigned short delay_time = tool_tip_dbg.land_coord ? 10 : 50;
@@ -321,13 +320,12 @@ short setup_room_tooltips(struct Coord3d *pos)
   if (string_idx_is_empty(stridx))
     return false;
   update_gui_tooltip_target(room);
-  const struct PlayerInfo *player = get_displayed_player();
   const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
   struct Thing *handthing = thing_get(get_user_thing_under_hand(get_displayed_user()));
 
   TbBool in_query_mode = (ustate->work_state == PSt_CreatrQuery || ustate->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
+      if (cursor_moved_to_new_subtile(get_displayed_user()) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {
@@ -501,7 +499,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
             mappos.x.val = watched->pos_x;
             mappos.y.val = watched->pos_y;
         } else {
-            struct Camera *camera = get_local_active_camera(get_my_player());
+            struct Camera *camera = get_local_active_camera();
             if (camera == NULL) {
                 ERRORLOG("No active camera");
                 return false;
@@ -509,7 +507,8 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
             valid_position = screen_to_map(camera, GetMouseX(), GetMouseY(), &mappos);
         }
         if (valid_position && subtile_revealed(mappos.x.stl.num, mappos.y.stl.num, player->id_number)) {
-            if (get_local_view_type(player) != PVT_CreatureContrl && get_local_view_type(player) != PVT_CreaturePasngr) {
+            const unsigned char view_type = get_displayed_view_type();
+            if (view_type != PVT_CreatureContrl && view_type != PVT_CreaturePasngr) {
                 shown = setup_scrolling_tooltips(&mappos);
             }
         }
@@ -674,10 +673,9 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   long ttwidth = LbTextStringWidth(tttext);
   long ttheight = LbTextStringHeight(tttext);
   RendererSetDrawFlags(flg_mem);
-  const struct PlayerInfo *player = get_displayed_player();
   long pos_x = ttpos_x;
   long pos_y = ttpos_y;
-  if (get_local_view_type(player) == PVT_MapScreen)
+  if (get_displayed_view_type() == PVT_MapScreen)
   {
       pos_y = GetMouseY() + scale_ui_value(24);
       if (pos_y > MyScreenHeight - scale_ui_value(104))

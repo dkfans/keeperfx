@@ -443,17 +443,11 @@ TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, 
     switch (tngclass)
     {
     case TCls_Trap:
-        if (dungeon->mnfct_info.trap_amount_stored[tngmodel] > 0) {
-            return false;
-        }
         if (dungeon->mnfct_info.trap_amount_offmap[tngmodel] > 0) {
             return true;
         }
         break;
     case TCls_Door:
-        if (dungeon->mnfct_info.door_amount_stored[tngmodel] > 0) {
-            return false;
-        }
         if (dungeon->mnfct_info.door_amount_offmap[tngmodel] > 0) {
             return true;
         }

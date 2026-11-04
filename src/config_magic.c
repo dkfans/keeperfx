@@ -1427,7 +1427,6 @@ TbBool decrease_power_level_of_player(PowerKind pwkind, PlayerNumber plyr_idx)
 
 void power_lost_side_effects(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    struct PlayerInfo* player;
     struct Thing* thing;
     switch (pwkind)
     {
@@ -1444,11 +1443,13 @@ void power_lost_side_effects(PowerKind pwkind, PlayerNumber plyr_idx)
             turn_off_power_call_to_arms(plyr_idx);
         break;
     case PwrK_POSSESS:
-        player = get_player(plyr_idx);
-        if (get_player_view_type(player) == PVT_CreatureContrl)
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++)
         {
-            thing = thing_get(get_player_user_state(player)->controlled_thing_idx);
-            prepare_to_controlled_creature_death(thing);
+            if (get_net_user_player_number(user) == plyr_idx && get_user_view_type(user) == PVT_CreatureContrl)
+            {
+                thing = thing_get(get_user_state(user)->controlled_thing_idx);
+                prepare_to_controlled_creature_death(thing);
+            }
         }
         break;
     }

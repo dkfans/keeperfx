@@ -2372,7 +2372,7 @@ static int get_active_computer_assist_slot(void)
     struct Computer2* comp = get_computer_player(player->id_number);
     if (computer_player_invalid(comp) || dungeon_invalid(comp->dungeon))
         return -1;
-    const struct UserState* ustate = get_player_user_state(player);
+    const struct UserState* ustate = get_local_user_state();
     uint32_t preferred_kind = user_state_invalid(ustate) ? 0 : ustate->prefs[UPref_StartingComputerAssistantKind];
     int first_match = -1;
     for (int i = 0; i < COMPUTER_ASSIST_TYPES_COUNT; i++)
@@ -2721,8 +2721,7 @@ void update_room_tab_to_config(void)
         ibtn->draw_call = gui_area_room_button;
     }
     // Update active menu
-    struct PlayerInfo *player = get_my_player();
-    if (get_player_view_type(player) == PVT_DungeonTop)
+    if (get_user_view_type(get_my_user()) == PVT_DungeonTop)
     {
         if (menu_is_active(GMnu_ROOM))
         {
@@ -2820,8 +2819,7 @@ void update_trap_tab_to_config(void)
         }
     }
     // Update active menu
-    struct PlayerInfo *player = get_my_player();
-    if (get_player_view_type(player) == PVT_DungeonTop)
+    if (get_user_view_type(get_my_user()) == PVT_DungeonTop)
     {
         if ( menu_is_active(GMnu_TRAP) )
         {
@@ -2911,7 +2909,7 @@ static void query_next_creature_of_owner(TbBool same_model)
     if (same_model) {
         crmodel = creatng->model;
     }
-    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, crmodel, get_my_player());
+    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, crmodel, get_my_user());
     if (next_creature != queried_creature) {
         set_packet_action(get_local_packet(), PckA_PlyrQueryCreature, next_creature, 0x02, 0, 0);
         play_non_3d_sample(snd_tab_click);

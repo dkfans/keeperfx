@@ -133,8 +133,10 @@ void delete_all_control_structures(void)
     }
 }
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos)
+// spawns and possesses a creature, for start-of-level heart zoom and post-defeat spectres
+struct Thing *create_and_control_creature_as_controller(NetUserId user, ThingModel crmodel, struct Coord3d *pos)
 {
+    struct PlayerInfo *player = get_user_player(user);
     SYNCDBG(6,"Request for model %d (%s) at (%d,%d,%d)",
         crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
@@ -144,18 +146,18 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     dungeon->num_active_creatrs--;
     dungeon->owned_creatures_of_model[thing->model]--;
-    if (is_my_player(player))
+    if (is_local_user(user))
     {
         toggle_status_menu(0);
         turn_off_roaming_menus();
     }
-    set_selected_creature(get_player_user_state(player), thing);
+    set_selected_creature(get_user_state(user), thing);
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->creature_state_flags |= TF2_Spectator;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-    set_user_view_type(get_player_primary_user(player), PVT_CreatureContrl);
+    set_user_view_type(user, PVT_CreatureContrl);
     set_start_state(thing);
     // Preparing light object
     struct InitLight ilght;
@@ -296,7 +298,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
         return;
     }
     long i = SOUND_RANDOM(crsound->count);
-    
+
     // Handle negative indices (custom sounds) differently
     // For custom sounds: -1, -2, -3, etc. represent sequential custom bank samples
     // We subtract the offset to keep them negative
@@ -306,10 +308,10 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
     } else {
         sample_idx = crsound->index + i;  // Regular positive indices
     }
-    
+
     SYNCDBG(18,"Playing sample %d (sound type %ld, index %d) for creature %d",
             sample_idx, snd_idx, crsound->index, thing->model);
-    
+
     if ( use_flags ) {
         thing_play_sample(thing, sample_idx, NORMAL_PITCH, 0, 3, 8, priority, FULL_LOUDNESS);
     } else {

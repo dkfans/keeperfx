@@ -36,7 +36,7 @@ bool GameUI::IsActiveForCurrentView(const struct PlayerInfo* player) const
     if (!player) {
         return false;
     }
-    return (get_local_view_type(player) != PVT_MapScreen) && (get_local_map_fade() == PVT_None);
+    return (get_local_view_type() != PVT_MapScreen) && (get_local_map_fade() == PVT_None);
 }
 
 void GameUI::DrawFrame(struct PlayerInfo* player)
