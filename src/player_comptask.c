@@ -313,25 +313,25 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
         break;
     case GA_UsePwrHandPick:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
     case GA_UsePwrHandDrop:
         // Note that we can drop things even if we have no hand power
         if (!dump_first_held_thing_on_map(plyr_idx, stl_x, stl_y, 0))
             return Lb_FAIL;
         return Lb_SUCCESS;
     case GA_UseMkDigger:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, NO_USER,PwrK_MKDIGGER, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrSight:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, NO_USER,PwrK_SIGHT, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrObey:
-        return magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, power_level, PwMod_Default);
+        return magic_use_available_power_on_level(plyr_idx, NO_USER,PwrK_OBEY, power_level, PwMod_Default);
     case GA_UsePwrHealCrtr:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_HEALCRTR, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_HEALCRTR, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrCall2Arms:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, NO_USER,PwrK_CALL2ARMS, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrCaveIn:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, NO_USER,PwrK_CAVEIN, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_StopPwrCall2Arms:
         turn_off_power_call_to_arms(plyr_idx);
         return Lb_SUCCESS;
@@ -385,43 +385,43 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
     case GA_SellDoor:
         return player_sell_door_at_subtile(plyr_idx, stl_x, stl_y);
     case GA_UsePwrLightning:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, power_level, stl_x, stl_y, PwCast_None, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, NO_USER,PwrK_LIGHTNING, power_level, stl_x, stl_y, PwCast_None, PwMod_Default);
     case GA_UsePwrSpeedUp:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SPEEDCRTR, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_SPEEDCRTR, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrArmour:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_PROTECT, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_PROTECT, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrRebound:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_REBOUND, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_REBOUND, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrConceal:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_CONCEAL, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrFlight:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_FLIGHT, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrVision:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_VISION, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrHoldAudnc:
-        return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, power_level, PwMod_Default);
+        return magic_use_available_power_on_level(plyr_idx, NO_USER,PwrK_HOLDAUDNC, power_level, PwMod_Default);
     case GA_UsePwrDisease:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_DISEASE, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_DISEASE, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrChicken:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_CHICKEN, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrFreeze:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_FREEZE, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrSlow:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_SLOW, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, power_level, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_SLAP, power_level, stl_x, stl_y, thing, PwMod_Default);
     default:
         ERRORLOG("Unknown game action %d", (int)gaction);
         break;
@@ -2016,7 +2016,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                     slbw = get_slabmap_block(digslb_x, digslb_y-1);
                     if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                     {
-                        magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y-3, PwCast_Unrevealed, PwMod_Default);
+                        magic_use_available_power_on_subtile(dungeon->owner, NO_USER,PwrK_DESTRWALLS, 3, digstl_x, digstl_y-3, PwCast_Unrevealed, PwMod_Default);
                         return TDR_BuildBridgeOnSlab;
                     }
                     else
@@ -2025,7 +2025,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                         slbw = get_slabmap_block(digslb_x, digslb_y+1);
                         if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                         {
-                            magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y+3, PwCast_Unrevealed, PwMod_Default);
+                            magic_use_available_power_on_subtile(dungeon->owner, NO_USER,PwrK_DESTRWALLS, 3, digstl_x, digstl_y+3, PwCast_Unrevealed, PwMod_Default);
                             return TDR_BuildBridgeOnSlab;
                         }
                         else
@@ -2034,7 +2034,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                             slbw = get_slabmap_block(digslb_x-1, digslb_y);
                             if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                             {
-                                magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x-3, digstl_y, PwCast_Unrevealed, PwMod_Default);
+                                magic_use_available_power_on_subtile(dungeon->owner, NO_USER,PwrK_DESTRWALLS, 3, digstl_x-3, digstl_y, PwCast_Unrevealed, PwMod_Default);
                                 return TDR_BuildBridgeOnSlab;
                             }
                             else
@@ -2043,7 +2043,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                                 slbw = get_slabmap_block(digslb_x+1, digslb_y);
                                 if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                                 {
-                                    magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x+3, digstl_y, PwCast_Unrevealed, PwMod_Default);
+                                    magic_use_available_power_on_subtile(dungeon->owner, NO_USER,PwrK_DESTRWALLS, 3, digstl_x+3, digstl_y, PwCast_Unrevealed, PwMod_Default);
                                     return TDR_BuildBridgeOnSlab;
                                 }
                             }
@@ -3172,7 +3172,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
             if (!thing_is_picked_up(thing) && !creature_affected_by_slap(thing) && !(creature_under_spell_effect(thing, CSAfF_Speed) && ctask->slap_imps.skip_speed))
             {
                 // Check if we really can use the spell on that creature, considering its position and state
-                if (can_cast_spell(dungeon->owner, PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
+                if (can_cast_spell(dungeon->owner, NO_USER, PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
                 {
                     struct CreatureModelConfig *crconf;
                     crconf = creature_stats_get_from_thing(thing);

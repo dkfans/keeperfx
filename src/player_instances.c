@@ -242,7 +242,7 @@ int32_t pinstfe_hand_grab(NetUserId user, int32_t *n)
     }
     ustate->influenced_thing_creation = 0;
     ustate->influenced_thing_idx = 0;
-    if (magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default) == Lb_FAIL) {
+    if (magic_use_available_power_on_thing(player->id_number, user, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default) == Lb_FAIL) {
         WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
         return 0;
     }

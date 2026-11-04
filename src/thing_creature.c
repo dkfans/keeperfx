@@ -4430,7 +4430,7 @@ void draw_creature_view(struct Thing *thing)
   }
 }
 
-struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
+struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, NetUserId user, MapCoord x, MapCoord y)
 {
     MapCoordDelta nearest_distance = INT32_MAX;
     struct Thing *nearest_thing = INVALID_THING;
@@ -4448,7 +4448,7 @@ struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord 
             i = thing->next_on_mapblk;
 
 
-            if (can_cast_spell(plyr_idx,PwrK_POSSESS,stl_x,stl_y,thing,CastChk_Default ))
+            if (can_cast_spell(plyr_idx,user,PwrK_POSSESS,stl_x,stl_y,thing,CastChk_Default ))
             {
                 MapCoordDelta distance = chessboard_distance(thing->mappos.x.val, thing->mappos.y.val, x, y);
                 if (distance < nearest_distance)

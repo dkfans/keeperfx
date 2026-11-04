@@ -634,7 +634,7 @@ static TbBool draw_spell_cursor(NetUserId user, PowerKind pwkind, ThingIndex tng
     struct Thing* thing = thing_get(tng_idx);
     TbBool allow_cast = false;
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
-    allow_cast = can_cast_spell(player->id_number, pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
+    allow_cast = can_cast_spell(player->id_number, user,pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
     if (!allow_cast) {
         set_pointer_graphic(MousePG_DenyMark);
         return false;
@@ -697,7 +697,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
         PowerKind pwkind = ustate->chosen_power_kind;
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
-        if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+        if (can_cast_spell(player->id_number, user,pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
             draw_spell_cursor(user, pwkind, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else {
             set_pointer_graphic(MousePG_Arrow);
@@ -746,13 +746,13 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
             TbBool can_cast = false;
             if ((ustate->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)) {
                 PowerKind pwkind = PwrK_POSSESS;
-                if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+                if (can_cast_spell(player->id_number, user,pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     can_cast = true;
                 } else {
-                    thing = get_creature_near_for_controlling(player->id_number, thing->mappos.x.val, thing->mappos.y.val);
+                    thing = get_creature_near_for_controlling(player->id_number, user,thing->mappos.x.val, thing->mappos.y.val);
                     if (!thing_is_invalid(thing)) {
-                        if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+                        if (can_cast_spell(player->id_number, user,pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                             can_cast = true;
                         }
                     }

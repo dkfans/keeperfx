@@ -175,12 +175,12 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     // If a spell is selected, try to cast it
     if (pwkind > 0)
     {
-        if (can_cast_spell(my_player_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+        if (can_cast_spell(my_player_number, get_local_user(),pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
             set_packet_power_on_thing(get_local_packet(), pwkind, battle_creature_over);
         }
     } else
     {
-        if (can_cast_spell(my_player_number, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+        if (can_cast_spell(my_player_number, get_local_user(),PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
             struct Packet* pckt = get_local_packet();
             set_packet_action(pckt, PckA_UsePwrHandPick, battle_creature_over, 0, 0, 0);
         }

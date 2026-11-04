@@ -294,7 +294,7 @@ TbBool packets_process_cheats(
             {
                 pwkind = ustate->chosen_power_kind;
                 i = get_power_overcharge_level(user);
-                magic_use_power_direct(plyr_idx,pwkind,i,stl_x, stl_y,INVALID_THING, PwMod_CastForFree);
+                magic_use_power_direct(plyr_idx,user,pwkind,i,stl_x, stl_y,INVALID_THING, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
@@ -312,7 +312,7 @@ TbBool packets_process_cheats(
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
                 KeepPwrLevel power_level = get_power_overcharge_level(user);
-                magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x,stl_y,thing,PwMod_CastForFree);
+                magic_use_power_direct(plyr_idx,user,pwkind,power_level,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;

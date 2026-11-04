@@ -1010,7 +1010,7 @@ TbBool process_user_global_packet_action(NetUserId user)
   case PckA_UsePwrHandPick:
       thing = thing_get(pckt->actn_par1);
       if ((pckt->control_flags & PCtr_Gui) != 0) {
-          magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
+          magic_use_available_power_on_thing(plyr_idx, user, PwrK_HAND, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
       } else {
           use_power_hand(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, pckt->actn_par1);
       }
@@ -1027,13 +1027,13 @@ TbBool process_user_global_packet_action(NetUserId user)
   case PckA_EventBoxClose:
       return false;
   case PckA_GenericLevelPower:
-      magic_use_available_power_on_level(plyr_idx, pckt->actn_par2, 0, PwMod_Default);
+      magic_use_available_power_on_level(plyr_idx, user,pckt->actn_par2, 0, PwMod_Default);
       return 0;
   case PckA_UsePwrObey:
-      magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0, PwMod_Default);
+      magic_use_available_power_on_level(plyr_idx, user,PwrK_OBEY, 0, PwMod_Default);
       return 0;
   case PckA_UsePwrArmageddon:
-      magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0, PwMod_Default);
+      magic_use_available_power_on_level(plyr_idx, user,PwrK_ARMAGEDDON, 0, PwMod_Default);
       return 0;
   case PckA_TurnOffQuery:
       turn_off_query(user);
@@ -1091,7 +1091,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       return false;
   case PckA_UsePwrOnThing:
       i = get_power_overcharge_level(user);
-      directly_cast_spell_on_thing(plyr_idx, pckt->actn_par1, pckt->actn_par2, i);
+      directly_cast_spell_on_thing(plyr_idx, user, pckt->actn_par1, pckt->actn_par2, i);
       return 0;
   case PckA_PlyrToggleAlly:
       if (!is_player_ally_locked(plyr_idx, pckt->actn_par1))
@@ -1234,7 +1234,7 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
     switch (pckt->action)
     {
     case PckA_HoldAudience:
-        magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, 0, PwMod_Default);
+        magic_use_available_power_on_level(plyr_idx, user,PwrK_HOLDAUDNC, 0, PwMod_Default);
         break;
     case PckA_UseSpecialBox:
         activate_dungeon_special(thing_get(pckt->actn_par1), player);

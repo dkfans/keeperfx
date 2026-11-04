@@ -91,7 +91,7 @@ struct Thing *get_thing_under_hand(NetUserId user, MapCoord x, MapCoord y)
     case PSt_FreeCtrlPassngr:
         return get_creature_near_and_owned_by(x, y, -1, CREATURE_ANY);
     case PSt_CtrlDirect:
-        return get_creature_near_for_controlling(player->id_number, x, y);
+        return get_creature_near_for_controlling(player->id_number, user, x, y);
     case PSt_FreeCtrlDirect:
         return get_creature_near(x, y);
     case PSt_CreatrQuery:
@@ -361,7 +361,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         {
             TbBool direct_control_target = !thing_target_action && (ustate->thing_under_hand != 0) && (ustate->input_crtr_control != 0);
             if (direct_control_target && (dungeon->things_in_hand[0] != ustate->thing_under_hand)) {
-                thing = get_creature_near_for_controlling(player->id_number, x, y);
+                thing = get_creature_near_for_controlling(player->id_number, user, x, y);
                 if (!thing_is_invalid(thing))
                 {
                     ustate->thing_under_hand = thing->index;
@@ -371,7 +371,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     thing = thing_get(ustate->thing_under_hand);
                 }
                 set_user_work_state(user, PSt_CtrlDirect, PwrK_POSSESS);
-                if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
+                if (magic_use_available_power_on_thing(plyr_idx, user,PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
                     set_user_work_state(user, ustate->continue_work_state, 0);
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -463,7 +463,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 if (!thing_target_action && (ustate->primary_cursor_state == CSt_PowerHand) && (!ustate->one_click_lock_cursor)) {
                     thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
                     if(!thing_is_invalid(thing))
-                        magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+                        magic_use_available_power_on_thing(plyr_idx, user,PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
                 }
                 if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
                 {
@@ -697,14 +697,14 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 i = get_power_overcharge_level(user);
-                magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None, PwMod_Default);
+                magic_use_available_power_on_subtile(plyr_idx, user,pwkind, i, stl_x, stl_y, PwCast_None, PwMod_Default);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
         case PSt_Slap:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (((pckt->control_flags & PCtr_MapCoordsValid) != 0) || thing_target_action)) {
                 if (!thing_target_action) {
-                    magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+                    magic_use_available_power_on_thing(plyr_idx, user,PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
@@ -737,7 +737,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                 if (thing_target_action) {
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 } else if (ustate->thing_under_hand > 0) {
-                    magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default);
+                    magic_use_available_power_on_thing(plyr_idx, user,PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default);
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
             }
@@ -828,7 +828,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                         break;
                     }
                     i = get_power_overcharge_level(user);
-                    magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+                    magic_use_available_power_on_thing(plyr_idx, user,pwkind, i, stl_x, stl_y, thing, PwMod_Default);
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }

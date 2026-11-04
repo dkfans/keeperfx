@@ -247,7 +247,7 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
             return true;
     }
     // Other things are pickable only for placing in hand
-    return can_cast_spell(plyr_idx, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default);
+    return can_cast_spell(plyr_idx, NO_USER, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default);
 }
 
 TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
