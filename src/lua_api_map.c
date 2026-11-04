@@ -78,11 +78,11 @@ static int map_get_field(lua_State *L){
     } else if (strcmp(key, "height") == 0) {          
         lua_pushinteger(L, game.map_tiles_y);
     } else if (strcmp(key, "default_texture") == 0) {
-        const char *name = get_conf_parameter_text(texture_pack_desc, game.texture_id);
+        const char *name = get_conf_parameter_text(texture_pack_desc, game.texture_id+1);
         if (name[0] != '\0') {
             lua_pushstring(L, name);                    // "STANDARD", "ANCIENT", ...
         } else {
-            lua_pushinteger(L, game.texture_id - 1);    // convert 1-based storage back to 0-based
+            lua_pushinteger(L, game.texture_id);
         }
     } else {
         return luaL_error(L, "Unknown field '%s' for MAP", key);
