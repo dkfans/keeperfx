@@ -1130,7 +1130,7 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
     }
     char campaign_file[DISKPATH_SIZE];
     uint8_t pack = prepare_campaign_file_name(buffer, campaign_file, sizeof(campaign_file));
-    if (pack == CampgnT_Default && is_campaign_in_list(campaign_file, &mp_mappacks_list)) {
+    if (pack == CampgnT_Default && is_campaign_in_list(campaign_file, &mp_mappacks_list) && (get_level_info(level) != NULL)) {
         pack = CampgnT_MultiplayerMappack;
     }
     if (!change_campaign(pack, campaign_file) || strcasecmp(campaign.fname, campaign_file) != 0) {
