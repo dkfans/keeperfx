@@ -1201,11 +1201,8 @@ static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx
 {
     if (power_hand_is_full(get_player(plyr_idx)))
         return Lb_FAIL;
-    if (!lua_on_pick_up(thing, plyr_idx))
-    {
-        play_player_sample(plyr_idx, snd_refusal);
+    if (((mod_flags & PwMod_AskScript) != 0) && !script_allows_pick_up(thing, plyr_idx))
         return Lb_FAIL;
-    }
     if (place_thing_in_power_hand(thing, plyr_idx))
         return Lb_SUCCESS;
     else

@@ -1529,14 +1529,34 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (thing_is_special_box(thing))
     {
+        // A special box is opened instead of picked up, so a denial keeps it closed
+        if (!script_allows_pick_up(thing, plyr_idx)) {
+            return Lb_FAIL;
+        }
         activate_dungeon_special(thing, player);
         return Lb_OK;
     }
     if (!is_power_available(plyr_idx, PwrK_HAND)) {
         return Lb_FAIL;
     }
+    // Ask the script before the grab starts, so a denied pick up shows no grab animation
+    if (!script_allows_pick_up(thing, plyr_idx)) {
+        return Lb_FAIL;
+    }
     prepare_thing_for_power_hand(thing->index, plyr_idx);
     return Lb_SUCCESS;
+}
+
+/**
+ * Asks the level script whether the player may pick up the thing; plays the refusal sound if not.
+ */
+TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (!lua_on_pick_up(thing, plyr_idx)) {
+        play_player_sample(plyr_idx, snd_refusal);
+        return false;
+    }
+    return true;
 }
 
 void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y)
