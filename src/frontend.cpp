@@ -210,7 +210,7 @@ struct GuiMenu *menu_list[] = {
     &spell_menu2,
     &room_menu2,
     &trap_menu2,
-    &frontend_select_mp_mappack_menu,
+    &frontend_skirmish_lobby_menu,
     NULL,
 };
 
@@ -332,7 +332,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuAddComputer, 1}, // [110]
     {GUIStr_MnuReturnToFreePlay, 1},
     {GUIStr_MnuMapPacks, 2},
-    {GUIStr_MnuMpMapPacks, 2},
+    {GUIStr_NetServiceSkirmish, 0},
     {GUIStr_MnuReturnToLobby, 1},
     {GUIStr_MnuContinueCampaign, 1}, // [115]
     {GUIStr_MnuStartNewGame, 1},
@@ -2098,7 +2098,7 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_MAPPACK_SELECT:
   case GMnu_FECAMPAIGN_SELECT:
   case GMnu_FEERROR_BOX:
-  case GMnu_MP_MAPPACK_SELECT:
+  case GMnu_SKIRMISH_LOBBY:
       return false;
   default:
       return true;
@@ -2771,8 +2771,8 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_CAMPAIGN_SELECT:
         turn_off_menu(GMnu_FECAMPAIGN_SELECT);
         break;
-    case FeSt_MP_MAPPACK_SELECT:
-        turn_off_menu(GMnu_MP_MAPPACK_SELECT);
+    case FeSt_SKIRMISH_LOBBY:
+        turn_off_menu(GMnu_SKIRMISH_LOBBY);
         break;
     case FeSt_START_KPRLEVEL:
     case FeSt_START_MPLEVEL:
@@ -2823,6 +2823,10 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           last_mouse_y = GetMouseY();
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
+          frontend_alliances = 0;
+          if (frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+              net_service_index_selected = FrontendNetSvc_None;
+          }
           clear_flag(local_system_flags, GSF_NetworkActive);
           skip_high_score_screen = 0;
           set_pointer_graphic_menu();
@@ -2936,9 +2940,9 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
         turn_on_menu(GMnu_FECAMPAIGN_SELECT);
         set_pointer_graphic_menu();
         break;
-    case FeSt_MP_MAPPACK_SELECT:
-        turn_on_menu(GMnu_MP_MAPPACK_SELECT);
-        frontend_mp_mappack_list_load();
+    case FeSt_SKIRMISH_LOBBY:
+        turn_on_menu(GMnu_SKIRMISH_LOBBY);
+        net_lobby_apply_settings();
         set_pointer_graphic_menu();
         break;
   #if (BFDEBUG_LEVEL > 0)
@@ -2993,7 +2997,7 @@ static const char * menu_state_str(FrontendMenuState state)
         case FeSt_DRAG: return "FeSt_DRAG";
         case FeSt_CAMPAIGN_INTRO: return "FeSt_CAMPAIGN_INTRO";
         case FeSt_MAPPACK_SELECT: return "FeSt_MAPPACK_SELECT";
-        case FeSt_MP_MAPPACK_SELECT: return "FeSt_MP_MAPPACK_SELECT";
+        case FeSt_SKIRMISH_LOBBY: return "FeSt_SKIRMISH_LOBBY";
         case FeSt_FONT_TEST: return "FeSt_FONT_TEST";
     }
     return "unknown";
@@ -3509,7 +3513,7 @@ short frontend_draw(void)
     case FeSt_LEVEL_SELECT:
     case FeSt_MAPPACK_SELECT:
     case FeSt_CAMPAIGN_SELECT:
-    case FeSt_MP_MAPPACK_SELECT:
+    case FeSt_SKIRMISH_LOBBY:
         frontend_copy_background();
         draw_gui();
         break;
@@ -3743,12 +3747,8 @@ void frontend_update(short *finish_menu)
     case FeSt_MAPPACK_SELECT:
         frontend_mappack_select_update();
         break;
-    case FeSt_MP_MAPPACK_SELECT:
-        frontend_mp_mappack_select_update();
-        if (net_service_index_selected != FrontendNetSvc_Skirmish)
-        {
-            frontnet_start_update();
-        }
+    case FeSt_SKIRMISH_LOBBY:
+        frontnet_skirmish_update();
         break;
     case FeSt_HIGH_SCORES:
         frontend_high_scores_update();
@@ -3799,7 +3799,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
         return FeSt_START_KPRLEVEL;
     case FeSt_NET_START:
         return FeSt_NET_SESSION;
-    case FeSt_MP_MAPPACK_SELECT:
+    case FeSt_SKIRMISH_LOBBY:
         return FeSt_NET_SERVICE;
     case FeSt_LEVEL_SELECT:
          return FeSt_MAPPACK_SELECT;

@@ -412,6 +412,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         game.local_plyr_idx = default_loc_player;
         my_player_number = default_loc_player;
     }
+    net_lobby_empty_seats = 0;
     if (!init_level()) {
         coroutine_clear(context, true);
         return;
@@ -421,6 +422,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     if (local)
     {
         game.game_kind = GKind_LocalGame;
+        frontnet_skirmish_resolve_seats();
         init_players_local_game();
         if (AssignCpuKeepers || campaign.assignCpuKeepers) {
             ShouldAssignCpuKeepers = 1;
@@ -456,15 +458,13 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
-        setup_computer_players();
+        setup_computer_players(net_lobby_empty_seats);
     } else
     {
         SYNCDBG(5,"Setting up uninitialized players as zombie players");
         setup_zombie_players();
     }
-    if (game.game_kind == GKind_MultiGame) {
-        setup_alliances();
-    }
+    setup_alliances();
     post_init_level();
     post_init_players();
     post_init_packets();

@@ -42,6 +42,7 @@ struct GuiButton;
 extern struct GuiMenu frontend_net_service_menu;
 extern struct GuiMenu frontend_net_session_menu;
 extern struct GuiMenu frontend_net_start_menu;
+extern struct GuiMenu frontend_skirmish_lobby_menu;
 extern int32_t net_lobby_mappack_scroll_offset;
 extern TbBool net_lobby_mappack_list_open;
 /******************************************************************************/

@@ -118,8 +118,13 @@ void net_lobby_apply_settings(void)
     if (netstate.my_id != SERVER_ID) {
         return;
     }
-    netstate.max_users = net_config_info.max_players;
-    net_lobby_settings = net_config_info;
+    const struct ConfigInfo *config = active_lobby_config();
+    net_lobby_settings = *config;
+    net_lobby_max_players = config->max_players;
+    if (frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+        return;
+    }
+    netstate.max_users = config->max_players;
     net_lobby_refresh_metadata();
     send_remote_buffer(write_lobby_settings_message());
 }
