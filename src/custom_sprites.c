@@ -234,6 +234,7 @@ struct TbSpriteSheet *load_custom_sheet_from_zip(const char *path, const unsigne
 static int load_file_sprites(const char *path, const char *file_desc, unsigned int load_flags)
 {
     SYNCDBG(8, "Starting");
+    add_loaded_file_checksum(path);
     int add_flag = 0;
     if (load_flags & CLF_Sprites && add_custom_sprite(path))
     {
