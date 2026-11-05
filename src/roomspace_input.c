@@ -140,6 +140,9 @@ static void apply_packet_prediction(NetUserId user, const struct Packet *pckt)
     apply_user_pref_packet_action(ustate, pckt);
     apply_first_person_packet_action(ustate, pckt);
     apply_creature_input_packet_values(ustate, pckt);
+    if (ustate->view_type == PVT_DungeonTop) {
+        process_dungeon_control_packet_spell_overcharge(user, pckt);
+    }
     ustate->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
     if (pckt->action == PckA_SetPlyrState) {
         ustate->work_state = pckt->actn_par1;

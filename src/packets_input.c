@@ -51,8 +51,6 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
-extern TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user);
-
 extern void update_double_click_detection(NetUserId user);
 
 // Returns false if mouse is on map edges or on GUI
@@ -652,7 +650,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     packet_left_button_double_clicked[user] = 0;
     ustate->mouse_on_map = is_mouse_on_map(pckt);
     remember_cursor_subtile(user);
-    process_dungeon_control_packet_spell_overcharge(user);
+    process_dungeon_control_packet_spell_overcharge(user, pckt);
     if (user == get_displayed_user()) {
         map_volume_box.visible = 0;
     }
@@ -696,7 +694,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
         case PSt_CastPowerOnSubtile:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                i = get_power_overcharge_level(user);
+                i = get_power_overcharge_level(ustate);
                 magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None, PwMod_Default);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
@@ -827,7 +825,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                     if (thing_is_invalid(thing)) {
                         break;
                     }
-                    i = get_power_overcharge_level(user);
+                    i = get_power_overcharge_level(ustate);
                     magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);

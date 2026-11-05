@@ -32,6 +32,7 @@ extern "C" {
 
 struct Thing;
 struct PlayerInfo;
+struct UserState;
 
 #pragma pack()
 /******************************************************************************/
@@ -65,9 +66,9 @@ TbBool player_uses_power_obey(PlayerNumber plyr_idx);
 
 TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx);
 
-unsigned char general_expand_check(NetUserId user);
-unsigned char sight_of_evil_expand_check(NetUserId user);
-unsigned char call_to_arms_expand_check(NetUserId user);
+unsigned char general_expand_check(PlayerNumber plyr_idx, const struct UserState *ustate);
+unsigned char sight_of_evil_expand_check(PlayerNumber plyr_idx, const struct UserState *ustate);
+unsigned char call_to_arms_expand_check(PlayerNumber plyr_idx, const struct UserState *ustate);
 /******************************************************************************/
 #ifdef __cplusplus
 }

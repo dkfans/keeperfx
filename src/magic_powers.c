@@ -2280,9 +2280,9 @@ TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwr
     return magic_use_power_direct(caster,pwkind,power_level,stl_x,stl_y,thing,mod_flags);
 }
 
-int get_power_overcharge_level(NetUserId user)
+int get_power_overcharge_level(const struct UserState *ustate)
 {
-    int i = get_user_state(user)->cast_expand_level >> 2;
+    int i = ustate->cast_expand_level >> 2;
     if (i > POWER_MAX_LEVEL)
         return POWER_MAX_LEVEL;
     return i;
