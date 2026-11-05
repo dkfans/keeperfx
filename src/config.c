@@ -41,7 +41,7 @@
 #include "config_campaigns.h"
 #include "config_keeperfx.h"
 #include "config_translation.h"
-#include "net_checksums.h"
+#include "net_filecheck.h"
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"

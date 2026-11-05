@@ -50,7 +50,7 @@
 #include "map_events.h"
 #include "net_exchange_gameplay.h"
 #include "net_input_lag.h"
-#include "net_checksums.h"
+#include "net_filecheck.h"
 #include "net_spectator.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"

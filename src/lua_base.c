@@ -13,7 +13,7 @@
 #include "game_legacy.h"
 #include "globals.h"
 #include "gui_msgs.h"
-#include "net_checksums.h"
+#include "net_filecheck.h"
 #include "replay.h"
 
 #include "config_creature.h"

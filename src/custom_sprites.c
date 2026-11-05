@@ -28,7 +28,7 @@
 #include "config_strings.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
-#include "net_checksums.h"
+#include "net_filecheck.h"
 #include "sprites.h"
 #include "config_spritecolors.h"
 #include <spng.h>

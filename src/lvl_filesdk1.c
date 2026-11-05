@@ -43,7 +43,7 @@
 #include "keeperfx.hpp"
 #include "player_instances.h"
 #include "custom_sprites.h"
-#include "net_checksums.h"
+#include "net_filecheck.h"
 
 #include <toml.h>
 #include "post_inc.h"

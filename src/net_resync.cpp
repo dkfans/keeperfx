@@ -36,7 +36,7 @@
 #include "light_data.h"
 #include "lua_base.h"
 #include "net_input_lag.h"
-#include "net_checksums.h"
+#include "net_checksum_turn.h"
 #include "net_spectator.h"
 #include "ariadne_update.h"
 #include "keeperfx.hpp"

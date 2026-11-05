@@ -50,7 +50,7 @@
 #include "net_spectator.h"
 #include "observer.h"
 #include "frontmenu_ingame_evnt.h"
-#include "net_checksums.h"
+#include "net_filecheck.h"
 #include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
