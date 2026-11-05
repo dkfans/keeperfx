@@ -197,7 +197,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     }
 }
 
-static void set_battle_creature_over(struct GuiButton *gbtn, struct Thing *thing)
+static void hover_cursor_over_creature_icon_in_battle_menu(struct GuiButton *gbtn, struct Thing *thing)
 {
     if (!thing_exists(thing) || !thing_revealed(thing, my_player_number)) {
         return;
@@ -223,7 +223,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
                 thing = thing_get(friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        set_battle_creature_over(gbtn, thing);
+        hover_cursor_over_creature_icon_in_battle_menu(gbtn, thing);
     }
 }
 
@@ -325,7 +325,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
                 thing = thing_get(enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        set_battle_creature_over(gbtn, thing);
+        hover_cursor_over_creature_icon_in_battle_menu(gbtn, thing);
     }
 }
 
