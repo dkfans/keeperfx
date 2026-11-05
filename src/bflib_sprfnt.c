@@ -50,6 +50,8 @@ struct AsianDraw {
   unsigned long vertical_offset;
   unsigned long y_spacing;
   unsigned char *sprite_data;
+  float scale_factorX;
+  float scale_factorY;
 };
 
 /**
@@ -98,7 +100,7 @@ struct AsianFont *active_dbcfont = NULL;
 
 
 struct AsianFont dbcfonts[] = {
-  {"font12", NULL,NULL,NULL , 12, 0, 1, 1, 1},
+  {"font12", NULL,NULL,NULL , 12, -2, -1, 1, 1},
   {"font16", NULL,NULL,NULL , 16, 0, 1, 4, 2},
   //{"font24", NULL,NULL,NULL , 24, 0, 1, 4, 2},
 };
@@ -300,6 +302,8 @@ static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
     adraw->vertical_offset = active_dbcfont->baseline_offset;
     adraw->y_spacing = active_dbcfont->line_spacing;
     adraw->sprite_data = active_dbcfont->data + offset;
+    adraw->scale_factorX = 1.0f;
+    adraw->scale_factorY = 1.0f;
     return 0;
 }
 
@@ -317,6 +321,8 @@ static int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsig
     unsigned short src_val = 0;
     for (int y = height; y > 0; y--)
     {
+        static const TbPixel cols[11] = {0x47, 0x48, 0x49, 0x4B, 0x4B, 0x49, 0x47, 0x46, 0x46, 0x45, 0x45};
+        TbPixel col_idx = (float)y / ((float)height/11.0f);
         unsigned char* src = src_buf;
         unsigned char* dst = dst_buf;
         short skip_count = start_x;
@@ -327,7 +333,12 @@ static int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsig
           src_val <<= 1;
           short colour;
           if ((src_val & 0x100) != 0)
-              colour = colr1;
+          {
+            if (colr1 == 1)
+                colour = colr1;
+            else
+                colour = cols[col_idx];
+          }
           else
             colour = colr2;
           if (skip_count > 0)
@@ -466,6 +477,9 @@ skip_sprite_draw:
       {
         if ((scr_x < 0) || (scr_x >= awind->width) || (scr_y < 0) || (scr_y >= awind->height))
           return 4;
+        dst_buf = &awind->buf_ptr[awind->scanline * (scr_y + height/11) + (scr_x + height/22)];
+        
+        dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, 1, -1);
         dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
         dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr1, colr2);
       }
@@ -550,6 +564,8 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
             adraw.character_spacing = adraw.character_spacing * units_per_px / 16;
             adraw.vertical_offset = adraw.vertical_offset * units_per_px / 16;
             adraw.y_spacing = adraw.y_spacing * units_per_px / 16;
+            adraw.scale_factorX = scale_factorX;
+            adraw.scale_factorY = scale_factorY;
         }
 
         dbc_draw_font_sprite_text(awind, &adraw, *pos_x, pos_y, colour, -1, shadow_colour);
