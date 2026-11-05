@@ -722,12 +722,6 @@ static void forget_user(NetUserId user)
     if (ustate->cursor_light_idx != 0) {
         light_delete_light(ustate->cursor_light_idx);
     }
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        struct PlayerInfo *player = get_player(plyr_idx);
-        if (player->roomspace.is_active && player->roomspace.user == user) {
-            player->roomspace.is_active = false;
-        }
-    }
     PlayerNumber reconnect_player_id = ustate->player_id;
     memset(ustate, 0, sizeof(*ustate));
     ustate->player_id = PLAYER_NONE;
@@ -748,9 +742,7 @@ void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user)
         old_state->player_id = PLAYER_NONE;
     }
     set_net_user_player_number(SOLO_HUMAN_ID, myplyr->id_number);
-    if (myplyr->roomspace.is_active && (myplyr->roomspace.user == old_user)) {
-        myplyr->roomspace.user = SOLO_HUMAN_ID;
-    }
+    get_user_state(SOLO_HUMAN_ID)->roomspace.user = SOLO_HUMAN_ID;
 }
 
 static void stop_network_game_state(void)

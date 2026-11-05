@@ -183,7 +183,6 @@ struct PlayerInfo {
     GameTurn display_objective_turn;
     GameTurn slap_cooldown_until_turn; /* computer-only, prevents slapping too fast. */
     unsigned char hand_idx; /* hand skin (powerhands.toml) */
-    struct RoomSpace roomspace;
     ThingModel special_digger; /* which creatures are imp-like */
     unsigned short generate_speed; /* portal creature frequency */
 };
@@ -247,6 +246,7 @@ struct UserState {
     int32_t hand_animationId;
     GameTurn hand_animation_until_turn;
     struct RoomSpace render_roomspace;
+    struct RoomSpace roomspace;
     unsigned char roomspace_mode;
     int roomspace_detection_looseness;
     int roomspace_width;

@@ -2729,12 +2729,11 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct PlayerInfo* current_player = get_player(plyr_idx);
     const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
     const struct RoomSpace *render_roomspace = &ustate->render_roomspace;
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_player->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
+    if ((get_user_state(get_displayed_user())->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
@@ -8718,12 +8717,11 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct PlayerInfo* current_player = get_player(plyr_idx);
     const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
     const struct RoomSpace *render_roomspace = &ustate->render_roomspace;
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_player->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
+    if ((get_user_state(get_displayed_user())->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }

@@ -1110,7 +1110,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         WARNLOG("Player %d tried to build %s on a forbidden subtile (%d,%d)",(int)plyr_idx,
             room_code_name(rkind),(int)stl_x,(int)stl_y);
         if (is_my_player_number(player->id_number)) {
-            if (!player->roomspace.is_active)
+            if (!get_local_user_state()->roomspace.is_active)
             {
                 play_non_3d_sample(snd_refusal);
             }
