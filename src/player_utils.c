@@ -229,7 +229,6 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if ((game.conf.rules[player->id_number].gameplay.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
-        dungeon->num_things_in_hand = 0;
     }
     if (player_uses_power_call_to_arms(player->id_number))
         turn_off_power_call_to_arms(player->id_number);

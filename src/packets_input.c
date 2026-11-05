@@ -208,7 +208,7 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
             create_power_hand(user);
         ustate->thing_under_hand = thing->index;
     }
-    thing = get_first_thing_in_power_hand(player);
+    thing = get_first_thing_in_power_hand(user);
     if (thing_exists(thing))
     {
         if (ustate->hand_thing_idx == 0) {
@@ -226,7 +226,7 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
         if ((ustate->instance_num != PI_Grab) && (ustate->instance_num != PI_Drop) &&
             (ustate->instance_num != PI_Whip) && (ustate->instance_num != PI_WhipEnd))
         {
-            thing = get_first_thing_in_power_hand(player);
+            thing = get_first_thing_in_power_hand(user);
             if ((ustate->thing_under_hand != 0) || !thing_exists(thing))
             {
                 set_power_hand_graphic(user, HndA_Hover);
@@ -253,7 +253,6 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
     struct UserState* ustate = get_user_state(user);
     PlayerNumber plyr_idx = player->id_number;
-    struct Dungeon* dungeon = get_players_dungeon(player);
     struct Packet* pckt = get_packet(user);
     MapCoord x = pckt->pos_x;
     MapCoord y = pckt->pos_y;
@@ -360,7 +359,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         if (ustate->cursor_button_down != 0)
         {
             TbBool direct_control_target = !thing_target_action && (ustate->thing_under_hand != 0) && (ustate->input_crtr_control != 0);
-            if (direct_control_target && (dungeon->things_in_hand[0] != ustate->thing_under_hand)) {
+            if (direct_control_target && (ustate->things_in_hand[0] != ustate->thing_under_hand)) {
                 thing = get_creature_near_for_controlling(player->id_number, user, x, y);
                 if (!thing_is_invalid(thing))
                 {
@@ -407,7 +406,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     if (ustate->thing_under_hand != 0) 
                     {
                         // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
-                        use_power_hand(plyr_idx, stl_x, stl_y, 0);
+                        use_power_hand(plyr_idx, user, stl_x, stl_y, 0);
                     }
                     else if (ustate->render_roomspace.drag_mode && at_limit) {
                         play_player_sample(player->id_number, snd_refusal);
@@ -449,9 +448,9 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         } else
         if (ustate->cursor_button_down != 0)
         {
-            if (!power_hand_is_empty(player) && (!ustate->one_click_lock_cursor))
+            if (!power_hand_is_empty(user) && (!ustate->one_click_lock_cursor))
             {
-                if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
+                if (dump_first_held_thing_on_map(player->id_number, user, stl_x, stl_y, 1)) {
                     if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
                     {
                         ustate->cursor_button_down = 0;

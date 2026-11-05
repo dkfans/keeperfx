@@ -716,6 +716,7 @@ static void forget_user(NetUserId user)
     if (user_state_invalid(ustate)) {
         return;
     }
+    queue_user_held_things_drop(user);
     delete_power_hand(user);
     if (ustate->cursor_light_idx != 0) {
         light_delete_light(ustate->cursor_light_idx);

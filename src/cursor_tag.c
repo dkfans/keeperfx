@@ -120,7 +120,7 @@ void tag_cursor_blocks_thing_in_hand(NetUserId user, MapSubtlCoord stl_x, MapSub
     ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
     if (should_draw_cursor_box(user)) {
         TbBool full_slab = (ustate->roomspace_mode != single_subtile_mode);
-        TbBool allow_unclaimed_path = is_creature_droppable_on_path(get_first_thing_in_power_hand(get_player(plyr_idx)));
+        TbBool allow_unclaimed_path = is_creature_droppable_on_path(get_first_thing_in_power_hand(user));
         map_volume_box.visible = true;
         map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, allow_unclaimed_path);
         if (full_slab) {

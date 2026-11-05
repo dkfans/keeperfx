@@ -2071,7 +2071,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
         return;
     }
     int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
-    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(player) && !local_cursor_is_locked() && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
+    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(get_local_user()) &&!local_cursor_is_locked() && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
         set_packet_power_on_thing(pckt, PwrK_SLAP, local_state.local_thing_under_hand);
         return;
     }
@@ -2450,7 +2450,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
   TbBool cursor_locked = local_cursor_is_locked();
-  TbBool hand_is_empty = power_hand_is_empty(player);
+  TbBool hand_is_empty = power_hand_is_empty(get_local_user());
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= local_state.engine_window_width/pixel_size)
    || (pointer_y >= local_state.engine_window_height/pixel_size))
@@ -2976,7 +2976,7 @@ static void get_player_gui_clicks(void)
       }
       if (right_button_released)
       {
-        if ((predicted_ustate->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
+        if ((predicted_ustate->work_state != PSt_HoldInHand) || power_hand_is_empty(get_local_user()))
         {
           if ( !turn_off_all_window_menus() )
           {

@@ -316,7 +316,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
         return magic_use_available_power_on_thing(plyr_idx, NO_USER,PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
     case GA_UsePwrHandDrop:
         // Note that we can drop things even if we have no hand power
-        if (!dump_first_held_thing_on_map(plyr_idx, stl_x, stl_y, 0))
+        if (!dump_first_held_thing_on_map(plyr_idx, NO_USER, stl_x, stl_y, 0))
             return Lb_FAIL;
         return Lb_SUCCESS;
     case GA_UseMkDigger:
@@ -737,19 +737,6 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
     place_thing_in_limbo(thing);
 }
 
-/** Checks if given thing is placed in power hand of given player.
- *
- * @param thing
- * @param plyr_idx
- * @return
- */
-TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx)
-{
-    struct Computer2 *comp;
-    comp = get_computer_player(plyr_idx);
-    return (comp->held_thing_idx == thing->index);
-}
-
 /**
  * Dumps computer player held things on map.
  * @param comp
@@ -803,7 +790,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
     locpos.z.val += i;
     if (object_is_gold_pile(droptng))
     {
-        drop_gold_coins(pos, droptng->valuable.gold_stored, comp->dungeon->owner);
+        drop_gold_coins(pos, droptng->valuable.gold_stored, comp->dungeon->owner, NO_USER);
         play_player_sample(comp->dungeon->owner, 88);
         destroy_object(droptng);
     } else
@@ -854,21 +841,6 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
     // Remove thing from hand
     thing = thing_get(comp->held_thing_idx);
     if (thing_is_invalid(thing)) {
-        return false;
-    }
-    struct Coord3d locpos;
-    locpos.z.val = 0;
-    locpos.x.val = subtile_coord_center(pos->x.stl.num);
-    locpos.y.val = subtile_coord_center(pos->y.stl.num);
-    locpos.z.val = get_thing_height_at(thing, &locpos);
-    drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
-    comp->held_thing_idx = 0;
-    return true;
-}
-
-TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Thing *thing, const struct Coord3d *pos)
-{
-    if (comp->held_thing_idx != thing->index) {
         return false;
     }
     struct Coord3d locpos;

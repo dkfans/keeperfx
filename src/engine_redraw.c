@@ -725,10 +725,10 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(user) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(user) || (!power_hand_is_empty(user) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
-        if ((i == CSt_PowerHand) && power_hand_is_empty(player)) {
+        if ((i == CSt_PowerHand) && power_hand_is_empty(user)) {
             i = CSt_DefaultArrow;
         }
         switch (i) {
@@ -744,7 +744,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
             thing = thing_get(thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;
-            if ((ustate->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)) {
+            if ((ustate->input_crtr_control) && (thing_exists(thing)) && (ustate->things_in_hand[0] != thing_under_hand)) {
                 PowerKind pwkind = PwrK_POSSESS;
                 if (can_cast_spell(player->id_number, user,pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
@@ -765,7 +765,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
 
                 local_state.display_needs_update = true;
             } else
-            if (((ustate->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)
+            if (((ustate->input_crtr_query) && !thing_is_invalid(thing)) && (ustate->things_in_hand[0] != thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number)) {
                 set_pointer_graphic(MousePG_Query);
                 local_state.display_needs_update = true;

@@ -488,7 +488,6 @@ short setup_game(void)
  */
 static bool players_cursor_is_at_top_of_view()
 {
-    const struct PlayerInfo *const player = get_displayed_player();
     const struct UserState *const ustate = get_user_state_prediction(get_displayed_user());
     switch (ustate->work_state)
     {
@@ -516,7 +515,7 @@ static bool players_cursor_is_at_top_of_view()
 
             case CSt_PowerHand:
                 return (local_state.local_thing_under_hand == 0)
-                    || (! power_hand_is_empty(player));
+                    || (! power_hand_is_empty(get_displayed_user()));
         }
     }
     return false;
@@ -834,7 +833,11 @@ TbBool toggle_computer_player(PlayerNumber plyr_idx)
     }
     struct Computer2 *comp;
     comp = get_computer_player(player->id_number);
-    computer_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
+    struct Thing *heldtng = thing_get(comp->held_thing_idx);
+    if (!thing_is_invalid(heldtng)) {
+        queue_held_thing_drop(plyr_idx, heldtng);
+    }
+    comp->held_thing_idx = 0;
     return true;
 }
 

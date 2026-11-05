@@ -251,11 +251,9 @@ int32_t pinstfe_hand_grab(NetUserId user, int32_t *n)
 
 int32_t pinstfs_hand_drop(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
-    struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(ustate->hand_thing_idx);
-    ustate->influenced_thing_idx = dungeon->things_in_hand[0];
+    ustate->influenced_thing_idx = ustate->things_in_hand[0];
     ustate->influenced_thing_creation = thing->creation_turn;
     if (thing_exists(thing))
     {

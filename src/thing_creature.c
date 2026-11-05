@@ -7881,10 +7881,8 @@ struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, Cr
     // Handles picked up by player case.
     if (thing_is_picked_up_by_player(thing, thing->owner))
     {
-        struct Dungeon *dungeon = get_dungeon(thing->owner);
-        if (get_thing_in_hand_id(thing, thing->owner) >= 0)
+        if (replace_thing_in_power_hand_list(thing, newtng, thing->owner))
         {
-            dungeon->things_in_hand[get_thing_in_hand_id(thing, thing->owner)] = newtng->index;
             remove_thing_from_limbo(thing);
             place_thing_in_limbo(newtng);
         }

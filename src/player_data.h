@@ -33,6 +33,7 @@ extern "C" {
 /******************************************************************************/
 #define PLAYERS_COUNT       9
 #define COLOURS_COUNT       9
+#define MAX_THINGS_IN_HAND  64
 
 #define INVALID_PLAYER (&bad_player)
 #define INVALID_USER_STATE (&bad_user_state)
@@ -241,6 +242,8 @@ struct UserState {
     PlayerState continue_work_state;
     short thing_under_hand;
     short hand_thing_idx;
+    ThingIndex things_in_hand[MAX_THINGS_IN_HAND];
+    uint8_t num_things_in_hand;
     int32_t hand_animationId;
     GameTurn hand_animation_until_turn;
     struct RoomSpace render_roomspace;
