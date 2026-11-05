@@ -44,6 +44,7 @@ extern "C" {
 #define SNAPSHOT_BUFFER_SIZE 15
 #define PATH_HASH_OFFSET_BASIS 2166136261u
 #define PATH_HASH_PRIME 16777619u
+#define ATTEMPTED_FILE_NAME_COUNT 1024
 
 struct ChecksumSnapshot {
     GameTurn turn;
@@ -52,11 +53,18 @@ struct ChecksumSnapshot {
     struct LogDetailedSnapshot log_details;
 };
 
+struct AttemptedFileName {
+    TbBigChecksum path_hash;
+    char name[DISKPATH_SIZE];
+};
+
 static struct ChecksumSnapshot snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
 static int snapshot_head = 0;
 static GameTurn desync_turn = 0;
 
 static struct LoadedFileChecksums loaded_file_checksums;
+static struct AttemptedFileName attempted_file_names[ATTEMPTED_FILE_NAME_COUNT];
+static int attempted_file_name_count = 0;
 
 TbBigChecksum get_thing_checksum(const struct Thing* thing) {
     if (!thing_exists(thing) || is_non_synchronized_thing_class(thing->class_id)) {
@@ -296,9 +304,40 @@ static int find_loaded_file(const struct LoadedFileChecksums *files, TbBigChecks
     return -1;
 }
 
+static int find_attempted_file_name(TbBigChecksum path_hash)
+{
+    for (int i = 0; i < attempted_file_name_count; i++) {
+        if (attempted_file_names[i].path_hash == path_hash) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static void remember_attempted_file_name(TbBigChecksum path_hash, const char *relative_fname)
+{
+    if (find_attempted_file_name(path_hash) >= 0 || attempted_file_name_count >= ATTEMPTED_FILE_NAME_COUNT) {
+        return;
+    }
+    struct AttemptedFileName *attempted = &attempted_file_names[attempted_file_name_count];
+    attempted->path_hash = path_hash;
+    snprintf(attempted->name, sizeof(attempted->name), "%s", relative_fname);
+    attempted_file_name_count++;
+}
+
+static const char *loaded_file_name(TbBigChecksum path_hash)
+{
+    int index = find_attempted_file_name(path_hash);
+    if (index < 0) {
+        return "(file name unknown locally)";
+    }
+    return attempted_file_names[index].name;
+}
+
 void reset_loaded_file_checksums(void)
 {
     memset(&loaded_file_checksums, 0, sizeof(loaded_file_checksums));
+    attempted_file_name_count = 0;
 }
 
 const struct LoadedFileChecksums *get_loaded_file_checksums(void)
@@ -357,6 +396,7 @@ void add_loaded_file_checksum(const char *fname)
     char relative_fname[FULLPATH_SIZE];
     make_loaded_file_name(fname, relative_fname, sizeof(relative_fname));
     TbBigChecksum path_hash = calculate_path_hash(relative_fname);
+    remember_attempted_file_name(path_hash, relative_fname);
     if (!LbFileExists(fname) || find_loaded_file(&loaded_file_checksums, path_hash) >= 0) {
         return;
     }
@@ -371,6 +411,38 @@ void add_loaded_file_checksum(const char *fname)
     file->path_hash = path_hash;
     file->checksum = checksum;
     loaded_file_checksums.count++;
+}
+
+static void log_differing_file(const char **first_differing_file, NetUserId user, const char *fname, const char *reason)
+{
+    if (*first_differing_file == NULL) {
+        JUSTMSG("Files differ between %s and host:", network_user_name(user));
+        *first_differing_file = fname;
+    }
+    JUSTMSG("    %s%s", fname, reason);
+}
+
+const char *find_file_differing_from_host(const struct LoadedFileChecksums *files, const struct LoadedFileChecksums *host, NetUserId user)
+{
+    const char *first_differing_file = NULL;
+    for (int i = 0; i < host->count; i++) {
+        const struct LoadedFileChecksum *host_file = &host->files[i];
+        int index = find_loaded_file(files, host_file->path_hash);
+        if (index < 0) {
+            log_differing_file(&first_differing_file, user, loaded_file_name(host_file->path_hash), " (only loaded by host)");
+        } else if (files->files[index].checksum != host_file->checksum) {
+            log_differing_file(&first_differing_file, user, loaded_file_name(host_file->path_hash), "");
+        }
+    }
+    for (int i = 0; i < files->count; i++) {
+        if (find_loaded_file(host, files->files[i].path_hash) < 0) {
+            log_differing_file(&first_differing_file, user, loaded_file_name(files->files[i].path_hash), " (not loaded by host)");
+        }
+    }
+    if (files->untracked_checksum != host->untracked_checksum) {
+        log_differing_file(&first_differing_file, user, "(files beyond the tracked limit)", "");
+    }
+    return first_differing_file;
 }
 
 void update_turn_checksums(void) {
