@@ -293,7 +293,7 @@ TbBool packets_process_cheats(
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 pwkind = ustate->chosen_power_kind;
-                i = get_power_overcharge_level(user);
+                i = get_power_overcharge_level(ustate);
                 magic_use_power_direct(plyr_idx,pwkind,i,stl_x, stl_y,INVALID_THING, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
@@ -311,7 +311,7 @@ TbBool packets_process_cheats(
             ustate->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                KeepPwrLevel power_level = get_power_overcharge_level(user);
+                KeepPwrLevel power_level = get_power_overcharge_level(ustate);
                 magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }

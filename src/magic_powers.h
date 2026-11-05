@@ -58,7 +58,7 @@ GoldAmount compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, K
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coord3d *pos);
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrLevel power_level);
-int get_power_overcharge_level(NetUserId user);
+int get_power_overcharge_level(const struct UserState *ustate);
 TbBool update_power_overcharge(NetUserId user, int spl_idx);
 void process_dungeon_power_magic(void);
 

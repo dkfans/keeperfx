@@ -197,6 +197,18 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     }
 }
 
+static void set_battle_creature_over(struct GuiButton *gbtn, struct Thing *thing)
+{
+    if (!thing_exists(thing) || !thing_revealed(thing, my_player_number)) {
+        return;
+    }
+    battle_creature_over = thing->index;
+    TbBool dragging_spell_onto_creature = (left_button_held || left_button_released) && (get_local_user_state_prediction()->chosen_power_kind > 0);
+    if (dragging_spell_onto_creature) {
+        gbtn->button_state_left_pressed = 1;
+    }
+}
+
 void gui_setup_friend_over(struct GuiButton *gbtn)
 {
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
@@ -211,10 +223,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
                 thing = thing_get(friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        if (thing_exists(thing) && thing_revealed(thing, dungeon->owner))
-        {
-            battle_creature_over = thing->index;
-        }
+        set_battle_creature_over(gbtn, thing);
     }
 }
 
@@ -316,10 +325,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
                 thing = thing_get(enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        if (thing_exists(thing) && thing_revealed(thing, dungeon->owner))
-        {
-            battle_creature_over = thing->index;
-        }
+        set_battle_creature_over(gbtn, thing);
     }
 }
 

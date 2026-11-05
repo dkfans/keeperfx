@@ -642,7 +642,7 @@ static TbBool draw_spell_cursor(NetUserId user, PowerKind pwkind, ThingIndex tng
     unsigned char (*chkfunc)(NetUserId) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
     if (chkfunc != NULL) {
         if (chkfunc(user)) {
-            i = get_power_overcharge_level(user);
+            i = get_power_overcharge_level(get_user_state_prediction(user));
             set_pointer_graphic(MousePG_SpellCharge0+i);
             draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
 

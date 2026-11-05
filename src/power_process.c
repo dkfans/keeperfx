@@ -89,17 +89,17 @@ void set_chosen_power_none(void)
 
 unsigned char general_expand_check(NetUserId user)
 {
-    return get_user_state(user)->cast_expand_level != 0;
+    return get_user_state_prediction(user)->cast_expand_level != 0;
 }
 
 unsigned char sight_of_evil_expand_check(NetUserId user)
 {
-    return get_user_state(user)->cast_expand_level != 0 && !player_uses_power_sight(get_user_player(user)->id_number);
+    return get_user_state_prediction(user)->cast_expand_level != 0 && !player_uses_power_sight(get_user_player(user)->id_number);
 }
 
 unsigned char call_to_arms_expand_check(NetUserId user)
 {
-    return get_user_state(user)->cast_expand_level != 0 && !player_uses_power_call_to_arms(get_user_player(user)->id_number);
+    return get_user_state_prediction(user)->cast_expand_level != 0 && !player_uses_power_call_to_arms(get_user_player(user)->id_number);
 }
 
 void process_armageddon(void)
