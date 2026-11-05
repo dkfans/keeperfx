@@ -30,6 +30,10 @@
 extern "C" {
 #endif
 
+#define LUA_MODULE_LOADER_LUA 2
+#define LUA_MODULE_LOADER_C 3
+#define LUA_MODULE_LOADER_C_ROOT 4
+
 struct lua_State *Lvl_script = NULL;
 
 
@@ -154,6 +158,38 @@ int setLuaPath( lua_State* L)
     lua_setfield(L, -2, "path"); // set the field "path" in table at -2 with value at top of stack
     lua_pop(L, 1); // get rid of package table from top of stack
     return 0; // all done!
+}
+
+static int load_checksummed_lua_module(lua_State *L)
+{
+    const char *module_name = luaL_checkstring(L, 1);
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "searchpath");
+    lua_pushstring(L, module_name);
+    lua_getfield(L, -3, "path");
+    lua_call(L, 2, 2);
+    if (lua_isnil(L, -2)) {
+        return 1;
+    }
+    const char *fname = lua_tostring(L, -2);
+    add_loaded_file_checksum(fname);
+    if (luaL_loadfile(L, fname) != LUA_OK) {
+        return luaL_error(L, "error loading module '%s' from file '%s':\n\t%s", module_name, fname, lua_tostring(L, -1));
+    }
+    return 1;
+}
+
+static void restrict_lua_module_loaders(lua_State *L)
+{
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "loaders");
+    lua_pushcfunction(L, load_checksummed_lua_module);
+    lua_rawseti(L, -2, LUA_MODULE_LOADER_LUA);
+    lua_pushnil(L);
+    lua_rawseti(L, -2, LUA_MODULE_LOADER_C);
+    lua_pushnil(L);
+    lua_rawseti(L, -2, LUA_MODULE_LOADER_C_ROOT);
+    lua_pop(L, 2);
 }
 
 static TbBool run_lua_file(lua_State *L, const char *fname, const char *func)
@@ -416,6 +452,7 @@ TbBool open_lua_script(LevelNumber lvnum)
     reg_host_functions(Lvl_script);
 
     setLuaPath(Lvl_script);
+    restrict_lua_module_loaders(Lvl_script);
 
     char* fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
 
