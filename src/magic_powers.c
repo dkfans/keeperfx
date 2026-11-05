@@ -169,6 +169,9 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
                 cast_on_tng = false;
             }
         }
+        if ((pwkind == PwrK_POSSESS) && ((flags & CastChk_SkipThing) == 0) && thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom)) {
+            return false;
+        }
         TbBool can_target = cast_at_xy && cast_on_tng;
         if (flag_is_set(powerst->can_cast_flags,PwCast_ThingOrMap)) {
             can_target = cast_at_xy || cast_on_tng;
@@ -1199,7 +1202,7 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
 
 static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
-    if (power_hand_is_full(user))
+    if (power_hand_is_full(user) || thing_is_possessed(thing))
         return Lb_FAIL;
     else if (place_thing_in_power_hand(thing, plyr_idx, user))
     {
@@ -1791,7 +1794,7 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     lua_on_slap(thing, plyr_idx);
-    if (!thing_exists(thing)) {
+    if (!thing_exists(thing) || thing_is_possessed(thing)) {
         return Lb_FAIL;
     }
     player = get_player(plyr_idx);

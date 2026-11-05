@@ -247,6 +247,10 @@ TbBool control_creature_as_controller(NetUserId user, struct Thing *thing)
     struct UserState* ustate = get_user_state(user);
     struct CreatureModelConfig *crconf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    // another user may have finished possessing it first
+    if (thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger)) {
+        return false;
+    }
     if (((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlDirect))
       || !thing_can_be_controlled_as_controller(thing))
     {
@@ -295,7 +299,7 @@ TbBool control_creature_as_controller(NetUserId user, struct Thing *thing)
     if (thing->class_id == TCls_Creature) {
         crconf = creature_stats_get_from_thing(thing);
         SYNCDBG(7,"Controlling creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
-        set_player_lens(player->id_number, crconf->eye_effect);
+        set_user_lens(user, crconf->eye_effect);
     }
     return true;
 }
@@ -3331,10 +3335,11 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
-    const NetUserId user = get_user_controlling_thing(thing, UCT_Selected | UCT_Direct | UCT_Passenger | UCT_Other);
+    NetUserId user = get_user_controlling_thing(thing, UCT_Direct | UCT_Passenger | UCT_Other);
+    if (user < 0)
+        user = get_user_controlling_thing(thing, UCT_Selected);
     if (user < 0)
         return;
-    struct PlayerInfo* player = get_player(thing->owner);
     leave_creature_as_controller(user, thing);
     struct UserState *ustate = get_user_state(user);
     if (!user_state_invalid(ustate)) {
@@ -3348,8 +3353,8 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_on_main_panel_menu();
         local_state.show_panel = local_state.show_gui;
     }
-    if (player == get_displayed_player()) {
-        PaletteSetPlayerPalette(player, engine_palette);
+    if (user == get_displayed_user()) {
+        PaletteSetPlayerPalette(get_player(thing->owner), engine_palette);
         local_state.palette_fade_step_possession = 11;
     }
 }

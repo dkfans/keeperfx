@@ -901,7 +901,7 @@ void leave_creature_as_controller(NetUserId user, struct Thing *thing)
     {
         set_user_instance(user, PI_Unset, false);
         set_user_view_type(user, PVT_DungeonTop);
-        set_player_lens(player->id_number, 0);
+        set_user_lens(user, 0);
         ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
         update_local_view(user, false);
         ustate->dungeon_camera.x = subtile_coord_center(game.map_subtiles_x/2);
@@ -912,7 +912,7 @@ void leave_creature_as_controller(NetUserId user, struct Thing *thing)
     }
     clear_selected_thing(ustate);
     set_user_view_type(user, PVT_DungeonTop);
-    set_player_lens(player->id_number, 0);
+    set_user_lens(user, 0);
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->rendering_flags &= ~TRF_Invisible;
     ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
@@ -971,6 +971,26 @@ void leave_creature_as_passenger(NetUserId user, struct Thing *thing)
   clear_selected_thing(ustate);
 }
 
+TbBool thing_is_possessed(const struct Thing *thing)
+{
+    return user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom);
+}
+
+TbBool leave_user_controlled_creature(NetUserId user)
+{
+    struct Thing *thing = thing_get(get_user_state(user)->controlled_thing_idx);
+    switch (get_user_view_type(user))
+    {
+    case PVT_CreatureContrl:
+        leave_creature_as_controller(user, thing);
+        return true;
+    case PVT_CreaturePasngr:
+        leave_creature_as_passenger(user, thing);
+        return true;
+    }
+    return false;
+}
+
 static TbBool user_controls_thing_now(NetUserId user, const struct Thing *thing, uint32_t uct_flags)
 {
     const struct UserState* ustate = get_user_state(user);
@@ -1009,6 +1029,18 @@ NetUserId get_user_controlling_thing(const struct Thing *thing, uint32_t uct_fla
             return user;
     }
     return -1;
+}
+
+TbBool thing_controlled_by_other_user(NetUserId user, const struct Thing *thing, uint32_t uct_flags)
+{
+    if (!thing_exists(thing))
+        return false;
+    for (NetUserId other = 0; other < MAX_NET_USERS; other++)
+    {
+        if ((other != user) && user_present(other) && user_controls_thing_now(other, thing, uct_flags))
+            return true;
+    }
+    return false;
 }
 
 TbBool user_controls_thing(NetUserId user, const struct Thing *thing, uint32_t uct_flags)

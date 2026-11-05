@@ -243,12 +243,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (get_net_user_player_number(user) != player->id_number)
             continue;
-        struct Thing *thing = thing_get(get_user_state(user)->controlled_thing_idx);
-        if (get_user_view_type(user) == PVT_CreatureContrl)
-            leave_creature_as_controller(user, thing);
-        else if (get_user_view_type(user) == PVT_CreaturePasngr)
-            leave_creature_as_passenger(user, thing);
-        else if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
+        if (!leave_user_controlled_creature(user) && !flag_is_set(player->allocflags, PlaF_CompCtrl))
             set_user_view_type(user, PVT_DungeonTop);
     }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {

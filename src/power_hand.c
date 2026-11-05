@@ -1546,7 +1546,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl
         if (under_hand > 0)
             thing = thing_get(under_hand);
     }
-    if (!thing_exists(thing)) {
+    if (!thing_exists(thing) || thing_is_possessed(thing)) {
         return Lb_FAIL;
     }
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))

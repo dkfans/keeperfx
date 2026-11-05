@@ -3624,7 +3624,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             {
                 struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
                 if (thing_is_creature(thing) && (thing->model == creatid) && flag_is_set(thing->alloc_flags, TAlF_IsControlled))
-                    set_player_lens(get_net_user_player_number(user), value);
+                    set_user_lens(user, value);
             }
             break;
         }
