@@ -160,6 +160,12 @@ int setLuaPath( lua_State* L)
     return 0; // all done!
 }
 
+static int load_checksummed_lua_file(lua_State *L, const char *fname)
+{
+    add_loaded_file_checksum(fname);
+    return luaL_loadfile(L, fname);
+}
+
 static int load_checksummed_lua_module(lua_State *L)
 {
     const char *module_name = luaL_checkstring(L, 1);
@@ -172,15 +178,35 @@ static int load_checksummed_lua_module(lua_State *L)
         return 1;
     }
     const char *fname = lua_tostring(L, -2);
-    add_loaded_file_checksum(fname);
-    if (luaL_loadfile(L, fname) != LUA_OK) {
+    if (load_checksummed_lua_file(L, fname) != LUA_OK) {
         return luaL_error(L, "error loading module '%s' from file '%s':\n\t%s", module_name, fname, lua_tostring(L, -1));
     }
     return 1;
 }
 
-static void restrict_lua_module_loaders(lua_State *L)
+static int checksummed_loadfile(lua_State *L)
 {
+    if (load_checksummed_lua_file(L, luaL_checkstring(L, 1)) != LUA_OK) {
+        lua_pushnil(L);
+        lua_insert(L, -2);
+        return 2;
+    }
+    return 1;
+}
+
+static int checksummed_dofile(lua_State *L)
+{
+    if (load_checksummed_lua_file(L, luaL_checkstring(L, 1)) != LUA_OK) {
+        return lua_error(L);
+    }
+    lua_call(L, 0, LUA_MULTRET);
+    return lua_gettop(L) - 1;
+}
+
+static void install_checksummed_lua_loaders(lua_State *L)
+{
+    lua_register(L, "loadfile", checksummed_loadfile);
+    lua_register(L, "dofile", checksummed_dofile);
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "loaders");
     lua_pushcfunction(L, load_checksummed_lua_module);
@@ -194,8 +220,7 @@ static void restrict_lua_module_loaders(lua_State *L)
 
 static TbBool run_lua_file(lua_State *L, const char *fname, const char *func)
 {
-    add_loaded_file_checksum(fname);
-    return CheckLua(L, luaL_dofile(L, fname), func);
+    return CheckLua(L, load_checksummed_lua_file(L, fname) || lua_pcall(L, 0, LUA_MULTRET, 0), func);
 }
 
 
@@ -452,7 +477,7 @@ TbBool open_lua_script(LevelNumber lvnum)
     reg_host_functions(Lvl_script);
 
     setLuaPath(Lvl_script);
-    restrict_lua_module_loaders(Lvl_script);
+    install_checksummed_lua_loaders(Lvl_script);
 
     char* fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
 

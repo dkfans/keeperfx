@@ -319,10 +319,13 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
 
-static TbBool reject_network_startup(enum NetJoinRejection reason)
+static TbBool reject_network_startup(enum NetJoinRejection reason, const char *text)
 {
     netstate.leave_reason = reason;
-    create_frontend_error_box(net_join_error_text(reason));
+    if (text == NULL) {
+        text = net_join_error_text(reason);
+    }
+    create_frontend_error_box(text);
     return false;
 }
 
@@ -330,7 +333,7 @@ static TbBool startup_peers_accepted(void)
 {
     for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
         if (netstate.users_leave_reason[i] != NetJoin_Accepted) {
-            return reject_network_startup(netstate.users_leave_reason[i]);
+            return reject_network_startup(netstate.users_leave_reason[i], NULL);
         }
     }
     return true;
@@ -346,14 +349,13 @@ static void clamp_received_loaded_file_counts(void)
     }
 }
 
-static void reject_differing_files(NetUserId user, const char *differing_file)
+static TbBool reject_differing_files(NetUserId user, const char *differing_file)
 {
     char reason[TEXT_BUFFER_LENGTH];
     snprintf(reason, sizeof(reason), get_string(GUIStr_NetFilesDiffer), network_user_name(user));
     char text[TEXT_BUFFER_LENGTH];
     snprintf(text, sizeof(text), "%s %s", reason, differing_file);
-    netstate.leave_reason = NetJoin_MapMismatch;
-    create_frontend_error_box(text);
+    return reject_network_startup(NetJoin_MapMismatch, text);
 }
 
 static TbBool verify_loaded_file_checksums(void)
@@ -366,14 +368,13 @@ static TbBool verify_loaded_file_checksums(void)
             continue;
         }
         const char *differing_file = find_file_differing_from_host(&s_startup_sync_packets[i].loaded_file_checksums, host, i);
-        if (differing_file != NULL) {
+        if (differing_file != NULL && rejected_file == NULL) {
             rejected_user = i;
             rejected_file = differing_file;
         }
     }
-    if (rejected_user != INVALID_USER_ID) {
-        reject_differing_files(rejected_user, rejected_file);
-        return false;
+    if (rejected_file != NULL) {
+        return reject_differing_files(rejected_user, rejected_file);
     }
     NETLOG("Loaded file checksums are verified");
     return true;
@@ -382,12 +383,11 @@ static TbBool verify_loaded_file_checksums(void)
 static TbBool spectator_startup_accepted(void)
 {
     if (memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
-        return reject_network_startup(NetJoin_FxdataMismatch);
+        return reject_network_startup(NetJoin_FxdataMismatch, NULL);
     }
     const char *differing_file = find_file_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, netstate.my_id);
     if (differing_file != NULL) {
-        reject_differing_files(netstate.my_id, differing_file);
-        return false;
+        return reject_differing_files(netstate.my_id, differing_file);
     }
     return true;
 }
@@ -483,7 +483,7 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         }
     }
     if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
-        return reject_network_startup(NetJoin_FxdataMismatch);
+        return reject_network_startup(NetJoin_FxdataMismatch, NULL);
     }
     clamp_received_loaded_file_counts();
     if (!verify_loaded_file_checksums()) {
@@ -545,7 +545,7 @@ TbBool init_players_network_game(void)
         }
         WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
         message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
-        initialized = reject_network_startup(NetJoin_FxdataMismatch);
+        initialized = reject_network_startup(NetJoin_FxdataMismatch, NULL);
         break;
     }
     if (initialized) {

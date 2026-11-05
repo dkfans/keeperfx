@@ -41,15 +41,11 @@ static const char * const network_startup_compare_files[] = {
 #define LOADED_FILE_TRACKED_COUNT 384
 
 #pragma pack(1)
-struct LoadedFileChecksum {
-    TbBigChecksum path_hash;
-    TbBigChecksum checksum;
-};
-
 struct LoadedFileChecksums {
     TbBigChecksum untracked_checksum;
     uint16_t count;
-    struct LoadedFileChecksum files[LOADED_FILE_TRACKED_COUNT];
+    TbBigChecksum path_hashes[LOADED_FILE_TRACKED_COUNT];
+    TbBigChecksum checksums[LOADED_FILE_TRACKED_COUNT];
 };
 #pragma pack()
 
