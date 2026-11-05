@@ -37,6 +37,21 @@ static const char * const network_startup_compare_files[] = {
 
 #define NETWORK_STARTUP_MAP_FILE_COUNT (sizeof(network_startup_compare_files) / sizeof(network_startup_compare_files[0]))
 
+#define LOADED_FILE_TRACKED_COUNT 384
+
+#pragma pack(1)
+struct LoadedFileChecksum {
+    TbBigChecksum path_hash;
+    TbBigChecksum checksum;
+};
+
+struct LoadedFileChecksums {
+    TbBigChecksum untracked_checksum;
+    uint16_t count;
+    struct LoadedFileChecksum files[LOADED_FILE_TRACKED_COUNT];
+};
+#pragma pack()
+
 void update_turn_checksums(void);
 void pack_desync_history_for_resync(void);
 void compare_desync_history_from_host(void);
@@ -44,6 +59,9 @@ TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short checksums_different(void);
 TbBigChecksum calculate_file_checksum(const char *fname);
 void calculate_network_startup_map_checksums(TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT]);
+void reset_loaded_file_checksums(void);
+const struct LoadedFileChecksums *get_loaded_file_checksums(void);
+void add_loaded_file_checksum(const char *fname);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -50,6 +50,7 @@
 #include "net_spectator.h"
 #include "observer.h"
 #include "frontmenu_ingame_evnt.h"
+#include "net_checksums.h"
 #include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
@@ -194,6 +195,8 @@ static TbBool init_level(void)
 
     recheck_all_mod_exist();
 
+    reset_loaded_file_checksums();
+    add_loaded_file_checksum(prepare_file_path(campaign.fgroup, campaign.fname));
     luascript_loaded = open_lua_script(get_selected_level_number());
     // Restore campaign-layer sounds before creature configs load, so creature cfg custom
     // sounds are added to the already-restored bank (not wiped afterwards).

@@ -19,7 +19,9 @@
 #include "pre_inc.h"
 #include "net_checksums.h"
 #include "bflib_dernc.h"
+#include "bflib_fileio.h"
 #include "config.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "net_game.h"
@@ -40,6 +42,8 @@ extern "C" {
 /******************************************************************************/
 #define CHECKSUM_ADD(checksum, value) checksum = ((checksum << 5) | (checksum >> 27)) ^ (ulong)(value)
 #define SNAPSHOT_BUFFER_SIZE 15
+#define PATH_HASH_OFFSET_BASIS 2166136261u
+#define PATH_HASH_PRIME 16777619u
 
 struct ChecksumSnapshot {
     GameTurn turn;
@@ -51,6 +55,8 @@ struct ChecksumSnapshot {
 static struct ChecksumSnapshot snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
 static int snapshot_head = 0;
 static GameTurn desync_turn = 0;
+
+static struct LoadedFileChecksums loaded_file_checksums;
 
 TbBigChecksum get_thing_checksum(const struct Thing* thing) {
     if (!thing_exists(thing) || is_non_synchronized_thing_class(thing->class_id)) {
@@ -269,6 +275,102 @@ void calculate_network_startup_map_checksums(TbBigChecksum checksums[NETWORK_STA
         char* fname = prepare_file_fmtpath(fgroup, "map%05u.%s", lvnum, network_startup_compare_files[i]);
         checksums[i] = calculate_file_checksum(fname);
     }
+}
+
+static TbBigChecksum calculate_path_hash(const char *path)
+{
+    TbBigChecksum hash = PATH_HASH_OFFSET_BASIS;
+    for (const unsigned char *character = (const unsigned char *)path; *character != '\0'; character++) {
+        hash = (hash ^ *character) * PATH_HASH_PRIME;
+    }
+    return hash;
+}
+
+static int find_loaded_file(const struct LoadedFileChecksums *files, TbBigChecksum path_hash)
+{
+    for (int i = 0; i < files->count; i++) {
+        if (files->files[i].path_hash == path_hash) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void reset_loaded_file_checksums(void)
+{
+    memset(&loaded_file_checksums, 0, sizeof(loaded_file_checksums));
+}
+
+const struct LoadedFileChecksums *get_loaded_file_checksums(void)
+{
+    return &loaded_file_checksums;
+}
+
+static void normalise_path(const char *path, char *out, size_t out_size)
+{
+    size_t length = 0;
+    TbBool segment_start = true;
+    for (const char *character = path; *character != '\0' && length + 1 < out_size; character++) {
+        char normalised = (char)tolower((unsigned char)*character);
+        if (normalised == '\\') {
+            normalised = '/';
+        }
+        if (normalised == '/') {
+            if (!segment_start) {
+                out[length++] = '/';
+            }
+            segment_start = true;
+            continue;
+        }
+        if (segment_start && normalised == '.' && (character[1] == '/' || character[1] == '\\' || character[1] == '\0')) {
+            continue;
+        }
+        segment_start = false;
+        out[length++] = normalised;
+    }
+    while (length > 0 && out[length - 1] == '/') {
+        length--;
+    }
+    out[length] = '\0';
+}
+
+static void make_loaded_file_name(const char *fname, char *out, size_t out_size)
+{
+    normalise_path(fname, out, out_size);
+    const char *base_directories[] = {keeper_runtime_directory, install_info.inst_path};
+    for (int i = 0; i < sizeof(base_directories) / sizeof(base_directories[0]); i++) {
+        char base[FULLPATH_SIZE];
+        normalise_path(base_directories[i], base, sizeof(base));
+        size_t base_length = strlen(base);
+        if (base_length > 0 && strncmp(out, base, base_length) == 0 && out[base_length] == '/') {
+            memmove(out, out + base_length + 1, strlen(out + base_length + 1) + 1);
+            return;
+        }
+    }
+}
+
+void add_loaded_file_checksum(const char *fname)
+{
+    if (!network_is_active()) {
+        return;
+    }
+    char relative_fname[FULLPATH_SIZE];
+    make_loaded_file_name(fname, relative_fname, sizeof(relative_fname));
+    TbBigChecksum path_hash = calculate_path_hash(relative_fname);
+    if (!LbFileExists(fname) || find_loaded_file(&loaded_file_checksums, path_hash) >= 0) {
+        return;
+    }
+    TbBigChecksum checksum = calculate_file_checksum(fname);
+    NETDBG(6, "Loaded file %s has checksum %08x", relative_fname, checksum);
+    if (loaded_file_checksums.count >= LOADED_FILE_TRACKED_COUNT) {
+        WARNLOG("Too many loaded files to checksum %s individually", relative_fname);
+        CHECKSUM_ADD(loaded_file_checksums.untracked_checksum, checksum);
+        return;
+    }
+    struct LoadedFileChecksum *file = &loaded_file_checksums.files[loaded_file_checksums.count];
+    file->path_hash = path_hash;
+    file->checksum = checksum;
+    loaded_file_checksums.count++;
 }
 
 void update_turn_checksums(void) {
