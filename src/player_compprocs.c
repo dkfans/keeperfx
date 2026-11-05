@@ -726,6 +726,9 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
     while(1)
     {
         dig_result = tool_dig_to_pos2(comp, &cdig, true, digflags);
+        if ((dig_result == TDR_BuildBridgeOnSlab) && !computer_dig_ignores_liquid(comp)) {
+            dig_result = simulate_bridge_on_dig_slab(&cdig);
+        }
         switch(dig_result)
         {
             case TDR_DigSlab:

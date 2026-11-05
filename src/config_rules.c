@@ -74,6 +74,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"STUN_FRIENDLY_UNITS",           ClscBug_FriendlyFaint         },
   {"PASSIVE_NEUTRALS",              ClscBug_PassiveNeutrals       },
   {"NEUTRAL_TORTURE_CONVERTS",      ClscBug_NeutralTortureConverts},
+  {"AI_DIG_PATHS_IGNORE_LIQUID",    ClscBug_AIDigPathsIgnoreLiquid},
   {NULL,                             0},
 };
 
