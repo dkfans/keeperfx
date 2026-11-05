@@ -246,6 +246,17 @@ static NetUserId lobby_colour_human_owner(PlayerNumber colour)
     return -1;
 }
 
+/** the first human with the same colour as the given user. */
+NetUserId net_lobby_primary_user(NetUserId user)
+{
+    PlayerNumber colour = net_player_colour[user];
+    if (!network_user_active(user) || colour < 0 || colour >= NET_PLAYER_COLOUR_RANDOM) {
+        return user;
+    }
+    NetUserId owner = lobby_colour_human_owner(colour);
+    return (owner >= 0) ? owner : user;
+}
+
 static void reserve_lobby_seats(TbBool (*occupies_seat)(NetUserId), const TbBool seat_available[MAX_NET_USERS], PlayerNumber *seats_left, int8_t player_colours[MAX_NET_USERS], TbBool shares_colour[MAX_NET_USERS])
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
