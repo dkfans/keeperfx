@@ -187,31 +187,31 @@ void add_loaded_file_checksum(const char *fname)
     loaded_file_checksums.count++;
 }
 
-static void report_differing_file(NetUserId user, const char *fname, const char *reason, char *list, size_t list_size)
+static void report_differing_file(const char *user_name, const char *fname, const char *reason, char *list, size_t list_size)
 {
-    JUSTMSG("File differs between %s and host: %s%s", network_user_name(user), fname, reason);
+    JUSTMSG("File differs between %s and host: %s%s", user_name, fname, reason);
     size_t length = strlen(list);
     snprintf(list + length, list_size - length, "\n%s", fname);
 }
 
-TbBool list_files_differing_from_host(const struct LoadedFileChecksums *files, const struct LoadedFileChecksums *host, NetUserId user, char *list, size_t list_size)
+TbBool list_files_differing_from_host(const struct LoadedFileChecksums *files, const struct LoadedFileChecksums *host, const char *user_name, char *list, size_t list_size)
 {
     list[0] = '\0';
     for (int i = 0; i < host->count; i++) {
         int index = find_path_hash(files->path_hashes, files->count, host->path_hashes[i]);
         if (index < 0) {
-            report_differing_file(user, loaded_file_name(host->path_hashes[i]), " (only loaded by host)", list, list_size);
+            report_differing_file(user_name, loaded_file_name(host->path_hashes[i]), " (only loaded by host)", list, list_size);
         } else if (files->checksums[index] != host->checksums[i]) {
-            report_differing_file(user, loaded_file_name(host->path_hashes[i]), "", list, list_size);
+            report_differing_file(user_name, loaded_file_name(host->path_hashes[i]), "", list, list_size);
         }
     }
     for (int i = 0; i < files->count; i++) {
         if (find_path_hash(host->path_hashes, host->count, files->path_hashes[i]) < 0) {
-            report_differing_file(user, loaded_file_name(files->path_hashes[i]), " (not loaded by host)", list, list_size);
+            report_differing_file(user_name, loaded_file_name(files->path_hashes[i]), " (not loaded by host)", list, list_size);
         }
     }
     if (files->untracked_checksum != host->untracked_checksum) {
-        report_differing_file(user, "(files beyond the tracked limit)", "", list, list_size);
+        report_differing_file(user_name, "(files beyond the tracked limit)", "", list, list_size);
     }
     return list[0] != '\0';
 }

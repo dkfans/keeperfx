@@ -349,32 +349,27 @@ static void clamp_received_loaded_file_counts(void)
     }
 }
 
-static TbBool reject_differing_files(NetUserId user, const char *differing_files)
+static TbBool reject_differing_files(const char *user_name, const char *differing_files)
 {
     char reason[TEXT_BUFFER_LENGTH];
-    snprintf(reason, sizeof(reason), get_string(GUIStr_NetFilesDiffer), network_user_name(user));
+    snprintf(reason, sizeof(reason), get_string(GUIStr_NetFilesDiffer), user_name);
     char text[TEXT_BUFFER_LENGTH];
     snprintf(text, sizeof(text), "%s%s", reason, differing_files);
     return reject_network_startup(NetJoin_MapMismatch, text);
 }
 
-static TbBool verify_loaded_file_checksums(void)
+static TbBool verify_loaded_file_checksums(const struct TbNetworkUserInfo users[MAX_NET_USERS])
 {
-    const struct LoadedFileChecksums *host = &s_startup_sync_packets[SERVER_ID].loaded_file_checksums;
-    NetUserId rejected_user = INVALID_USER_ID;
-    char rejected_files[TEXT_BUFFER_LENGTH] = "";
-    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
-        if (!net_user_info[i].network_user_active) {
-            continue;
-        }
-        char differing_files[TEXT_BUFFER_LENGTH];
-        if (list_files_differing_from_host(&s_startup_sync_packets[i].loaded_file_checksums, host, i, differing_files, sizeof(differing_files)) && rejected_user == INVALID_USER_ID) {
-            rejected_user = i;
-            snprintf(rejected_files, sizeof(rejected_files), "%s", differing_files);
-        }
+    const struct StartupSyncPacket *host = &s_startup_sync_packets[SERVER_ID];
+    if (!host->startup_sync_packet_valid) {
+        return true;
     }
-    if (rejected_user != INVALID_USER_ID) {
-        return reject_differing_files(rejected_user, rejected_files);
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        const struct StartupSyncPacket *sync = &s_startup_sync_packets[i];
+        char differing_files[TEXT_BUFFER_LENGTH];
+        if (sync->startup_sync_packet_valid && list_files_differing_from_host(&sync->loaded_file_checksums, &host->loaded_file_checksums, users[i].name, differing_files, sizeof(differing_files))) {
+            return reject_differing_files(users[i].name, differing_files);
+        }
     }
     NETLOG("Loaded file checksums are verified");
     return true;
@@ -386,8 +381,9 @@ static TbBool spectator_startup_accepted(void)
         return reject_network_startup(NetJoin_FxdataMismatch, NULL);
     }
     char differing_files[TEXT_BUFFER_LENGTH];
-    if (list_files_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, netstate.my_id, differing_files, sizeof(differing_files))) {
-        return reject_differing_files(netstate.my_id, differing_files);
+    const char *my_name = network_user_name(netstate.my_id);
+    if (list_files_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, my_name, differing_files, sizeof(differing_files))) {
+        return reject_differing_files(my_name, differing_files);
     }
     return true;
 }
@@ -467,7 +463,13 @@ static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USE
 static TbBool net_startup_sync_exchange_and_apply(void)
 {
     memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
+    struct TbNetworkUserInfo users_before_exchange[MAX_NET_USERS];
+    memcpy(users_before_exchange, net_user_info, sizeof(users_before_exchange));
     TbError exchange_result = exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket));
+    clamp_received_loaded_file_counts();
+    if (!verify_loaded_file_checksums(users_before_exchange)) {
+        return false;
+    }
     if (!startup_peers_accepted()) {
         return false;
     }
@@ -484,10 +486,6 @@ static TbBool net_startup_sync_exchange_and_apply(void)
     }
     if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
         return reject_network_startup(NetJoin_FxdataMismatch, NULL);
-    }
-    clamp_received_loaded_file_counts();
-    if (!verify_loaded_file_checksums()) {
-        return false;
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
     game.input_lag_turns = host_sync->initial_input_lag_turns;
