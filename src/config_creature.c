@@ -595,6 +595,20 @@ long creature_model_id(const char * name)
     return -1;
 }
 
+void creature_desc_rebuild_from_config(void)
+{
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        creature_desc[i].name = NULL;
+        creature_desc[i].num = 0;
+    }
+    for (int n = 1; (n < game.conf.crtr_conf.model_count) && (n < CREATURE_TYPES_MAX); n++)
+    {
+        creature_desc[n - 1].name = game.conf.crtr_conf.model[n].name;
+        creature_desc[n - 1].num = n;
+    }
+}
+
 TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     // Initialize block data

@@ -438,6 +438,7 @@ struct CreatureConfig {
 /******************************************************************************/
 extern const struct ConfigFileData keeper_creaturetp_file_data;
 extern struct NamedCommand creature_desc[];
+void creature_desc_rebuild_from_config(void);
 extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
