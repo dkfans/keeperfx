@@ -1639,6 +1639,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     int i;
     SYNCDBG(7,"Starting");
     memset(&intralvl, 0, sizeof(struct IntralevelData));
+    clear_custom_intralevel_data();
     if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
         return false;
     set_continue_level_number(first_singleplayer_level());
