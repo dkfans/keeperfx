@@ -103,6 +103,8 @@ extern "C" {
 
 /******************************************************************************/
 static TbBool frontend_error_pending = false;
+static int32_t frontend_error_scroll_line = 0;
+static int32_t frontend_error_max_scroll_line = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 static char path_string[178];
 MenuID vid_change_query_menu = GMnu_CREATURE_QUERY1;
@@ -144,8 +146,11 @@ struct GuiButtonInit frontend_high_score_score_buttons[] = {
 };
 
 struct GuiButtonInit frontend_error_box_buttons[] = {
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999, 172, 999, 172,450,136, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{.str = gui_message_text},0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_close_error_box,NULL,frontend_over_button,  0, 999, 254, 999, 254,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty,  0,      {83},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999, FRONTEND_ERROR_BOX_Y, 999, FRONTEND_ERROR_BOX_Y, FRONTEND_ERROR_BOX_WIDTH, FRONTEND_ERROR_BOX_HEIGHT, frontend_draw_error_text_box, 0, GUIStr_Empty, 0, {.str = gui_message_text}, 0, frontend_maintain_error_text_box},
+  { LbBtnT_HoldableBtn, BID_DEFAULT, 0, 0, frontend_error_text_scroll_up, NULL, frontend_over_button, ERROR_BOX_ARROW_UP, FRONTEND_ERROR_SCROLL_X, FRONTEND_ERROR_ARROW_UP_Y, FRONTEND_ERROR_SCROLL_X, FRONTEND_ERROR_ARROW_UP_Y, FRONTEND_ERROR_SCROLL_WIDTH, FRONTEND_ERROR_ARROW_HEIGHT, frontend_draw_slider_button, 0, GUIStr_Empty, 0, {17}, 0, frontend_maintain_error_text_scroll},
+  { LbBtnT_HoldableBtn, BID_DEFAULT, 0, 0, frontend_error_text_scroll_down, NULL, frontend_over_button, ERROR_BOX_ARROW_DOWN, FRONTEND_ERROR_SCROLL_X, FRONTEND_ERROR_ARROW_DOWN_Y, FRONTEND_ERROR_SCROLL_X, FRONTEND_ERROR_ARROW_DOWN_Y, FRONTEND_ERROR_SCROLL_WIDTH, FRONTEND_ERROR_ARROW_HEIGHT, frontend_draw_slider_button, 0, GUIStr_Empty, 0, {18}, 0, frontend_maintain_error_text_scroll},
+  { LbBtnT_DraggableBtn, BID_DEFAULT, 0, 0, frontend_error_text_scroll_drag, NULL, NULL, 0, FRONTEND_ERROR_TAB_X, FRONTEND_ERROR_TAB_Y, FRONTEND_ERROR_TAB_X, FRONTEND_ERROR_TAB_Y, FRONTEND_ERROR_TAB_WIDTH, FRONTEND_ERROR_TAB_HEIGHT, frontend_draw_error_text_scroll_tab, 0, GUIStr_Empty, 0, {40}, 0, frontend_maintain_error_text_scroll},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_close_error_box,NULL,frontend_over_button,  0, 999, FRONTEND_ERROR_OK_Y, 999, FRONTEND_ERROR_OK_Y,247, FRONTEND_ERROR_OK_HEIGHT, frontend_draw_small_menu_button,   0, GUIStr_Empty,  0,      {83},            0, NULL },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
@@ -157,7 +162,7 @@ struct GuiMenu frontend_statistics_menu =
 struct GuiMenu frontend_high_score_table_menu =
  { GMnu_FEHIGH_SCORE_TABLE, 0, 1, frontend_high_score_score_buttons,POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,NULL,                  0, 0, 0,};
 struct GuiMenu frontend_error_box = // Error box has no background defined - the buttons drawing adds it
- { GMnu_FEERROR_BOX,        0, 1, frontend_error_box_buttons,POS_SCRCTR,POS_SCRCTR, 640, 480, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
+ { GMnu_FEERROR_BOX,        0, 1, frontend_error_box_buttons,POS_SCRCTR,POS_SCRCTR, FRONTEND_ERROR_MENU_WIDTH, FRONTEND_ERROR_MENU_HEIGHT, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 
 // Note: update size in .h file when changing this array.
 struct GuiMenu *menu_list[] = {
@@ -3996,8 +4001,7 @@ void frontend_start_load_game(long slot_num)
  */
 void frontend_queue_message(TextStringId msg_idx)
 {
-    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", get_string(msg_idx));
-    frontend_error_pending = true;
+    queue_frontend_error_box(get_string(msg_idx));
 }
 
 /**
@@ -4025,6 +4029,7 @@ void try_restore_frontend_error_box()
 void queue_frontend_error_box(const char *text)
 {
     snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
+    frontend_error_scroll_line = 0;
     frontend_error_pending = true;
 }
 
@@ -4043,22 +4048,84 @@ void frontend_close_error_box(struct GuiButton *gbtn)
     turn_off_menu(GMnu_FEERROR_BOX);
 }
 
+static void frontend_error_text_scroll_by(int32_t delta)
+{
+    frontend_error_scroll_line = max(0, min(frontend_error_scroll_line + delta, frontend_error_max_scroll_line));
+}
+
 void frontend_draw_error_text_box(struct GuiButton *gbtn)
 {
     int units_per_px = scroll_box_get_units_per_px(gbtn);
-    draw_scroll_box(gbtn, units_per_px, 5);
-    int border = 20 * units_per_px / 16;
-    int window_height = 64 * units_per_px / 16;
+    int border = FRONTEND_ERROR_BOX_BORDER * units_per_px / 16;
+    int32_t window_x = gbtn->scr_pos_x + border;
+    int32_t window_width = gbtn->width - 2 * border;
+    int32_t window_height = FRONTEND_ERROR_TEXT_HEIGHT * units_per_px / 16;
     LbTextSetFont(frontend_font[2]);
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
-    LbTextSetWindow(gbtn->scr_pos_x + border, gbtn->scr_pos_y + 12 * units_per_px / 16, gbtn->width - 2 * border, window_height);
-    int text_units_per_px = units_per_px;
-    int32_t text_height = text_string_height(text_units_per_px, gbtn->content.str);
-    while (text_height > window_height && text_units_per_px > 1) {
-        text_units_per_px--;
-        text_height = text_string_height(text_units_per_px, gbtn->content.str);
+    LbTextSetWindow(window_x, 0, window_width, window_height);
+    int32_t line_height = max(1, LbTextLineHeight() * units_per_px / 16);
+    int32_t text_height = text_string_height(units_per_px, gbtn->content.str);
+    int32_t visible_lines = window_height / line_height;
+    frontend_error_max_scroll_line = max(0, text_height / line_height - visible_lines);
+    frontend_error_text_scroll_by(0);
+    RendererSetDrawFlags(0);
+    gui_draw_scroll_box(gbtn, FRONTEND_ERROR_BOX_LINES, frontend_error_max_scroll_line > 0);
+    int32_t clip_height = visible_lines * line_height;
+    int32_t text_y = (clip_height - text_height) / 2;
+    if (frontend_error_max_scroll_line > 0) {
+        text_y = -frontend_error_scroll_line * line_height;
     }
-    LbTextDrawResized(0, max(0, (window_height - text_height) / 2), text_units_per_px, gbtn->content.str);
+    LbTextSetWindow(window_x, gbtn->scr_pos_y + FRONTEND_ERROR_TEXT_TOP * units_per_px / 16 + (window_height - clip_height) / 2, window_width, clip_height);
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+    LbTextDrawResized(0, text_y, units_per_px, gbtn->content.str);
+}
+
+void frontend_maintain_error_text_box(struct GuiButton *gbtn)
+{
+    if (wheel_scrolled_up) {
+        frontend_error_text_scroll_by(-1);
+    }
+    if (wheel_scrolled_down) {
+        frontend_error_text_scroll_by(1);
+    }
+}
+
+void frontend_error_text_scroll_up(struct GuiButton *gbtn)
+{
+    frontend_error_text_scroll_by(-1);
+}
+
+void frontend_error_text_scroll_down(struct GuiButton *gbtn)
+{
+    frontend_error_text_scroll_by(1);
+}
+
+void frontend_error_text_scroll_drag(struct GuiButton *gbtn)
+{
+    frontend_error_scroll_line = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), 0, frontend_error_max_scroll_line + 1);
+}
+
+void frontend_maintain_error_text_scroll(struct GuiButton *gbtn)
+{
+    TbBool enabled = (frontend_error_max_scroll_line > 0);
+    int arrow = gbtn->btype_value & LbBFeF_IntValueMask;
+    if (arrow == ERROR_BOX_ARROW_UP) {
+        enabled = enabled && (frontend_error_scroll_line > 0);
+    } else if (arrow == ERROR_BOX_ARROW_DOWN) {
+        enabled = enabled && (frontend_error_scroll_line < frontend_error_max_scroll_line);
+    }
+    if (enabled) {
+        gbtn->flags |= LbBtnF_Enabled;
+    } else {
+        gbtn->flags &= ~LbBtnF_Enabled;
+    }
+}
+
+void frontend_draw_error_text_scroll_tab(struct GuiButton *gbtn)
+{
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
+        return;
+    }
+    frontend_draw_scroll_tab(gbtn, frontend_error_scroll_line, 0, frontend_error_max_scroll_line + 1);
 }
 
 static TbClockMSec last_click_time = 0;

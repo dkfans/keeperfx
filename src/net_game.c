@@ -349,12 +349,12 @@ static void clamp_received_loaded_file_counts(void)
     }
 }
 
-static TbBool reject_differing_files(NetUserId user, const char *differing_file)
+static TbBool reject_differing_files(NetUserId user, const char *differing_files)
 {
     char reason[TEXT_BUFFER_LENGTH];
     snprintf(reason, sizeof(reason), get_string(GUIStr_NetFilesDiffer), network_user_name(user));
     char text[TEXT_BUFFER_LENGTH];
-    snprintf(text, sizeof(text), "%s %s", reason, differing_file);
+    snprintf(text, sizeof(text), "%s%s", reason, differing_files);
     return reject_network_startup(NetJoin_MapMismatch, text);
 }
 
@@ -362,19 +362,19 @@ static TbBool verify_loaded_file_checksums(void)
 {
     const struct LoadedFileChecksums *host = &s_startup_sync_packets[SERVER_ID].loaded_file_checksums;
     NetUserId rejected_user = INVALID_USER_ID;
-    const char *rejected_file = NULL;
+    char rejected_files[TEXT_BUFFER_LENGTH] = "";
     for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
         if (!net_user_info[i].network_user_active) {
             continue;
         }
-        const char *differing_file = find_file_differing_from_host(&s_startup_sync_packets[i].loaded_file_checksums, host, i);
-        if (differing_file != NULL && rejected_file == NULL) {
+        char differing_files[TEXT_BUFFER_LENGTH];
+        if (list_files_differing_from_host(&s_startup_sync_packets[i].loaded_file_checksums, host, i, differing_files, sizeof(differing_files)) && rejected_user == INVALID_USER_ID) {
             rejected_user = i;
-            rejected_file = differing_file;
+            snprintf(rejected_files, sizeof(rejected_files), "%s", differing_files);
         }
     }
-    if (rejected_file != NULL) {
-        return reject_differing_files(rejected_user, rejected_file);
+    if (rejected_user != INVALID_USER_ID) {
+        return reject_differing_files(rejected_user, rejected_files);
     }
     NETLOG("Loaded file checksums are verified");
     return true;
@@ -385,9 +385,9 @@ static TbBool spectator_startup_accepted(void)
     if (memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
         return reject_network_startup(NetJoin_FxdataMismatch, NULL);
     }
-    const char *differing_file = find_file_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, netstate.my_id);
-    if (differing_file != NULL) {
-        return reject_differing_files(netstate.my_id, differing_file);
+    char differing_files[TEXT_BUFFER_LENGTH];
+    if (list_files_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, netstate.my_id, differing_files, sizeof(differing_files))) {
+        return reject_differing_files(netstate.my_id, differing_files);
     }
     return true;
 }

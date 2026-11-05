@@ -51,7 +51,7 @@ void calculate_network_startup_map_checksums(TbBigChecksum checksums[NETWORK_STA
 void reset_loaded_file_checksums(void);
 const struct LoadedFileChecksums *get_loaded_file_checksums(void);
 void add_loaded_file_checksum(const char *fname);
-const char *find_file_differing_from_host(const struct LoadedFileChecksums *files, const struct LoadedFileChecksums *host, NetUserId user);
+TbBool list_files_differing_from_host(const struct LoadedFileChecksums *files, const struct LoadedFileChecksums *host, NetUserId user, char *list, size_t list_size);
 
 /******************************************************************************/
 #ifdef __cplusplus
