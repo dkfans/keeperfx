@@ -327,6 +327,7 @@ struct ShotConfigStats {
 };
 
 struct PlayerInfo;
+struct UserState;
 
 /**
  * Configuration parameters for powers.
@@ -436,7 +437,7 @@ extern const struct NamedCommand powermodel_properties_commands[];
 extern const struct LongNamedCommand powermodel_castability_commands[];
 extern const struct NamedCommand powermodel_expand_check_func_type[];
 extern const struct NamedCommand magic_power_commands[];
-extern unsigned char (*const powermodel_expand_check_func_list[])(NetUserId user);
+extern unsigned char (*const powermodel_expand_check_func_list[])(PlayerNumber plyr_idx, const struct UserState *ustate);
 extern const struct NamedCommand magic_use_func_commands[];
 extern const struct NamedCommand magic_cost_formula_commands[];
 /******************************************************************************/
