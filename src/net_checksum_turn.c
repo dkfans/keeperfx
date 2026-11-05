@@ -18,9 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_checksum_turn.h"
-#include "config.h"
 #include "game_legacy.h"
-#include "game_merge.h"
 #include "net_game.h"
 #include "packets.h"
 #include "player_data.h"

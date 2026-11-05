@@ -30,8 +30,6 @@ extern "C" {
 struct PlayerInfo;
 struct Thing;
 
-#define CHECKSUM_ADD(checksum, value) checksum = ((checksum << 5) | (checksum >> 27)) ^ (ulong)(value)
-
 void update_turn_checksums(void);
 void pack_desync_history_for_resync(void);
 void compare_desync_history_from_host(void);
