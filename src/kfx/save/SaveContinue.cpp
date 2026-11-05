@@ -36,6 +36,7 @@
 #include <strings.h>
 
 #include "kfx/save/SaveManager_Internal.h"
+#include "kfx/save/core/save_bytes.h"
 #include "kfx/save/core/schema/save_tables_decl.h"
 
 namespace {
@@ -108,7 +109,7 @@ bool read_raw_progress(const std::vector<uint8_t> &file, const char *progress_fn
     return false;
 }
 
-bool read_progress_file(const char *progress_fname, IntralevelData *ilvl)
+bool read_progress_file(const char *progress_fname, IntralevelData *ilvl, std::vector<uint8_t> *custom)
 {
     IFileSystem &filesystem = Fs();
     const char *fname = prepare_file_path(FGrp_Save, progress_fname);
@@ -117,7 +118,10 @@ bool read_progress_file(const char *progress_fname, IntralevelData *ilvl)
     if (is_kfxs_file(filesystem, fname))
     {
         SaveError err;
-        return (savefile::ReadRecord(filesystem, fname, *ilvl, &err) == SVR_Ok);
+        if (campaignprogress::Read(filesystem, fname, ilvl, custom, &err) == SVR_Ok)
+            return true;
+        SAVEWARN("can't read \"%s\": %s", progress_fname, err.message);
+        return false;
     }
     // Raw chunk format (before the container): import once, the caller rewrites it through write_progress_file.
     std::vector<uint8_t> file;
@@ -128,7 +132,8 @@ bool read_progress_file(const char *progress_fname, IntralevelData *ilvl)
 
 bool write_progress_file(const char *progress_fname, const IntralevelData *ilvl)
 {
-    return savefile::WriteRecord(Fs(), prepare_file_path(FGrp_Save, progress_fname), *ilvl);
+    return campaignprogress::Write(Fs(), prepare_file_path(FGrp_Save, progress_fname), ilvl,
+        custom_intralevel_data, custom_intralevel_data_len);
 }
 
 /** The oldest progress file, fx1contn.sav: a campaign name, a level and the progress data of version 0. */
@@ -239,11 +244,13 @@ void delete_last_file_link()
 
 /******************************************************************************/
 
-bool SaveManager::LoadCampaignProgress(const GameCampaign *campgn, IntralevelData *ilvl, LevelNumber *continue_lvnum)
+bool SaveManager::LoadCampaignProgress(const GameCampaign *campgn, IntralevelData *ilvl, LevelNumber *continue_lvnum, std::vector<uint8_t> *custom)
 {
     char progress_fname[DISKPATH_SIZE];
     get_progress_filename(campgn->fname, progress_fname, sizeof(progress_fname));
-    bool found = read_progress_file(progress_fname, ilvl);
+    if (custom != nullptr)
+        custom->clear();
+    bool found = read_progress_file(progress_fname, ilvl, custom);
     if (!found)
         found = read_legacy_progress(campgn->fname, ilvl);
     if (!found)
@@ -387,13 +394,16 @@ bool SaveManager::ResumeCampaign(const char *cmpgn_fname)
         return false;
     }
     LevelNumber lvnum;
-    if (!LoadCampaignProgress(&campaign, &progress_scratch, &lvnum))
+    std::vector<uint8_t> custom;
+    if (!LoadCampaignProgress(&campaign, &progress_scratch, &lvnum, &custom))
         return false;
     if (!is_singleplayer_like_level(lvnum))
     {
         SAVEWARN("continue level %d of \"%s\" is incorrect", (int)lvnum, cmpgn_fname);
         return false;
     }
+    if (!set_custom_intralevel_data(custom.data(), (uint32_t)custom.size()))
+        return false;
     memcpy(&intralvl, &progress_scratch, sizeof(IntralevelData));
     set_continue_level_number(lvnum);
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);

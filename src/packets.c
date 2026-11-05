@@ -208,14 +208,13 @@ struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_id
     return room;
 }
 
-TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
+TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user, const struct Packet *pckt)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
     struct UserState* ustate = get_user_state(user);
     const PlayerNumber plyr_idx = player->id_number;
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(ustate->work_state));
-    struct Packet* pckt = get_packet(user);
 
     while (game.conf.rules[plyr_idx].magic.allow_instant_charge_up && (pckt->additional_packet_values & PCAdV_AlternatePressed))
     {
@@ -236,7 +235,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
         break;
     }
 
-    if (flag_is_set(pckt->control_flags, PCtr_LBtnHeld) && !flag_is_set(pckt->control_flags, PCtr_Gui)) {
+    if (flag_is_set(pckt->control_flags, PCtr_LBtnHeld)) {
         struct PowerConfigStats *powerst = get_power_model_stats(ustate->chosen_power_kind);
 
         switch (powerst->overcharge_check_idx)
@@ -1090,7 +1089,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       turn_off_power_sight_of_evil(plyr_idx);
       return false;
   case PckA_UsePwrOnThing:
-      i = get_power_overcharge_level(user);
+      i = get_power_overcharge_level(ustate);
       directly_cast_spell_on_thing(plyr_idx, user, pckt->actn_par1, pckt->actn_par2, i);
       return 0;
   case PckA_PlyrToggleAlly:

@@ -297,6 +297,7 @@
     <ClCompile Include="src\kfx\save\core\save_codec.cpp" />
     <ClCompile Include="src\kfx\save\core\save_config_overlay.cpp" />
     <ClCompile Include="src\kfx\save\SaveCatalogue.cpp" />
+    <ClCompile Include="src\kfx\save\SaveCampaignProgress.cpp" />
     <ClCompile Include="src\kfx\save\SaveContinue.cpp" />
     <ClCompile Include="src\kfx\save\SaveGameFile.cpp" />
     <ClCompile Include="src\kfx\save\SaveManager.cpp" />

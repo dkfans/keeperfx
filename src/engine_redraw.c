@@ -642,10 +642,11 @@ static TbBool draw_spell_cursor(NetUserId user, PowerKind pwkind, ThingIndex tng
         set_pointer_graphic(MousePG_DenyMark);
         return false;
     }
-    unsigned char (*chkfunc)(NetUserId) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
+    unsigned char (*chkfunc)(PlayerNumber, const struct UserState *) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
+    const struct UserState *ustate = get_user_state_prediction(user);
     if (chkfunc != NULL) {
-        if (chkfunc(user)) {
-            i = get_power_overcharge_level(user);
+        if (chkfunc(player->id_number, ustate)) {
+            i = get_power_overcharge_level(ustate);
             set_pointer_graphic(MousePG_SpellCharge0+i);
             draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
 

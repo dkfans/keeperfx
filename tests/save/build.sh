@@ -56,5 +56,5 @@ done
 $cxx ${CFLAGS_EXTRA:-} "$work"/tests/*.o "$work"/core/*.o ${LDFLAGS_EXTRA:-} -lz -o "$out"
 # shellcheck disable=SC2086
 $cxx -std=c++17 -O1 -g -w $includes $defs ${CFLAGS_EXTRA:-} \
-    tests/save/kfx_record_file_tests.cpp src/kfx/save/SaveRecordFiles.cpp "$work"/core/*.o \
+    tests/save/kfx_record_file_tests.cpp src/kfx/save/SaveRecordFiles.cpp src/kfx/save/SaveCampaignProgress.cpp "$work"/core/*.o \
     ${LDFLAGS_EXTRA:-} -lz -o "$records_out"
