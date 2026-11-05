@@ -522,6 +522,7 @@ enum GUIStrings {
     GUIStr_ClickToUnpause,
     GUIStr_NetWaitingOnUser,
     GUIStr_NetConnectionUnstable,
+    GUIStr_NetFilesDiffer,
     GuiStrEnd
 };
 

@@ -66,15 +66,18 @@ extern int32_t multiplayer_speed_adjustment_ns;
 #pragma pack(1)
 struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
-    TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
     UserPreferences user_prefs;
     uint8_t initial_input_lag_turns;
     uint32_t initial_action_seed;
     char frontend_alliances;
     int8_t player_slots[MAX_NET_USERS];
+    struct LoadedFileChecksums loaded_file_checksums;
 };
 #pragma pack()
+
+#define STARTUP_SYNC_SHARED_SIZE offsetof(struct StartupSyncPacket, loaded_file_checksums)
+#define SPECTATOR_BOOTSTRAP_SYNC_SIZE (MAX_NET_USERS * STARTUP_SYNC_SHARED_SIZE + sizeof(struct LoadedFileChecksums))
 
 short setup_network_service(enum FrontendNetService service)
 {
@@ -115,6 +118,13 @@ TbBool network_is_host(void)
 
 // user->player map received with the spectator bootstrap, applied once the level is set up
 static PlayerNumber spectator_user_player_number[MAX_NET_USERS];
+
+#define NET_MESSAGE_TYPE_SIZE 1
+#define NET_FRAME_PEER_ID_SIZE 1
+_Static_assert(NET_MESSAGE_TYPE_SIZE + NET_FRAME_PEER_ID_SIZE + sizeof(netstate.seq_nbr) + sizeof(struct StartupSyncPacket) <= NET_MSG_BUFFER_SIZE,
+    "StartupSyncPacket does not fit in a network message; lower LOADED_FILE_TRACKED_COUNT");
+_Static_assert(NET_MESSAGE_TYPE_SIZE + sizeof(int32_t) + DISKPATH_SIZE + sizeof(spectator_user_player_number) + SPECTATOR_BOOTSTRAP_SYNC_SIZE <= NET_MSG_BUFFER_SIZE,
+    "Spectator bootstrap does not fit in a network message; lower LOADED_FILE_TRACKED_COUNT");
 
 PlayerNumber get_net_user_player_number(NetUserId user)
 {
@@ -284,33 +294,6 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
     }
 }
 
-static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
-{
-    const TbBigChecksum *host = startup_sync_packets[SERVER_ID].map_checksums;
-    for (int i = 0; i < MAX_NET_USERS; i++) {
-        const TbBigChecksum *client = startup_sync_packets[i].map_checksums;
-        if (!net_user_info[i].network_user_active) {
-            continue;
-        }
-        int diff_count = 0;
-        for (int j = 0; j < NETWORK_STARTUP_MAP_FILE_COUNT; j++) {
-            if (client[j] == host[j]) {
-                continue;
-            }
-            if (diff_count == 0) {
-                ERRORLOG("Level checksums differ for player %d", i);
-            }
-            ERRORLOG("Level file map%05u.%s differs for player %d", get_loaded_level_number(), network_startup_compare_files[j], i);
-            diff_count++;
-        }
-        if (diff_count != 0) {
-            return false;
-        }
-    }
-    NETLOG("Map checksums are verified");
-    return true;
-}
-
 static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
     NetUserId host_user_id = SERVER_ID;
@@ -353,17 +336,60 @@ static TbBool startup_peers_accepted(void)
     return true;
 }
 
-static enum NetJoinRejection spectator_startup_rejection(void)
+static void clamp_received_loaded_file_counts(void)
 {
-    TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
-    calculate_network_startup_map_checksums(checksums);
-    if (memcmp(checksums, s_startup_sync_packets[SERVER_ID].map_checksums, sizeof(checksums)) != 0) {
-        return NetJoin_MapMismatch;
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        struct LoadedFileChecksums *files = &s_startup_sync_packets[i].loaded_file_checksums;
+        if (files->count > LOADED_FILE_TRACKED_COUNT) {
+            files->count = LOADED_FILE_TRACKED_COUNT;
+        }
     }
+}
+
+static void reject_differing_files(NetUserId user, const char *differing_file)
+{
+    char reason[TEXT_BUFFER_LENGTH];
+    snprintf(reason, sizeof(reason), get_string(GUIStr_NetFilesDiffer), network_user_name(user));
+    char text[TEXT_BUFFER_LENGTH];
+    snprintf(text, sizeof(text), "%s %s", reason, differing_file);
+    netstate.leave_reason = NetJoin_MapMismatch;
+    create_frontend_error_box(text);
+}
+
+static TbBool verify_loaded_file_checksums(void)
+{
+    const struct LoadedFileChecksums *host = &s_startup_sync_packets[SERVER_ID].loaded_file_checksums;
+    NetUserId rejected_user = INVALID_USER_ID;
+    const char *rejected_file = NULL;
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        if (!net_user_info[i].network_user_active) {
+            continue;
+        }
+        const char *differing_file = find_file_differing_from_host(&s_startup_sync_packets[i].loaded_file_checksums, host, i);
+        if (differing_file != NULL) {
+            rejected_user = i;
+            rejected_file = differing_file;
+        }
+    }
+    if (rejected_user != INVALID_USER_ID) {
+        reject_differing_files(rejected_user, rejected_file);
+        return false;
+    }
+    NETLOG("Loaded file checksums are verified");
+    return true;
+}
+
+static TbBool spectator_startup_accepted(void)
+{
     if (memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
-        return NetJoin_FxdataMismatch;
+        return reject_network_startup(NetJoin_FxdataMismatch);
     }
-    return NetJoin_Accepted;
+    const char *differing_file = find_file_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, netstate.my_id);
+    if (differing_file != NULL) {
+        reject_differing_files(netstate.my_id, differing_file);
+        return false;
+    }
+    return true;
 }
 
 // the preferences a user sent in the startup sync, for network games
@@ -408,7 +434,7 @@ static void build_local_startup_sync(void)
 {
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
     s_local_startup_sync.startup_sync_packet_valid = 1;
-    calculate_network_startup_map_checksums(s_local_startup_sync.map_checksums);
+    s_local_startup_sync.loaded_file_checksums = *get_loaded_file_checksums();
     memcpy(s_local_startup_sync.required_sprite_zip_checksums, required_sprite_zip_checksums, sizeof(s_local_startup_sync.required_sprite_zip_checksums));
     build_local_user_preferences(s_local_startup_sync.user_prefs);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
@@ -456,12 +482,12 @@ static TbBool net_startup_sync_exchange_and_apply(void)
             return false;
         }
     }
-    if (!verify_map_checksums(s_startup_sync_packets)) {
-        return reject_network_startup(NetJoin_MapMismatch);
-    }
-
     if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
         return reject_network_startup(NetJoin_FxdataMismatch);
+    }
+    clamp_received_loaded_file_counts();
+    if (!verify_loaded_file_checksums()) {
+        return false;
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
     game.input_lag_turns = host_sync->initial_input_lag_turns;
@@ -501,9 +527,7 @@ void setup_count_players(void)
 TbBool init_players_network_game(void)
 {
     if (net_join_role == NetRole_Spectator) {
-        enum NetJoinRejection rejection = spectator_startup_rejection();
-        if (rejection != NetJoin_Accepted) {
-            reject_network_startup(rejection);
+        if (!spectator_startup_accepted()) {
             LbNetwork_Stop();
             return false;
         }
@@ -1023,14 +1047,18 @@ void network_spectator_send_bootstrap(NetUserId user_id)
     }
     memcpy(write_pos, user_player_number, sizeof(user_player_number));
     write_pos += sizeof(user_player_number);
-    memcpy(write_pos, s_startup_sync_packets, sizeof(s_startup_sync_packets));
-    write_pos += sizeof(s_startup_sync_packets);
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        memcpy(write_pos, &s_startup_sync_packets[user], STARTUP_SYNC_SHARED_SIZE);
+        write_pos += STARTUP_SYNC_SHARED_SIZE;
+    }
+    memcpy(write_pos, &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, sizeof(struct LoadedFileChecksums));
+    write_pos += sizeof(struct LoadedFileChecksums);
     send_message_buffer(user_id, write_pos);
 }
 
 TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer, size_t size)
 {
-    if (source != SERVER_ID || net_join_role != NetRole_Spectator || size < sizeof(int32_t) + 1 + sizeof(spectator_user_player_number) + sizeof(s_startup_sync_packets)) {
+    if (source != SERVER_ID || net_join_role != NetRole_Spectator || size < sizeof(int32_t) + 1 + sizeof(spectator_user_player_number) + SPECTATOR_BOOTSTRAP_SYNC_SIZE) {
         return Lb_FAIL;
     }
     int32_t level;
@@ -1038,7 +1066,7 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
     buffer += sizeof(level);
     size -= sizeof(level);
     size_t name_length = strnlen(buffer, min(size, (size_t)DISKPATH_SIZE));
-    if (name_length == 0 || name_length >= DISKPATH_SIZE || name_length + 1 + sizeof(spectator_user_player_number) + sizeof(s_startup_sync_packets) != size || strchr(buffer, '/') || strchr(buffer, '\\') || strstr(buffer, "..")) {
+    if (name_length == 0 || name_length >= DISKPATH_SIZE || name_length + 1 + sizeof(spectator_user_player_number) + SPECTATOR_BOOTSTRAP_SYNC_SIZE != size || strchr(buffer, '/') || strchr(buffer, '\\') || strstr(buffer, "..")) {
         return Lb_FAIL;
     }
     char campaign_file[DISKPATH_SIZE];
@@ -1057,7 +1085,13 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
     buffer += name_length + 1;
     memcpy(spectator_user_player_number, buffer, sizeof(spectator_user_player_number));
     buffer += sizeof(spectator_user_player_number);
-    memcpy(s_startup_sync_packets, buffer, sizeof(s_startup_sync_packets));
+    memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        memcpy(&s_startup_sync_packets[user], buffer, STARTUP_SYNC_SHARED_SIZE);
+        buffer += STARTUP_SYNC_SHARED_SIZE;
+    }
+    memcpy(&s_startup_sync_packets[SERVER_ID].loaded_file_checksums, buffer, sizeof(struct LoadedFileChecksums));
+    clamp_received_loaded_file_counts();
     for (NetUserId id = 0; id < MAX_NET_USERS; id++) {
         if (spectator_user_player_number[id] < PLAYER_NONE || spectator_user_player_number[id] >= PLAYERS_COUNT) {
             return Lb_FAIL;
