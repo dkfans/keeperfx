@@ -42,6 +42,8 @@
 #include "keeperfx.hpp"
 #include "kjm_input.h"
 #include "kfx/save/core/save_resync.h"
+#include "kfx/save/core/save_config_overlay.h"
+#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -404,10 +406,40 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
     return true;
 }
 
-// The full resync data: [u32 len][game] [u32 len][intralevel] [u32 len][lua] [u32 len][custom intralevel] [navigation]
+static TbBool encode_resync_config(struct SaveBuffer *conf_buf)
+{
+    if (conf_baseline == NULL) {
+        return save_buf_u32(conf_buf, 0) == 0;
+    }
+    struct SaveError save_err;
+    if (save_config_overlay_write(&game.conf, conf_baseline, conf_buf, &save_err) != SVR_Ok) {
+        ERRORLOG("Resync config encode failed: %s", save_err.message);
+        return false;
+    }
+    return true;
+}
+
+static TbBool apply_resync_config(const char *conf_data, uint32_t conf_len)
+{
+    if (conf_baseline != NULL) {
+        memcpy(&game.conf, conf_baseline, sizeof(game.conf));
+    }
+    struct SaveError save_err;
+    if (save_config_overlay_apply((const uint8_t *)conf_data, conf_len, &game.conf, &save_err) != SVR_Ok) {
+        ERRORLOG("Resync config apply failed: %s", save_err.message);
+        return false;
+    }
+    update_trap_tab_to_config();
+    update_room_tab_to_config();
+    update_powers_tab_to_config();
+    return true;
+}
+
+// The full resync data: [u32 len][game] [u32 len][intralevel] [u32 len][config] [u32 len][lua] [u32 len][custom intralevel] [navigation]
 enum ResyncSection {
     RSec_Game,
     RSec_Intralevel,
+    RSec_Config,
     RSec_Lua,
     RSec_CustomIntralevel,
     RSec_COUNT
@@ -428,6 +460,10 @@ char *build_resync_game_data(size_t *full_resync_len)
         ERRORLOG("Resync game encode failed: %s", save_err.message);
         return NULL;
     }
+    SaveBufferOwner conf_buf;
+    if (!encode_resync_config(&conf_buf)) {
+        return NULL;
+    }
 
     char *lua_data = NULL;
     size_t lua_data_len = 0;
@@ -443,6 +479,8 @@ char *build_resync_game_data(size_t *full_resync_len)
     section_len[RSec_Game] = game_buf.len;
     section_data[RSec_Intralevel] = ilvl_buf.data;
     section_len[RSec_Intralevel] = ilvl_buf.len;
+    section_data[RSec_Config] = conf_buf.data;
+    section_len[RSec_Config] = conf_buf.len;
     section_data[RSec_Lua] = lua_data;
     section_len[RSec_Lua] = lua_data_len;
     section_data[RSec_CustomIntralevel] = custom_intralevel_data;
@@ -525,6 +563,9 @@ static TbBool apply_resync_game_data(const char * full_resync_data, size_t full_
     }
     if (save_resync_decode_game((const uint8_t *)section_data[RSec_Game], section_len[RSec_Game], &game, &save_err) != SVR_Ok) {
         ERRORLOG("Resync game decode failed: %s", save_err.message);
+        return false;
+    }
+    if (!apply_resync_config(section_data[RSec_Config], section_len[RSec_Config])) {
         return false;
     }
     if (navigation_size != 0) {
