@@ -118,6 +118,7 @@ TbBool network_is_host(void)
 
 // user->player map received with the spectator bootstrap, applied once the level is set up
 static PlayerNumber spectator_user_player_number[MAX_NET_USERS];
+TbBool net_startup_return_to_lobby = false;
 
 #define NET_MESSAGE_TYPE_SIZE 1
 #define NET_FRAME_PEER_ID_SIZE 1
@@ -348,7 +349,6 @@ static void sanitise_received_loaded_files(void)
 
 static TbBool reject_differing_files(const char *user_name, const char *differing_files)
 {
-    netstate.leave_reason = NetJoin_MapMismatch;
     create_frontend_error_box_with_header(get_string(GUIStr_NetFilesDiffer), user_name, differing_files);
     return false;
 }
@@ -378,6 +378,7 @@ static TbBool spectator_startup_accepted(void)
     char differing_files[TEXT_BUFFER_LENGTH];
     const char *my_name = network_user_name(netstate.my_id);
     if (list_files_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, my_name, differing_files, sizeof(differing_files))) {
+        netstate.leave_reason = NetJoin_MapMismatch;
         return reject_differing_files(my_name, differing_files);
     }
     return true;
@@ -463,6 +464,7 @@ static TbBool net_startup_sync_exchange_and_apply(void)
     TbError exchange_result = exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket));
     sanitise_received_loaded_files();
     if (!verify_loaded_file_checksums(users_before_exchange)) {
+        net_startup_return_to_lobby = true;
         return false;
     }
     if (!startup_peers_accepted()) {
@@ -545,7 +547,7 @@ TbBool init_players_network_game(void)
         build_local_startup_sync();
         initialized = net_startup_sync_exchange_and_apply() && network_spectator_convert_seatless_users();
     }
-    if (!initialized) {
+    if (!initialized && !net_startup_return_to_lobby) {
         LbNetwork_Stop();
     }
     return initialized;

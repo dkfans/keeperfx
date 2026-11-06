@@ -2866,6 +2866,8 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NET_START:
           frontnet_start_setup();
+          frontend_set_player_number(my_player_number);
+          LbNetwork_EnableNewPlayers(1);
           turn_on_menu(GMnu_FENET_START);
           LbStartTextInput();
           set_flag(local_system_flags, GSF_NetworkActive);
@@ -3016,6 +3018,9 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
 {
     SYNCDBG(8,"State %d will be switched to %d",(int)frontend_menu_state,(int)nstate);
     frontend_shutdown_state(frontend_menu_state);
+    if (nstate == FeSt_NETLAND_VIEW || nstate == FeSt_START_MPLEVEL) {
+        frontend_close_error_box(NULL);
+    }
     if ( frontend_menu_state )
       fade_out();
     fade_palette_in = 1;
@@ -3861,6 +3866,11 @@ FrontendMenuState get_startup_menu_state(void)
       load_game_failed = false;
       SYNCLOG("Failed load; back to the menu it started from");
       return load_game_menu_state;
+  }
+  if (net_startup_return_to_lobby) {
+      net_startup_return_to_lobby = false;
+      SYNCLOG("Loaded files differ between players; back to the lobby");
+      return FeSt_NET_START;
   }
   if (game_flags2 & GF2_Server)
   {
