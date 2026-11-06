@@ -6166,11 +6166,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Таинственный ящик: Откроете ящик - узнаете содержимое. А пока мучайтесь в догадках, что там."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Версии карты у игроков различаются."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""
@@ -6687,16 +6682,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "Вы проиграли. Оставьте игру запущенной до окончания матча, поскольку вы её хост."
 
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "Убедитесь, что содержимое директории fxdata идентично у всех игроков."
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "ВНИМАНИЕ! Несовпадение спрайтов с игроком %s! "
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
@@ -6986,3 +6971,9 @@ msgstr "Ожидание %s: %d,%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "Нестабильное соединение: %d,%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host"
+msgstr "Файлы у %s и хоста различаются"

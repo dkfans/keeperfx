@@ -41,6 +41,7 @@
 #include "config_campaigns.h"
 #include "config_keeperfx.h"
 #include "config_translation.h"
+#include "net_filecheck.h"
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
@@ -2252,6 +2253,12 @@ TbBool set_level_ensign(LevelNumber lvnum, short ensign_id)
     return update_or_create_level_ensign_override(lvnum, ensign_id);
 }
 
+static TbBool load_config_file(const struct ConfigFileData* file_data, const char *fname, unsigned short flags)
+{
+    add_loaded_file_checksum(fname);
+    return file_data->load_func(fname, flags);
+}
+
 /* @comment
  *     The loading items of load_config and load_config_for_mod need to be consistent.
  */
@@ -2270,7 +2277,7 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
         prepare_file_path_buf_mod(fname, sizeof(fname), mod_dir, FGrp_FxData, conf_fname);
         if (strlen(fname) > 0)
         {
-            file_data->load_func(fname, flags);
+            load_config_file(file_data, fname, flags);
         }
     }
 
@@ -2279,7 +2286,7 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
         prepare_file_path_buf_mod(fname, sizeof(fname), mod_dir, FGrp_CmpgConfig, conf_fname);
         if (strlen(fname) > 0)
         {
-            file_data->load_func(fname,flags);
+            load_config_file(file_data, fname, flags);
         }
     }
 
@@ -2290,7 +2297,7 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
         prepare_file_path_buf_mod(fname, sizeof(fname), mod_dir, FGrp_CmpgLvls, map_fname);
         if (strlen(fname) > 0)
         {
-            file_data->load_func(fname,flags);
+            load_config_file(file_data, fname, flags);
         }
     }
 }
@@ -2321,7 +2328,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 
     char fname[FULLPATH_SIZE] = "";
     prepare_file_path_buf(fname, sizeof(fname), FGrp_FxData, conf_fname);
-    TbBool result = file_data->load_func(fname, flags);
+    TbBool result = load_config_file(file_data, fname, flags);
 
     if (mods_conf.after_base_cnt > 0)
     {
@@ -2331,7 +2338,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     prepare_file_path_buf(fname, sizeof(fname), FGrp_CmpgConfig, conf_fname);
     if (strlen(fname) > 0)
     {
-        file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        load_config_file(file_data, fname, flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
 
     if (mods_conf.after_campaign_cnt > 0)
@@ -2344,7 +2351,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     prepare_file_path_buf(fname, sizeof(fname), FGrp_CmpgLvls, map_fname);
     if (strlen(fname) > 0)
     {
-        file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        load_config_file(file_data, fname, flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
 
     if (mods_conf.after_map_cnt > 0)

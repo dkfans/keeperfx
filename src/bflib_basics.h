@@ -105,6 +105,8 @@ typedef FILE * TbFileHandle;
 typedef unsigned char TbBool;
 typedef short TbScreenPos;
 
+#define CHECKSUM_ADD(checksum, value) ((checksum) = (((checksum) << 5) | ((checksum) >> 27)) ^ (TbBigChecksum)(value))
+
 #define LOG_PREFIX_LEN 32
 
 struct TbLog {

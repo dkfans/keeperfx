@@ -21,7 +21,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "net_main.h"
-#include "net_checksums.h"
+#include "net_filecheck.h"
 #include "user_prefs.h"
 #include "packets.h"
 #include <stdint.h>

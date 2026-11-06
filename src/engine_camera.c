@@ -309,7 +309,7 @@ void init_player_cameras(struct PlayerInfo *player)
     init_local_cameras(player);
 }
 
-static int get_walking_bob_direction(struct Thing *thing)
+static int get_walking_bob_direction(const struct Thing *thing)
 {
     const int anim_time = thing->anim_time;
     if ( anim_time >= 256 && anim_time < 640 )
@@ -326,7 +326,7 @@ static int get_walking_bob_direction(struct Thing *thing)
     }
 }
 
-void update_first_person_position(struct Camera *cam, struct Thing *thing, const struct CreatureControl *cctrl, int eye_height)
+void update_first_person_position(struct Camera *cam, const struct Thing *thing, const struct CreatureControl *cctrl, int eye_height)
 {
     if (thing->class_id == TCls_Creature)
     {
@@ -381,14 +381,6 @@ void update_first_person_position(struct Camera *cam, struct Thing *thing, const
         {
             cam->mappos.z.val = thing->mappos.z.val + 240;
             cam->rotation_angle_z = 0;
-            thing->move_angle_z = 0;
-            if ( thing->food.possession_startup_timer )
-            {
-                if ( thing->food.possession_startup_timer <= 3 )
-                    thing->move_angle_z = -116 * thing->food.possession_startup_timer + DEGREES_360;
-                else
-                    thing->move_angle_z = 116 * thing->food.possession_startup_timer + 1352;
-            }
         }
         else
         {

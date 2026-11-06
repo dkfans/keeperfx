@@ -641,6 +641,15 @@ TbBool delete_lair_totem(struct Thing *lairtng)
     return true;
 }
 
+static short possessed_food_peck_pitch(unsigned char timer)
+{
+    if (timer == 0)
+        return 0;
+    if (timer <= 3)
+        return DEGREES_360 - 116 * timer;
+    return (116 * timer + 1352) & ANGLE_MASK;
+}
+
 static long food_moves(struct Thing *objtng)
 {
     struct Coord3d pos;
@@ -656,9 +665,11 @@ static long food_moves(struct Thing *objtng)
     TbBool dirct_ctrl = user_controls_thing(ANY_USER, objtng, UCT_Direct | UCT_PossessionEntryZoom);
     if (dirct_ctrl)
     {
+        objtng->move_angle_z = 0;
         if (objtng->food.possession_startup_timer > 0)
         {
             objtng->food.possession_startup_timer--;
+            objtng->move_angle_z = possessed_food_peck_pitch(objtng->food.possession_startup_timer);
             return TUFRet_Modified;
         }
     }
@@ -998,7 +1009,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
         kill_all_players_chickens(thing->owner);
         output_player_message(sacowner, SMsg_SacrificePunish, 0);
     } else
-    if (object_is_gold_pile(thing))
+    if (object_is_gold_pile(thing) || (thing->model == ObjMdl_SpinningCoin)) //Spinning coins are what is dropped from hand. Gold piles are not truly dropped.
     {
         if (thing->valuable.gold_stored > 0)
         {

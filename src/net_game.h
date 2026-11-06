@@ -39,6 +39,7 @@ struct PlayerInfo;
 
 /******************************************************************************/
 extern struct TbNetworkUserInfo net_user_info[MAX_NET_USERS];
+extern TbBool net_startup_return_to_lobby;
 
 #pragma pack()
 /******************************************************************************/

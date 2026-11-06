@@ -429,7 +429,6 @@ enum GUIStrings {
     GUIStr_SellTrapOnSubtile = GUI_STRINGS_START + 1003,
     GUIStr_SnapCamera = GUI_STRINGS_START + 1004,
     GUIStr_MysteryBox = GUI_STRINGS_START + 1005,
-    GUIStr_NetUnsyncedMap = GUI_STRINGS_START + 1006,
     GUIStr_DisplayResolution = GUI_STRINGS_START + 1007,
     GUIStr_OptionVoice = GUI_STRINGS_START + 1008,
     GUIStr_CtrlTiltUp = GUI_STRINGS_START + 1063,
@@ -465,9 +464,7 @@ enum GUIStrings {
     GUIStr_MnuMpMapPacks,
     GUIStr_MnuReturnToLobby,
     GUIStr_NetHostLostWaitingForPlayers,
-    GUIStr_NetVerifyFxdataSame,
-    GUIStr_NetCustomSpriteMismatch,
-    GUIStr_NetAiTookOver,
+    GUIStr_NetAiTookOver = GUI_STRINGS_START + 1115,
     GUIStr_NetPlayerLeftGame,
     GUIStr_NetUnused1,
     GUIStr_NetUnused2,
@@ -522,6 +519,7 @@ enum GUIStrings {
     GUIStr_ClickToUnpause,
     GUIStr_NetWaitingOnUser,
     GUIStr_NetConnectionUnstable,
+    GUIStr_NetFilesDiffer,
     GuiStrEnd
 };
 
