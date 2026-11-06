@@ -280,7 +280,10 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
             if (apply_roomspace_tag) {
                 MapSlabCoord previous_slb_x = (uint16_t)pckt->actn_par3 & 0xFF;
                 MapSlabCoord previous_slb_y = (uint16_t)pckt->actn_par3 >> 8;
-                apply_roomspace_dig_tag_selection(plyr_idx, &ustate->render_roomspace, previous_slb_x, previous_slb_y, ustate->roomspace_highlight_mode, NULL);
+                if (apply_roomspace_dig_tag_selection(plyr_idx, &ustate->render_roomspace, previous_slb_x, previous_slb_y, ustate->roomspace_highlight_mode, NULL) > 0) {
+                    ustate->last_dig_order_turn = get_gameturn();
+                    ustate->last_dig_order_was_removal = ustate->render_roomspace.untag_mode;
+                }
             }
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)

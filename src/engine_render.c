@@ -5148,7 +5148,7 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
  * Selects index of a sprite used to show creature health flower.
  * @param thing
  */
-static unsigned short choose_health_sprite(struct Thing* thing)
+unsigned short choose_health_sprite(const struct Thing* thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);

@@ -54,6 +54,18 @@
 #include "timer.h"
 #include "replay_rewind.h"
 #include "vidmode.h"
+#include "config_objects.h"
+#include "config_spritecolors.h"
+#include "config_terrain.h"
+#include "config_trapdoor.h"
+#include "creature_control.h"
+#include "creature_instances.h"
+#include "creature_states.h"
+#include "engine_render.h"
+#include "gui_msgs.h"
+#include "player_instances.h"
+#include "power_hand.h"
+#include "thing_creature.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -671,6 +683,238 @@ TbBool mouse_is_over_watched_player_name(void)
     char text[sizeof(netstate.users[0].name) + 2];
     struct TextBoxLayout layout;
     return get_watched_player_name_layout(text, sizeof(text), &layout) && mouse_is_over_bottom_right_text(&layout);
+}
+
+static long top_right_timers_bottom(void)
+{
+    LbTextSetFont(winfont);
+    long height = LbTextLineHeight() * units_per_pixel / 16;
+    height += height / 2;
+    if (MyScreenHeight < 400)
+        height *= 2;
+    long top = 16 * units_per_pixel / 16;
+    TbBool upper = bonus_timer_enabled() || script_timer_enabled() || display_variable_enabled() || (game.armageddon_cast_turn != 0);
+    long bottom = 0;
+    if (upper)
+        bottom = top + height;
+    if (timer_enabled())
+        bottom = (upper ? (top << 2) : top) + height;
+    return bottom;
+}
+
+static TbBool user_is_viewing_creature(const struct UserState *ustate)
+{
+    if ((ustate->view_type == PVT_CreatureContrl) || (ustate->view_type == PVT_CreaturePasngr))
+        return true;
+    return (ustate->work_state == PSt_CreatrQuery) || (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll);
+}
+
+static long archon_user_status_icon(const struct UserState *ustate)
+{
+    PlayerNumber plyr_idx = ustate->player_id;
+    const struct PlayerInfo *player = get_player(plyr_idx);
+    if (flag_is_set(ustate->additional_flags, UsrAF_GameMenuOpen))
+        return GPS_crspell_timer_dis_s;
+    if (flag_is_set(ustate->additional_flags, UsrAF_ChatOpen))
+        return GPS_crspell_timer_std_s;
+    if (player->victory_state == VicS_LostLevel)
+        return get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_dead, plyr_idx);
+    if (ustate->view_type == PVT_MapScreen)
+        return GPS_room_portal_std_s;
+    const struct Thing *thing = thing_get(ustate->controlled_thing_idx);
+    if ((ustate->controlled_thing_idx > 0) && user_is_viewing_creature(ustate) && (thing_is_creature(thing) || thing_is_dead_creature(thing)))
+    {
+        long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
+        if (spr_idx > 0)
+        {
+            TbBool dis = thing_is_dead_creature(thing) || creature_is_dying(thing) || thing_is_picked_up(thing)
+                || (thing_is_creature(thing) && creature_under_spell_effect(thing, CSAfF_Freeze));
+            return dis ? spr_idx + 1 : spr_idx;
+        }
+    }
+    if ((ustate->instance_num == PI_Whip) || (ustate->instance_num == PI_WhipEnd))
+        return get_power_model_stats(PwrK_SLAP)->medsym_sprite_idx;
+    if ((ustate->last_dig_order_turn != 0) && (get_gameturn() - ustate->last_dig_order_turn < 10))
+        return ustate->last_dig_order_was_removal ? GPS_crspell_dig_std_s + 1 : GPS_crspell_dig_std_s;
+    if (flag_is_set(ustate->additional_flags, UsrAF_SpecialMenuOpen))
+        return GPS_trapdoor_bonus_box_std_s;
+    if ((ustate->chosen_power_kind > 0) && (get_power_model_stats(ustate->chosen_power_kind)->work_state == ustate->work_state))
+        return get_power_model_stats(ustate->chosen_power_kind)->medsym_sprite_idx;
+    switch (ustate->work_state)
+    {
+    case PSt_BuildRoom:
+        return get_room_kind_stats(ustate->chosen_room_kind)->medsym_sprite_idx;
+    case PSt_PlaceTrap:
+        return get_trap_model_stats(ustate->chosen_trap_kind)->medsym_sprite_idx;
+    case PSt_PlaceDoor:
+        return get_door_model_stats(ustate->chosen_door_kind)->medsym_sprite_idx;
+    case PSt_Sell:
+        return get_player_colored_icon_idx(GPS_plyrsym_symbol_room_red_std_a, plyr_idx);
+    }
+    if (ustate->num_things_in_hand > 0)
+        return get_power_model_stats(PwrK_HAND)->medsym_sprite_idx;
+    if (player_has_heart(plyr_idx))
+        return get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_a, plyr_idx);
+    return get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_dead, plyr_idx);
+}
+
+/** range of rows [top, bottom) containing any non-transparent pixel */
+static void sprite_visible_rows(const struct TbSprite *spr, int *top, int *bottom)
+{
+    *top = spr->SHeight;
+    *bottom = 0;
+    const unsigned char *data = spr->Data;
+    for (int row = 0; (data != NULL) && (row < spr->SHeight); row++)
+    {
+        TbBool opaque = false;
+        for (;;)
+        {
+            signed char cmd = (signed char)*data++;
+            if (cmd == 0)
+                break;
+            if (cmd > 0) {
+                opaque = true;
+                data += cmd;
+            }
+        }
+        if (opaque) {
+            *top = min(*top, row);
+            *bottom = row + 1;
+        }
+    }
+    if (*top >= *bottom) {
+        *top = 0;
+        *bottom = spr->SHeight;
+    }
+}
+
+/** Top-left at which the sprite's visible pixels are centred in the box. */
+static void hud_icon_origin(long x, long y, long box_w, long box_h, int units_per_px, long spr_idx, long *out_x, long *out_y)
+{
+    const struct TbSprite *spr = get_panel_sprite(spr_idx);
+    int top;
+    int bottom;
+    sprite_visible_rows(spr, &top, &bottom);
+    *out_x = x + (box_w - spr->SWidth * units_per_px / 16) / 2;
+    *out_y = y + (box_h - (bottom - top) * units_per_px / 16) / 2 - top * units_per_px / 16;
+}
+
+static void draw_hud_icon_centered(long x, long y, long box_w, long box_h, int units_per_px, long spr_idx, PlayerNumber plyr_idx)
+{
+    if (spr_idx <= 0)
+        return;
+    long icon_x;
+    long icon_y;
+    hud_icon_origin(x, y, box_w, box_h, units_per_px, spr_idx, &icon_x, &icon_y);
+    draw_gui_panel_sprite_left_player(icon_x, icon_y, units_per_px, spr_idx, plyr_idx);
+}
+
+static void draw_hud_text_right(long right, long y, long height, int tx_units_per_px, const char *text)
+{
+    LbTextSetWindow(0, y, right, height);
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
+    LbTextDrawResized(0, (height - LbTextLineHeight() * tx_units_per_px / 16) / 2, tx_units_per_px, text);
+    RendererSetDrawFlags(0);
+    LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+}
+
+/** Lists the other users sharing the displayed user's keeper (archon mode) */
+void draw_archon_co_users(void)
+{
+    const NetUserId displayed = get_displayed_user();
+    const struct UserState *dstate = get_user_state(displayed);
+    if (user_state_invalid(dstate) || (dstate->instance_num == PI_HeartZoom))
+        return;
+    const PlayerNumber plyr_idx = dstate->player_id;
+    if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT))
+        return;
+    const struct TbSprite *ref = get_panel_sprite(GPS_trapdoor_bonus_box_std_s);
+    const int icon_upp = calculate_relative_upp(46, units_per_pixel_ui, ref->SHeight);
+    const long slot_w = ref->SWidth * icon_upp / 32;
+    const long icon_h = ref->SHeight * icon_upp / 16;
+    const long gap = 4 * units_per_pixel_ui / 16;
+    const long margin = 16 * units_per_pixel / 16;
+    const long right = MyScreenWidth - margin;
+    const long slot_x = right - slot_w;
+    LbTextSetFont(winfont);
+    const int tx_units_per_px = font_size_units_per_px(chat_font_size);
+    const long row_h = LbTextLineHeight() * tx_units_per_px / 16;
+    long y = top_right_timers_bottom() + 4 * units_per_pixel_ui / 16;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        const struct UserState *ustate = get_user_state(user);
+        if ((user == displayed) || !user_present(user) || (ustate->player_id != plyr_idx))
+            continue;
+        long spr_idx = archon_user_status_icon(ustate);
+        draw_hud_text_right(slot_x - gap, y, row_h, tx_units_per_px, ustate->name);
+        draw_hud_icon_centered(slot_x, y, slot_w, row_h, icon_upp, spr_idx, plyr_idx);
+        long status_icon_bottom = y + row_h;
+        if (spr_idx > 0)
+        {
+            long icon_x;
+            long icon_y;
+            int top_row;
+            int bottom_row;
+            hud_icon_origin(slot_x, y, slot_w, row_h, icon_upp, spr_idx, &icon_x, &icon_y);
+            sprite_visible_rows(get_panel_sprite(spr_idx), &top_row, &bottom_row);
+            status_icon_bottom = icon_y + bottom_row * icon_upp / 16;
+        }
+        y += row_h;
+        const struct Thing *thing = thing_get(ustate->controlled_thing_idx);
+        TbBool show_possession = (ustate->view_type == PVT_CreatureContrl) && thing_is_creature(thing);
+        TbBool show_hand = (ustate->num_things_in_hand > 0);
+        const long possession_h = max(0, (icon_h - row_h) / 2) + icon_h;
+        const long hand_margin = 8 * units_per_pixel_ui / 16;
+        const long hand_h = get_mini_things_in_hand_height() - 2 * hand_margin;
+        const long area_y = y;
+        
+        const long area_h = max(possession_h, hand_h);
+        if (show_possession && show_hand)
+        {
+            if (get_gameturn() % 16 >= 8)
+                show_possession = false;
+            else
+                show_hand = false;
+        }
+        if (show_possession)
+        {
+            const struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+            const struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id);
+            spr_idx = 0;
+            if (!creature_instance_info_invalid(inst_inf) && (inst_inf->symbol_spridx > 0)) {
+                spr_idx = inst_inf->symbol_spridx;
+                if (cctrl->instance_id != cctrl->active_instance_id)
+                    spr_idx++;
+            }
+            
+            const struct TbSprite *health_spr = get_button_sprite_for_player(choose_health_sprite(thing), thing->owner);
+            const struct TbSprite *level_spr = get_button_sprite(GBS_creature_flower_level_01 + cctrl->exp_level);
+            const int flower_upp = calculate_relative_upp(32, units_per_pixel_ui, health_spr->SHeight);
+            const long flower_w = health_spr->SWidth * flower_upp / 16;
+            const long flower_h = health_spr->SHeight * flower_upp / 16;
+            const long flower_cx = slot_x + slot_w / 2;
+            int flower_top_row;
+            int flower_bottom_row;
+            sprite_visible_rows(health_spr, &flower_top_row, &flower_bottom_row);
+            const long flower_bottom = status_icon_bottom + gap - flower_top_row * flower_upp / 16 + flower_h;
+            LbSpriteDrawResized(flower_cx - flower_w / 2, flower_bottom - flower_h, flower_upp, health_spr);
+            LbSpriteDrawResized(flower_cx - level_spr->SWidth * flower_upp / 32, flower_bottom - level_spr->SHeight * flower_upp / 16, flower_upp, level_spr);
+            
+            const long flower_cy = flower_bottom - flower_h + (flower_top_row + flower_bottom_row) * flower_upp / 32;
+            if (spr_idx > 0)
+            {
+                const long ability_w = get_panel_sprite(spr_idx)->SWidth * icon_upp / 16;
+                const long ability_right = flower_cx - flower_w / 2 - (gap + 5 * units_per_pixel_ui / 16) / 2;
+                draw_hud_icon_centered(ability_right - ability_w, flower_cy - icon_h / 2, ability_w, icon_h, icon_upp, spr_idx, plyr_idx);
+            }
+            y += icon_h;
+        }
+        if (show_hand)
+        {
+            draw_user_mini_things_in_hand(user, right - get_mini_things_in_hand_width(user), area_y + get_mini_things_in_hand_height() - hand_margin);
+        }
+        y = area_y + area_h + gap;
+    }
 }
 
 void draw_watched_player_name(void)

@@ -1170,6 +1170,17 @@ void process_map_packet_clicks(NetUserId user)
 void process_user_packet(NetUserId user)
 {
     struct Packet* pckt = get_packet(user);
+    struct UserState* ustate = get_user_state(user);
+    // before the empty check, so closing a menu (an empty packet) clears the flag
+    if (!user_state_invalid(ustate)) {
+        ustate->additional_flags &= ~(UsrAF_GameMenuOpen | UsrAF_SpecialMenuOpen | UsrAF_ChatOpen);
+        if (flag_is_set(pckt->control_flags, PCtr_GameMenuOpen))
+            ustate->additional_flags |= UsrAF_GameMenuOpen;
+        if (flag_is_set(pckt->control_flags, PCtr_ChatOpen))
+            ustate->additional_flags |= UsrAF_ChatOpen;
+        if (flag_is_set(pckt->control_flags, PCtr_SpecialMenuOpen))
+            ustate->additional_flags |= UsrAF_SpecialMenuOpen;
+    }
     if (is_packet_empty(pckt))
     {
         MULTIPLAYER_LOG("process_user_packet: Skipping empty packet for user %d", user);
@@ -1178,7 +1189,6 @@ void process_user_packet(NetUserId user)
     SYNCDBG(6, "Processing user %d packet of type %d.", user, (int)pckt->action);
     if (flag_is_set(game.operation_flags, GOF_Paused))
         replay_record_paused_action(user, pckt);
-    struct UserState* ustate = get_user_state(user);
     apply_creature_input_packet_values(ustate, pckt);
 
   if (!process_user_global_packet_action(user) && !network_user_is_spectator(user)) {

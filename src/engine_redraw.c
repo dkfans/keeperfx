@@ -1032,6 +1032,7 @@ void redraw_display(void)
         LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);
         LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
+    draw_archon_co_users();
     draw_eastegg();
     if (map_fade == PVT_None) {
         RendererBeginOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);

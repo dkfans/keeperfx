@@ -97,10 +97,10 @@ enum UserInitFlags {
 enum UserAdditionalFlags {
     UsrAF_None                      = 0x00,
     UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    UsrAF_Unkn04                    = 0x04,
-    UsrAF_Unkn08                    = 0x08,
+    UsrAF_GameMenuOpen              = 0x04,
+    UsrAF_SpecialMenuOpen           = 0x08, // a dungeon special's dialog (resurrect, transfer...)
     UsrAF_UnlockedLordTorture       = 0x10, // if this flag is set, the user will be sent to the Lord Torture Mini-game
-    UsrAF_Unkn20                    = 0x20,
+    UsrAF_ChatOpen                  = 0x20,
     UsrAF_Unkn40                    = 0x40,
     UsrAF_Unkn80                    = 0x80,
 };
@@ -247,6 +247,8 @@ struct UserState {
     GameTurn hand_animation_until_turn;
     struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;
+    GameTurn last_dig_order_turn;
+    TbBool last_dig_order_was_removal;
     unsigned char roomspace_mode;
     int roomspace_detection_looseness;
     int roomspace_width;

@@ -1223,20 +1223,75 @@ void process_things_in_dungeon_hand(void)
     }
 }
 
+static int mini_things_in_hand_columns(PlayerNumber plyr_idx)
+{
+    int columns = (game.conf.rules[plyr_idx].gameplay.max_things_in_hand + 1) / 2;
+    return max(columns, 1);
+}
+
+static int mini_things_in_hand_units_per_px(void)
+{
+    const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
+    return calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
+}
+
+static long mini_thing_in_hand_sprite(const struct Thing *thing)
+{
+    if (thing_is_creature(thing))
+        return get_creature_model_graphics(thing->model, CGI_HandSymbol);
+    if (thing->class_id == TCls_DeadCreature)
+        return GPS_room_graveyard_std_s;
+    if (thing_is_object(thing))
+        return get_object_model_stats(thing->model)->hand_icon;
+    return GPS_room_hatchery_std_s;
+}
+
+long get_mini_things_in_hand_width(NetUserId user)
+{
+    const struct UserState *ustate = get_user_state(user);
+    PlayerNumber plyr_idx = ustate->player_id;
+    if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT) || (ustate->num_things_in_hand == 0))
+        return 0;
+    const int max_columns = mini_things_in_hand_columns(plyr_idx);
+    const int columns = min((int)ustate->num_things_in_hand, max_columns);
+    const int units_per_px = mini_things_in_hand_units_per_px();
+    long width = 0;
+    for (int i = 0; i < ustate->num_things_in_hand; i++)
+    {
+        if (i % max_columns != columns - 1)
+            continue;
+        const struct Thing *thing = thing_get(ustate->things_in_hand[i]);
+        long spr_idx = mini_thing_in_hand_sprite(thing);
+        if (!thing_exists(thing) || (spr_idx <= 0))
+            continue;
+        long icon_right = get_panel_sprite(spr_idx)->SWidth * units_per_px / 16 - (thing_is_creature(thing) ? 0 : 2);
+        width = max(width, scale_ui_value(16) * (columns - 1) + icon_right);
+    }
+    return width;
+}
+
+long get_mini_things_in_hand_height(void)
+{
+    return scale_ui_value(58);
+}
+
 void draw_mini_things_in_hand(long x, long y)
 {
+    draw_user_mini_things_in_hand(get_displayed_user(), x, y);
+}
+
+void draw_user_mini_things_in_hand(NetUserId user, long x, long y)
+{
     SYNCDBG(7,"Starting");
-    struct Dungeon *dungeon = get_my_dungeon();
-    const struct UserState *ustate = get_user_state(get_displayed_user());
+    const struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate) || (ustate->player_id < 0) || (ustate->player_id >= PLAYERS_COUNT))
+        return;
+    struct Dungeon *dungeon = get_dungeon(ustate->player_id);
     int i;
     int expshift_x;
     int flash_color;
     // Scale factor
-    int ps_units_per_px;
-    {
-        const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
-        ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
-    }
+    int ps_units_per_px = mini_things_in_hand_units_per_px();
     unsigned long spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
     if (spr_idx > 0) {
         i = get_panel_sprite(spr_idx)->SWidth - get_button_sprite(GBS_creature_flower_level_01)->SWidth;
@@ -1248,11 +1303,7 @@ void draw_mini_things_in_hand(long x, long y)
     expshift_x = scale_ui_value(abs(i)) / 2;
     for (i = ustate->num_things_in_hand-1; i >= 0; i--)
     {
-        unsigned char ratio = (game.conf.rules[my_player_number].gameplay.max_things_in_hand / 2);
-        if (game.conf.rules[my_player_number].gameplay.max_things_in_hand % 2)
-        {
-            ratio ++;
-        }
+        int ratio = mini_things_in_hand_columns(dungeon->owner);
         int icol = i % ratio;
         int irow = i / ratio;
         struct Thing *thing = thing_get(ustate->things_in_hand[i]);
@@ -1283,7 +1334,7 @@ void draw_mini_things_in_hand(long x, long y)
                 {
                     char expshift_y = (irow > 0) ? 32 : -6;
                     draw_button_sprite_left(scrpos_x, scrpos_y + scale_ui_value(expshift_y), ps_units_per_px, expspr_idx);
-                    if (thing->owner != my_player_number)
+                    if (thing->owner != dungeon->owner)
                     {
                         ownshift_y = (irow == 0) ? 1 : 56;
                         UIRenderer_SubmitCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[flash_color]);
@@ -1292,7 +1343,7 @@ void draw_mini_things_in_hand(long x, long y)
                 else
                 {
                     ownshift_y = (irow > 0) ? 44 : 10;
-                    if (thing->owner != my_player_number)
+                    if (thing->owner != dungeon->owner)
                     {
                         long relative_window_a = RendererScreenWidth();
                         long relative_window_b = RendererScreenHeight();

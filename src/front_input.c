@@ -3163,6 +3163,19 @@ void input(void)
         pckt->additional_packet_values |= PCAdV_RotatePressed;
     else
         pckt->additional_packet_values &= ~PCAdV_RotatePressed;
+    if (menu_is_active(GMnu_OPTIONS) || menu_is_active(GMnu_QUIT) || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE)
+        || menu_is_active(GMnu_VIDEO) || menu_is_active(GMnu_SOUND) || menu_is_active(GMnu_AUTOPILOT))
+        set_packet_control(pckt, PCtr_GameMenuOpen);
+    else
+        unset_packet_control(pckt, PCtr_GameMenuOpen);
+    if (flag_is_set(get_local_user_state()->init_flags, UsrIF_NewMPMessage))
+        set_packet_control(pckt, PCtr_ChatOpen);
+    else
+        unset_packet_control(pckt, PCtr_ChatOpen);
+    if (menu_is_active(GMnu_DUNGEON_SPECIAL) || menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE))
+        set_packet_control(pckt, PCtr_SpecialMenuOpen);
+    else
+        unset_packet_control(pckt, PCtr_SpecialMenuOpen);
 
     get_inputs();
     if ((game.mode_flags & MFlg_IsDemoMode) == 0 && !replay.load_enable) {
