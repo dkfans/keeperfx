@@ -184,29 +184,28 @@ static int load_checksummed_lua_module(lua_State *L)
     return 1;
 }
 
-static int checksummed_loadfile(lua_State *L)
+static int call_checksummed_file_function(lua_State *L)
 {
-    if (load_checksummed_lua_file(L, luaL_checkstring(L, 1)) != LUA_OK) {
-        lua_pushnil(L);
-        lua_insert(L, -2);
-        return 2;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        add_loaded_file_checksum(lua_tostring(L, 1));
     }
-    return 1;
+    lua_pushvalue(L, lua_upvalueindex(1));
+    lua_insert(L, 1);
+    lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
+    return lua_gettop(L);
 }
 
-static int checksummed_dofile(lua_State *L)
+static void checksum_file_function(lua_State *L, const char *function_name)
 {
-    if (load_checksummed_lua_file(L, luaL_checkstring(L, 1)) != LUA_OK) {
-        return lua_error(L);
-    }
-    lua_call(L, 0, LUA_MULTRET);
-    return lua_gettop(L) - 1;
+    lua_getglobal(L, function_name);
+    lua_pushcclosure(L, call_checksummed_file_function, 1);
+    lua_setglobal(L, function_name);
 }
 
 static void install_checksummed_lua_loaders(lua_State *L)
 {
-    lua_register(L, "loadfile", checksummed_loadfile);
-    lua_register(L, "dofile", checksummed_dofile);
+    checksum_file_function(L, "loadfile");
+    checksum_file_function(L, "dofile");
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "loaders");
     lua_pushcfunction(L, load_checksummed_lua_module);
