@@ -1424,14 +1424,13 @@ void process_user_creature_control_packet_control(NetUserId user)
 
 void process_user_creature_control_packet_action(NetUserId user)
 {
-  const PlayerNumber plyr_idx = get_net_user_player_number(user);
   struct CreatureControl *cctrl;
   struct Thing *thing;
   struct Packet *pckt;
   CrInstance inst_id;
   struct UserState* ustate = get_user_state(user);
   pckt = get_packet(user);
-  SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
+  SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
   switch (pckt->action)
   {
   case PckA_DirectCtrlExit:
@@ -1458,7 +1457,7 @@ void process_user_creature_control_packet_action(NetUserId user)
         cctrl->active_instance_id = pckt->actn_par1;
       } else if (possession_instance_can_start(thing, cctrl, inst_id, get_gameturn(), pckt, false)) {
         process_player_use_instance(thing, inst_id, pckt);
-        if (plyr_idx == my_player_number) {
+        if (is_local_user(user)) {
             instant_instance_selected(inst_id);
         }
       }

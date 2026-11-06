@@ -499,11 +499,14 @@ static void update_player_camera_shake(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
 
-    const struct UserState *ustate = get_player_primary_user_state(player);
-    if (!user_state_invalid(ustate) && (ustate->view_type == PVT_CreatureContrl || ustate->view_type == PVT_CreaturePasngr)
-     && ustate->controlled_thing_idx <= 0 && ustate->instance_num != PI_HeartZoom)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        ERRORLOG("Cannot go first person without controlling creature");
+        const struct UserState *ustate = get_user_state(user);
+        if ((ustate->player_id == player->id_number) && (ustate->view_type == PVT_CreatureContrl || ustate->view_type == PVT_CreaturePasngr)
+         && ustate->controlled_thing_idx <= 0 && ustate->instance_num != PI_HeartZoom)
+        {
+            ERRORLOG("User %d cannot go first person without controlling creature", (int)user);
+        }
     }
     if (dungeon->camera_deviate_quake) {
         dungeon->camera_deviate_quake--;

@@ -990,9 +990,9 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     thing->health -= cdamage;
     thing->last_turn_damaged = get_gameturn() + 1;
     // Red palette if the possessed creature is hit very strong.
-    if (user_controls_thing(ANY_USER, thing, UCT_Selected))
+    const NetUserId possessor = get_user_controlling_thing(thing, UCT_Direct | UCT_Passenger);
+    if (possessor >= 0)
     {
-        struct PlayerInfo* player = get_player(thing->owner);
         HitPoints max_health = cctrl->max_health;
         if (max_health < 1)
             max_health = 1;
@@ -1003,9 +1003,9 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
         if (i <= 0) {
             i = 1;
         }
-        PaletteApplyPainToPlayer(player, i);
+        PaletteApplyPainToUser(possessor, i);
 
-        if (is_my_player(player))
+        if (is_local_user(possessor))
         {
             controller_rumble(100);
         }

@@ -402,7 +402,6 @@ int32_t pinstfe_hand_whip_end(NetUserId user, int32_t *n)
 
 int32_t pinstfs_passenger_control_creature(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState *ustate = get_user_state(user);
     ustate->init_flags |= UsrIF_MouseInputDisabled;
     turn_user_cursor_light(user, false);
@@ -423,7 +422,7 @@ int32_t pinstfs_passenger_control_creature(NetUserId user, int32_t *n)
           ustate->dungeon_camera.y = thing->mappos.y.val;
     }
     // Play possession sound
-    play_player_sample(player->id_number, get_power_model_stats(PwrK_POSSESS)->select_sound_idx);
+    play_user_sample(user, get_power_model_stats(PwrK_POSSESS)->select_sound_idx);
     return 0;
 }
 
@@ -648,7 +647,8 @@ int32_t pinstfs_zoom_to_heart(NetUserId user, int32_t *n)
         cctrl->creature_control_flags |= CCFlg_NoCompControl;
         ustate->init_flags |= UsrIF_KeyboardInputDisabled;
         ustate->init_flags |= UsrIF_MouseInputDisabled;
-        game.view_mode_flags |= GNFldD_CreaturePasngr;
+        if (is_local_user(user))
+            game.view_mode_flags |= GNFldD_CreaturePasngr;
     }
     return 0;
 }
@@ -737,7 +737,8 @@ int32_t pinstfe_zoom_out_of_heart(NetUserId user, int32_t *n)
   turn_user_cursor_light(user, true);
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   ustate->init_flags &= ~UsrIF_MouseInputDisabled;
-  game.view_mode_flags &= ~GNFldD_CreaturePasngr;
+  if (is_local_user(user))
+      game.view_mode_flags &= ~GNFldD_CreaturePasngr;
   if (user == get_displayed_user()) {
     LbPaletteStopOpenFade();
     PaletteSetPlayerPalette(player,engine_palette);

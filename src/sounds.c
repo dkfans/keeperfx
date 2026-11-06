@@ -122,6 +122,14 @@ void play_player_sample(PlayerNumber plyr_idx, SoundSmplTblID smptbl_idx)
     play_non_3d_sample(smptbl_idx);
 }
 
+void play_user_sample(int user, SoundSmplTblID smptbl_idx)
+{
+    if (!is_local_user(user)) {
+        return;
+    }
+    play_non_3d_sample(smptbl_idx);
+}
+
 void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID smptbl_idx)
 {
     if (SoundDisabled)

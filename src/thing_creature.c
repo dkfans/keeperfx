@@ -1674,7 +1674,8 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
-        struct UserState* ustate = get_player_primary_user_state(get_player(plyr_idx));
+        const NetUserId possessor = get_user_controlling_thing(thing, UCT_Direct | UCT_Passenger);
+        struct UserState* ustate = (possessor >= 0) ? get_user_state(possessor) : get_player_primary_user_state(get_player(plyr_idx));
         TbBool has_user = !user_state_invalid(ustate);
         unsigned char destination = has_user ? ustate->teleport_destination : 19;
         struct Coord3d pos;
@@ -7246,7 +7247,7 @@ void direct_control_pick_up_or_drop(NetUserId user, struct Thing *creatng)
                 {
                     if (user_controls_thing(user, creatng, UCT_Direct | UCT_Other))
                     {
-                        play_player_sample(plyr_idx, snd_refusal);
+                        play_user_sample(user, snd_refusal);
                         return;
                     }
                 }
@@ -7274,7 +7275,7 @@ void direct_control_pick_up_or_drop(NetUserId user, struct Thing *creatng)
                     {
                         if (user_controls_thing(user, creatng, UCT_Direct | UCT_Other))
                         {
-                            play_player_sample(plyr_idx, snd_refusal);
+                            play_user_sample(user, snd_refusal);
                             return;
                         }
                     }
