@@ -20,7 +20,7 @@
 #include "packets.h"
 #include "replay.h"
 #include "net_input_lag.h"
-#include "net_checksums.h"
+#include "net_checksum_turn.h"
 #include "net_lobby.h"
 
 #include <math.h>

@@ -6714,11 +6714,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "不思議な箱: 此れの作用は不明だ。"
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "参加しているプレイヤーのマップ版はホストの版とは違う。"
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""
@@ -7253,16 +7248,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "お前は、敗北した。ホストとして、試合が終了するまでゲームを終了しないこと。"
 
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "すべてのパソコンで「/fxdata/」を一致させてください。"
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "警告：%sのカスタムスプライトが一致しません！"
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
@@ -7586,3 +7571,9 @@ msgstr "%s を待っています：%d.%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "接続が不安定です：%d.%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host"
+msgstr "%s とホストのファイルが異なります"

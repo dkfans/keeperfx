@@ -6385,11 +6385,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "神秘物品: 没有说明它是干什么用的。"
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "已加入的玩家的主机中的地图版本不相同。"
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""
@@ -6919,16 +6914,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "你已被击败。作为主机，请让游戏继续运行，直到对战结束。"
 
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "请确认所有电脑上的 /fxdata/ 相同。"
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "警告：与 %s 的自定义精灵不匹配！"
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
@@ -7251,3 +7236,9 @@ msgstr "正在等待 %s：%d.%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "连接不稳定：%d.%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host"
+msgstr "%s 与房主的文件不同"
