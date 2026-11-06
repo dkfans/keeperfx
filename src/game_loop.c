@@ -944,8 +944,6 @@ static TbBool wait_at_frontend(void)
     // Note that we cannot use LbMoveGameCursorToHostCursor for this, because the buffer position may remain unchanged.
     LbMouseSetPositionInitial(lbDisplay.MMouseX, lbDisplay.MMouseY);
 
-    try_restore_frontend_error_box();
-
     memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
     poll_inputs();
     clear_mouse_pressed_lrbutton();

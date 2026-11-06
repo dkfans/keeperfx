@@ -2866,7 +2866,6 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NET_START:
           frontnet_start_setup();
-          frontend_set_player_number(my_player_number);
           LbNetwork_EnableNewPlayers(1);
           turn_on_menu(GMnu_FENET_START);
           LbStartTextInput();
@@ -2885,6 +2884,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           fade_palette_in = 0;
           break;
       case FeSt_START_MPLEVEL:
+          frontend_close_error_box(NULL);
           fade_palette_in = 0;
           break;
       case FeSt_STORY_POEM:
@@ -2918,6 +2918,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           fronttorture_load();
           break;
       case FeSt_NETLAND_VIEW:
+          frontend_close_error_box(NULL);
           set_pointer_graphic_none();
           if(!frontnetmap_load())
           {
@@ -3018,9 +3019,6 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
 {
     SYNCDBG(8,"State %d will be switched to %d",(int)frontend_menu_state,(int)nstate);
     frontend_shutdown_state(frontend_menu_state);
-    if (nstate == FeSt_NETLAND_VIEW || nstate == FeSt_START_MPLEVEL) {
-        frontend_close_error_box(NULL);
-    }
     if ( frontend_menu_state )
       fade_out();
     fade_palette_in = 1;
@@ -3035,6 +3033,7 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
     } else if (frontend_menu_state == FeSt_START_MPLEVEL) {
         net_lobby_set_phase(NetPhase_Loading);
     }
+    try_restore_frontend_error_box();
     return frontend_menu_state;
 }
 
@@ -3870,6 +3869,7 @@ FrontendMenuState get_startup_menu_state(void)
   if (net_startup_return_to_lobby) {
       net_startup_return_to_lobby = false;
       SYNCLOG("Loaded files differ between players; back to the lobby");
+      frontend_set_player_number(my_player_number);
       return FeSt_NET_START;
   }
   if (game_flags2 & GF2_Server)
@@ -4036,6 +4036,7 @@ void try_restore_frontend_error_box()
 {
     if (frontend_error_pending) {
         turn_on_menu(GMnu_FEERROR_BOX);
+        add_to_menu_stack(GMnu_FEERROR_BOX);
     }
 }
 
