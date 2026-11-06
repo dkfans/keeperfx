@@ -42,7 +42,6 @@
 #include "config_keeperfx.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
-#include "custom_sprites.h"
 #include "dungeon_data.h"
 #include "engine_camera.h"
 #include "game_legacy.h"
@@ -66,7 +65,6 @@ extern int32_t multiplayer_speed_adjustment_ns;
 #pragma pack(1)
 struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
-    TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
     UserPreferences user_prefs;
     uint8_t initial_input_lag_turns;
     uint32_t initial_action_seed;
@@ -295,50 +293,8 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
     }
 }
 
-static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
-{
-    NetUserId host_user_id = SERVER_ID;
-    const struct StartupSyncPacket *host_sync = &startup_sync_packets[host_user_id];
-    TbBool verified = true;
-    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
-        if (!net_user_info[i].network_user_active || i == host_user_id) {
-            continue;
-        }
-        const struct StartupSyncPacket *client_sync = &startup_sync_packets[i];
-        for (int zip_idx = 0; zip_idx < REQUIRED_SPRITE_ZIP_COUNT; zip_idx++) {
-            if (client_sync->required_sprite_zip_checksums[zip_idx] == host_sync->required_sprite_zip_checksums[zip_idx]) {
-                continue;
-            }
-            WARNLOG("Custom sprite zip differs between %s and %s: %s", network_user_name(host_user_id), network_user_name(i), required_sprite_zips[zip_idx]);
-            message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s differs for %.12s", required_sprite_zips[zip_idx], network_user_name(i));
-            verified = false;
-        }
-    }
-    return verified;
-}
-
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
-
-static TbBool reject_network_startup(enum NetJoinRejection reason, const char *text)
-{
-    netstate.leave_reason = reason;
-    if (text == NULL) {
-        text = net_join_error_text(reason);
-    }
-    create_frontend_error_box(text);
-    return false;
-}
-
-static TbBool startup_peers_accepted(void)
-{
-    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
-        if (netstate.users_leave_reason[i] != NetJoin_Accepted) {
-            return reject_network_startup(netstate.users_leave_reason[i], NULL);
-        }
-    }
-    return true;
-}
 
 static void sanitise_received_loaded_files(void)
 {
@@ -372,13 +328,9 @@ static TbBool verify_loaded_file_checksums(const struct TbNetworkUserInfo users[
 
 static TbBool spectator_startup_accepted(void)
 {
-    if (memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
-        return reject_network_startup(NetJoin_FxdataMismatch, NULL);
-    }
     char differing_files[TEXT_BUFFER_LENGTH];
     const char *my_name = network_user_name(netstate.my_id);
     if (list_files_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, my_name, differing_files, sizeof(differing_files))) {
-        netstate.leave_reason = NetJoin_MapMismatch;
         return reject_differing_files(my_name, differing_files);
     }
     return true;
@@ -427,7 +379,6 @@ static void build_local_startup_sync(void)
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
     s_local_startup_sync.startup_sync_packet_valid = 1;
     s_local_startup_sync.loaded_file_checksums = *get_loaded_file_checksums();
-    memcpy(s_local_startup_sync.required_sprite_zip_checksums, required_sprite_zip_checksums, sizeof(s_local_startup_sync.required_sprite_zip_checksums));
     build_local_user_preferences(s_local_startup_sync.user_prefs);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
@@ -467,9 +418,6 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         net_startup_return_to_lobby = true;
         return false;
     }
-    if (!startup_peers_accepted()) {
-        return false;
-    }
     if (exchange_result != Lb_OK) {
         ERRORLOG("Startup sync exchange failed");
         return false;
@@ -480,9 +428,6 @@ static TbBool net_startup_sync_exchange_and_apply(void)
             ERRORLOG("Startup sync exchange missed one or more peers");
             return false;
         }
-    }
-    if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
-        return reject_network_startup(NetJoin_FxdataMismatch, NULL);
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
     game.input_lag_turns = host_sync->initial_input_lag_turns;
@@ -533,20 +478,8 @@ TbBool init_players_network_game(void)
         return true;
     }
     SYNCDBG(4,"Starting");
-    TbBool initialized = true;
-    for (int zip_idx = 0; zip_idx < REQUIRED_SPRITE_ZIP_COUNT; zip_idx++) {
-        if (required_sprite_zip_checksums[zip_idx] != 0) {
-            continue;
-        }
-        WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
-        message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
-        initialized = reject_network_startup(NetJoin_FxdataMismatch, NULL);
-        break;
-    }
-    if (initialized) {
-        build_local_startup_sync();
-        initialized = net_startup_sync_exchange_and_apply() && network_spectator_convert_seatless_users();
-    }
+    build_local_startup_sync();
+    TbBool initialized = net_startup_sync_exchange_and_apply() && network_spectator_convert_seatless_users();
     if (!initialized && !net_startup_return_to_lobby) {
         LbNetwork_Stop();
     }

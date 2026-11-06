@@ -6909,16 +6909,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "你已被擊敗。作為主機，請讓遊戲繼續執行，直到對戰結束。"
 
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "請確認所有電腦上的 /fxdata/ 相同。"
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "警告：與 %s 的自訂精靈不相符！"
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"

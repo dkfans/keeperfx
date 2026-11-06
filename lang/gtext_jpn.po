@@ -7248,16 +7248,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "お前は、敗北した。ホストとして、試合が終了するまでゲームを終了しないこと。"
 
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "すべてのパソコンで「/fxdata/」を一致させてください。"
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "警告：%sのカスタムスプライトが一致しません！"
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"

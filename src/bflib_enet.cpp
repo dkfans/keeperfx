@@ -42,8 +42,6 @@
 #define INCOMING_QUEUE_WARNING_THRESHOLD 200
 #define INCOMING_QUEUE_WARNING_INTERVAL 100
 #define RESYNC_WINDOW_SIZE (256 * 1024)
-#define DISCONNECT_ACKNOWLEDGE_TIMEOUT_MS 5000
-#define DISCONNECT_ACKNOWLEDGE_POLL_MS 5
 
 uint16_t external_ipv4_port = 0;
 char external_ipv4_address[64] = {0};
@@ -224,27 +222,6 @@ namespace
         return Lb_OK;
     }
 
-    bool peers_have_unacknowledged_data()
-    {
-        for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
-            if (peer->state == ENET_PEER_STATE_CONNECTED && enet_peer_has_outgoing_commands(peer)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void wait_for_outgoing_acknowledgements()
-    {
-        TbClockMSec deadline = LbTimerClock() + DISCONNECT_ACKNOWLEDGE_TIMEOUT_MS;
-        while (LbTimerClock() < deadline && peers_have_unacknowledged_data()) {
-            ENetEvent event;
-            if (enet_host_service(host, &event, DISCONNECT_ACKNOWLEDGE_POLL_MS) > 0 && event.type == ENET_EVENT_TYPE_RECEIVE) {
-                enet_packet_destroy(event.packet);
-            }
-        }
-    }
-
     void host_destroy()
     {
         port_forward_set_mapping(0);
@@ -255,12 +232,9 @@ namespace
         memset(connection_ids, 0, sizeof(connection_ids));
         memset(resync_saved_window, 0, sizeof(resync_saved_window));
         if (host) {
-            if (!netstate.simulating_disconnect) {
-                wait_for_outgoing_acknowledgements();
-                for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
-                    if (peer->state == ENET_PEER_STATE_CONNECTED) {
-                        enet_peer_disconnect(peer, netstate.leave_reason);
-                    }
+            for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
+                if (peer->state == ENET_PEER_STATE_CONNECTED && !netstate.simulating_disconnect) {
+                    enet_peer_disconnect(peer, 0);
                 }
             }
             enet_host_flush(host);
@@ -745,9 +719,6 @@ namespace
             }
         } else {
             user_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
-        }
-        if (data >= NetJoin_MapMismatch && data < NetJoin_Count) {
-            netstate.users_leave_reason[user_id] = (enum NetJoinRejection)data;
         }
         const char *disconnect_reason = "timed out";
         if (drop_reason == NETDROP_DISCONNECT) {

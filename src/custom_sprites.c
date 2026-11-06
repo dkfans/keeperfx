@@ -112,8 +112,6 @@ static int num_added_lens_mists = 0;
 
 unsigned char base_pal[PALETTE_SIZE];
 
-TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
-
 // Indicates what custom assets to load
 enum CustomLoadFlags {
     /// @brief Custom sprites
@@ -473,7 +471,6 @@ void init_custom_sprites(LevelNumber lvnum)
     SYNCDBG(8, "Starting");
     free_spritesheet(&custom_sprites);
     custom_sprites = create_spritesheet();
-    memset(required_sprite_zip_checksums, 0, sizeof(required_sprite_zip_checksums));
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
@@ -544,7 +541,6 @@ void init_custom_sprites(LevelNumber lvnum)
                 ERRORLOG("Required /fxdata/%s is missing", required_sprite_zips[i]);
                 continue;
             }
-            required_sprite_zip_checksums[i] = calculate_file_checksum(full_path);
             int add_flag = load_file_sprites(full_path, NULL, normal_load_flags);
             if (add_flag & CLF_Sprites) {
                 cnt_sprite++;

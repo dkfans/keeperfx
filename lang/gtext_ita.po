@@ -7414,17 +7414,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "Sei stato sconfitto. Come host, mantieni il gioco in esecuzione finché la partita non si conclude."
 
-
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "Verifica che /fxdata/ sia uguale su tutti i PC."
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "ATTENZIONE: sprite personalizzati non corrispondenti con %s!"
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
