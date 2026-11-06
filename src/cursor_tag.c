@@ -61,7 +61,7 @@ TbBool should_draw_cursor_box(NetUserId user)
     return !gameplay_cursor_is_over_gui();
 }
 
-static TbBool is_co_user_of_displayed_user(NetUserId user)
+TbBool is_co_user_of_displayed_user(NetUserId user)
 {
     const NetUserId displayed = get_displayed_user();
     if (user < 0 || user >= MAX_NET_USERS || user == displayed || !user_present(user)) {

@@ -1033,6 +1033,7 @@ void redraw_display(void)
         LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     draw_archon_co_users();
+    draw_co_user_cursors();
     draw_eastegg();
     if (map_fade == PVT_None) {
         RendererBeginOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);

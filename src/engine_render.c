@@ -7042,6 +7042,20 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     return result;
 }
 
+/** Height of the top of the column as rendered for the local view (unrevealed and walls are at preferred wall height) */
+MapCoord get_rendered_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+    const TbBool revealed = map_block_revealed(mapblk, my_player_number);
+    const struct Column *col = revealed ? get_map_column(mapblk) : get_column(game.unrevealed_column_idx);
+    int32_t height = get_column_floor_filled_subtiles(col);
+    if (temp_cluedo_mode && col->solidmask >= 8
+        && (!revealed || ((mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0 && (col->bitfields & 0xE) == 0))) {
+        height = min(height, 2);
+    }
+    return height * COORD_PER_STL;
+}
+
 TbBool map_to_screen(struct Coord3d *pos, int32_t *screen_x, int32_t *screen_y)
 {
     struct Camera *cam = get_local_active_camera();

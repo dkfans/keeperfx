@@ -224,6 +224,7 @@ void draw_map_volume_box(struct MapVolumeBox *box, long cor1_x, long cor1_y, lon
 void update_engine_settings(void);
 void draw_view(struct Camera *cam, unsigned char a2);
 void draw_frontview_engine(struct Camera *cam);
+MapCoord get_rendered_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool map_to_screen(struct Coord3d *pos, int32_t *screen_x, int32_t *screen_y);
 
 // Rasterize the bucket list built by the most recent draw_view()/
