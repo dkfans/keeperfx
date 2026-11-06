@@ -1306,7 +1306,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
             clear_flag(cctrl->spell_flags, CSAfF_Light);
             if (thing->light_id != 0)
             {
-                if (flag_is_set(thing->rendering_flags, TRF_Invisible))
+                if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
                 {
                     light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                     struct Light *lgt = &game.lish.lights[thing->light_id];
