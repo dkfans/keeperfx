@@ -7757,5 +7757,5 @@ msgstr "Connessione instabile: %d,%d"
 #: guitext:1170
 #, fuzzy, c-format
 msgctxt "Network game message"
-msgid "Files differ between %s and host."
-msgstr "I file differiscono tra %s e l'host."
+msgid "Files differ between %s and host"
+msgstr "I file differiscono tra %s e l'host"

@@ -7856,5 +7856,5 @@ msgstr "Ligação instável: %d,%d"
 #: guitext:1170
 #, fuzzy, c-format
 msgctxt "Network game message"
-msgid "Files differ between %s and host."
-msgstr "Os arquivos diferem entre %s e o anfitrião."
+msgid "Files differ between %s and host"
+msgstr "Os arquivos diferem entre %s e o anfitrião"

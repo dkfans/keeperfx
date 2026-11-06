@@ -7571,5 +7571,5 @@ msgstr "Verbinding instabiel: %d,%d"
 #: guitext:1170
 #, fuzzy, c-format
 msgctxt "Network game message"
-msgid "Files differ between %s and host."
-msgstr "Bestanden verschillen tussen %s en host."
+msgid "Files differ between %s and host"
+msgstr "Bestanden verschillen tussen %s en host"

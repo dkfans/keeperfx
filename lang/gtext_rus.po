@@ -6990,5 +6990,5 @@ msgstr "Нестабильное соединение: %d,%d"
 #: guitext:1170
 #, fuzzy, c-format
 msgctxt "Network game message"
-msgid "Files differ between %s and host."
-msgstr "Файлы у %s и хоста различаются."
+msgid "Files differ between %s and host"
+msgstr "Файлы у %s и хоста различаются"
