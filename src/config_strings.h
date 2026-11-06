@@ -429,7 +429,6 @@ enum GUIStrings {
     GUIStr_SellTrapOnSubtile = GUI_STRINGS_START + 1003,
     GUIStr_SnapCamera = GUI_STRINGS_START + 1004,
     GUIStr_MysteryBox = GUI_STRINGS_START + 1005,
-    GUIStr_NetUnsyncedMap = GUI_STRINGS_START + 1006,
     GUIStr_DisplayResolution = GUI_STRINGS_START + 1007,
     GUIStr_OptionVoice = GUI_STRINGS_START + 1008,
     GUIStr_CtrlTiltUp = GUI_STRINGS_START + 1063,

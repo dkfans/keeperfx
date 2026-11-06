@@ -6166,11 +6166,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Таинственный ящик: Откроете ящик - узнаете содержимое. А пока мучайтесь в догадках, что там."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Версии карты у игроков различаются."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""

@@ -6772,11 +6772,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Mystisk Låda: Det är omöjligt att säga vad den åstadkommer."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr ""
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""

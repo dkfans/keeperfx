@@ -6749,11 +6749,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Tajemná truhla: Nelze předvídat, co to udělá."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Připojený hráč má jinou verzi mapy než hostitel."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""

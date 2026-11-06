@@ -6871,11 +6871,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Tajemnicze Pudło: Niewiadomo co to zrobi"
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Gracz który dołączył ma inną wersję mapy od hosta"
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""

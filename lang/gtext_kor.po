@@ -6771,11 +6771,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "신비한 상자: 이게 뭘 할지 알 수 없어요."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "게임에 참가한 플레이이어가 가진 맵 버전이 호스트와 다릅니다."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""

@@ -6780,11 +6780,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Capsa arcana: Quod aget nescis."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Charta ludii qui se iunxit differens ab hospe est."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""

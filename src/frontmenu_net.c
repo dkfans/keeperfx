@@ -73,8 +73,6 @@ const char *net_join_error_text(enum NetJoinRejection reason)
         return get_string(GUIStr_NetSpectatorsFull);
     case NetJoin_SpectatorDesynced:
         return get_string(GUIStr_NetSpectatorDesynced);
-    case NetJoin_MapMismatch:
-        return get_string(GUIStr_NetUnsyncedMap);
     case NetJoin_FxdataMismatch:
         return get_string(GUIStr_NetVerifyFxdataSame);
     default:

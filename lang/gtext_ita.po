@@ -6870,11 +6870,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Scatola misteriosa: non si sa cosa farà."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Il giocatore unito alla partita ha versione  della mappa differente."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""
