@@ -834,12 +834,12 @@ void draw_archon_co_users(void)
     const long icon_h = ref->SHeight * icon_upp / 16;
     const long gap = 4 * units_per_pixel_ui / 16;
     const long margin = 16 * units_per_pixel / 16;
-    const long right = MyScreenWidth - margin;
+    const long right = MyScreenWidth - margin + 4 * units_per_pixel_ui / 16;
     const long slot_x = right - slot_w;
     LbTextSetFont(winfont);
     const int tx_units_per_px = font_size_units_per_px(chat_font_size);
     const long row_h = LbTextLineHeight() * tx_units_per_px / 16;
-    long y = top_right_timers_bottom() + 4 * units_per_pixel_ui / 16;
+    long y = top_right_timers_bottom() + 8 * units_per_pixel_ui / 16;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
         const struct UserState *ustate = get_user_state(user);
