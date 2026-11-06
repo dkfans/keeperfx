@@ -162,7 +162,7 @@ namespace
             enet_packet_destroy(packet);
             return;
         }
-        if ((source >= MAX_NET_USERS && (packet->dataLength > NET_MSG_BUFFER_SIZE || queued_packets[source] >= 32)) || (client_peer && net_join_role == NetRole_Spectator && (packet->dataLength > 16 * 1024 * 1024 || queued_bytes[source] + packet->dataLength > 32 * 1024 * 1024))) {
+        if ((source >= MAX_NET_USERS && (packet->dataLength > NET_UNSEATED_MSG_MAX_SIZE || queued_packets[source] >= 32)) || (client_peer && net_join_role == NetRole_Spectator && (packet->dataLength > 16 * 1024 * 1024 || queued_bytes[source] + packet->dataLength > 32 * 1024 * 1024))) {
             enet_packet_destroy(packet);
             netstate.sp->drop_user(source, NetJoin_Locked);
             return;

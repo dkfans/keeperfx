@@ -122,9 +122,9 @@ static PlayerNumber spectator_user_player_number[MAX_NET_USERS];
 #define NET_MESSAGE_TYPE_SIZE 1
 #define NET_FRAME_PEER_ID_SIZE 1
 _Static_assert(NET_MESSAGE_TYPE_SIZE + NET_FRAME_PEER_ID_SIZE + sizeof(netstate.seq_nbr) + sizeof(struct StartupSyncPacket) <= NET_MSG_BUFFER_SIZE,
-    "StartupSyncPacket does not fit in a network message; lower LOADED_FILE_TRACKED_COUNT");
+    "StartupSyncPacket does not fit in a network message; lower LOADED_FILE_TRACKED_COUNT or LOADED_FILE_NAMES_SIZE");
 _Static_assert(NET_MESSAGE_TYPE_SIZE + sizeof(int32_t) + DISKPATH_SIZE + sizeof(spectator_user_player_number) + SPECTATOR_BOOTSTRAP_SYNC_SIZE <= NET_MSG_BUFFER_SIZE,
-    "Spectator bootstrap does not fit in a network message; lower LOADED_FILE_TRACKED_COUNT");
+    "Spectator bootstrap does not fit in a network message; lower LOADED_FILE_TRACKED_COUNT or LOADED_FILE_NAMES_SIZE");
 
 PlayerNumber get_net_user_player_number(NetUserId user)
 {
@@ -339,13 +339,10 @@ static TbBool startup_peers_accepted(void)
     return true;
 }
 
-static void clamp_received_loaded_file_counts(void)
+static void sanitise_received_loaded_files(void)
 {
     for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
-        struct LoadedFileChecksums *files = &s_startup_sync_packets[i].loaded_file_checksums;
-        if (files->count > LOADED_FILE_TRACKED_COUNT) {
-            files->count = LOADED_FILE_TRACKED_COUNT;
-        }
+        sanitise_received_loaded_file_checksums(&s_startup_sync_packets[i].loaded_file_checksums);
     }
 }
 
@@ -466,7 +463,7 @@ static TbBool net_startup_sync_exchange_and_apply(void)
     struct TbNetworkUserInfo users_before_exchange[MAX_NET_USERS];
     memcpy(users_before_exchange, net_user_info, sizeof(users_before_exchange));
     TbError exchange_result = exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket));
-    clamp_received_loaded_file_counts();
+    sanitise_received_loaded_files();
     if (!verify_loaded_file_checksums(users_before_exchange)) {
         return false;
     }
@@ -1089,7 +1086,7 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
         buffer += STARTUP_SYNC_SHARED_SIZE;
     }
     memcpy(&s_startup_sync_packets[SERVER_ID].loaded_file_checksums, buffer, sizeof(struct LoadedFileChecksums));
-    clamp_received_loaded_file_counts();
+    sanitise_received_loaded_files();
     for (NetUserId id = 0; id < MAX_NET_USERS; id++) {
         if (spectator_user_player_number[id] < PLAYER_NONE || spectator_user_player_number[id] >= PLAYERS_COUNT) {
             return Lb_FAIL;
