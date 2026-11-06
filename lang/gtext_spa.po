@@ -7881,4 +7881,4 @@ msgstr "Conexión inestable: %d,%d"
 #, fuzzy, c-format
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
-msgstr "Los archivos difieren entre %s y el anfitrión"
+msgstr "Los archivos de %s y el anfitrión difieren"

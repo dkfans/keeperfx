@@ -348,11 +348,9 @@ static void sanitise_received_loaded_files(void)
 
 static TbBool reject_differing_files(const char *user_name, const char *differing_files)
 {
-    char reason[TEXT_BUFFER_LENGTH];
-    snprintf(reason, sizeof(reason), get_string(GUIStr_NetFilesDiffer), user_name);
-    char text[TEXT_BUFFER_LENGTH];
-    snprintf(text, sizeof(text), "%s%s", reason, differing_files);
-    return reject_network_startup(NetJoin_MapMismatch, text);
+    netstate.leave_reason = NetJoin_MapMismatch;
+    create_frontend_error_box_with_header(get_string(GUIStr_NetFilesDiffer), user_name, differing_files);
+    return false;
 }
 
 static TbBool verify_loaded_file_checksums(const struct TbNetworkUserInfo users[MAX_NET_USERS])

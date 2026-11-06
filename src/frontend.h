@@ -352,15 +352,18 @@ int frontend_font_string_width(int fnt_idx, const char *str);
 /** Layout of the frontend error box, in menu units. */
 #define FRONTEND_ERROR_MENU_WIDTH       640
 #define FRONTEND_ERROR_MENU_HEIGHT      480
-#define FRONTEND_ERROR_BOX_WIDTH        450
+#define FRONTEND_ERROR_BOX_WIDTH        476
 #define FRONTEND_ERROR_BOX_LINES        9
 #define FRONTEND_ERROR_BOX_LINE_HEIGHT  22
 #define FRONTEND_ERROR_BOX_EDGE_HEIGHT  13
 #define FRONTEND_ERROR_BOX_HEIGHT       (2 * FRONTEND_ERROR_BOX_EDGE_HEIGHT + FRONTEND_ERROR_BOX_LINES * FRONTEND_ERROR_BOX_LINE_HEIGHT)
+#define FRONTEND_ERROR_BOX_X            ((FRONTEND_ERROR_MENU_WIDTH - FRONTEND_ERROR_BOX_WIDTH) / 2)
 #define FRONTEND_ERROR_BOX_Y            ((FRONTEND_ERROR_MENU_HEIGHT - FRONTEND_ERROR_BOX_HEIGHT) / 2)
 #define FRONTEND_ERROR_BOX_BORDER       20
-#define FRONTEND_ERROR_TEXT_TOP         12
-#define FRONTEND_ERROR_TEXT_HEIGHT      150
+#define FRONTEND_ERROR_HEADER_WIDTH     (FRONTEND_ERROR_BOX_WIDTH - LOBBY_HEADER_INSET)
+#define FRONTEND_ERROR_HEADER_Y         (FRONTEND_ERROR_BOX_Y - LOBBY_HEADER_HEIGHT)
+#define FRONTEND_ERROR_TEXT_TOP         10
+#define FRONTEND_ERROR_TEXT_HEIGHT      156
 #define FRONTEND_ERROR_OK_HEIGHT        46
 #define FRONTEND_ERROR_OK_BOTTOM_GAP    8
 #define FRONTEND_ERROR_OK_Y             (FRONTEND_ERROR_BOX_Y + FRONTEND_ERROR_BOX_HEIGHT - FRONTEND_ERROR_OK_BOTTOM_GAP - FRONTEND_ERROR_OK_HEIGHT)
@@ -405,6 +408,7 @@ void maintain_loadsave(struct GuiButton *gbtn);
 void gui_quit_game(struct GuiButton *gbtn);
 void gui_area_slider(struct GuiButton *gbtn);
 void frontend_draw_icon(struct GuiButton *gbtn);
+void frontend_draw_error_text_header(struct GuiButton *gbtn);
 void frontend_draw_error_text_box(struct GuiButton *gbtn);
 void frontend_maintain_error_text_box(struct GuiButton *gbtn);
 void frontend_error_text_scroll_up(struct GuiButton *gbtn);
@@ -484,6 +488,7 @@ void frontend_update(short *finish_menu);
 short frontend_draw(void);
 void queue_frontend_error_box(const char *text);
 void create_frontend_error_box(const char *text);
+void create_frontend_error_box_with_header(const char *header_format, const char *header_name, const char *text);
 void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
 
 short menu_is_active(short idx);

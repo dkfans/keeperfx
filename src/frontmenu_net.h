@@ -31,6 +31,8 @@ extern "C" {
 #define frontend_services_menu_items_visible  6
 #define frontend_sessions_menu_items_visible  7
 #define frontend_messages_items_visible       3
+#define LOBBY_HEADER_HEIGHT 26
+#define LOBBY_HEADER_INSET 6
 
 #pragma pack(1)
 
@@ -104,6 +106,8 @@ void frontnet_draw_session_button(struct GuiButton *gbtn);
 void frontnet_draw_lobby_panel(struct GuiButton *gbtn);
 void frontnet_draw_lobby_panel_without_scrollbar(struct GuiButton *gbtn);
 void frontnet_draw_tab_bar(struct GuiButton *gbtn);
+void frontnet_draw_section_header_with_name(struct GuiButton *gbtn, unsigned short draw_flags, const char *format, const char *name);
+int lobby_menu_scale(struct GuiButton *gbtn);
 void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, const char *text);
 void frontnet_players_up(struct GuiButton *gbtn);
 void frontnet_players_up_maintain(struct GuiButton *gbtn);

@@ -167,7 +167,11 @@ static void report_differing_file(const char *user_name, const char *fname, cons
 {
     JUSTMSG("File differs between %s and host: %s%s", user_name, fname, reason);
     size_t length = strlen(list);
-    snprintf(list + length, list_size - length, "\n%s", fname);
+    const char *separator = "\n";
+    if (length == 0) {
+        separator = "";
+    }
+    snprintf(list + length, list_size - length, "%s%s", separator, fname);
 }
 
 TbBool list_files_differing_from_host(const struct LoadedFileChecksums *files, const struct LoadedFileChecksums *host, const char *user_name, char *list, size_t list_size)
