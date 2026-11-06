@@ -2380,7 +2380,7 @@ void update_creature_count(struct Thing *creatng)
     if (is_hero_thing(creatng) || is_neutral_thing(creatng)) {
         return;
     }
-    if (thing_is_picked_up(creatng) || thing_is_possessed(creatng) || creature_is_being_unconscious(creatng)) {
+    if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
         return;
     }
     cctrl = creature_control_get_from_thing(creatng);
@@ -2394,7 +2394,7 @@ void update_creature_count(struct Thing *creatng)
     int statyp = get_creature_state_type(creatng);
     dungeon->crmodel_state_type_count[creatng->model][statyp]++;
     int job_idx = get_creature_gui_job(creatng);
-    if (can_thing_be_picked_up_by_player(creatng, creatng->owner))
+    if (can_thing_be_picked_up_by_player(creatng, creatng->owner) && !thing_is_possessed(creatng))
     {
         if (!creature_is_dragging_or_being_dragged(creatng)) {
             dungeon->guijob_all_creatrs_count[creatng->model][job_idx]++;
