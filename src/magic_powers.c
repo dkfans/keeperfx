@@ -169,7 +169,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
                 cast_on_tng = false;
             }
         }
-        if ((pwkind == PwrK_POSSESS) && ((flags & CastChk_SkipThing) == 0) && thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom)) {
+        if ((pwkind == PwrK_POSSESS) && ((flags & CastChk_SkipThing) == 0) && thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_Other | UCT_PossessionEntryZoom)) {
             return false;
         }
         TbBool can_target = cast_at_xy && cast_on_tng;

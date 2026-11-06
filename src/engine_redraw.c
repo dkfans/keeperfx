@@ -635,7 +635,7 @@ static TbBool draw_spell_cursor(NetUserId user, PowerKind pwkind, ThingIndex tng
     TbBool allow_cast = false;
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     allow_cast = can_cast_spell(player->id_number, user,pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
-    if ((pwkind == PwrK_POSSESS) && thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom)) {
+    if ((pwkind == PwrK_POSSESS) && thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_Other | UCT_PossessionEntryZoom)) {
         allow_cast = false;
     }
     if (!allow_cast) {
@@ -750,7 +750,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
             TbBool can_cast = false;
             if ((ustate->input_crtr_control) && (thing_exists(thing)) && (ustate->things_in_hand[0] != thing_under_hand)) {
                 PowerKind pwkind = PwrK_POSSESS;
-                TbBool possessed_by_other = thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom);
+                TbBool possessed_by_other = thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_Other | UCT_PossessionEntryZoom);
                 if (can_cast_spell(player->id_number, user,pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     can_cast = true;

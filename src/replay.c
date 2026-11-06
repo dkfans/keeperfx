@@ -1479,10 +1479,9 @@ TbBool setup_auto_replay_save(void)
     evict_old_replays(type, max_replays[type] - 1);
 
     int humans = 0;
-    for (int i = 0; i < PLAYERS_COUNT; i++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        if (user_present(user))
             humans++;
     }
     time_t now = time(NULL);

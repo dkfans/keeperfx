@@ -454,6 +454,7 @@ int32_t pinstfm_control_creature(NetUserId user, int32_t *n)
         ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
         ustate->init_flags &= ~UsrIF_MouseInputDisabled;
         set_user_instance(user, PI_Unset, true);
+        set_local_camera_destination(user);
         return 0;
     }
     if (ustate->prefs[UPref_FrontView] == 0)
@@ -479,6 +480,7 @@ int32_t pinstfe_direct_control_creature(NetUserId user, int32_t *n)
         }
         ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
         ustate->init_flags &= ~UsrIF_MouseInputDisabled;
+        set_local_camera_destination(user);
         return 0;
     }
     set_user_instance(user, PI_CrCtrlFade, false);
@@ -974,7 +976,7 @@ void leave_creature_as_passenger(NetUserId user, struct Thing *thing)
 
 TbBool thing_is_possessed(const struct Thing *thing)
 {
-    return user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_PossessionEntryZoom);
+    return user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_Other | UCT_PossessionEntryZoom);
 }
 
 TbBool leave_user_controlled_creature(NetUserId user)
@@ -999,15 +1001,17 @@ static TbBool user_controls_thing_now(NetUserId user, const struct Thing *thing,
         return false;
     if ((uct_flags & UCT_Selected) && thing->index == ustate->controlled_thing_idx)
         return true;
+    if (ustate->instance_num == PI_DirctCtrl || ustate->instance_num == PI_PsngrCtrl)
+    {
+        const uint32_t entry_flag = (ustate->instance_num == PI_DirctCtrl) ? UCT_Direct : UCT_Passenger;
+        return (uct_flags & UCT_PossessionEntryZoom) && (uct_flags & entry_flag) && thing->index == ustate->influenced_thing_idx;
+    }
     const TbBool direct = ustate->work_state == PSt_CtrlDirect || ustate->work_state == PSt_FreeCtrlDirect;
     const TbBool passenger = ustate->work_state == PSt_CtrlPassngr || ustate->work_state == PSt_FreeCtrlPassngr;
     if ((direct && (uct_flags & UCT_Direct)) || (passenger && (uct_flags & UCT_Passenger)))
     {
         switch (ustate->instance_num)
         {
-        case PI_DirctCtrl:
-        case PI_PsngrCtrl:
-            return (uct_flags & UCT_PossessionEntryZoom) && thing->index == ustate->influenced_thing_idx;
         case PI_DirctCtLeave:
         case PI_PsngrCtLeave:
         case PI_ZoomToPos:

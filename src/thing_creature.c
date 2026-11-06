@@ -248,7 +248,7 @@ TbBool control_creature_as_controller(NetUserId user, struct Thing *thing)
     struct CreatureModelConfig *crconf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // another user may have finished possessing it first
-    if (thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger)) {
+    if (thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_Other)) {
         return false;
     }
     if (((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlDirect))
