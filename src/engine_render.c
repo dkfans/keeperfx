@@ -2725,18 +2725,30 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     map_volume_box.color = box_color;
 }
 
-static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_idx)
+static int count_visible_co_user_cursor_boxes(void)
+{
+    int count = 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (get_visible_co_user_cursor_box(user) != NULL) {
+            count++;
+        }
+    }
+    return count;
+}
+
+static void process_isometric_map_volume_box(long x, long y, long z, NetUserId user)
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
+    const struct UserState *ustate = get_user_state_prediction(user);
     const struct RoomSpace *render_roomspace = &ustate->render_roomspace;
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((get_user_state(get_displayed_user())->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
+    if ((get_user_state(user)->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
+    line_color = get_user_cursor_box_colour(user, line_color);
     if (render_roomspace->render_roomspace_as_box)
     {
         if (render_roomspace->is_roomspace_a_box)
@@ -2749,7 +2761,7 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(*render_roomspace, x, y, z, (render_roomspace->slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_map_volume_box(*render_roomspace, x, y, z, get_user_cursor_box_colour(user, (render_roomspace->slab_count == 0) ? SLC_RED : SLC_BROWN), true);
         }
     }
     else
@@ -2758,6 +2770,23 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
         create_fancy_map_volume_box(*render_roomspace, x, y, z, line_color, false);
     }
     map_volume_box.color = default_color;
+}
+
+static void process_isometric_map_volume_boxes(long x, long y, long z)
+{
+    const NetUserId displayed = get_displayed_user();
+    if (map_volume_box.visible && should_draw_cursor_box(displayed)) {
+        process_isometric_map_volume_box(x, y, z, displayed);
+    }
+    const struct MapVolumeBox own_box = map_volume_box;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        const struct MapVolumeBox *box = get_visible_co_user_cursor_box(user);
+        if (box != NULL) {
+            map_volume_box = *box;
+            process_isometric_map_volume_box(x, y, z, user);
+        }
+    }
+    map_volume_box = own_box;
 }
 
 static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct EngineCoord *engine_coordinate_2, struct EngineCoord *engine_coordinate_3, short textr_idx, long argument5)
@@ -4805,15 +4834,15 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
     }
 }
 
-void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color)
+void draw_map_volume_box(struct MapVolumeBox *box, long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color)
 {
-    map_volume_box.visible = 1;
-    map_volume_box.beg_x = cor1_x & 0xFFFFFF00;
-    map_volume_box.beg_y = cor1_y & 0xFFFF00;
-    map_volume_box.end_x = cor2_x & 0xFFFFFF00;
-    map_volume_box.end_y = cor2_y & 0xFFFFFF00;
-    map_volume_box.floor_height_z = floor_height_z;
-    map_volume_box.color = color;
+    box->visible = 1;
+    box->beg_x = cor1_x & 0xFFFFFF00;
+    box->beg_y = cor1_y & 0xFFFF00;
+    box->end_x = cor2_x & 0xFFFFFF00;
+    box->end_y = cor2_y & 0xFFFFFF00;
+    box->floor_height_z = floor_height_z;
+    box->color = color;
 }
 
 /**
@@ -6755,14 +6784,8 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     getpoly = poly_pool;
     memset(buckets, 0, sizeof(buckets));
-    if (map_volume_box.visible)
-    {
-        poly_pool_end_reserve(14);
-    }
-    else
-    {
-        poly_pool_end_reserve(4);
-    }
+    const int co_user_boxes = count_visible_co_user_cursor_boxes();
+    poly_pool_end_reserve(4 + (map_volume_box.visible ? 10 : 0) + 10 * co_user_boxes);
     i = lens_mode;
     if ((i < 0) || (i >= PERS_ROUTINES_COUNT))
     {
@@ -6807,9 +6830,9 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
-    if (map_volume_box.visible && should_draw_cursor_box(get_displayed_user())) {
+    if ((map_volume_box.visible && should_draw_cursor_box(get_displayed_user())) || co_user_boxes > 0) {
         poly_pool_end_reserve(0);
-        process_isometric_map_volume_box(x, y, z, my_player_number);
+        process_isometric_map_volume_boxes(x, y, z);
     }
 
     WorldViewRenderer_DrawIsometricView();
@@ -8713,18 +8736,19 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     }
 }
 
-static void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, PlayerNumber plyr_idx)
+static void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, NetUserId user)
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
+    const struct UserState *ustate = get_user_state_prediction(user);
     const struct RoomSpace *render_roomspace = &ustate->render_roomspace;
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((get_user_state(get_displayed_user())->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
+    if ((get_user_state(user)->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
+    line_color = get_user_cursor_box_colour(user, line_color);
     if (render_roomspace->render_roomspace_as_box)
     {
         if (render_roomspace->is_roomspace_a_box)
@@ -8737,7 +8761,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_frontview_map_volume_box(*render_roomspace, cam, stl_width, (render_roomspace->slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_frontview_map_volume_box(*render_roomspace, cam, stl_width, get_user_cursor_box_colour(user, (render_roomspace->slab_count == 0) ? SLC_RED : SLC_BROWN), true);
         }
     }
     else
@@ -8746,6 +8770,23 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
         create_fancy_frontview_map_volume_box(*render_roomspace, cam, stl_width, line_color, false);
     }
     map_volume_box.color = default_color;
+}
+
+static void process_frontview_map_volume_boxes(struct Camera *cam, unsigned char stl_width)
+{
+    const NetUserId displayed = get_displayed_user();
+    if (map_volume_box.visible && should_draw_cursor_box(displayed)) {
+        process_frontview_map_volume_box(cam, stl_width, displayed);
+    }
+    const struct MapVolumeBox own_box = map_volume_box;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        const struct MapVolumeBox *box = get_visible_co_user_cursor_box(user);
+        if (box != NULL) {
+            map_volume_box = *box;
+            process_frontview_map_volume_box(cam, stl_width, user);
+        }
+    }
+    map_volume_box = own_box;
 }
 
 TbBool cursor_on_room(RoomIndex room_index)
@@ -9156,9 +9197,7 @@ void draw_frontview_engine(struct Camera *cam)
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     update_local_mouse_light();
-    if (map_volume_box.visible && should_draw_cursor_box(get_displayed_user())) {
-        process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
-    }
+    process_frontview_map_volume_boxes(cam, ((zoom >> 8) & 0xFF));
 
 
     h = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;

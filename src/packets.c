@@ -107,6 +107,7 @@
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
 #include "lua_triggers.h"
+#include "cursor_tag.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1651,6 +1652,7 @@ void process_packets(void)
     // Process the packets
     for (NetUserId user = 0; (user < PACKETS_COUNT) && !replay_playback_is_paused(); user++)
     {
+        clear_co_user_cursor_box(user);
         const PlayerNumber plyr_idx = get_net_user_player_number(user);
         if (plyr_idx < 0) {
             continue;

@@ -219,7 +219,7 @@ TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short ksp
     short kspr_angle, unsigned char sprgroup, long scale,
     struct SpriteScale *out_scale,
     int32_t *out_draw_idx, const unsigned char **out_data, int *out_src_w, int *out_src_h);
-void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);
+void draw_map_volume_box(struct MapVolumeBox *box, long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);
 
 void update_engine_settings(void);
 void draw_view(struct Camera *cam, unsigned char a2);
