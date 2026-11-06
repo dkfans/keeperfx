@@ -68,6 +68,7 @@ struct Boing {
 };
 
 static struct Boing boing;
+static TbBool resync_progress_visible;
 
 TbBool detailed_multiplayer_logging = false;
 
@@ -108,7 +109,7 @@ void intentional_desync()
 
 void animate_resync_progress_bar(int current_phase, int total_phases)
 {
-    if (get_gameturn() == 0) {
+    if (!resync_progress_visible || get_gameturn() == 0) {
         return;
     }
     if ((game.operation_flags & GOF_Paused) != 0) {
@@ -643,7 +644,7 @@ void resync_game(void)
 {
     TbClockMSec start_time = LbTimerClock();
     SYNCDBG(2,"Starting");
-    draw_out_of_sync_box(0, 32*units_per_pixel/16, local_state.engine_window_x);
+    resync_progress_visible = (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0;
     reset_eye_lenses();
     store_localised_game_structure();
     struct Packet saved_packets[PACKETS_COUNT];
