@@ -998,7 +998,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
         kill_all_players_chickens(thing->owner);
         output_player_message(sacowner, SMsg_SacrificePunish, 0);
     } else
-    if (object_is_gold_pile(thing))
+    if (object_is_gold_pile(thing) || (thing->model == ObjMdl_SpinningCoin)) //Spinning coins are what is dropped from hand. Gold piles are not truly dropped.
     {
         if (thing->valuable.gold_stored > 0)
         {
