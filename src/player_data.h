@@ -414,6 +414,8 @@ int32_t get_user_dungeon_yaw(NetUserId user);
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
 void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
 NetUserId get_player_primary_user(const struct PlayerInfo *player);
+int32_t count_player_users(PlayerNumber plyr_idx);
+int32_t get_user_archon_index(NetUserId user);
 struct PlayerInfo *get_user_player(NetUserId user);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);

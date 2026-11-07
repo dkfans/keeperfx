@@ -759,33 +759,46 @@ static long archon_user_status_icon(const struct UserState *ustate)
 }
 
 /** range of rows [top, bottom) containing any non-transparent pixel */
-static void sprite_visible_rows(const struct TbSprite *spr, int *top, int *bottom)
+void sprite_visible_box(const struct TbSprite *spr, int *left, int *top, int *right, int *bottom)
 {
+    *left = spr->SWidth;
     *top = spr->SHeight;
+    *right = 0;
     *bottom = 0;
     const unsigned char *data = spr->Data;
     for (int row = 0; (data != NULL) && (row < spr->SHeight); row++)
     {
-        TbBool opaque = false;
+        int col = 0;
         for (;;)
         {
             signed char cmd = (signed char)*data++;
             if (cmd == 0)
                 break;
             if (cmd > 0) {
-                opaque = true;
+                *left = min(*left, col);
+                *right = max(*right, col + cmd);
+                *top = min(*top, row);
+                *bottom = row + 1;
                 data += cmd;
+                col += cmd;
+            } else {
+                col -= cmd;
             }
-        }
-        if (opaque) {
-            *top = min(*top, row);
-            *bottom = row + 1;
         }
     }
     if (*top >= *bottom) {
+        *left = 0;
         *top = 0;
+        *right = spr->SWidth;
         *bottom = spr->SHeight;
     }
+}
+
+static void sprite_visible_rows(const struct TbSprite *spr, int *top, int *bottom)
+{
+    int left;
+    int right;
+    sprite_visible_box(spr, &left, top, &right, bottom);
 }
 
 /** Top-left at which the sprite's visible pixels are centred in the box. */

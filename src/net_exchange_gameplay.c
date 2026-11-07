@@ -235,6 +235,9 @@ void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord
         }
         if (shown) {
             message_add(message_type, plyr_idx, text);
+            if (count_player_users(plyr_idx) > 1) {
+                game.messages[0].archon_digit = min(get_user_archon_index(user) + 1, 9);
+            }
             play_non_3d_sample(snd_chat_message[user == get_local_user()]);
         }
     }

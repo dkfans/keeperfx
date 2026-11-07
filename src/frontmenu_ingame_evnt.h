@@ -31,6 +31,7 @@ extern "C" {
 
 struct GuiMenu;
 struct GuiButton;
+struct TbSprite;
 
 /******************************************************************************/
 enum EventButtonState {
@@ -62,6 +63,7 @@ void draw_bonus_timer(void);
 TbBool bonus_timer_enabled(void);
 void draw_timer(void);
 void draw_archon_co_users(void);
+void sprite_visible_box(const struct TbSprite *spr, int *left, int *top, int *right, int *bottom);
 void draw_frametime(void);
 void draw_gameturn_timer(void);
 void draw_watched_player_name(void);
