@@ -94,6 +94,9 @@ enum stripey_line_colors {
     SLC_GREEN2,
     SLC_DARKGREEN,
     SLC_MIXEDGREEN,
+    SLC_BEIGE,
+    SLC_SIENNA,
+    SLC_DARKBROWN,
     STRIPEY_LINE_COLOR_COUNT // Must always be the last entry (add new colours above this line)
 };
 

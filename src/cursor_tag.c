@@ -108,11 +108,11 @@ unsigned char get_user_cursor_box_colour(NetUserId user, unsigned char colour)
     switch (colour)
     {
     case SLC_GREEN:
-        return SLC_BLUE;
+        return SLC_BEIGE;
     case SLC_BROWN:
-        return SLC_GREY;
+        return SLC_DARKBROWN;
     default:
-        return SLC_PURPLE;
+        return SLC_SIENNA;
     }
 }
 
