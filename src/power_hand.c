@@ -63,6 +63,7 @@
 #include "game_legacy.h"
 #include "sprites.h"
 #include "frontmenu_ingame_tabs.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "local_camera.h"
@@ -1037,6 +1038,11 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (thing_in_wall_at(droptng, &pos)) {
         return 0;
     }
+    if (!lua_on_creature_drop(droptng, plyr_idx, &pos)) {
+        // Make a rejection sound
+        play_player_sample(plyr_idx, snd_refusal);
+        return 0;
+    }
     struct Thing *overtng = thing_get(ustate->thing_under_hand);
     if (object_is_gold_pile(droptng))
     {
@@ -1072,6 +1078,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 void dump_thing_held_by_any_player(struct Thing *thing)
 {
+    PlayerNumber holding_plyr_idx = PLAYER_NONE;
     int i;
     for (i=0; i<PLAYERS_COUNT; i++)
     {
@@ -1088,12 +1095,18 @@ void dump_thing_held_by_any_player(struct Thing *thing)
             pos = &dungeon->essential_pos;
             // Remove from human player hand
             drop_held_thing_on_ground(dungeon, thing, pos);
-            remove_thing_from_power_hand_list(thing, dungeon->owner);
+            if (remove_thing_from_power_hand_list(thing, dungeon->owner)) {
+                holding_plyr_idx = dungeon->owner;
+            }
             // Remove from computer player hand
             struct Computer2 *comp;
             comp = get_computer_player(dungeon->owner);
             computer_force_dump_specific_held_thing(comp, thing, pos);
         }
+    }
+    // Inform only once, for the player who really held the thing; the computer hand informs by itself
+    if (holding_plyr_idx != PLAYER_NONE) {
+        lua_on_creature_drop(thing, holding_plyr_idx, &thing->mappos);
     }
 }
 
@@ -1137,6 +1150,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
             if (remove_thing_from_power_hand(thing, dungeon->owner))
             {
                 teleport_armageddon_influenced_creature(thing);
+                lua_on_creature_drop(thing, dungeon->owner, &thing->mappos);
                 return false;
             }
         }
@@ -1515,14 +1529,36 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (thing_is_special_box(thing))
     {
+        // A special box is opened instead of picked up, so a denial keeps it closed
+        if (!script_allows_pick_up(thing, plyr_idx)) {
+            return Lb_FAIL;
+        }
         activate_dungeon_special(thing, player);
         return Lb_OK;
     }
     if (!is_power_available(plyr_idx, PwrK_HAND)) {
         return Lb_FAIL;
     }
+    // Ask the script before the grab starts, so a denied pick up shows no grab animation
+    if (!script_allows_pick_up(thing, plyr_idx)) {
+        return Lb_FAIL;
+    }
     prepare_thing_for_power_hand(thing->index, plyr_idx);
     return Lb_SUCCESS;
+}
+
+/**
+ * Asks the level script whether the player may pick up the thing; plays the refusal sound if not.
+ * Also false if the script removed the thing.
+ */
+TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (!lua_on_pick_up(thing, plyr_idx)) {
+        play_player_sample(plyr_idx, snd_refusal);
+        return false;
+    }
+    // The handler may have removed the thing; then there is nothing left to pick up
+    return thing_exists(thing);
 }
 
 void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y)

@@ -54,6 +54,7 @@ struct Thing *get_first_thing_in_power_hand(const struct PlayerInfo *player);
 void draw_power_hand(void);
 void clear_things_in_hand(struct PlayerInfo *player);
 TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx);
+TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx);

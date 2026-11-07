@@ -2,7 +2,7 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"PickUp"|"Slap"|"Rebirth"|"CreatureFellIntoAbyss"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"PickUp"|"CreatureDrop"|"CreatureLanded"|"Slap"|"Rebirth"|"CreatureFellIntoAbyss"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -98,14 +98,46 @@ function OnLevelUp(creature)
     ProcessEvent("LevelUp",eventData)
 end
 
---- Called when a thing is picked up. Can be Creatures, Chickens, Specials, Gold, etc.
+--- Called when a thing is dropped from the hand. Set eventData.deny = true to keep it in the hand.
+--- Forced drops (keeper defeated, Armageddon teleport, computer fallback to its heart) also call this,
+--- but ignore deny: the thing lands anyway.
 ---@param thing Thing
 ---@param player Player
+---@param pos Pos3d
+---@return boolean deny
+function OnCreatureDrop(thing, player, pos)
+    local eventData = {}
+    eventData.thing = thing
+    eventData.player = player
+    eventData.pos = pos
+    eventData.deny = false
+    ProcessEvent("CreatureDrop",eventData)
+    return eventData.deny
+end
+
+--- Called when a creature dropped from the hand touches the ground, after the engine has chosen its state and job.
+--- Setting unit.state here overrides that choice; a job assigned by dropping it into a room stays assigned.
+---@param unit Creature
+---@param player Player the player who dropped it
+function OnCreatureLanded(unit, player)
+    local eventData = {}
+    eventData.unit = unit
+    eventData.player = player
+    ProcessEvent("CreatureLanded",eventData)
+end
+
+--- Called when a thing is about to be picked up, before it is in the hand. Can be Creatures, Chickens, Specials, Gold, etc.
+--- Set eventData.deny = true to leave it where it is.
+---@param thing Thing
+---@param player Player
+---@return boolean deny
 function OnPickUp(thing, player)
     local eventData = {}
     eventData.thing = thing
     eventData.player = player
+    eventData.deny = false
     ProcessEvent("PickUp",eventData)
+    return eventData.deny
 end
 
 --- Called when a thing is slapped. Can be Creatures, Traps, Shots, Objects, etc.

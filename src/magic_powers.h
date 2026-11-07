@@ -43,6 +43,7 @@ enum CastCheckFlags {
 enum PowerModFlags {
     PwMod_Default = 0, /*< Default all flags. */
     PwMod_CastForFree = 0x0001, /*< Do not require player to pay for the spell. */
+    PwMod_PickUpEvent = 0x0002, /*< Hand pick up: fire the PickUp event first, which may deny it. */
 };
 
 #pragma pack()
