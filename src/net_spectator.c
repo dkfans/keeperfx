@@ -288,7 +288,11 @@ void network_spectator_reset(void)
 static TbBool seat_is_open(PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    return player_exists(player) && player_is_placeholder(player) && player->victory_state == VicS_Undecided;
+    if (!player_exists(player) || player->victory_state != VicS_Undecided) {
+        return false;
+    }
+    // archon
+    return player_is_placeholder(player) || get_player_primary_user(player) >= 0;
 }
 
 static TbBool user_can_reconnect(NetUserId user, const struct NetUser *returning)

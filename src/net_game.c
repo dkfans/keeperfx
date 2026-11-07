@@ -801,7 +801,7 @@ void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferen
     apply_user_preferences(user, seat_prefs, UPF_ApplyOnLoad);
     init_user_controls(get_user_state(user));
     reset_user_view_type(user, PVT_DungeonTop);
-    init_player_cameras(player);
+    init_user_cameras(user);
     name_player_after_primary_user(player);
     setup_count_players();
 }
