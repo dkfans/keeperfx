@@ -39,6 +39,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_stats.h"
+#include "vidfade.h"
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_traps.h"
@@ -685,6 +686,10 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
     cctrl->frozen_on_hit = 6; // Could be configurable.
     cctrl->cowers_from_slap_turns = 18; // Could be configurable.
+    NetUserId possessor = get_user_controlling_thing(thing, UCT_Direct | UCT_Passenger);
+    if (possessor >= 0) {
+        PaletteApplyPainToUser(possessor, 5);
+    }
     play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
