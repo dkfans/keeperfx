@@ -274,13 +274,19 @@ TbBool control_creature_as_controller(NetUserId user, struct Thing *thing)
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     thing->move_angle_z = 0;
-    if (!chicken)
+    if (chicken)
     {
-        set_start_state(thing);
+        internal_set_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+    }
+    else if (thing->active_state == CrSt_CreatureSlapCowers)
+    {
+        // slapped during the zoom-in
+        cctrl->active_state_bkp = CrSt_ManualControl;
+        cctrl->continue_state_bkp = CrSt_Unused;
     }
     else
     {
-        internal_set_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+        set_start_state(thing);
     }
     set_user_view_type(user, PVT_CreatureContrl);
     if (thing_is_creature(thing))
@@ -4152,7 +4158,7 @@ TbBool creature_instance_has_reset_at(const struct Thing *thing, const struct Cr
 
 TbBool possession_instance_can_start(struct Thing *thing, const struct CreatureControl *cctrl, CrInstance inst_id, GameTurn turn, const struct Packet *pckt, TbBool allow_unavailable)
 {
-    if ((inst_id == CrInst_NULL) || (cctrl->instance_id != CrInst_NULL)) {
+    if ((inst_id == CrInst_NULL) || (cctrl->instance_id != CrInst_NULL) || (thing->active_state == CrSt_CreatureSlapCowers)) {
         return false;
     }
     if (!cctrl->instance_available[inst_id]) {
@@ -6098,6 +6104,12 @@ short update_creature_movements(struct Thing *thing)
     {
       if ((thing->alloc_flags & TAlF_IsControlled) != 0)
       {
+          if (thing->active_state == CrSt_CreatureSlapCowers) {
+              upd_done = 1;
+              memset(&cctrl->moveaccel, 0, sizeof(cctrl->moveaccel));
+              cctrl->move_speed = 0;
+              cctrl->creature_state_flags &= ~TF2_CreatureIsMoving;
+          } else
           if (update_controlled_creature_movement(thing, cctrl)) {
               upd_done = 1;
           }
@@ -6686,6 +6698,9 @@ TngUpdateRet update_creature(struct Thing *thing)
 
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
+    if (flag_is_set(creature_control_get_from_thing(thing)->creature_state_flags, TF2_Spectator)) {
+        return false;
+    }
     if (creature_is_being_unconscious(thing)) {
         return false;
     }

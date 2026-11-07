@@ -1319,7 +1319,7 @@ TbBool can_process_creature_input(struct Thing *thing)
         return false;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->stateblock_flags != 0) || (thing->active_state == CrSt_CreatureUnconscious)) {
+    if ((cctrl->stateblock_flags != 0) || (thing->active_state == CrSt_CreatureUnconscious) || (thing->active_state == CrSt_CreatureSlapCowers)) {
         return false;
     }
     return true;

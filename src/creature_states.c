@@ -5003,7 +5003,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     struct CreatureStateConfig* next_stati = get_thing_state_info_num(next_state);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        if ( (next_stati->state_type != CrStTyp_Idle) )
+        if ((next_stati->state_type != CrStTyp_Idle) && (next_state != CrSt_CreatureSlapCowers))
         {
             return false;
         }

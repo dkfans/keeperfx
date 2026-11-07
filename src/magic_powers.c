@@ -1794,7 +1794,7 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     lua_on_slap(thing, plyr_idx);
-    if (!thing_exists(thing) || thing_is_possessed(thing)) {
+    if (!thing_exists(thing)) {
         return Lb_FAIL;
     }
     player = get_player(plyr_idx);
