@@ -21,7 +21,6 @@
 #include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
-#include "frontmenu_ingame_tabs.h"
 #include "front_landview.h"
 #include "front_highscore.h"
 #include "front_lvlstats.h"
@@ -258,8 +257,6 @@ static TbBool apply_game_kfxs(const char *fname, struct LoadedSave *loaded_save,
         }
     }
     rebuild_derived_game_state();
-    update_trap_tab_to_config();
-    update_room_tab_to_config();
     return true;
 }
 

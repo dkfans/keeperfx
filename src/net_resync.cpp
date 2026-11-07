@@ -43,7 +43,6 @@
 #include "kjm_input.h"
 #include "kfx/save/core/save_resync.h"
 #include "kfx/save/core/save_config_overlay.h"
-#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -429,9 +428,6 @@ static TbBool apply_resync_config(const char *conf_data, uint32_t conf_len)
         ERRORLOG("Resync config apply failed: %s", save_err.message);
         return false;
     }
-    update_trap_tab_to_config();
-    update_room_tab_to_config();
-    update_powers_tab_to_config();
     return true;
 }
 
