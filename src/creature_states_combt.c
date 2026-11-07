@@ -1374,6 +1374,14 @@ short creature_combat_flee(struct Thing *creatng)
     {
         turns_in_flee = 0;
     }
+    if (get_creature_speed(creatng) <= 0)
+    {
+        struct Thing *fightng;
+        CrAttackType attack_type = check_for_possible_combat_within_distance(creatng, &fightng, 2304);
+        if ((attack_type <= AttckT_Unset) || !set_creature_in_combat_to_the_death(creatng, fightng, attack_type))
+            set_start_state(creatng);
+        return 1;
+    }
     if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= slab_coord(2))
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
@@ -3379,6 +3387,9 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     long i;
     TRACE_THING(figtng);
     TRACE_THING(enmtng);
+
+    if (get_creature_speed(figtng) <= 0)
+        return Lb_FAIL;
 
     struct CreatureControl* figctrl = creature_control_get_from_thing(figtng);
     MapCoordDelta dist_x = enmtng->mappos.x.val - (MapCoordDelta)figtng->mappos.x.val;
