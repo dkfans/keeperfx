@@ -268,7 +268,7 @@ void set_general_objective_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMa
 void turn_off_power_sight_of_evil(PlayerNumber plyr_idx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
 
-short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand);
+short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand);
 int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void dump_thing_held_by_any_player(struct Thing *thing);
 

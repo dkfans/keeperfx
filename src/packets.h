@@ -230,6 +230,9 @@ enum TbPacketControl {
         PCtr_Ascend         = 0x80000,
         PCtr_Descend        = 0x100000,
         PCtr_ViewZoomPos    = 0x200000,
+        PCtr_GameMenuOpen   = 0x400000,
+        PCtr_SpecialMenuOpen = 0x800000,
+        PCtr_ChatOpen       = 0x1000000,
 };
 
 /**

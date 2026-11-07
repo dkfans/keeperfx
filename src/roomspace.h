@@ -156,6 +156,7 @@ void apply_roomspace_packet_action(NetUserId user, const struct Packet *pckt);
 
 int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, struct DigTagPrediction *prediction);
 void keeper_start_roomspace(NetUserId user, const struct RoomSpace *roomspace, RoomKind rkind);
+TbBool keeper_roomspace_is_active(PlayerNumber plyr_idx);
 
 void update_roomspaces();
 

@@ -857,7 +857,7 @@ static TbBool lobby_player_cell_editable(NetUserId user, int32_t column)
         return player_editable;
     }
     if (column == LobbyPlayerColumn_Team) {
-        return frontend_alliances != -1 && player_editable;
+        return frontend_alliances != -1 && player_editable && net_lobby_primary_user(user) == user;
     }
     return false;
 }
@@ -953,13 +953,16 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         if (show_ping) {
             draw_lobby_text(column_x[LobbyPlayerColumn_Ping], y, column_x[LobbyPlayerColumn_Count] - column_x[LobbyPlayerColumn_Ping] - text_gap, height, font, draw_flags, 0, ping);
         }
-        if (net_player_team[user] >= 0) {
+        NetUserId team_user = net_lobby_primary_user(user);
+        int8_t team = net_player_team[team_user];
+        if (team >= 0) {
             const struct TbSprite *team_icon = get_frontend_sprite(GFS_random_team);
-            if (net_player_team[user] < NET_TEAM_RANDOM) {
-                team_icon = get_frontend_sprite(GFS_team_1 + net_player_team[user]);
+            if (team < NET_TEAM_RANDOM) {
+                team_icon = get_frontend_sprite(GFS_team_1 + team);
             }
             int team_x = (column_x[LobbyPlayerColumn_Team] + column_x[LobbyPlayerColumn_Ping]) / 2 - text_gap - team_icon->SWidth * team_scale / 32;
             int team_y = y + (height - team_icon->SHeight * team_scale / 16) / 2;
+            RendererSetDrawFlags((team_user != user) ? (draw_flags | Lb_SPRITE_TRANSPAR4) : draw_flags);
             LbSpriteDrawResizedRemap(team_x, team_y, team_scale, team_icon, lobby_highlight_remap(user == user_at_mouse && column_at_mouse == LobbyPlayerColumn_Team));
         }
         RendererSetDrawFlags(0);

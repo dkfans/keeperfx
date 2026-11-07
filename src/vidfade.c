@@ -335,9 +335,9 @@ long PaletteFadePlayer(const struct PlayerInfo *player)
   return step;
 }
 
-void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
+void PaletteApplyPainToUser(NetUserId user, long intense)
 {
-    if (player != get_displayed_player())
+    if (user != get_displayed_user())
         return;
     long i = local_state.palette_fade_step_pain + intense;
     if (i < 1)

@@ -2000,7 +2000,7 @@ static int lua_Use_power_at_pos(lua_State *L)
     if (is_free)
         set_flag(mod_flags,PwMod_CastForFree);
 
-    magic_use_power_on_subtile(caster, pwkind, power_level, stl_x, stl_y, allow_flags, mod_flags);
+    magic_use_power_on_subtile(caster, get_player_primary_user(get_player(caster)), pwkind, power_level, stl_x, stl_y, allow_flags, mod_flags);
     return 0;
 }
 
@@ -2021,7 +2021,7 @@ static int lua_Use_power_at_location(lua_State *L)
     if (is_free)
         set_flag(mod_flags,PwMod_CastForFree);
 
-    magic_use_power_on_subtile(caster, pwkind, power_level, stl_x, stl_y, allow_flags, mod_flags);
+    magic_use_power_on_subtile(caster, get_player_primary_user(get_player(caster)), pwkind, power_level, stl_x, stl_y, allow_flags, mod_flags);
     return 0;
 }
 

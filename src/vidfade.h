@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_video.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,7 +60,7 @@ void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal,
 
 
 long PaletteFadePlayer(const struct PlayerInfo *player);
-void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);
+void PaletteApplyPainToUser(NetUserId user, long intense);
 
 /******************************************************************************/
 #ifdef __cplusplus

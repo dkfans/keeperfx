@@ -39,6 +39,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_stats.h"
+#include "vidfade.h"
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_traps.h"
@@ -83,22 +84,22 @@ unsigned char destroy_effect[][9] = {
 };
 
 /******************************************************************************/
-static TbResult magic_use_power_hand         (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_apply_spell  (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_slap_thing   (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_call_to_arms (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_lightning    (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_imp          (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_sight        (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_cave_in      (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_obey         (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_armageddon   (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
-static TbResult magic_use_power_tunneller    (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_hand         (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_apply_spell  (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_slap_thing   (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_call_to_arms (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_lightning    (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_imp          (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_sight        (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_cave_in      (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_obey         (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_armageddon   (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+static TbResult magic_use_power_tunneller    (PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
 
-typedef TbResult (*Magic_use_Func)(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
+typedef TbResult (*Magic_use_Func)(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags);
 
 const Magic_use_Func magic_use_func_list[] = {
      NULL,
@@ -130,10 +131,10 @@ const Magic_use_Func magic_use_func_list[] = {
  * @param func_name Caller name for debug logging purposes.
  * @note This replaced can_thing_be_possessed()
  */
-TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
+TbBool can_cast_spell_f(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_primary_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     if (ustate->work_state == PSt_FreeDestroyWalls)
     {
         struct SlabConfigStats *slabst = get_slab_stats(get_slabmap_for_subtile(stl_x, stl_y));
@@ -169,6 +170,9 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 cast_on_tng = false;
             }
         }
+        if ((pwkind == PwrK_POSSESS) && ((flags & CastChk_SkipThing) == 0) && thing_controlled_by_other_user(user, thing, UCT_Direct | UCT_Passenger | UCT_Other | UCT_PossessionEntryZoom)) {
+            return false;
+        }
         TbBool can_target = cast_at_xy && cast_on_tng;
         if (flag_is_set(powerst->can_cast_flags,PwCast_ThingOrMap)) {
             can_target = cast_at_xy || cast_on_tng;
@@ -197,7 +201,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 child_powerst = get_power_model_stats(i);
                 if (child_powerst->parent_power == pwkind)
                 {
-                    if (can_cast_spell_f(plyr_idx, i, stl_x, stl_y, thing, flags&(~CastChk_Final), func_name)) {
+                    if (can_cast_spell_f(plyr_idx, user, i, stl_x, stl_y, thing, flags&(~CastChk_Final), func_name)) {
                         if ((flags & CastChk_Final) != 0) {
                             SYNCDBG(7,"%s: Player %d can cast %s; child power %s allows that",func_name,(int)plyr_idx,
                                 power_code_name(pwkind),power_code_name(i));
@@ -682,6 +686,10 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
     cctrl->frozen_on_hit = 6; // Could be configurable.
     cctrl->cowers_from_slap_turns = 18; // Could be configurable.
+    NetUserId possessor = get_user_controlling_thing(thing, UCT_Direct | UCT_Passenger);
+    if (possessor >= 0) {
+        PaletteApplyPainToUser(possessor, 5);
+    }
     play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
@@ -983,7 +991,7 @@ TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coo
     return false;
 }
 
-static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     SYNCDBG(6,"Starting");
     unsigned long your_time_gap;
@@ -1072,7 +1080,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
  * @param mod_flags
  * @return
  */
-static TbResult magic_use_power_obey(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_obey(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -1127,7 +1135,7 @@ void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
     dungeon->sight_casted_gameturn = n + i/k - cit;
 }
 
-static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon *dungeon;
@@ -1197,11 +1205,11 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
-    if (power_hand_is_full(get_player(plyr_idx)))
+    if (power_hand_is_full(user) || thing_is_possessed(thing))
         return Lb_FAIL;
-    else if (place_thing_in_power_hand(thing, plyr_idx))
+    else if (place_thing_in_power_hand(thing, plyr_idx, user))
     {
         lua_on_pick_up(thing, plyr_idx);
         return Lb_SUCCESS;
@@ -1210,7 +1218,7 @@ static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx
         return Lb_FAIL;
 }
 
-static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     // If we can't afford the power, fail
     SYNCDBG(16,"Starting");
@@ -1270,7 +1278,7 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     struct Thing *heartng;
     struct Coord3d pos;
@@ -1332,7 +1340,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     struct Coord3d pos;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
@@ -1388,7 +1396,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
@@ -1440,7 +1448,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -1508,7 +1516,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     const struct PowerConfigStats *powerst;
     struct Dungeon *dungeon;
@@ -1572,7 +1580,7 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_cave_in(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_cave_in(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
@@ -1743,7 +1751,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
  * @see magic_use_available_power_on_thing()
  * @see magic_use_available_power_on_subtile()
  */
-static TbResult magic_use_power_call_to_arms(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_call_to_arms(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     struct Dungeon *dungeon;
     struct PlayerInfo *player;
@@ -1786,7 +1794,7 @@ static TbResult magic_use_power_call_to_arms(PowerKind power_kind, PlayerNumber 
     return 1;
 }
 
-static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -1796,7 +1804,6 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     }
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    const NetUserId user = get_player_primary_user(player);
     struct UserState *ustate = get_user_state(user);
     const TbBool slapping = user_state_invalid(ustate) ? player->slap_cooldown_until_turn > get_gameturn() : ustate->instance_num == PI_Whip;
     if (slapping || get_gameturn() - dungeon->last_creature_dropped_gameturn <= 10) {
@@ -1814,10 +1821,10 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
+static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
-    struct PlayerInfo *player;
-    if (!thing_exists(thing)) {
+    struct UserState* ustate = get_user_state(user);
+    if (!thing_exists(thing) || user_state_invalid(ustate)) {
         return Lb_FAIL;
     }
     if (thing_is_creature(thing)) {
@@ -1835,16 +1842,14 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
         }
     }
 
-    player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_primary_user_state(player);
     ustate->influenced_thing_idx = thing->index;
     ustate->influenced_thing_creation = thing->creation_turn;
     ustate->first_person_dig_claim_mode = false;
     ustate->teleport_destination = 19; // reset to default behaviour
     ustate->battleid = 1;
     // Note that setting Direct Control player instance requires ustate->influenced_thing_idx to be set correctly
-    set_user_instance(get_player_primary_user(player), PI_DirctCtrl, 0);
-    if (is_my_player(player)) {
+    set_user_instance(user, PI_DirctCtrl, 0);
+    if (is_local_user(user)) {
         clear_flag(tool_tip_box.flags, TTip_Visible);
     }
     return Lb_SUCCESS;
@@ -2001,7 +2006,7 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
     if ((delta % powerst->duration) == 0)
     {
         if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0)) {
-            magic_use_power_obey(PwrK_OBEY,plyr_idx,INVALID_THING,0,0,0, PwMod_Default);
+            magic_use_power_obey(PwrK_OBEY,plyr_idx,NO_USER,INVALID_THING,0,0,0, PwMod_Default);
         }
     }
 }
@@ -2050,7 +2055,7 @@ void process_dungeon_power_magic(void)
  * @param stl_x The casting subtile, X coord.
  * @param stl_y The casting subtile, Y coord.
  */
-TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
+TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long mod_flags)
 {
     TbResult ret;
@@ -2061,7 +2066,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
     }
     else
     {
-        ret = magic_use_power_on_thing(plyr_idx, pwkind, power_level, stl_x, stl_y, thing, mod_flags);
+        ret = magic_use_power_on_thing(plyr_idx, user, pwkind, power_level, stl_x, stl_y, thing, mod_flags);
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
@@ -2071,7 +2076,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
 }
 
 
-TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
+TbResult magic_use_power_direct(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
     lua_on_power_cast(plyr_idx, pwkind, power_level, stl_x, stl_y, thing);
@@ -2079,7 +2084,7 @@ TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if(powerst->magic_use_func_idx > 0 && magic_use_func_list[powerst->magic_use_func_idx] != NULL)
     {
-        return magic_use_func_list[powerst->magic_use_func_idx](pwkind, plyr_idx, thing, stl_x, stl_y, power_level, allow_flags);
+        return magic_use_func_list[powerst->magic_use_func_idx](pwkind, plyr_idx, user, thing, stl_x, stl_y, power_level, allow_flags);
     }
     else if (powerst->magic_use_func_idx < 0)
     {
@@ -2102,7 +2107,7 @@ TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
  * @param stl_x The casting subtile, X coord.
  * @param stl_y The casting subtile, Y coord.
  */
-TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
+TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long mod_flags)
 {
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
@@ -2122,7 +2127,7 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_OK)
     {
-        if (!can_cast_spell(plyr_idx, pwkind, stl_x, stl_y, thing, CastChk_Final | CastChk_SkipAvailiabilty)) {
+        if (!can_cast_spell(plyr_idx, user, pwkind, stl_x, stl_y, thing, CastChk_Final | CastChk_SkipAvailiabilty)) {
             ret = Lb_FAIL;
         }
     }
@@ -2135,7 +2140,7 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_OK)
     {
-        ret = magic_use_power_direct(plyr_idx, pwkind, power_level, stl_x, stl_y, thing, mod_flags);
+        ret = magic_use_power_direct(plyr_idx, user, pwkind, power_level, stl_x, stl_y, thing, mod_flags);
     }
     if (ret == Lb_SUCCESS)
     {
@@ -2155,7 +2160,7 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
  * @param allow_flags Additional castability flags, to loosen constaints in the power config.
  * @return
  */
-TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
+TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags)
 {
     TbResult ret;
@@ -2167,7 +2172,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     }
     if (ret == Lb_OK)
     {
-        ret = magic_use_power_on_subtile(plyr_idx, pwkind, power_level, stl_x, stl_y, allow_flags, mod_flags);
+        ret = magic_use_power_on_subtile(plyr_idx, user, pwkind, power_level, stl_x, stl_y, allow_flags, mod_flags);
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
@@ -2177,7 +2182,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
 }
 
 
-TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
+TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags,unsigned long mod_flags)
 {
     TbResult ret;
@@ -2200,7 +2205,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_OK)
     {
-        ret = magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x, stl_y,INVALID_THING, mod_flags);
+        ret = magic_use_power_direct(plyr_idx,user,pwkind,power_level,stl_x, stl_y,INVALID_THING, mod_flags);
     }
 
     if (ret == Lb_SUCCESS)
@@ -2219,7 +2224,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
  * @param power_level Power overcharge level.
  * @return
  */
-TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, NetUserId user, PowerKind spl_idx,
     KeepPwrLevel power_level, unsigned long mod_flags)
 {
     if (!is_power_available(plyr_idx, spl_idx)) {
@@ -2227,23 +2232,23 @@ TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl
         WARNLOG("Player %d tried to cast unavailable power %d",(int)plyr_idx,(int)spl_idx);
         return Lb_FAIL;
     }
-    return magic_use_power_on_level(plyr_idx, spl_idx, power_level, mod_flags);
+    return magic_use_power_on_level(plyr_idx, user, spl_idx, power_level, mod_flags);
 }
 
-TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind pwkind,
+TbResult magic_use_power_on_level(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
     KeepPwrLevel power_level, unsigned long mod_flags)
 {
     if (power_level > MAGIC_OVERCHARGE_LEVELS) {
         power_level = MAGIC_OVERCHARGE_LEVELS;
     }
-    return magic_use_power_direct(plyr_idx,pwkind,power_level,0,0,INVALID_THING,mod_flags);
+    return magic_use_power_direct(plyr_idx,user,pwkind,power_level,0,0,INVALID_THING,mod_flags);
 }
 
-void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind pwkind, ThingIndex thing_idx, KeepPwrLevel power_level)
+void directly_cast_spell_on_thing(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind, ThingIndex thing_idx, KeepPwrLevel power_level)
 {
     struct Thing *thing;
     thing = thing_get(thing_idx);
-    magic_use_available_power_on_thing(plyr_idx, pwkind, power_level,
+    magic_use_available_power_on_thing(plyr_idx, user, pwkind, power_level,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
 }
 
@@ -2277,7 +2282,7 @@ TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwr
     MapSubtlCoord stl_y = thing->mappos.y.stl.num;
     unsigned long mod_flags = is_free ? PwMod_CastForFree : 0;
 
-    return magic_use_power_direct(caster,pwkind,power_level,stl_x,stl_y,thing,mod_flags);
+    return magic_use_power_direct(caster,get_player_primary_user(get_player(caster)),pwkind,power_level,stl_x,stl_y,thing,mod_flags);
 }
 
 int get_power_overcharge_level(const struct UserState *ustate)
@@ -2351,7 +2356,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     if (is_free)
         set_flag(mod_flags,PwMod_CastForFree);
 
-    return magic_use_power_on_subtile(plyr_idx, powerKind, power_level, stl_x, stl_y, allow_flags, mod_flags);
+    return magic_use_power_on_subtile(plyr_idx, get_player_primary_user(get_player(plyr_idx)), powerKind, power_level, stl_x, stl_y, allow_flags, mod_flags);
 }
 
 /**
@@ -2384,7 +2389,7 @@ TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation targe
  */
 TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free)
 {
-    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // power_level gets ignored anyway -> pass 1
+    return magic_use_power_on_level(plyr_idx, get_player_primary_user(get_player(plyr_idx)), power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // power_level gets ignored anyway -> pass 1
 }
 
 /**

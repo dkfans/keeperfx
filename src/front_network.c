@@ -92,8 +92,8 @@ struct ConfigInfo net_config_info;
 struct ConfigInfo net_lobby_settings;
 struct ConfigInfo skirmish_config_info;
 char net_service[16][NET_SERVICE_LEN];
-char net_player_name[20];
-char tmp_net_player_name[24];
+char net_player_name[PLAYER_MP_NAME_LEN];
+char tmp_net_player_name[PLAYER_MP_NAME_LEN+4];
 int8_t net_player_colour[MAX_NET_USERS];
 int8_t net_player_team[MAX_NET_USERS];
 int32_t net_lobby_max_players;
@@ -142,15 +142,19 @@ static int8_t first_unused_value(const int8_t values[MAX_NET_USERS])
     return MAX_NET_USERS;
 }
 
+// users may share a seat (archon), but computers must be solo
 TbBool net_player_colours_conflict(void)
 {
+    PlayerNumber colours_needed = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         PlayerNumber colour = net_player_colour[user];
-        if (colour >= 0 && colour < NET_PLAYER_COLOUR_RANDOM && net_user_with_value(net_player_colour, colour) != user) {
-            return true;
+        if (net_lobby_computer_player(user) || colour == NET_PLAYER_COLOUR_RANDOM) {
+            colours_needed++;
+        } else if (colour >= 0 && net_user_with_value(net_player_colour, colour) == user) {
+            colours_needed++;
         }
     }
-    return false;
+    return colours_needed > NET_PLAYER_COLOUR_RANDOM;
 }
 
 void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId user, TbBool backwards)
@@ -232,14 +236,42 @@ static void resolve_random_teams(int8_t teams[MAX_NET_USERS])
     }
 }
 
-static void reserve_lobby_seats(TbBool (*occupies_seat)(NetUserId), const TbBool seat_available[MAX_NET_USERS], PlayerNumber *seats_left, int8_t player_colours[MAX_NET_USERS])
+static NetUserId lobby_colour_human_owner(PlayerNumber colour)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS && *seats_left > 0; user++) {
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (network_user_active(user) && net_player_colour[user] == colour) {
+            return user;
+        }
+    }
+    return -1;
+}
+
+/** the first human with the same colour as the given user. */
+NetUserId net_lobby_primary_user(NetUserId user)
+{
+    PlayerNumber colour = net_player_colour[user];
+    if (!network_user_active(user) || colour < 0 || colour >= NET_PLAYER_COLOUR_RANDOM) {
+        return user;
+    }
+    NetUserId owner = lobby_colour_human_owner(colour);
+    return (owner >= 0) ? owner : user;
+}
+
+static void reserve_lobby_seats(TbBool (*occupies_seat)(NetUserId), const TbBool seat_available[MAX_NET_USERS], PlayerNumber *seats_left, int8_t player_colours[MAX_NET_USERS], TbBool shares_colour[MAX_NET_USERS])
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (!occupies_seat(user)) {
             continue;
         }
-        (*seats_left)--;
         PlayerNumber colour = net_player_colour[user];
+        if (shares_colour != NULL && colour >= 0 && colour < NET_PLAYER_COLOUR_RANDOM && lobby_colour_human_owner(colour) != user) {
+            shares_colour[user] = true;
+            continue;
+        }
+        if (*seats_left == 0) {
+            continue;
+        }
+        (*seats_left)--;
         player_colours[user] = NET_PLAYER_COLOUR_RANDOM;
         if (colour >= 0 && colour < NET_PLAYER_COLOUR_RANDOM && seat_available[colour] && net_user_with_value(player_colours, colour) < 0) {
             player_colours[user] = colour;
@@ -247,7 +279,7 @@ static void reserve_lobby_seats(TbBool (*occupies_seat)(NetUserId), const TbBool
     }
 }
 
-void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS], char *alliances)
+void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS])
 {
     PlayerNumber level_seats = 0;
     struct LevelInformation *level = get_level_info(get_loaded_level_number());
@@ -261,8 +293,9 @@ void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS], char *alli
         seats_left += seat_available[colour];
     }
     memset(player_colours, -1, MAX_NET_USERS);
-    reserve_lobby_seats(network_user_active, seat_available, &seats_left, player_colours);
-    reserve_lobby_seats(net_lobby_computer_player, seat_available, &seats_left, player_colours);
+    TbBool shares_colour[MAX_NET_USERS] = {false};
+    reserve_lobby_seats(network_user_active, seat_available, &seats_left, player_colours, shares_colour);
+    reserve_lobby_seats(net_lobby_computer_player, seat_available, &seats_left, player_colours, NULL);
     PlayerNumber free_colours[MAX_NET_USERS];
     PlayerNumber free_count = 0;
     for (PlayerNumber colour = 0; colour < MAX_NET_USERS; colour++) {
@@ -279,15 +312,25 @@ void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS], char *alli
             next_free++;
         }
     }
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (shares_colour[user]) {
+            player_colours[user] = player_colours[lobby_colour_human_owner(net_player_colour[user])];
+        }
+    }
+}
+
+char net_alliances_from_player_colours(const int8_t player_colours[MAX_NET_USERS])
+{
     int8_t slot_teams[MAX_NET_USERS];
     memset(slot_teams, -1, sizeof(slot_teams));
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    // archon keeper takes its first user's team
+    for (NetUserId user = MAX_NET_USERS; user --> 0;) {
         if (player_colours[user] >= 0) {
             slot_teams[player_colours[user]] = net_player_team[user];
         }
     }
     resolve_random_teams(slot_teams);
-    *alliances = alliances_from_teams(slot_teams);
+    return alliances_from_teams(slot_teams);
 }
 
 void net_store_lobby_empty_seats(const int8_t player_slots[MAX_NET_USERS])
@@ -1026,7 +1069,8 @@ void frontnet_skirmish_resolve_seats(void)
         return;
     }
     int8_t player_slots[MAX_NET_USERS];
-    net_resolve_player_colours(player_slots, &frontend_alliances);
+    net_resolve_player_colours(player_slots);
+    frontend_alliances = net_alliances_from_player_colours(player_slots);
     net_store_lobby_empty_seats(player_slots);
     if (player_slots[SOLO_HUMAN_ID] < 0) {
         return;
