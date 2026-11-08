@@ -7617,5 +7617,5 @@ msgstr "Soubory se liší mezi %s a hostitelem"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "Balíčky kol (kooperace)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "Mapy pro jednoho hráče (kooperace)..."

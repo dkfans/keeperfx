@@ -7643,5 +7643,5 @@ msgstr "Filerna skiljer sig mellan %s och värden"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "Banpaket (samarbete)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "Enspelarbanor (samarbete)..."

@@ -634,9 +634,20 @@ static int32_t lobby_mappack_list_count(void)
     }
 }
 
+static int32_t lobby_coop_row(void)
+{
+    return mappacks_list.items_num > 0 ? (int32_t)mp_mappacks_list.ordered_num : -1;
+}
+
 static TbBool lobby_mappack_list_is_coop(int32_t index)
 {
-    return lobby_list_mode == LobbyList_Mappacks && index >= (int32_t)mp_mappacks_list.items_num;
+    return lobby_list_mode == LobbyList_Mappacks && index == lobby_coop_row();
+}
+
+static const struct GameCampaign *lobby_mp_mappack(int32_t index)
+{
+    int32_t coop_row = lobby_coop_row();
+    return &mp_mappacks_list.items[coop_row >= 0 && index > coop_row ? index - 1 : index];
 }
 
 static const char *lobby_level_name(LevelNumber lvnum)
@@ -657,9 +668,9 @@ static const char *lobby_mappack_list_name(int32_t index)
         return lobby_level_name(campaign.freeplay_levels[index]);
     default:
         if (lobby_mappack_list_is_coop(index)) {
-            return get_string(GUIStr_NetLevelPacksCoop);
+            return get_string(GUIStr_NetLevelPacks);
         }
-        return mp_mappacks_list.items[index].display_name;
+        return lobby_mp_mappack(index)->display_name;
     }
 }
 
@@ -684,7 +695,7 @@ static TbBool lobby_mappack_list_selected(int32_t index)
         if (lobby_mappack_list_is_coop(index)) {
             return net_lobby_force_coop();
         }
-        return !net_lobby_force_coop() && strcasecmp(mp_mappacks_list.items[index].fname, campaign.fname) == 0;
+        return !net_lobby_force_coop() && strcasecmp(lobby_mp_mappack(index)->fname, campaign.fname) == 0;
     }
 }
 
@@ -1113,7 +1124,7 @@ static void select_mp_mappack(int32_t index)
         net_level = 0;
         memset(net_player_colour, -1, sizeof(net_player_colour));
     }
-    const char *fname = mp_mappacks_list.items[index].fname;
+    const char *fname = lobby_mp_mappack(index)->fname;
     frontnet_send_campaign_change_message(fname);
     change_campaign(CampgnT_MultiplayerMappack, fname);
 }

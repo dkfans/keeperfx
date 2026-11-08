@@ -7696,5 +7696,5 @@ msgstr "Файли у %s та хоста відрізняються"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "Набори рівнів (кооператив)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "Одиночні мапи (кооператив)..."

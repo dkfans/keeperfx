@@ -7561,5 +7561,5 @@ msgstr "Bestanden verschillen tussen %s en host"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "Levelpakketten (co-op)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "Singleplayer-levels (co-op)..."

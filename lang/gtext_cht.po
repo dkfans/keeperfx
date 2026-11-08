@@ -7242,5 +7242,5 @@ msgstr "%s 與房主的檔案不同"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "關卡包（合作）..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "單人地圖（合作）..."

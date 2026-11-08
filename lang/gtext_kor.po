@@ -7632,5 +7632,5 @@ msgstr "%s와(과) 호스트의 파일이 다릅니다"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "레벨 팩 (협동)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "1인용 맵 (협동)..."

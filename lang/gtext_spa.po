@@ -7875,5 +7875,5 @@ msgstr "Los archivos de %s y el anfitrión difieren"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "Paquetes de niveles (cooperativo)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "Mapas de un jugador (cooperativo)..."

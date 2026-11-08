@@ -7732,5 +7732,5 @@ msgstr "Pliki różnią się między %s a hostem"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "Paczki poziomów (kooperacja)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "Mapy jednoosobowe (kooperacja)..."

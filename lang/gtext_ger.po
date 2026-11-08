@@ -7899,5 +7899,5 @@ msgstr "Dateien von %s und Host weichen ab"
 #: guitext:1171
 #, fuzzy
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "Levelpakete (Koop)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "Einzelspielerkarten (Koop)..."

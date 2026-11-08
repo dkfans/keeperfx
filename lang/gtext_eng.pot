@@ -6175,5 +6175,5 @@ msgstr "Files differ between %s and host"
 
 #: guitext:1171
 msgctxt "Network game interface"
-msgid "Level Packs (Co-op)..."
-msgstr "Level Packs (Co-op)..."
+msgid "Single-Player Maps (co-op)..."
+msgstr "Single-Player Maps (co-op)..."
