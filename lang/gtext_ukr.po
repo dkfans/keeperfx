@@ -7692,3 +7692,9 @@ msgstr "Нестабільне з'єднання: %d,%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "Файли у %s та хоста відрізняються"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Level Packs (Co-op)..."
+msgstr "Набори рівнів (кооператив)..."

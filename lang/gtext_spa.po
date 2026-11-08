@@ -7871,3 +7871,9 @@ msgstr "Conexión inestable: %d,%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "Los archivos de %s y el anfitrión difieren"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Level Packs (Co-op)..."
+msgstr "Paquetes de niveles (cooperativo)..."

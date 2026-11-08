@@ -7641,3 +7641,9 @@ msgstr "Conexio instabilis: %d,%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "Documenta inter %s et hospitem differunt"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Level Packs (Co-op)..."
+msgstr "Fasces libellarum (cooperatio)..."

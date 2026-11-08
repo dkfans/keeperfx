@@ -7639,3 +7639,9 @@ msgstr "Instabil anslutning: %d,%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "Filerna skiljer sig mellan %s och värden"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Level Packs (Co-op)..."
+msgstr "Banpaket (samarbete)..."

@@ -87,12 +87,15 @@ extern int8_t net_player_colour[MAX_NET_USERS];
 extern int8_t net_player_team[MAX_NET_USERS];
 extern int32_t net_lobby_max_players;
 extern PlayerBitFlags net_lobby_empty_seats;
+extern LevelNumber net_level;
 
 #pragma pack()
 /******************************************************************************/
 TbBool net_player_colours_conflict(void);
 NetUserId net_lobby_primary_user(NetUserId user);
 TbBool net_lobby_computer_player(NetUserId user);
+TbBool net_lobby_force_coop(void);
+void frontnet_select_coop_level(LevelNumber lvnum);
 void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId user, TbBool backwards);
 void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS]);
 char net_alliances_from_player_colours(const int8_t player_colours[MAX_NET_USERS]);
@@ -120,6 +123,7 @@ TbBool frontnet_service_selected(enum FrontendNetService service);
 void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 
 void frontnet_send_campaign_change_message(const char *campaign_fname);
+void current_campaign_net_name(char *buf, size_t size);
 /******************************************************************************/
 #ifdef __cplusplus
 }

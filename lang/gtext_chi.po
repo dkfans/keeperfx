@@ -7242,3 +7242,9 @@ msgstr "连接不稳定：%d.%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "%s 与房主的文件不同"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Level Packs (Co-op)..."
+msgstr "关卡包（合作）..."

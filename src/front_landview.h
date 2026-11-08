@@ -90,6 +90,7 @@ struct ScreenPacket {
   unsigned char action_par2;
   int8_t player_settings[NetPlayerSetting_Count][MAX_NET_USERS];
   int8_t max_players;
+  int16_t level; // nonzero: host is forcing a particulsr level from the pack.
 };
 
 static inline unsigned char screen_packet_action(const struct ScreenPacket *nspck) {

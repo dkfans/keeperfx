@@ -1048,7 +1048,7 @@ void network_spectator_send_bootstrap(NetUserId user_id)
     int32_t level = get_loaded_level_number();
     memcpy(write_pos, &level, sizeof(level));
     write_pos += sizeof(level);
-    snprintf(write_pos, DISKPATH_SIZE, "%s", campaign.fname);
+    current_campaign_net_name(write_pos, DISKPATH_SIZE);
     write_pos += strlen(write_pos) + 1;
     PlayerNumber user_player_number[MAX_NET_USERS];
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
@@ -1075,11 +1075,14 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
     buffer += sizeof(level);
     size -= sizeof(level);
     size_t name_length = strnlen(buffer, min(size, (size_t)DISKPATH_SIZE));
-    if (name_length == 0 || name_length >= DISKPATH_SIZE || name_length + 1 + sizeof(spectator_user_player_number) + SPECTATOR_BOOTSTRAP_SYNC_SIZE != size || strchr(buffer, '/') || strchr(buffer, '\\') || strstr(buffer, "..")) {
+    if (name_length == 0 || name_length >= DISKPATH_SIZE || name_length + 1 + sizeof(spectator_user_player_number) + SPECTATOR_BOOTSTRAP_SYNC_SIZE != size) {
         return Lb_FAIL;
     }
     char campaign_file[DISKPATH_SIZE];
     uint8_t pack = prepare_campaign_file_name(buffer, campaign_file, sizeof(campaign_file));
+    if (strchr(campaign_file, '/') || strchr(campaign_file, '\\') || strstr(campaign_file, "..")) {
+        return Lb_FAIL;
+    }
     if (pack == CampgnT_Default && is_campaign_in_list(campaign_file, &mp_mappacks_list) && (get_level_info(level) != NULL)) {
         pack = CampgnT_MultiplayerMappack;
     }

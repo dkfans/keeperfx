@@ -6172,3 +6172,8 @@ msgstr "Connection unstable: %d.%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "Files differ between %s and host"
+
+#: guitext:1171
+msgctxt "Network game interface"
+msgid "Level Packs (Co-op)..."
+msgstr "Level Packs (Co-op)..."
