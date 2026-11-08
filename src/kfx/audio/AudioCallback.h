@@ -9,18 +9,21 @@
 #include <SDL3/SDL.h>
 #include "SpscRing.h"
 #include "Commands.h"
+#include "StreamPool.h"
 
 namespace kfx::audio {
 
 // Audio-thread voice renderer; shares only the two rings (and flush()) with the game thread.
 class AudioCallback {
 public:
-    bool init(size_t voice_count, CommandRing & commands, EventRing & events);
+    bool init(size_t voice_count, CommandRing & commands, EventRing & events, StreamPool * streams = nullptr);
     // Idempotent; safe after a failed init().
     void shutdown();
 // Game-thread drain under the SDL stream lock, so buffers can be deleted safely.
 // Returns false if nothing was applied; callers must then not delete buffers.
     bool flush();
+    // Frees closed stream slots with the callback excluded.
+    bool reclaim_streams();
 
     bool initialized() const { return stream_ != nullptr; }
     ALCdevice * loopback_device() const { return loopback_device_; }
@@ -55,6 +58,7 @@ private:
     std::vector<float> scratch_; // interleaved stereo render buffer, reused every callback
     CommandRing * commands_ = nullptr;
     EventRing * events_ = nullptr;
+    StreamPool * streams_ = nullptr;
     std::atomic<bool> event_ring_overflowed_{false};
 };
 

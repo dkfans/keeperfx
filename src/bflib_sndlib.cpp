@@ -9,6 +9,7 @@
 #include "kfx/profiling/KfxProfiling.h"
 #include "kfx/audio/AudioCallback.h"
 #include "kfx/audio/AudioLog.h"
+#include "kfx/audio/AudioStream.h"
 #include "kfx/audio/VoiceMirror.h"
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -387,6 +388,7 @@ void forget_bank_buffers(std::vector<sound_sample> & bank) {
 // Closes the SDL3 stream and the loopback device, then drops InitAudio's SDL audio reference.
 void release_audio_output() {
 	g_audio_callback.shutdown();
+	kfx::audio::audio_stream_unbind();
 	kfx::audio::Command command;
 	while (g_command_ring.pop(command)) {} // the callback is gone, so nothing else consumes these
 	kfx::audio::VoiceFinishedEvent event;
@@ -955,9 +957,10 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		}
 		g_sdl_audio_subsystem_held = true;
 		// Makes the loopback context process-current; nothing else may change it.
-		if (!g_audio_callback.init(settings->max_number_of_samples, g_command_ring, g_event_ring)) {
+		if (!g_audio_callback.init(settings->max_number_of_samples, g_command_ring, g_event_ring, &kfx::audio::stream_pool())) {
 			throw std::runtime_error("Cannot open audio output");
 		}
+		kfx::audio::audio_stream_bind(&g_audio_callback);
 		AUDIOLOG("OpenAL renders into a loopback device, played through an SDL3 audio stream");
 		const char * output_device = g_audio_callback.physical_device_name();
 		AUDIOLOG("SDL3 audio output device: %s", (output_device != nullptr) ? output_device : "unknown");

@@ -2,14 +2,16 @@
 #include "AudioCallback.h"
 #include "bflib_basics.h"
 #include "AudioLog.h"
+#include "StreamConfig.h"
 #include "sounds.h" // FULL_LOUDNESS, NORMAL_PITCH
+#include <algorithm>
 #include <cmath>
 #include "post_inc.h"
 
 namespace kfx::audio {
 
 namespace {
-constexpr int kSampleRate = 48000;
+constexpr int kSampleRate = static_cast<int>(kCoreSampleRate);
 constexpr int kChannels = 2;
 // Initial scratch size; grown only if SDL ever asks for more in one callback.
 constexpr size_t kScratchFrames = 8192;
@@ -53,13 +55,15 @@ void set_pitch(ALuint id, SoundPitch pitch) {
 }
 }
 
-bool AudioCallback::init(size_t voice_count, CommandRing & commands, EventRing & events) {
+bool AudioCallback::init(size_t voice_count, CommandRing & commands, EventRing & events,
+                         StreamPool * streams) {
     if (stream_ || loopback_device_) {
         AUDIOWARN("Audio callback already initialized");
         return true;
     }
     commands_ = &commands;
     events_ = &events;
+    streams_ = streams;
 
     if (!alcIsExtensionPresent(nullptr, "ALC_SOFT_loopback")) {
         AUDIOERR("ALC_SOFT_loopback not available");
@@ -162,6 +166,7 @@ void AudioCallback::shutdown() {
     scratch_.clear();
     commands_ = nullptr;
     events_ = nullptr;
+    streams_ = nullptr;
 }
 
 bool AudioCallback::flush() {
@@ -184,6 +189,23 @@ bool AudioCallback::flush() {
     if (set_thread_context_) {
         set_thread_context_(nullptr);
     }
+    SDL_UnlockAudioStream(stream_);
+    return true;
+}
+
+bool AudioCallback::reclaim_streams() {
+    if (!streams_) {
+        return false;
+    }
+    if (!stream_) {
+        streams_->reclaim();
+        return true;
+    }
+    if (!SDL_LockAudioStream(stream_)) {
+        AUDIOERR("Cannot lock SDL3 audio stream: %s", SDL_GetError());
+        return false;
+    }
+    streams_->reclaim();
     SDL_UnlockAudioStream(stream_);
     return true;
 }
@@ -227,6 +249,11 @@ void AudioCallback::render(SDL_AudioStream * stream, int additional_amount) {
             scratch_.resize(samples);
         }
         render_samples_(loopback_device_, scratch_.data(), static_cast<ALCsizei>(frames));
+        if (streams_ && streams_->mix_into(scratch_.data(), frames)) {
+            for (size_t i = 0; i < samples; ++i) {
+                scratch_[i] = std::clamp(scratch_[i], -1.0f, 1.0f);
+            }
+        }
         SDL_PutAudioStreamData(stream, scratch_.data(), static_cast<int>(samples * sizeof(float)));
     }
 

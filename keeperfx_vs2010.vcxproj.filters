@@ -277,6 +277,8 @@
     <ClCompile Include="src\ftests\tests\ftest_template.c" />
     <ClCompile Include="src\gui_vscroll.c" />
     <ClCompile Include="src\kfx\audio\AudioCallback.cpp" />
+    <ClCompile Include="src\kfx\audio\AudioStream.cpp" />
+    <ClCompile Include="src\kfx\audio\StreamPool.cpp" />
     <ClCompile Include="src\kfx\audio\VoiceMirror.cpp" />
     <ClCompile Include="src\kfx\platform\GLContextSDL.cpp" />
     <ClCompile Include="src\kfx\platform\FileSystemLb.cpp" />
@@ -622,9 +624,13 @@
     <ClInclude Include="src\ftests\tests\ftest_template.h" />
     <ClInclude Include="src\gui_vscroll.h" />
     <ClInclude Include="src\kfx\audio\AudioCallback.h" />
+    <ClInclude Include="src\kfx\audio\AudioStream.h" />
     <ClInclude Include="src\kfx\audio\AudioLog.h" />
     <ClInclude Include="src\kfx\audio\Commands.h" />
     <ClInclude Include="src\kfx\audio\SpscRing.h" />
+    <ClInclude Include="src\kfx\audio\StreamConfig.h" />
+    <ClInclude Include="src\kfx\audio\StreamPool.h" />
+    <ClInclude Include="src\kfx\audio\StreamRing.h" />
     <ClInclude Include="src\kfx\audio\VoiceMirror.h" />
     <ClInclude Include="src\kfx\platform\FileFind.h" />
     <ClInclude Include="src\kfx\platform\GLContextSDL.h" />
