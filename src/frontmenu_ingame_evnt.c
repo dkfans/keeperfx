@@ -714,13 +714,13 @@ static long archon_user_status_icon(const struct UserState *ustate)
     PlayerNumber plyr_idx = ustate->player_id;
     const struct PlayerInfo *player = get_player(plyr_idx);
     if (flag_is_set(ustate->additional_flags, UsrAF_GameMenuOpen))
-        return GPS_crspell_timer_dis_s;
+        return GPS_symbols_symbol_idle;
     if (flag_is_set(ustate->additional_flags, UsrAF_ChatOpen))
-        return GPS_crspell_timer_std_s;
+        return GPS_symbols_symbol_typing;
     if (player->victory_state == VicS_LostLevel)
         return get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_dead, plyr_idx);
     if (ustate->view_type == PVT_MapScreen)
-        return GPS_room_portal_std_s;
+        return GPS_symbols_symbol_map;
     const struct Thing *thing = thing_get(ustate->controlled_thing_idx);
     if ((ustate->controlled_thing_idx > 0) && user_is_viewing_creature(ustate) && (thing_is_creature(thing) || thing_is_dead_creature(thing)))
     {
@@ -749,7 +749,7 @@ static long archon_user_status_icon(const struct UserState *ustate)
     case PSt_PlaceDoor:
         return get_door_model_stats(ustate->chosen_door_kind)->medsym_sprite_idx;
     case PSt_Sell:
-        return get_player_colored_icon_idx(GPS_plyrsym_symbol_room_red_std_a, plyr_idx);
+        return GPS_symbols_symbol_sell;
     }
     if (ustate->num_things_in_hand > 0)
         return get_power_model_stats(PwrK_HAND)->medsym_sprite_idx;

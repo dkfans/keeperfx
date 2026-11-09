@@ -771,6 +771,10 @@ enum GUIPanelSprite {
     GPS_rpanel_manufacture_cant = 839,
     GPS_portrt_qmark = 840,
     GPS_message_rpanel_msg_blank_std = 920,
+    GPS_symbols_symbol_map = 921,
+    GPS_symbols_symbol_sell = 922,
+    GPS_symbols_symbol_idle = 923,
+    GPS_symbols_symbol_typing = 924,
 
     GUI_PANEL_SPRITES_COUNT = 950,
     GUI_PANEL_SPRITES_NEW = 512,
