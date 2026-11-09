@@ -1,11 +1,16 @@
 # Auto-generated from DeckBundleInstall.cmake.in (KFX_DECK_BUNDLE). Runs at
-# `cmake --install` time: resolves keeperfx's runtime shared libraries, copies
-# the non-system ones into <prefix>/lib, and gives everything an $ORIGIN rpath
-# so the bundle is relocatable. Do not edit the generated copy in the build dir.
+# `cmake --install` time: resolves the runtime shared libraries of keeperfx (and
+# keeperfx_hvlog, when it was built), copies the non-system ones into
+# <prefix>/lib, and gives everything an $ORIGIN rpath so the bundle is
+# relocatable. Do not edit the generated copy in the build dir.
 
 set(_bin "${CMAKE_INSTALL_PREFIX}/keeperfx")
 if(NOT EXISTS "${_bin}")
     message(FATAL_ERROR "Deck bundle: ${_bin} not found — install the keeperfx target first")
+endif()
+set(_bins "${_bin}")
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/keeperfx_hvlog")
+    list(APPEND _bins "${CMAKE_INSTALL_PREFIX}/keeperfx_hvlog")
 endif()
 
 # Names we never bundle: the loader + glibc, the C++/GCC runtime (the Deck's is
@@ -38,7 +43,7 @@ if(_search_dirs)
 endif()
 
 file(GET_RUNTIME_DEPENDENCIES
-    EXECUTABLES "${_bin}"
+    EXECUTABLES ${_bins}
     RESOLVED_DEPENDENCIES_VAR _resolved
     UNRESOLVED_DEPENDENCIES_VAR _unresolved
     DIRECTORIES ${_search_dirs}

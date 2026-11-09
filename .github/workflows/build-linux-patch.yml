@@ -1,0 +1,121 @@
+name: Linux Patches
+
+# Builds the Linux x86_64 patch archive: the same game data as the Windows patch,
+# plus native keeperfx/keeperfx_hvlog binaries with their non-system libraries
+# bundled in lib/ (KFX_DECK_BUNDLE), so it runs on any distro with glibc 2.39+
+# (Ubuntu 24.04, Debian 13, Fedora 40, Arch, SteamOS 3.6, ...). Extract it over
+# a KeeperFX install and start ./keeperfx.
+#
+# Uploaded as a .tar.gz inside the artifact, because artifact zips drop the
+# executable bit.
+
+on:
+  workflow_call:
+    inputs:
+      package-suffix:
+        description: "Suffix in the archive name, e.g. Alpha (empty for a release)"
+        type: string
+        default: ""
+    outputs:
+      artifact-id:
+        description: "The ID of the uploaded artifact"
+        value: ${{ jobs.build-linux-patch.outputs.artifact-id }}
+      archive-name:
+        description: "The name of the archive without extension"
+        value: ${{ jobs.build-linux-patch.outputs.archive-name }}
+  workflow_dispatch:
+    inputs:
+      package-suffix:
+        description: "Suffix in the archive name, e.g. Alpha (empty for a release)"
+        type: string
+        default: ""
+
+jobs:
+  build-linux-patch:
+
+    name: "Build Linux Patch x86_64"
+    runs-on: ubuntu-24.04
+
+    env:
+      PACKAGE_SUFFIX: ${{ inputs.package-suffix }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update system
+      run: |
+        set -eux
+        sudo apt update
+        # SDL3 is not in Ubuntu 24.04 apt, so Dependencies.cmake builds it from
+        # source (FetchContent); the X11/Wayland/GL/audio and image/mixer decoder
+        # packages are its build deps. patchelf is for the library bundle.
+        sudo apt install -y \
+          build-essential cmake ninja-build pkg-config curl patchelf \
+          libavcodec-dev libavformat-dev libavutil-dev libswresample-dev \
+          libopenal-dev libluajit-5.1-dev libminizip-dev libnatpmp-dev \
+          libspng-dev libminiupnpc-dev libssl-dev libzstd-dev zlib1g-dev \
+          wayland-protocols libwayland-dev libdecor-0-dev \
+          libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+          libxfixes-dev libxss-dev libxtst-dev libxkbcommon-dev \
+          libgl1-mesa-dev libegl1-mesa-dev libdrm-dev libgbm-dev \
+          libasound2-dev libpulse-dev libdbus-1-dev libudev-dev \
+          libpng-dev libjpeg-dev libogg-dev libvorbis-dev libflac-dev \
+          libmpg123-dev libopusfile-dev
+
+    - name: Build gfx
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-enginegfx
+
+    - name: Build
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        cmake -S . -B out -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DKFX_DECK_BUNDLE=ON -DKFX_SPLIT_DEBUG=ON \
+          -DBUILD_NUMBER=$BUILD_NUMBER -DPACKAGE_SUFFIX=$PACKAGE_SUFFIX
+        cmake --build out --target keeperfx keeperfx_hvlog -j"$(nproc)"
+        # Same game data as the Windows patch, then CPack adds the binaries and
+        # lib/ and writes pkg/keeperfx-linux_x86_64-*-patch.tar.gz.
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-assemble
+        cmake --build out --target package
+        ARCHIVE=$(ls pkg/keeperfx-linux_*-patch.tar.gz)
+        echo "ARCHIVE=$ARCHIVE" >> $GITHUB_ENV
+        echo "ARCHIVE_NAME=$(basename -s .tar.gz "$ARCHIVE")" >> $GITHUB_ENV
+
+    - name: Check the bundle runs without the build tree
+      run: |
+        set -eux
+        mkdir /tmp/kfx-check
+        tar -xzf "$ARCHIVE" -C /tmp/kfx-check
+        # Every library must resolve, and none from the build tree.
+        for bin in keeperfx keeperfx_hvlog; do
+          ldd /tmp/kfx-check/$bin | tee /tmp/kfx-check/$bin.ldd
+          if grep -E "not found|$GITHUB_WORKSPACE" /tmp/kfx-check/$bin.ldd; then
+            echo "::error::$bin does not resolve all its libraries from the bundle"
+            exit 1
+          fi
+        done
+
+    - name: Upload artifact
+      id: upload-artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ARCHIVE_NAME }}
+        path: ${{ env.ARCHIVE }}
+        compression-level: 0
+
+    - name: Upload debug symbols
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ARCHIVE_NAME }}-symbols
+        path: |
+          out/keeperfx.debug
+          out/keeperfx_hvlog.debug
+
+    outputs:
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
+      archive-name: ${{ env.ARCHIVE_NAME }}
