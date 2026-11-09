@@ -332,6 +332,8 @@ void process_pause_packet(long curr_pause, long new_pause)
   TbBool can = true;
   for (NetUserId user = 0; user < MAX_NET_USERS; user++)
   {
+    if (!user_present(user))
+        continue;
     player = get_user_player(user);
     if (is_active_keeper(player) && (player->allocflags & PlaF_CompCtrl) == 0)
     {
