@@ -143,26 +143,23 @@ TbBool lens_is_ready(void)
     return true;
 }
 
-static void set_user_lens(struct UserState *ustate, int lens, const char *custom_lens)
+static void set_user_state_lens(struct UserState *ustate, int lens, const char *custom_lens)
 {
     ustate->lens_type = lens;
     snprintf(ustate->custom_lens, sizeof(ustate->custom_lens), "%s", (custom_lens != NULL) ? custom_lens : "");
 }
 
-void set_player_lens(PlayerNumber plyr_idx, int lens)
+void set_user_lens(NetUserId user, int lens)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
-    {
-        struct UserState *ustate = get_user_state(user);
-        if (ustate->player_id == plyr_idx)
-            set_user_lens(ustate, lens, NULL);
-    }
+    struct UserState *ustate = get_user_state(user);
+    if (!user_state_invalid(ustate))
+        set_user_state_lens(ustate, lens, NULL);
 }
 
 void set_all_users_lens(int lens, const char *custom_lens)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
-        set_user_lens(get_user_state(user), lens, custom_lens);
+        set_user_state_lens(get_user_state(user), lens, custom_lens);
 }
 
 static short failed_lens = -1;

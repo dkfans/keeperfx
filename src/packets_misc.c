@@ -47,6 +47,9 @@ NetUserId get_local_user(void)
 {
     if (replay.load_enable)
     {
+        NetUserId rec_user = replay.head.recording_user;
+        if ((rec_user >= 0) && (rec_user < MAX_NET_USERS) && (get_net_user_player_number(rec_user) == my_player_number))
+            return rec_user;
         for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
             if (get_net_user_player_number(user) == my_player_number)
                 return user;

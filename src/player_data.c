@@ -236,9 +236,45 @@ NetUserId get_player_primary_user(const struct PlayerInfo *player)
     return -1;
 }
 
+int32_t count_player_users(PlayerNumber plyr_idx)
+{
+    if (plyr_idx == PLAYER_NONE)
+        return 0;
+    int32_t count = 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        if (game.user_states[user].player_id == plyr_idx) {
+            count++;
+        }
+    }
+    return count;
+}
+
+// 0 for a keeper's primary user, 1+ for its other archon users
+int32_t get_user_archon_index(NetUserId user)
+{
+    const struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate) || ustate->player_id == PLAYER_NONE)
+        return 0;
+    int32_t index = 0;
+    for (NetUserId other = 0; other < user; ++other) {
+        if (game.user_states[other].player_id == ustate->player_id) {
+            index++;
+        }
+    }
+    return index;
+}
+
 struct UserState *get_player_primary_user_state(const struct PlayerInfo *player)
 {
     return get_user_state(get_player_primary_user(player));
+}
+
+void name_player_after_primary_user(struct PlayerInfo *player)
+{
+    const struct UserState *ustate = get_player_primary_user_state(player);
+    if (!user_state_invalid(ustate)) {
+        snprintf(player->player_name, sizeof(player->player_name), "%s", ustate->name);
+    }
 }
 
 void set_local_user_state_prediction(const struct UserState *ustate)

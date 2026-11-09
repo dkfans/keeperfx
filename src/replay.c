@@ -1028,16 +1028,15 @@ void restore_users_from_packet_save(void)
         }
         set_net_user_player_number(user, plyr_idx);
         struct PlayerInfo *player = get_player(plyr_idx);
-        snprintf(player->player_name, sizeof(player->player_name), "%s",
-            replay.head.user_names[user]);
-        init_user_state(user, plyr_idx);
+        init_user_state(user, plyr_idx, replay.head.user_names[user]);
+        name_player_after_primary_user(player);
         local_mapped |= (plyr_idx == my_player_number);
         SYNCLOG("Replay user %d -> player %d", (int)user, (int)plyr_idx);
     }
     if (!local_mapped)
     {
         set_net_user_player_number(SOLO_HUMAN_ID, my_player_number);
-        init_user_state(SOLO_HUMAN_ID, my_player_number);
+        init_user_state(SOLO_HUMAN_ID, my_player_number, "");
         SYNCLOG("Replay local user %d -> player %d (not in the recorded map)",
             (int)SOLO_HUMAN_ID, (int)my_player_number);
     }
@@ -1480,10 +1479,9 @@ TbBool setup_auto_replay_save(void)
     evict_old_replays(type, max_replays[type] - 1);
 
     int humans = 0;
-    for (int i = 0; i < PLAYERS_COUNT; i++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        if (user_present(user))
             humans++;
     }
     time_t now = time(NULL);

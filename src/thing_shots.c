@@ -165,7 +165,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         {
             power_level = SPELL_MAX_LEVEL;
         }
-        magic_use_power_direct(shotng->owner, PwrK_DESTRWALLS, power_level, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num,INVALID_THING, PwMod_CastForFree);
+        magic_use_power_direct(shotng->owner, NO_USER,PwrK_DESTRWALLS, power_level, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num,INVALID_THING, PwMod_CastForFree);
         break;
     default:
         break;

@@ -67,7 +67,7 @@ struct PacketSaveHead {
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
     int8_t frontend_alliances;
-    char user_names[MAX_NET_USERS][20];
+    char user_names[MAX_NET_USERS][PLAYER_MP_NAME_LEN];
 };
 
 #pragma pack()

@@ -7238,3 +7238,9 @@ msgstr "連線不穩定：%d.%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "%s 與房主的檔案不同"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Single-Player Maps (co-op)..."
+msgstr "單人地圖（合作）..."

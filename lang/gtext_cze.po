@@ -7613,3 +7613,9 @@ msgstr "Nestabilní připojení: %d,%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "Soubory se liší mezi %s a hostitelem"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Single-Player Maps (co-op)..."
+msgstr "Mapy pro jednoho hráče (kooperace)..."

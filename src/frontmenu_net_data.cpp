@@ -68,6 +68,8 @@ extern "C" {
 #define LOBBY_RIGHT_WIDTH 268
 #define LOBBY_OPTION_X (LOBBY_RIGHT_X + 10)
 #define LOBBY_OPTION_WIDTH (LOBBY_RIGHT_WIDTH - 17)
+#define LOBBY_OPTION_Y 90
+#define LOBBY_OPTION_HEIGHT 26
 #define LOBBY_MESSAGES_WIDTH (LOBBY_RIGHT_X + LOBBY_RIGHT_WIDTH - 10)
 #define LOBBY_SCROLLBAR_WIDTH 26
 #define LOBBY_HALF_WIDTH ((LOBBY_MESSAGES_WIDTH + LOBBY_SCROLLBAR_WIDTH) / 2)
@@ -158,12 +160,12 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { LbBtnT_NormalBtn,  BID_LOBBY_MAPPACK_SELECTOR, 0, 0, frontnet_open_mappack_list,frontnet_open_mappack_list,frontend_over_button,0, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_WIDTH, LOBBY_ROW_HEIGHT, NULL, 0, GUIStr_Empty, 0, {LOBBY_MAPPACK_SELECTOR_ID},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, LOBBY_RIGHT_X,  86, LOBBY_RIGHT_X,  86, LOBBY_RIGHT_WIDTH,LOBBY_MAPPACK_LIST_HEIGHT, frontnet_draw_lobby_settings_panel,       0, GUIStr_Empty, 0,   {0},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,0, LOBBY_OPTION_X,  90, LOBBY_OPTION_X,  90, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {45},    0, frontnet_maintain_host_setting },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,1, LOBBY_OPTION_X, 116, LOBBY_OPTION_X, 116, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {46},    0, frontnet_maintain_host_setting },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,2, LOBBY_OPTION_X, 142, LOBBY_OPTION_X, 142, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {47},    0, frontnet_maintain_host_setting },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,3, LOBBY_OPTION_X, 168, LOBBY_OPTION_X, 168, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {48},    0, frontnet_maintain_host_setting },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,4, LOBBY_OPTION_X, 194, LOBBY_OPTION_X, 194, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {49},    0, frontnet_maintain_host_setting },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,5, LOBBY_OPTION_X, 220, LOBBY_OPTION_X, 220, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {50},    0, frontnet_maintain_host_setting },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,6, LOBBY_OPTION_X, 246, LOBBY_OPTION_X, 246, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {51},    0, frontnet_maintain_host_setting },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,1, LOBBY_OPTION_X, 116, LOBBY_OPTION_X, 116, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {46},    0, frontnet_maintain_lobby_option },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,2, LOBBY_OPTION_X, 142, LOBBY_OPTION_X, 142, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {47},    0, frontnet_maintain_lobby_option },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,3, LOBBY_OPTION_X, 168, LOBBY_OPTION_X, 168, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {48},    0, frontnet_maintain_lobby_option },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,4, LOBBY_OPTION_X, 194, LOBBY_OPTION_X, 194, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {49},    0, frontnet_maintain_lobby_option },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,5, LOBBY_OPTION_X, 220, LOBBY_OPTION_X, 220, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {50},    0, frontnet_maintain_lobby_option },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,6, LOBBY_OPTION_X, 246, LOBBY_OPTION_X, 246, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {51},    0, frontnet_maintain_lobby_option },
   { LbBtnT_EditBox, -1,-1, 0, frontnet_session_set_lobby_name, NULL, frontend_over_button,     45, LOBBY_OPTION_X,  90, LOBBY_OPTION_X,  90, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_name,          0, GUIStr_Empty, 0, {.str = net_lobby_settings.net_lobby_name}, sizeof(net_lobby_settings.net_lobby_name) - 1, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, 10, 278, 10, 278, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET, LOBBY_HEADER_HEIGHT, frontnet_draw_lobby_section_header, 0, GUIStr_Empty, 0, {34},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10, 304,  10, 304, LOBBY_MESSAGES_WIDTH, 86, frontnet_draw_lobby_panel,         0, GUIStr_Empty, 0,   {0},    0, frontnet_messages_wheel_maintain },
@@ -319,6 +321,7 @@ enum LobbyPlayerColumn {
 
 static const int lobby_columns[] = {10, 277, 377, 478, 578};
 static const int lobby_player_columns[] = {LOBBY_COLUMN_TAB_PADDING, LOBBY_LEFT_WIDTH - 112, LOBBY_LEFT_WIDTH - 54, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET};
+static const int coop_player_columns[] = {LOBBY_COLUMN_TAB_PADDING, LOBBY_LEFT_WIDTH - 54, LOBBY_LEFT_WIDTH - 54, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET};
 static const int skirmish_player_columns[] = {LOBBY_COLUMN_TAB_PADDING, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET - LOBBY_TEAM_COLUMN_WIDTH, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET};
 static int lobby_tooltip_index = -1;
 
@@ -326,6 +329,9 @@ static const int *active_player_columns(void)
 {
     if (frontnet_service_selected(FrontendNetSvc_Skirmish)) {
         return skirmish_player_columns;
+    }
+    if (net_lobby_force_coop()) {
+        return coop_player_columns;
     }
     return lobby_player_columns;
 }
@@ -606,11 +612,111 @@ static const enum GUIStrings lobby_option_labels[] = {
 int32_t net_lobby_mappack_scroll_offset;
 TbBool net_lobby_mappack_list_open;
 
+enum LobbyMappackListMode {
+    LobbyList_Mappacks = 0,
+    LobbyList_CoopPacks,
+    LobbyList_CoopLevels,
+};
+
+static enum LobbyMappackListMode lobby_list_mode;
+static char lobby_list_restore[DISKPATH_SIZE];
+static short lobby_list_restore_fgroup;
+
+static int32_t lobby_mappack_list_count(void)
+{
+    switch (lobby_list_mode) {
+    case LobbyList_CoopPacks:
+        return mappacks_list.items_num;
+    case LobbyList_CoopLevels:
+        return campaign.freeplay_levels_count;
+    default:
+        return (int32_t)mp_mappacks_list.items_num + (mappacks_list.items_num > 0);
+    }
+}
+
+static int32_t lobby_coop_row(void)
+{
+    return mappacks_list.items_num > 0 ? (int32_t)mp_mappacks_list.ordered_num : -1;
+}
+
+static TbBool lobby_mappack_list_is_coop(int32_t index)
+{
+    return lobby_list_mode == LobbyList_Mappacks && index == lobby_coop_row();
+}
+
+static const struct GameCampaign *lobby_mp_mappack(int32_t index)
+{
+    int32_t coop_row = lobby_coop_row();
+    return &mp_mappacks_list.items[coop_row >= 0 && index > coop_row ? index - 1 : index];
+}
+
+static const char *lobby_level_name(LevelNumber lvnum)
+{
+    const struct LevelInformation *lvinfo = get_level_info(lvnum);
+    if (lvinfo == NULL) {
+        return "";
+    }
+    return (lvinfo->name_stridx > 0) ? get_string(lvinfo->name_stridx) : lvinfo->name;
+}
+
+static const char *lobby_mappack_list_name(int32_t index)
+{
+    switch (lobby_list_mode) {
+    case LobbyList_CoopPacks:
+        return mappacks_list.items[index].display_name;
+    case LobbyList_CoopLevels:
+        return lobby_level_name(campaign.freeplay_levels[index]);
+    default:
+        if (lobby_mappack_list_is_coop(index)) {
+            return get_string(GUIStr_NetLevelPacks);
+        }
+        return lobby_mp_mappack(index)->display_name;
+    }
+}
+
+static TbBool browsing_selected_coop_pack(void)
+{
+    if (lobby_list_restore[0] == '\0') {
+        return true;
+    }
+    char name[DISKPATH_SIZE];
+    current_campaign_net_name(name, sizeof(name));
+    return strcasecmp(name, lobby_list_restore) == 0;
+}
+
+static TbBool lobby_mappack_list_selected(int32_t index)
+{
+    switch (lobby_list_mode) {
+    case LobbyList_CoopPacks:
+        return net_lobby_force_coop() && strcasecmp(mappacks_list.items[index].fname, campaign.fname) == 0;
+    case LobbyList_CoopLevels:
+        return net_lobby_force_coop() && browsing_selected_coop_pack() && campaign.freeplay_levels[index] == net_level;
+    default:
+        if (lobby_mappack_list_is_coop(index)) {
+            return net_lobby_force_coop();
+        }
+        return !net_lobby_force_coop() && strcasecmp(lobby_mp_mappack(index)->fname, campaign.fname) == 0;
+    }
+}
+
+static const char *lobby_selection_name(char *buf, size_t size)
+{
+    const struct LevelInformation *lvinfo = NULL;
+    if (net_lobby_force_coop()) {
+        lvinfo = get_level_info(net_level);
+    }
+    if (lvinfo == NULL) {
+        return campaign.display_name;
+    }
+    snprintf(buf, size, "%s (%s)", lobby_level_name(net_level), campaign.display_name);
+    return buf;
+}
+
 static struct LobbyMappackListLayout lobby_mappack_list_layout(void)
 {
     struct LobbyMappackListLayout layout;
-    layout.rows = min((int32_t)mp_mappacks_list.items_num, LOBBY_MAPPACK_LIST_MAX_ROWS);
-    layout.max_scroll_offset = (int32_t)mp_mappacks_list.items_num - layout.rows;
+    layout.rows = min(lobby_mappack_list_count(), LOBBY_MAPPACK_LIST_MAX_ROWS);
+    layout.max_scroll_offset = lobby_mappack_list_count() - layout.rows;
     return layout;
 }
 
@@ -662,6 +768,18 @@ void frontnet_maintain_host_setting(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * network_is_host()) & LbBtnF_Enabled;
 }
 
+void frontnet_maintain_lobby_option(struct GuiButton *gbtn)
+{
+    frontnet_maintain_host_setting(gbtn);
+    int32_t option = gbtn->btype_value;
+    int32_t row = option;
+    if (net_lobby_force_coop() && option > LobbyOption_ComputerPlayers) {
+        row--;
+    }
+    TbBool visible = !net_lobby_force_coop() || option != LobbyOption_ComputerPlayers;
+    place_lobby_button(gbtn, visible, LOBBY_OPTION_Y + row * LOBBY_OPTION_HEIGHT, LOBBY_OPTION_HEIGHT);
+}
+
 void frontnet_draw_section_header_with_name(struct GuiButton *gbtn, unsigned short draw_flags, const char *format, const char *name)
 {
     int scale = lobby_menu_scale(gbtn);
@@ -692,13 +810,29 @@ void frontnet_draw_lobby_settings_header(struct GuiButton *gbtn)
 {
     const char *text = frontend_button_caption_text(gbtn);
     if (net_lobby_mappack_list_open) {
-        text = get_string(GUIStr_MnuMapPacks);
+        switch (lobby_list_mode) {
+        case LobbyList_CoopPacks:
+            text = get_string(GUIStr_MnuFreePlayLevels);
+            break;
+        case LobbyList_CoopLevels:
+            text = campaign.display_name;
+            break;
+        default:
+            text = get_string(GUIStr_MnuMapPacks);
+            break;
+        }
     }
     frontnet_draw_section_header_with_name(gbtn, 0, "%s", text);
 }
 
 void frontnet_draw_lobby_players_header(struct GuiButton *gbtn)
 {
+    if (net_lobby_force_coop()) {
+        static const int columns[] = {LOBBY_COLUMN_TAB_PADDING, LOBBY_LEFT_WIDTH - 54, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET};
+        const char *text[] = {get_string(GUIStr_MnuPlayers), get_string(GUIStr_NetPing)};
+        draw_lobby_column_tabs(gbtn, columns, 2, text);
+        return;
+    }
     const char *text[] = {get_string(GUIStr_MnuPlayers), get_string(GUIStr_NetTeam), get_string(GUIStr_NetPing)};
     draw_lobby_column_tabs(gbtn, active_player_columns(), active_player_column_count(), text);
 }
@@ -744,9 +878,16 @@ static void draw_mappack_selector(struct GuiButton *gbtn)
 {
     RendererSetDrawFlags(0);
     frontnet_draw_scroll_selection_box(gbtn, 0, NULL);
-    int font_index = lobby_font(gbtn, net_lobby_mappack_list_open || (frontend_mouse_over_button == gbtn->content.lval));
     struct GuiButton text_area = mappack_selector_text_area(gbtn);
-    draw_lobby_text(text_area.scr_pos_x, text_area.scr_pos_y, text_area.width, text_area.height, font_index, 0, 0, campaign.display_name);
+    // cancel
+    if (net_lobby_mappack_list_open && lobby_list_mode != LobbyList_Mappacks) {
+        int font_index = lobby_font(gbtn, mouse_is_over_lobby_area(gbtn, false));
+        draw_lobby_text(text_area.scr_pos_x, text_area.scr_pos_y, text_area.width, text_area.height, font_index, 0, 0, get_string(GUIStr_MnuCancel));
+        return;
+    }
+    int font_index = lobby_font(gbtn, net_lobby_mappack_list_open || (frontend_mouse_over_button == gbtn->content.lval));
+    char name[TEXT_BUFFER_LENGTH];
+    draw_lobby_text(text_area.scr_pos_x, text_area.scr_pos_y, text_area.width, text_area.height, font_index, 0, 0, lobby_selection_name(name, sizeof(name)));
 }
 
 void frontnet_draw_lobby_settings_panel(struct GuiButton *gbtn)
@@ -853,11 +994,14 @@ static int32_t lobby_player_column_at_mouse(struct GuiButton *gbtn)
 static TbBool lobby_player_cell_editable(NetUserId user, int32_t column)
 {
     TbBool player_editable = user == my_player_number || (network_is_host() && (network_user_active(user) || net_lobby_computer_player(user)));
+    if (net_lobby_force_coop()) {
+        return false;
+    }
     if (column == LobbyPlayerColumn_Name) {
         return player_editable;
     }
     if (column == LobbyPlayerColumn_Team) {
-        return frontend_alliances != -1 && player_editable;
+        return frontend_alliances != -1 && player_editable && net_lobby_primary_user(user) == user;
     }
     return false;
 }
@@ -953,13 +1097,16 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         if (show_ping) {
             draw_lobby_text(column_x[LobbyPlayerColumn_Ping], y, column_x[LobbyPlayerColumn_Count] - column_x[LobbyPlayerColumn_Ping] - text_gap, height, font, draw_flags, 0, ping);
         }
-        if (net_player_team[user] >= 0) {
+        NetUserId team_user = net_lobby_primary_user(user);
+        int8_t team = net_player_team[team_user];
+        if (team >= 0 && !net_lobby_force_coop()) {
             const struct TbSprite *team_icon = get_frontend_sprite(GFS_random_team);
-            if (net_player_team[user] < NET_TEAM_RANDOM) {
-                team_icon = get_frontend_sprite(GFS_team_1 + net_player_team[user]);
+            if (team < NET_TEAM_RANDOM) {
+                team_icon = get_frontend_sprite(GFS_team_1 + team);
             }
             int team_x = (column_x[LobbyPlayerColumn_Team] + column_x[LobbyPlayerColumn_Ping]) / 2 - text_gap - team_icon->SWidth * team_scale / 32;
             int team_y = y + (height - team_icon->SHeight * team_scale / 16) / 2;
+            RendererSetDrawFlags((team_user != user) ? (draw_flags | Lb_SPRITE_TRANSPAR4) : draw_flags);
             LbSpriteDrawResizedRemap(team_x, team_y, team_scale, team_icon, lobby_highlight_remap(user == user_at_mouse && column_at_mouse == LobbyPlayerColumn_Team));
         }
         RendererSetDrawFlags(0);
@@ -970,10 +1117,14 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 
 static void select_mp_mappack(int32_t index)
 {
-    const char *fname = mp_mappacks_list.items[index].fname;
-    if (strcasecmp(fname, campaign.fname) == 0) {
+    if (lobby_mappack_list_selected(index)) {
         return;
     }
+    if (net_lobby_force_coop()) {
+        net_level = 0;
+        memset(net_player_colour, -1, sizeof(net_player_colour));
+    }
+    const char *fname = lobby_mp_mappack(index)->fname;
     frontnet_send_campaign_change_message(fname);
     change_campaign(CampgnT_MultiplayerMappack, fname);
 }
@@ -1000,20 +1151,53 @@ static int32_t lobby_mappack_list_item_at_mouse(struct GuiButton *panel)
     return net_lobby_mappack_scroll_offset + row_y / LOBBY_ROW_HEIGHT;
 }
 
-void frontnet_open_mappack_list(struct GuiButton *gbtn)
+static void show_lobby_list(enum LobbyMappackListMode mode)
 {
-    const struct GameCampaign *selected = find_campaign_in_list(campaign.fname, &mp_mappacks_list);
+    lobby_list_mode = mode;
     net_lobby_mappack_scroll_offset = 0;
-    if (selected != NULL) {
-        net_lobby_mappack_scroll_offset = max(0, (int32_t)(selected - mp_mappacks_list.items) - lobby_mappack_list_layout().rows + 1);
+    for (int32_t index = 0; index < lobby_mappack_list_count(); index++) {
+        if (lobby_mappack_list_selected(index)) {
+            net_lobby_mappack_scroll_offset = max(0, index - lobby_mappack_list_layout().rows + 1);
+        }
     }
     net_lobby_mappack_list_open = true;
 }
 
+static void browse_coop_pack(const char *fname)
+{
+    if (lobby_list_restore[0] == '\0') {
+        current_campaign_net_name(lobby_list_restore, sizeof(lobby_list_restore));
+        lobby_list_restore_fgroup = campaign.fgroup;
+    }
+    if (change_campaign(CampgnT_Mappack, fname)) {
+        show_lobby_list(LobbyList_CoopLevels);
+    }
+}
+
+static void close_lobby_list(void)
+{
+    net_lobby_mappack_list_open = false;
+    if (lobby_list_restore[0] != '\0') {
+        frontnet_start_level(lobby_list_restore, -1);
+        lobby_list_restore[0] = '\0';
+    }
+}
+
+short frontnet_lobby_campaign_fgroup(void)
+{
+    return lobby_list_restore[0] != '\0' ? lobby_list_restore_fgroup : campaign.fgroup;
+}
+
+void frontnet_open_mappack_list(struct GuiButton *gbtn)
+{
+    lobby_list_restore[0] = '\0';
+    show_lobby_list(LobbyList_Mappacks);
+}
+
 void frontnet_maintain_mappack_list(struct GuiButton *gbtn)
 {
-    if (!network_is_host() || (mp_mappacks_list.items_num == 0)) {
-        net_lobby_mappack_list_open = false;
+    if (net_lobby_mappack_list_open && (!network_is_host() || (lobby_mappack_list_count() == 0))) {
+        close_lobby_list();
     }
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Visible * net_lobby_mappack_list_open) & LbBtnF_Visible;
     if (net_lobby_mappack_list_open) {
@@ -1058,7 +1242,7 @@ void frontnet_draw_lobby_tooltips(struct GuiButton *gbtn)
         int32_t hovered = lobby_mappack_list_item_at_mouse(&panel);
         if (hovered >= 0) {
             struct GuiButton row = lobby_mappack_list_row(gbtn);
-            draw_lobby_tooltip(&row, mp_mappacks_list.items[hovered].display_name);
+            draw_lobby_tooltip(&row, lobby_mappack_list_name(hovered));
         }
         return;
     }
@@ -1068,7 +1252,8 @@ void frontnet_draw_lobby_tooltips(struct GuiButton *gbtn)
     struct GuiButton *selector = get_gui_button(BID_LOBBY_MAPPACK_SELECTOR);
     if (mouse_is_over_lobby_area(selector, false)) {
         struct GuiButton text_area = mappack_selector_text_area(selector);
-        draw_lobby_tooltip(&text_area, campaign.display_name);
+        char name[TEXT_BUFFER_LENGTH];
+        draw_lobby_tooltip(&text_area, lobby_selection_name(name, sizeof(name)));
     }
 }
 
@@ -1082,13 +1267,12 @@ void frontnet_draw_mappack_list(struct GuiButton *gbtn)
     int32_t rows = lobby_mappack_list_layout().rows;
     for (int32_t i = 0; i < rows; i++) {
         int32_t index = net_lobby_mappack_scroll_offset + i;
-        const struct GameCampaign *mappack = &mp_mappacks_list.items[index];
         int font_index = 1;
-        if ((index == hovered) || (strcasecmp(mappack->fname, campaign.fname) == 0)) {
+        if ((index == hovered) || lobby_mappack_list_selected(index)) {
             font_index = 2;
         }
         row.scr_pos_y = panel.scr_pos_y + ((LOBBY_PANEL_PADDING + i * LOBBY_ROW_HEIGHT) * scale + 8) / 16;
-        draw_lobby_text(row.scr_pos_x, row.scr_pos_y, row.width, row.height, font_index, 0, 0, mappack->display_name);
+        draw_lobby_text(row.scr_pos_x, row.scr_pos_y, row.width, row.height, font_index, 0, 0, lobby_mappack_list_name(index));
     }
 }
 
@@ -1096,11 +1280,31 @@ void frontnet_mappack_list_click(struct GuiButton *gbtn)
 {
     struct GuiButton panel = lobby_mappack_list_panel(gbtn);
     int32_t index = lobby_mappack_list_item_at_mouse(&panel);
-    if (index >= 0) {
-        select_mp_mappack(index);
+    if (index < 0) {
+        if (!mouse_is_over_lobby_area(&panel, true)) {
+            close_lobby_list();
+        }
+        return;
     }
-    if ((index >= 0) || !mouse_is_over_lobby_area(&panel, true)) {
-        net_lobby_mappack_list_open = false;
+    switch (lobby_list_mode) {
+    case LobbyList_CoopPacks:
+        browse_coop_pack(mappacks_list.items[index].fname);
+        break;
+    case LobbyList_CoopLevels:
+        lobby_list_restore[0] = '\0';
+        frontnet_select_coop_level(campaign.freeplay_levels[index]);
+        close_lobby_list();
+        break;
+    default:
+        if (!lobby_mappack_list_is_coop(index)) {
+            close_lobby_list();
+            select_mp_mappack(index);
+        } else if (mappacks_list.items_num == 1) {
+            browse_coop_pack(mappacks_list.items[0].fname);
+        } else {
+            show_lobby_list(LobbyList_CoopPacks);
+        }
+        break;
     }
 }
 

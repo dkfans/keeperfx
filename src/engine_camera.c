@@ -37,6 +37,7 @@
 #include "player_instances.h"
 #include "frontmenu_ingame_map.h"
 #include "local_camera.h"
+#include "packets.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -293,20 +294,35 @@ void view_set_camera_tilt(struct Camera *cam, unsigned char mode)
     cam->rotation_angle_y = tilt_step(cam->rotation_angle_y, mode);
 }
 
+static void init_user_dungeon_camera(struct UserState *ustate)
+{
+    struct Thing* heartng = get_player_soul_container(ustate->player_id);
+    ustate->dungeon_camera.x = heartng->mappos.x.val;
+    ustate->dungeon_camera.y = heartng->mappos.y.val;
+    ustate->dungeon_camera.yaw[false] = DEGREES_45;
+    ustate->dungeon_camera.yaw[true] = 0;
+}
+
 void init_player_cameras(struct PlayerInfo *player)
 {
-    struct Thing* heartng = get_player_soul_container(player->id_number);
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
         struct UserState *ustate = get_user_state(user);
         if (ustate->player_id != player->id_number)
             continue;
-        ustate->dungeon_camera.x = heartng->mappos.x.val;
-        ustate->dungeon_camera.y = heartng->mappos.y.val;
-        ustate->dungeon_camera.yaw[false] = DEGREES_45;
-        ustate->dungeon_camera.yaw[true] = 0;
+        init_user_dungeon_camera(ustate);
     }
     init_local_cameras(player);
+}
+
+// leaves the cameras of the keeper's other users alone
+void init_user_cameras(NetUserId user)
+{
+    struct UserState *ustate = get_user_state(user);
+    init_user_dungeon_camera(ustate);
+    if (user == get_local_user()) {
+        init_local_cameras(get_player(ustate->player_id));
+    }
 }
 
 static int get_walking_bob_direction(const struct Thing *thing)
@@ -491,11 +507,14 @@ static void update_player_camera_shake(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
 
-    const struct UserState *ustate = get_player_primary_user_state(player);
-    if (!user_state_invalid(ustate) && (ustate->view_type == PVT_CreatureContrl || ustate->view_type == PVT_CreaturePasngr)
-     && ustate->controlled_thing_idx <= 0 && ustate->instance_num != PI_HeartZoom)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        ERRORLOG("Cannot go first person without controlling creature");
+        const struct UserState *ustate = get_user_state(user);
+        if ((ustate->player_id == player->id_number) && (ustate->view_type == PVT_CreatureContrl || ustate->view_type == PVT_CreaturePasngr)
+         && ustate->controlled_thing_idx <= 0 && ustate->instance_num != PI_HeartZoom)
+        {
+            ERRORLOG("User %d cannot go first person without controlling creature", (int)user);
+        }
     }
     if (dungeon->camera_deviate_quake) {
         dungeon->camera_deviate_quake--;

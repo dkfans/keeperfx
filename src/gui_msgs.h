@@ -59,6 +59,7 @@ struct GuiMessage {
     short target_idx;
     int8_t type;
     short icon_idx;
+    int8_t archon_digit; // 1-9 when sent by a user sharing a keeper
 };
 
 #pragma pack()

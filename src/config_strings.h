@@ -520,6 +520,7 @@ enum GUIStrings {
     GUIStr_NetWaitingOnUser,
     GUIStr_NetConnectionUnstable,
     GUIStr_NetFilesDiffer,
+    GUIStr_NetLevelPacks,
     GuiStrEnd
 };
 

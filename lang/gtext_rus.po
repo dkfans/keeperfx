@@ -6977,3 +6977,9 @@ msgstr "Нестабильное соединение: %d,%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "Файлы у %s и хоста различаются"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Single-Player Maps (co-op)..."
+msgstr "Одиночные карты (кооператив)..."

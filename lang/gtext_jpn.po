@@ -7577,3 +7577,9 @@ msgstr "接続が不安定です：%d.%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "%s とホストのファイルが異なります"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Single-Player Maps (co-op)..."
+msgstr "一人用（協力）..."

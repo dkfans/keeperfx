@@ -33,6 +33,7 @@ extern "C" {
 /******************************************************************************/
 #define PLAYERS_COUNT       9
 #define COLOURS_COUNT       9
+#define MAX_THINGS_IN_HAND  64
 
 #define INVALID_PLAYER (&bad_player)
 #define INVALID_USER_STATE (&bad_user_state)
@@ -96,10 +97,10 @@ enum UserInitFlags {
 enum UserAdditionalFlags {
     UsrAF_None                      = 0x00,
     UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    UsrAF_Unkn04                    = 0x04,
-    UsrAF_Unkn08                    = 0x08,
+    UsrAF_GameMenuOpen              = 0x04,
+    UsrAF_SpecialMenuOpen           = 0x08, // a dungeon special's dialog (resurrect, transfer...)
     UsrAF_UnlockedLordTorture       = 0x10, // if this flag is set, the user will be sent to the Lord Torture Mini-game
-    UsrAF_Unkn20                    = 0x20,
+    UsrAF_ChatOpen                  = 0x20,
     UsrAF_Unkn40                    = 0x40,
     UsrAF_Unkn80                    = 0x80,
 };
@@ -170,7 +171,7 @@ struct PlayerInfo {
     unsigned char player_type; /* enum PlayerTypes */
     unsigned char display_flags; /* enum PlayerField6Flags -- TODO: make local state */
     unsigned char id_number;
-    char player_name[20];
+    char player_name[PLAYER_MP_NAME_LEN];
     unsigned char victory_state;
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
@@ -182,7 +183,6 @@ struct PlayerInfo {
     GameTurn display_objective_turn;
     GameTurn slap_cooldown_until_turn; /* computer-only, prevents slapping too fast. */
     unsigned char hand_idx; /* hand skin (powerhands.toml) */
-    struct RoomSpace roomspace;
     ThingModel special_digger; /* which creatures are imp-like */
     unsigned short generate_speed; /* portal creature frequency */
 };
@@ -198,6 +198,7 @@ struct PlayerInfo {
 struct UserState {
     PlayerNumber player_id;
     PlayerNumber reconnect_player_id;
+    char name[PLAYER_MP_NAME_LEN];
     unsigned char init_flags; // Uses UserInitFlags
     unsigned char additional_flags; // Uses UserAdditionalFlags
     unsigned char input_crtr_control;
@@ -240,9 +241,14 @@ struct UserState {
     PlayerState continue_work_state;
     short thing_under_hand;
     short hand_thing_idx;
+    ThingIndex things_in_hand[MAX_THINGS_IN_HAND];
+    uint8_t num_things_in_hand;
     int32_t hand_animationId;
     GameTurn hand_animation_until_turn;
     struct RoomSpace render_roomspace;
+    struct RoomSpace roomspace;
+    GameTurn last_dig_order_turn;
+    TbBool last_dig_order_was_removal;
     unsigned char roomspace_mode;
     int roomspace_detection_looseness;
     int roomspace_width;
@@ -371,6 +377,7 @@ NetUserId get_my_user(void);
 TbBool is_local_user(NetUserId user);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_primary_user_state(const struct PlayerInfo *player);
+void name_player_after_primary_user(struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);
 void set_local_user_state_prediction(const struct UserState *ustate);
 const struct UserState *get_user_state_prediction(NetUserId user);
@@ -407,6 +414,8 @@ int32_t get_user_dungeon_yaw(NetUserId user);
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
 void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
 NetUserId get_player_primary_user(const struct PlayerInfo *player);
+int32_t count_player_users(PlayerNumber plyr_idx);
+int32_t get_user_archon_index(NetUserId user);
 struct PlayerInfo *get_user_player(NetUserId user);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);

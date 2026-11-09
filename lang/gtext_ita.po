@@ -7743,3 +7743,9 @@ msgstr "Connessione instabile: %d,%d"
 msgctxt "Network game message"
 msgid "Files differ between %s and host"
 msgstr "I file differiscono tra %s e l'host"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Single-Player Maps (co-op)..."
+msgstr "Mappe per giocatore singolo (cooperativo)..."
