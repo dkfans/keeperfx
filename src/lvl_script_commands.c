@@ -4459,10 +4459,6 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
         SCRPTERRLOG("Power %s cannot be cast on a Creature", power_code_name(pwr_id));
         DEALLOCATE_SCRIPT_VALUE
     }
-    else
-    {
-        JUSTLOG("TESTLOG: FLag = %lld", (powerst->can_cast_flags & PwCast_AllCrtrs));
-    }
     if (powerst->overcharge_check_idx != OcC_do_not_expand)
     {
         if ((power_level < 1) || (power_level > MAGIC_OVERCHARGE_LEVELS))
