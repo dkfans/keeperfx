@@ -7665,6 +7665,18 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel 
             dist,
             filter, &param);
     }
+    case CSelCrit_Possessed:
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+        {
+            if (get_net_user_player_number(user) != plyr_idx)
+                continue;
+            if (get_user_view_type(user) != PVT_CreatureContrl)
+                continue;
+            struct Thing *thing = thing_get(get_user_state(user)->controlled_thing_idx);
+            if (thing_is_creature(thing) && creature_matches_model(thing, crmodel))
+                return thing;
+        }
+        return INVALID_THING;
     default:
         ERRORLOG("Invalid level up criteria %d", (int)criteria);
         return INVALID_THING;

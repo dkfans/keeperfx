@@ -220,6 +220,7 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {"ON_FRIENDLY_GROUND",   CSelCrit_OnFriendlyGround},
   {"ON_NEUTRAL_GROUND",    CSelCrit_OnNeutralGround},
   {"ANYWHERE",             CSelCrit_Any},
+  {"POSSESSED",            CSelCrit_Possessed},
   {NULL,                   0},
 };
 
@@ -464,6 +465,10 @@ ThingModel parse_creature_name(const char *creature_name)
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
             return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
+        }
+        if (0 == strcasecmp(creature_name, "ANY_DIGGER"))
+        {
+            return CREATURE_DIGGER;
         }
     }
     return ret;

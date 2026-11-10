@@ -15,7 +15,7 @@
 ---@alias rule_action "DENY"|"ALLOW"|"ENABLE"|"DISABLE"
 ---@alias hero_objective "STEAL_GOLD"|"STEAL_SPELLS"|"ATTACK_ENEMIES"|"ATTACK_DUNGEON_HEART"|"SNIPE_DUNGEON_HEART"|"ATTACK_ROOMS"|"SABOTAGE_ROOMS"|"DEFEND_PARTY"|"DEFEND_LOCATION"|"DEFEND_HEART"|"DEFEND_ROOMS"
 ---@alias msgtype "SPEECH"|"SOUND"
----@alias creature_select_criteria "MOST_EXPERIENCED"|"MOST_EXP_WANDERING"|"MOST_EXP_WORKING"|"MOST_EXP_FIGHTING"|"LEAST_EXPERIENCED"|"LEAST_EXP_WANDERING"|"LEAST_EXP_WORKING"|"LEAST_EXP_FIGHTING"|"NEAR_OWN_HEART"|"NEAR_ENEMY_HEART"|"ON_ENEMY_GROUND"|"ON_FRIENDLY_GROUND"|"ON_NEUTRAL_GROUND"|"ANYWHERE"
+---@alias creature_select_criteria "MOST_EXPERIENCED"|"MOST_EXP_WANDERING"|"MOST_EXP_WORKING"|"MOST_EXP_FIGHTING"|"LEAST_EXPERIENCED"|"LEAST_EXP_WANDERING"|"LEAST_EXP_WORKING"|"LEAST_EXP_FIGHTING"|"NEAR_OWN_HEART"|"NEAR_ENEMY_HEART"|"ON_ENEMY_GROUND"|"ON_FRIENDLY_GROUND"|"ON_NEUTRAL_GROUND"|"ANYWHERE"|"POSSESSED"
 ---@alias trap_config "NameTextID"|"TooltipTextID"|"SymbolSprites"|"PointerSprites"|"PanelTabIndex"|"Crate"|"ManufactureLevel"|"ManufactureRequired"|"Shots"|"TimeBetweenShots"|"SellingValue"|"Model"|"ModelSize"|"AnimationSpeed"|"TriggerType"|"ActivationType"|"EffectType"|"Hidden"|"TriggerAlarm"|"Slappable"|"Unanimated"|"Health"|"Unshaded"|"RandomStartFrame"|"ThingSize"|"HitType"|"LightRadius"|"LightIntensity"|"LightFlags"|"TransparencyFlags"|"ShotVector"|"Destructible"|"Unstable"|"Unsellable"
 ---@alias gui_button_group "MINIMAP"|"TABS"|"INFO"|"ROOM"|"POWER"|"TRAP"|"DOOR"|"CREATURE"|"MESSAGE"
 ---@alias script_operator "SET"|"INCREASE"|"DECREASE"|"MULTIPLY"
