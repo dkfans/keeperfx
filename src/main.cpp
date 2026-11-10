@@ -515,7 +515,7 @@ static bool players_cursor_is_at_top_of_view()
 
             case CSt_PowerHand:
                 return (local_state.local_thing_under_hand == 0)
-                    || (! power_hand_is_empty(get_displayed_user()));
+                    || (ustate->num_things_in_hand > 0);
         }
     }
     return false;

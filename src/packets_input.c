@@ -206,7 +206,7 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
             create_power_hand(user);
         ustate->thing_under_hand = thing->index;
     }
-    thing = get_first_thing_in_power_hand(user);
+    thing = get_first_held_thing(ustate);
     if (thing_exists(thing))
     {
         if (ustate->hand_thing_idx == 0) {
@@ -224,7 +224,7 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
         if ((ustate->instance_num != PI_Grab) && (ustate->instance_num != PI_Drop) &&
             (ustate->instance_num != PI_Whip) && (ustate->instance_num != PI_WhipEnd))
         {
-            thing = get_first_thing_in_power_hand(user);
+            thing = get_first_held_thing(ustate);
             if ((ustate->thing_under_hand != 0) || !thing_exists(thing))
             {
                 set_power_hand_graphic(user, HndA_Hover);
@@ -449,7 +449,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         } else
         if (ustate->cursor_button_down != 0)
         {
-            if (!power_hand_is_empty(user) && (!ustate->one_click_lock_cursor))
+            if ((ustate->num_things_in_hand != 0) && (!ustate->one_click_lock_cursor))
             {
                 if (dump_first_held_thing_on_map(player->id_number, user, stl_x, stl_y, 1)) {
                     if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
