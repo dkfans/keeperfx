@@ -38,6 +38,12 @@ struct UserState;
 #define HAND_RULE_SLOTS_COUNT 8
 #define HAND_GOLD_DROP_ANIMATION_TURNS 16
 
+enum HeldThingDropOutcome {
+    HTDrop_Ground,
+    HTDrop_Gold,
+    HTDrop_Eaten,
+};
+
 #pragma pack()
 /******************************************************************************/
 void add_creature_to_sacrifice_list(PlayerNumber owner, long model, CrtrExpLevel exp_level);
@@ -89,6 +95,10 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
 
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
+void set_dropped_thing_position(struct Thing *droptng, const struct Coord3d *dstpos);
+TbBool get_held_thing_drop_position(const struct Thing *droptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Coord3d *pos);
+void set_dropped_object_draw(struct Thing *thing);
+enum HeldThingDropOutcome get_held_thing_drop_outcome(const struct Thing *droptng, const struct Thing *overtng);
 void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, const struct Coord3d *dstpos);
 void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx, NetUserId user);
 TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
