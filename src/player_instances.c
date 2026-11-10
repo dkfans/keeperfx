@@ -329,7 +329,9 @@ TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing
       } else
       {
           slap_creature(player, thing);
-          if (!local_hand_takes_over_action(user, LocalHandAction_Slap)) {
+          if (local_hand_takes_over_action(user, LocalHandAction_Slap)) {
+              local_hand_hide_damage_flash(thing);
+          } else {
               show_power_slap_feedback(thing);
           }
           thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, get_user_dungeon_yaw(user));
