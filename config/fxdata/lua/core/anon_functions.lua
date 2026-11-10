@@ -120,6 +120,13 @@ local function function_text(src, tokens, first, last)
     return head .. tail
 end
 
+-- Script paths use the separator of the platform that loaded them (Windows writes
+-- triggers\Events.lua). Saves and resync data cross platforms, so store and look up
+-- paths with forward slashes, which every platform opens.
+local function portable_path(file)
+    return (file:gsub("\\", "/"))
+end
+
 local function load_script(file)
     local cached = sources[file]
     if cached ~= nil then
@@ -246,7 +253,7 @@ local function encode(fn)
     if info.what ~= "Lua" or info.source:sub(1, 1) ~= "@" then
         return nil -- not a script file (a function made with load() from a string)
     end
-    local file = info.source:sub(2)
+    local file = portable_path(info.source:sub(2))
     local reason
     local script = load_script(file)
     if not script then
@@ -322,7 +329,7 @@ function M.encode(fn)
 end
 
 local function restore_from_script(spec)
-    local script = load_script(spec.file)
+    local script = load_script(portable_path(spec.file))
     if not script then
         return nil, "script not found"
     end
