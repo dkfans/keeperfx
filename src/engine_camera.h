@@ -47,6 +47,8 @@ struct CreatureControl;
 #define CAMERA_TILT_DEFAULT -266
 #define CAMERA_TILT_MIN -350
 #define CAMERA_TILT_MAX -200
+#define CAMERA_DEVIATE_JUMP_DECAY 32
+#define TREMBLING_LANDING_CAMERA_DEVIATE_JUMP 96
 
 extern long zoom_distance_setting; // CFG setting
 extern long frontview_zoom_distance_setting; // CFG setting
