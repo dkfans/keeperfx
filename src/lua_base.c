@@ -1,5 +1,7 @@
 #include "pre_inc.h"
 
+#include <stdlib.h>
+#include <string.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
@@ -432,6 +434,134 @@ static void disable_lua_file_io(lua_State *L)
 }
 
 
+/* Deterministic pairs():
+ * Table traversal order in Lua depends on string hashes, and LuaJIT seeds its
+ * string hash from system entropy, so lua_next() visits keys in a different
+ * order in every process (and PUC Lua, used by the browser build, orders them
+ * differently again). Scripts run in the simulation, so a script that acts on
+ * the keys of a table in pairs() order would act in a different order on each
+ * client of a multiplayer game. This pairs() visits the keys in a fixed order:
+ * numbers ascending, then strings by bytes, then booleans; keys that cannot be
+ * ordered (tables, functions, userdata) come last in traversal order. */
+struct LuaSortKey {
+    int rank;
+    lua_Number num;
+    const char *str;
+    size_t len;
+    int pos;
+};
+
+static int lua_sort_key_cmp(const void *va, const void *vb)
+{
+    const struct LuaSortKey *a = (const struct LuaSortKey *)va;
+    const struct LuaSortKey *b = (const struct LuaSortKey *)vb;
+    if (a->rank != b->rank)
+        return (a->rank < b->rank) ? -1 : 1;
+    switch (a->rank)
+    {
+    case 0:
+    case 2:
+        if (a->num != b->num)
+            return (a->num < b->num) ? -1 : 1;
+        break;
+    case 1:
+    {
+        size_t n = (a->len < b->len) ? a->len : b->len;
+        int c = memcmp(a->str, b->str, n);
+        if (c != 0)
+            return (c < 0) ? -1 : 1;
+        if (a->len != b->len)
+            return (a->len < b->len) ? -1 : 1;
+        break;
+    }
+    default:
+        break;
+    }
+    return (a->pos < b->pos) ? -1 : (a->pos > b->pos);
+}
+
+static int lua_ordered_pairs_iter(lua_State *L)
+{
+    /* upvalue 1: the table, 2: array of keys in order, 3: position */
+    int pos = (int)lua_tointeger(L, lua_upvalueindex(3));
+    int count = (int)lua_objlen(L, lua_upvalueindex(2));
+    while (pos < count) {
+        pos++;
+        lua_rawgeti(L, lua_upvalueindex(2), pos);
+        lua_pushvalue(L, -1);
+        lua_rawget(L, lua_upvalueindex(1));
+        if (!lua_isnil(L, -1)) {
+            lua_pushinteger(L, pos);
+            lua_replace(L, lua_upvalueindex(3));
+            return 2;
+        }
+        lua_pop(L, 2); // key removed during the traversal
+    }
+    lua_pushinteger(L, pos);
+    lua_replace(L, lua_upvalueindex(3));
+    lua_pushnil(L);
+    return 1;
+}
+
+static int lua_ordered_pairs(lua_State *L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    int count = 0;
+    lua_newtable(L); // 2: keys in traversal order
+    lua_pushnil(L);
+    while (lua_next(L, 1) != 0) {
+        lua_pop(L, 1);
+        lua_pushvalue(L, -1);
+        lua_rawseti(L, 2, ++count);
+    }
+    struct LuaSortKey *keys = (struct LuaSortKey *)malloc(sizeof(struct LuaSortKey) * (count > 0 ? count : 1));
+    if (keys == NULL)
+        return luaL_error(L, "not enough memory");
+    for (int i = 0; i < count; i++) {
+        lua_rawgeti(L, 2, i + 1);
+        struct LuaSortKey *k = &keys[i];
+        memset(k, 0, sizeof(*k));
+        k->pos = i + 1;
+        switch (lua_type(L, -1))
+        {
+        case LUA_TNUMBER:
+            k->rank = 0;
+            k->num = lua_tonumber(L, -1);
+            break;
+        case LUA_TSTRING:
+            k->rank = 1;
+            k->str = lua_tolstring(L, -1, &k->len); // stays valid: the keys table holds the string
+            break;
+        case LUA_TBOOLEAN:
+            k->rank = 2;
+            k->num = lua_toboolean(L, -1);
+            break;
+        default:
+            k->rank = 3;
+            break;
+        }
+        lua_pop(L, 1);
+    }
+    qsort(keys, count, sizeof(struct LuaSortKey), lua_sort_key_cmp);
+    lua_createtable(L, count, 0); // 3: keys in sorted order
+    for (int i = 0; i < count; i++) {
+        lua_rawgeti(L, 2, keys[i].pos);
+        lua_rawseti(L, 3, i + 1);
+    }
+    free(keys);
+    lua_pushvalue(L, 1);
+    lua_pushvalue(L, 3);
+    lua_pushinteger(L, 0);
+    lua_pushcclosure(L, lua_ordered_pairs_iter, 3);
+    return 1;
+}
+
+static void install_ordered_pairs(lua_State *L)
+{
+    lua_pushcfunction(L, lua_ordered_pairs);
+    lua_setglobal(L, "pairs");
+}
+
 /* @comment
  *     The loading items of open_lua_script and open_lua_script_for_mod need to be consistent.
  */
@@ -468,6 +598,7 @@ TbBool open_lua_script(LevelNumber lvnum)
     }
 
     open_lua_standard_libraries(Lvl_script);
+    install_ordered_pairs(Lvl_script);
     disable_lua_functions(Lvl_script);
     disable_lua_file_io(Lvl_script);
 
