@@ -26,6 +26,7 @@
 #include "magic_powers.h"
 #include "config_crtrstates.h"
 #include "creature_instances.h"
+#include "creature_graphics.h"
 #include "creature_states_mood.h"
 #include "thing_stats.h"
 #include "local_camera.h"
@@ -640,6 +641,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, thing->creature.gold_carried);
         } else if (strcmp(key, "party") == 0) {
             lua_pushPartyTable(L, get_group_leader(thing));
+        } else if (strcmp(key, "hand_icon") == 0) {
+            lua_pushinteger(L, get_creature_model_graphics(thing->model, CGI_HandSymbol));
         } else if (strcmp(key, "level") == 0) {
             lua_pushinteger(L, cctrl->exp_level + 1);
         } else if (strcmp(key, "max_speed") == 0) {

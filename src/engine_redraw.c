@@ -125,6 +125,23 @@ static void ensure_map_fade_buffers(int width, int height)
         map_fade_ghost_table = (unsigned char*)malloc(PALETTE_COLORS * PALETTE_COLORS);
 }
 /******************************************************************************/
+enum { CUSTOM_BUFF_ICONS = 32 };
+static long custom_buff_icons[CUSTOM_BUFF_ICONS];
+static int custom_buff_icon_count;
+
+void clear_custom_buff_icons(void)
+{
+    custom_buff_icon_count = 0;
+}
+
+TbBool add_custom_buff_icon(long spridx)
+{
+    if (custom_buff_icon_count >= CUSTOM_BUFF_ICONS)
+        return false;
+    custom_buff_icons[custom_buff_icon_count++] = spridx;
+    return true;
+}
+
 static void draw_creature_view_icons(struct Thing* creatng)
 {
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
@@ -176,6 +193,15 @@ static void draw_creature_view_icons(struct Thing* creatng)
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
         x += scale_ui_value_lofi(spr->SWidth);
+    }
+    if (custom_buff_icon_count > 0)
+    {
+        ScreenCoord lifted_y = y - 15 * ps_units_per_px / 16;
+        for (int icon_idx = 0; icon_idx < custom_buff_icon_count; icon_idx++)
+        {
+            draw_gui_panel_sprite_left(x, (icon_idx > 0) ? lifted_y : y, ps_units_per_px, custom_buff_icons[icon_idx]);
+            x += scale_ui_value_lofi(spr->SWidth);
+        }
     }
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
     {

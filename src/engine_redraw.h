@@ -46,6 +46,9 @@ void update_local_view(NetUserId user, TbBool keep_local_camera);
 
 void draw_overlay_compass(long a1, long a2);
 
+void clear_custom_buff_icons(void);
+TbBool add_custom_buff_icon(long spridx);
+
 TbBool keeper_screen_redraw(void);
 
 int get_place_terrain_pointer_graphics(SlabKind skind);
