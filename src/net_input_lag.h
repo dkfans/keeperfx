@@ -10,7 +10,10 @@
 #define INPUT_LAG_INCREASE_WINDOW_TURNS 20
 #define INPUT_LAG_DECREASE_WINDOW_TURNS 300
 // Waiting this long for a packet each turn is tolerated, in exchange for lower input lag.
-#define INPUT_LAG_TOLERATED_WAIT_MS 35
+// Kept small: a wait shows as a stutter, and with 35 ms a link whose delay sat just above a
+// whole number of turns had the game waiting in most turns (a quarter of the time at 300 ms
+// round trip) to save one turn of input lag.
+#define INPUT_LAG_TOLERATED_WAIT_MS 10
 // Extra headroom required before a decrease, so the input lag can't oscillate between two values.
 #define INPUT_LAG_DECREASE_MARGIN_MS 10
 
