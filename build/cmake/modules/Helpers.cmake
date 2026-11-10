@@ -4,8 +4,27 @@ function(kfx_status PREFIX MESSAGE)
     message(STATUS "[${PREFIX}] ${MESSAGE}")
 endfunction()
 
+# Flags that make the simulation compute the same results on every platform.
+# Multiplayer is lockstep: all clients (32-bit Windows, 64-bit Linux,
+# WebAssembly) must get bit-identical game state from the same input.
+#  - Uninitialised local variables are zero instead of whatever was left on the
+#    stack, which differs between builds, platforms and runs.
+#  - No contraction of a*b+c into a fused multiply-add on targets that have one.
+#  - 32-bit x86 computes float/double in SSE registers like x86-64 and wasm do,
+#    not in 80-bit x87 registers whose extra precision changes results.
+function(apply_keeperfx_determinism_flags TARGET)
+    if(MSVC)
+        return()
+    endif()
+    target_compile_options(${TARGET} PRIVATE -ftrivial-auto-var-init=zero -ffp-contract=off)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT EMSCRIPTEN)
+        target_compile_options(${TARGET} PRIVATE -msse2 -mfpmath=sse)
+    endif()
+endfunction()
+
 # Warning + optimisation flags, per platform (mirrors the hand Makefiles).
 function(apply_keeperfx_warnings TARGET)
+    apply_keeperfx_determinism_flags(${TARGET})
     if(MSVC)
         # Real cl.exe (Debug-MSVC preset) - a local-convenience build, not the
         # fork's canonical toolchain (that's GCC/MinGW-w64). The GNU-style
