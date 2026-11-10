@@ -74,13 +74,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-int32_t pinstfs_hand_grab(NetUserId user, int32_t *n);
+int32_t pinstfs_hand_animation(NetUserId user, int32_t *n);
 int32_t pinstfe_hand_grab(NetUserId user, int32_t *n);
 int32_t pinstfs_hand_drop(NetUserId user, int32_t *n);
 int32_t pinstfe_hand_drop(NetUserId user, int32_t *n);
-int32_t pinstfs_hand_whip(NetUserId user, int32_t *n);
 int32_t pinstfe_hand_whip(NetUserId user, int32_t *n);
-int32_t pinstfs_hand_whip_end(NetUserId user, int32_t *n);
 int32_t pinstfe_hand_whip_end(NetUserId user, int32_t *n);
 int32_t pinstfs_direct_control_creature(NetUserId user, int32_t *n);
 int32_t pinstfs_passenger_control_creature(NetUserId user, int32_t *n);
@@ -107,10 +105,10 @@ int32_t pinstfe_zoom_to_position(NetUserId user, int32_t *n);
 
 struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
   { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unset
-  { 3, 1, pinstfs_hand_grab,                    NULL,                           pinstfe_hand_grab,                   {0}, {0}, 0, 0}, // PI_Grab
+  { 3, 1, pinstfs_hand_animation,               NULL,                           pinstfe_hand_grab,                   {0}, {0}, 0, 0}, // PI_Grab
   { 3, 1, pinstfs_hand_drop,                    NULL,                           pinstfe_hand_drop,                   {0}, {0}, 0, 0}, // PI_Drop
-  { 4, 0, pinstfs_hand_whip,                    NULL,                           pinstfe_hand_whip,                   {0}, {0}, 0, 0}, // PI_Whip
-  { 5, 0, pinstfs_hand_whip_end,                NULL,                           pinstfe_hand_whip_end,               {0}, {0}, 0, 0}, // PI_WhipEnd
+  { 4, 0, pinstfs_hand_animation,               NULL,                           pinstfe_hand_whip,                   {0}, {0}, 0, 0}, // PI_Whip
+  { 5, 0, pinstfs_hand_animation,               NULL,                           pinstfe_hand_whip_end,               {0}, {0}, 0, 0}, // PI_WhipEnd
   {12, 1, pinstfs_direct_control_creature,      pinstfm_control_creature,       pinstfe_direct_control_creature,     {0}, {0}, 0, 0}, // PI_DirctCtrl
   {12, 1, pinstfs_passenger_control_creature,   pinstfm_control_creature,       pinstfe_passenger_control_creature,  {0}, {0}, 0, 0}, // PI_PsngrCtrl
   {12, 1, pinstfs_direct_leave_creature,        pinstfm_leave_creature,         pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_DirctCtLeave
@@ -217,13 +215,38 @@ TbBool player_instance_controls_camera(unsigned char inum)
     }
 }
 
-int32_t pinstfs_hand_grab(NetUserId user, int32_t *n)
+int32_t get_hand_instance_animation(unsigned char inum)
+{
+    switch (inum) {
+    case PI_Grab:
+    case PI_Drop:
+        return HndA_Pickup;
+    case PI_Whip:
+        return HndA_Slap;
+    case PI_WhipEnd:
+        return HndA_SideSlap;
+    default:
+        return HndA_None;
+    }
+}
+
+int32_t get_hand_instance_end_animation(unsigned char inum)
+{
+    switch (inum) {
+    case PI_Drop:
+        return HndA_Hover;
+    case PI_WhipEnd:
+        return HndA_SideHover;
+    default:
+        return HndA_None;
+    }
+}
+
+int32_t pinstfs_hand_animation(NetUserId user, int32_t *n)
 {
     struct UserState* ustate = get_user_state(user);
-    struct Thing* thing = thing_get(ustate->hand_thing_idx);
-    if (!thing_is_invalid(thing))
-    {
-        set_power_hand_graphic(user, HndA_Pickup);
+    if (thing_exists(thing_get(ustate->hand_thing_idx))) {
+        set_power_hand_graphic(user, get_hand_instance_animation(ustate->instance_num));
     }
     return 0;
 }
@@ -252,14 +275,9 @@ int32_t pinstfe_hand_grab(NetUserId user, int32_t *n)
 int32_t pinstfs_hand_drop(NetUserId user, int32_t *n)
 {
     struct UserState* ustate = get_user_state(user);
-    struct Thing* thing = thing_get(ustate->hand_thing_idx);
     ustate->influenced_thing_idx = ustate->things_in_hand[0];
-    ustate->influenced_thing_creation = thing->creation_turn;
-    if (thing_exists(thing))
-    {
-        set_power_hand_graphic(user, HndA_Pickup);
-    }
-    return 0;
+    ustate->influenced_thing_creation = thing_get(ustate->hand_thing_idx)->creation_turn;
+    return pinstfs_hand_animation(user, n);
 }
 
 int32_t pinstfe_hand_drop(NetUserId user, int32_t *n)
@@ -268,21 +286,10 @@ int32_t pinstfe_hand_drop(NetUserId user, int32_t *n)
     struct Thing* thing = thing_get(ustate->hand_thing_idx);
     if (thing_exists(thing))
     {
-        set_power_hand_graphic(user, HndA_Hover);
+        set_power_hand_graphic(user, get_hand_instance_end_animation(PI_Drop));
     }
     ustate->influenced_thing_idx = 0;
     ustate->influenced_thing_creation = 0;
-    return 0;
-}
-
-int32_t pinstfs_hand_whip(NetUserId user, int32_t *n)
-{
-    struct UserState* ustate = get_user_state(user);
-    struct Thing* thing = thing_get(ustate->hand_thing_idx);
-    if (thing_exists(thing))
-    {
-        set_power_hand_graphic(user, HndA_Slap);
-    }
     return 0;
 }
 
@@ -378,24 +385,13 @@ int32_t pinstfe_hand_whip(NetUserId user, int32_t *n)
     return 0;
 }
 
-int32_t pinstfs_hand_whip_end(NetUserId user, int32_t *n)
-{
-    struct UserState* ustate = get_user_state(user);
-    struct Thing* thing = thing_get(ustate->hand_thing_idx);
-    if (thing_exists(thing))
-    {
-        set_power_hand_graphic(user, HndA_SideSlap);
-    }
-    return 0;
-}
-
 int32_t pinstfe_hand_whip_end(NetUserId user, int32_t *n)
 {
     struct UserState* ustate = get_user_state(user);
     struct Thing* thing = thing_get(ustate->hand_thing_idx);
     if (thing_exists(thing))
     {
-        set_power_hand_graphic(user, HndA_SideHover);
+        set_power_hand_graphic(user, get_hand_instance_end_animation(PI_WhipEnd));
     }
     return 0;
 }

@@ -34,6 +34,7 @@ extern const struct ConfigFileData keeper_powerhands_file_data;
 #define NUM_ANIMS_PER_VARIANT 7
 
 enum HandAnims {
+    HndA_None = -1,
     HndA_Hold = 0,
     HndA_HoldGold,
     HndA_Hover,

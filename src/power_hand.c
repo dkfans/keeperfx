@@ -655,7 +655,7 @@ void draw_power_hand(void)
       }
       if ((ustate->work_state != PSt_CtrlDungeon) || !draw_hand)
       {
-        if (ustate->instance_num != PI_Grab && ustate->instance_num != PI_Drop && ustate->instance_num != PI_Whip && ustate->instance_num != PI_WhipEnd)
+        if (get_hand_instance_animation(ustate->instance_num) == HndA_None)
         {
           if (ustate->work_state == PSt_Slap)
           {
