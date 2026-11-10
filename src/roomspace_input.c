@@ -129,7 +129,7 @@ static TbBool update_dig_highlight(const struct Packet *pckt, MapSubtlCoord stl_
         ustate->render_roomspace.drag_start_y = dig_cursor.drag_start_slb_y;
         ustate->render_roomspace.untag_mode = dig_cursor.untag_mode;
     }
-    get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, get_local_user(), pckt, stl_x, stl_y, &dig_tags);
+    get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, ustate, pckt, stl_x, stl_y, &dig_tags);
     tag_cursor_blocks_dig(player, get_local_user(), pckt, &ustate->render_roomspace, stl_x, stl_y, true);
     return true;
 }

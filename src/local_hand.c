@@ -270,7 +270,7 @@ static void predict_hand_state(struct HandPrediction *pred, const struct Packet 
 {
     struct UserState *ustate = &pred->ustate;
     ustate->thing_under_hand = 0;
-    enum HandCursorUse hand_use = update_hand_cursor_state(ustate, pckt, true);
+    enum HandCursorUse hand_use = begin_dungeon_control_input(ustate, pckt, true);
     if (hand_use == HandCursor_Grabbing) {
         return;
     }
@@ -292,6 +292,7 @@ static void predict_dungeon_control(struct HandPrediction *pred, const struct Pa
     struct Packet button_pckt = *pckt;
     predict_hand_state(pred, pckt);
     if (flag_is_set(pckt->control_flags, PCtr_MapCoordsValid)) {
+        highlight_cursor_roomspace(ustate, get_player(ustate->player_id), pckt);
         press_cursor_buttons(ustate, pckt);
     }
     if (begin_left_release(ustate, &button_pckt)) {
@@ -314,11 +315,7 @@ static void apply_predicted_hand_packet(struct HandPrediction *pred, const struc
     if (ustate->view_type != PVT_DungeonTop) {
         return;
     }
-    ustate->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
     const TbBool over_gui = flag_is_set(pckt->control_flags, PCtr_Gui);
-    if (!over_gui && (ustate->work_state == PSt_CtrlDungeon)) {
-        predict_dungeon_control(pred, pckt);
-    }
     struct Thing *heldtng = get_first_held_thing(ustate);
     switch (pckt->action) {
     case PckA_UsePwrHandPick:
@@ -341,6 +338,10 @@ static void apply_predicted_hand_packet(struct HandPrediction *pred, const struc
             slap_predicted_thing(pred, thing_get(pckt->actn_par2));
         }
         break;
+    }
+    ustate->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
+    if (!over_gui && (ustate->work_state == PSt_CtrlDungeon)) {
+        predict_dungeon_control(pred, pckt);
     }
 }
 

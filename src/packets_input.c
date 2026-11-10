@@ -212,7 +212,7 @@ static void apply_packet_hand_drop_target(struct UserState *ustate, const struct
     }
 }
 
-enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const struct Packet *pckt, TbBool local_prediction)
+static enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const struct Packet *pckt, TbBool local_prediction)
 {
     PlayerNumber plyr_idx = ustate->player_id;
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
@@ -243,6 +243,25 @@ enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const stru
         ustate->thing_under_hand = 0;
     }
     return HandCursor_Show;
+}
+
+enum HandCursorUse begin_dungeon_control_input(struct UserState *ustate, const struct Packet *pckt, TbBool local_prediction)
+{
+    ustate->render_roomspace.highlight_mode = (ustate->prefs[UPref_StartingHighlightMode] != 0);
+    ustate->render_roomspace.drag_mode = ustate->one_click_lock_cursor;
+    ustate->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
+    return update_hand_cursor_state(ustate, pckt, local_prediction);
+}
+
+TbBool highlight_cursor_roomspace(struct UserState *ustate, struct PlayerInfo *player, const struct Packet *pckt)
+{
+    TbBool hand_over_high_subtile = (ustate->primary_cursor_state == CSt_PowerHand) && flag_is_set(ustate->additional_flags, UsrAF_ChosenSubTileIsHigh);
+    if ((pckt->action != PckA_ApplyRoomspaceDigTag) && (ustate->primary_cursor_state != CSt_PickAxe) && !hand_over_high_subtile) {
+        return false;
+    }
+    ustate->thing_under_hand = 0;
+    get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, ustate, pckt, coord_subtile(pckt->pos_x), coord_subtile(pckt->pos_y), NULL);
+    return true;
 }
 
 void press_cursor_buttons(struct UserState *ustate, const struct Packet *pckt)
@@ -343,7 +362,7 @@ static void process_dungeon_power_hand_state(NetUserId user)
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
     struct UserState* ustate = get_user_state(user);
     struct Packet* pckt = get_packet(user);
-    enum HandCursorUse hand_use = update_hand_cursor_state(ustate, pckt, false);
+    enum HandCursorUse hand_use = begin_dungeon_control_input(ustate, pckt, false);
     if (hand_use == HandCursor_Grabbing) {
         return;
     }
@@ -382,15 +401,10 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
     TbBool apply_roomspace_tag = pckt->action == PckA_ApplyRoomspaceDigTag;
     TbBool thing_target_action = apply_roomspace_tag || (pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing);
     unsigned char box_colour;
-    ustate->render_roomspace.highlight_mode = (ustate->prefs[UPref_StartingHighlightMode] != 0);
-    ustate->render_roomspace.drag_mode = ustate->one_click_lock_cursor;
-    ustate->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
     process_dungeon_power_hand_state(user);
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
-        if (apply_roomspace_tag || (ustate->primary_cursor_state == CSt_PickAxe) || ((ustate->primary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0))) {
-            ustate->thing_under_hand = 0;
-            get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
+        if (highlight_cursor_roomspace(ustate, player, pckt)) {
             if (apply_roomspace_tag) {
                 ustate->render_roomspace.untag_mode = pckt->actn_par4;
                 ustate->render_roomspace = check_roomspace_for_diggable_slabs(ustate->render_roomspace, plyr_idx, NULL);
