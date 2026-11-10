@@ -290,7 +290,6 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber p
 {
     struct Thing *picktng = INVALID_THING;
     struct Coord3d pos;
-    struct PowerConfigStats *powerst;
     long i;
 
     if (object_is_gold_pile(thing))
@@ -303,15 +302,10 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber p
             pos.z.val = thing->mappos.z.val + 128;
             create_price_effect(&pos, thing->owner, i);
         }
-        powerst = get_power_model_stats(PwrK_PICKUPGOLD);
-        thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         picktng = thing;
     }
     else if (thing_is_mature_food(thing))
     {
-        i = UNSYNC_RANDOM(3);
-        powerst = get_power_model_stats(PwrK_PICKUPFOOD);
-        thing_play_sample(thing, powerst->select_sound_idx + i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         set_thing_draw(thing, 122, 256, -1, -1, 0, ODC_Default);
         remove_food_from_food_room_if_possible(thing);
         picktng = thing;
@@ -506,41 +500,58 @@ TbBool replace_thing_in_power_hand_list(const struct Thing *oldtng, const struct
     return true;
 }
 
-/** Puts a thing into player's power hand list without any further processing.
- * Originally was named dump_thing_in_power_hand().
- * @param thing
- * @param plyr_idx
- * @return
- */
-TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
+void play_power_hand_pickup_sounds(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
 {
-    long i;
-    struct PowerConfigStats *powerst;
-    struct UserState *ustate = get_user_state(user);
-    if (power_hand_is_full(user))
-      return false;
-    // Move all things in list up, to free position 0
-    for (i = game.conf.rules[plyr_idx].gameplay.max_things_in_hand-1; i > 0; i--)
-    {
-      ustate->things_in_hand[i] = ustate->things_in_hand[i-1];
-    }
-    ustate->num_things_in_hand++;
-    ustate->things_in_hand[0] = thing->index;
-    powerst = get_power_model_stats(PwrK_HAND);
-    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    if (thing->class_id == TCls_Creature) {
-        remove_all_traces_of_combat(thing);
-    }
-    if (thing->class_id == TCls_Creature)
-    {
-        powerst = get_power_model_stats(PwrK_PICKUPCRTR);
-        thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(thing, get_power_model_stats(PwrK_HAND)->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    PowerKind pwkind = PwrK_None;
+    int32_t sound_variant = 0;
+    if (object_is_gold_pile(thing)) {
+        pwkind = PwrK_PICKUPGOLD;
+    } else if (thing_is_mature_food(thing)) {
+        pwkind = PwrK_PICKUPFOOD;
+        sound_variant = UNSYNC_RANDOM(3);
+    } else if (thing->class_id == TCls_Creature) {
+        pwkind = PwrK_PICKUPCRTR;
         if (is_local_action(plyr_idx, user)) {
             play_creature_sound(thing, CrSnd_Hang, 3, 1);
         } else if (thing_possessed_by_local_user(thing)) {
             // A co-user picked up the creature this user is inside
             play_creature_sound_non_3d(thing, CrSnd_Hang);
         }
+    }
+    if (pwkind != PwrK_None) {
+        thing_play_sample(thing, get_power_model_stats(pwkind)->select_sound_idx + sound_variant, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    }
+}
+
+/** Puts a thing into player's power hand list without any further processing.
+ * Originally was named dump_thing_in_power_hand().
+ * @param thing
+ * @param plyr_idx
+ * @return
+ */
+TbBool insert_thing_into_hand_list(struct UserState *ustate, PlayerNumber plyr_idx, ThingIndex tng_idx)
+{
+    int32_t max_things = game.conf.rules[plyr_idx].gameplay.max_things_in_hand;
+    if (ustate->num_things_in_hand >= max_things) {
+        return false;
+    }
+    // Move all things in list up, to free position 0
+    for (int32_t i = max_things - 1; i > 0; i--) {
+        ustate->things_in_hand[i] = ustate->things_in_hand[i - 1];
+    }
+    ustate->num_things_in_hand++;
+    ustate->things_in_hand[0] = tng_idx;
+    return true;
+}
+
+TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
+{
+    if (power_hand_is_full(user) || !insert_thing_into_hand_list(get_user_state(user), plyr_idx, thing->index)) {
+        return false;
+    }
+    if (thing->class_id == TCls_Creature) {
+        remove_all_traces_of_combat(thing);
     }
     thing->holding_player = plyr_idx;
     return true;
@@ -1583,10 +1594,30 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, CrtrExpLe
   dungeon->lvstats.creatures_sacrificed++;
 }
 
+void set_held_thing_draw(struct Thing *thing)
+{
+    if (thing->class_id == TCls_Creature) {
+        int32_t anim = get_creature_anim(thing, CGI_PowerGrab);
+        if (creature_under_spell_effect(thing, CSAfF_Chicken)) {
+            anim = 122; // Hardcoded value, 122 is grabbed chicken.
+        }
+        set_thing_draw(thing, anim, 256, -1, -1, 0, ODC_Default);
+        return;
+    }
+    if (thing->class_id != TCls_Object) {
+        return;
+    }
+    const struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
+    int32_t anim = objst->sprite_anim_idx;
+    if (objst->sprite_anim_idx_in_hand != 0) {
+        anim = objst->sprite_anim_idx_in_hand;
+    }
+    set_thing_draw(thing, anim, objst->anim_speed, -1, -1, 0, ODC_Default);
+}
+
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    int32_t i;
     if (!thing_is_pickable_by_hand(player, thing)) {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return false;
@@ -1595,42 +1626,28 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, Net
         ERRORLOG("The %s is already picked up",thing_model_name(thing));
         return false;
     }
-    if (thing_is_creature(thing))
-    {
+    struct Thing *picktng = thing;
+    if (thing_is_creature(thing)) {
         reset_creature_if_affected_by_cta(thing);
         clear_creature_instance(thing);
         if (!external_set_thing_state(thing, CrSt_InPowerHand)) {
             return false;
         }
         //Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here
-        if (creature_under_spell_effect(thing, CSAfF_Chicken))
-        {
-            i = 122; // Hardcoded value, 122 is grabbed chicken.
-        }
-        else
-        {
-            i = get_creature_anim(thing, CGI_PowerGrab);
-        }
-        set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
-    } else
-    if (thing_is_object(thing))
-    {
-        thing = process_object_being_picked_up(thing, plyr_idx, user);
-        if (thing_is_invalid(thing)) {
+    } else if (thing_is_object(thing)) {
+        picktng = process_object_being_picked_up(thing, plyr_idx, user);
+        if (thing_is_invalid(picktng)) {
             return false;
         }
-        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-        if (objst->sprite_anim_idx_in_hand != 0)
-            i = objst->sprite_anim_idx_in_hand;
-        else
-            i = objst->sprite_anim_idx;
-        set_thing_draw(thing, i, objst->anim_speed, -1, -1, 0, ODC_Default);
     }
+    set_held_thing_draw(picktng);
     // A co-user's possessed creature: its view squishes down, so the possessor's pitch is set now
-    begin_fp_hand_pickup(thing);
-    insert_thing_into_power_hand_list(thing, plyr_idx, user);
-    clear_thing_velocity(thing);
-    place_thing_in_limbo(thing);
+    begin_fp_hand_pickup(picktng);
+    if (insert_thing_into_power_hand_list(picktng, plyr_idx, user)) {
+        play_power_hand_pickup_sounds(thing, plyr_idx, user);
+    }
+    clear_thing_velocity(picktng);
+    place_thing_in_limbo(picktng);
     return true;
 }
 
