@@ -832,26 +832,37 @@ int32_t pinstfe_zoom_to_position(NetUserId user, int32_t *n)
     return 0;
 }
 
+TbBool begin_user_instance(struct UserState *ustate, int32_t ninum, TbBool force)
+{
+    int32_t inum = ustate->instance_num;
+    if (inum >= PLAYER_INSTANCES_COUNT) {
+        inum = 0;
+    }
+    if ((inum != 0) && (player_instance_info[inum].instance_state == 1) && !force) {
+        return false;
+    }
+    ustate->instance_num = ninum % PLAYER_INSTANCES_COUNT;
+    ustate->instance_remain_turns = player_instance_info[ustate->instance_num].length_turns;
+    return true;
+}
+
 void set_user_instance(NetUserId user, int32_t ninum, TbBool force)
 {
     struct UserState *ustate = get_user_state(user);
-    if (user_state_invalid(ustate))
+    if (user_state_invalid(ustate)) {
         return;
-    int32_t inum = ustate->instance_num;
-    if (inum >= PLAYER_INSTANCES_COUNT)
-        inum = 0;
-    if (inum == 0 || player_instance_info[inum].instance_state != 1 || force) {
-        if (user == OBSERVER_USER && ninum == PI_ZoomToPos) {
-            observer_camera_jump(coord_subtile(ustate->zoom_to_pos_x), coord_subtile(ustate->zoom_to_pos_y));
-            return;
-        }
-        ustate->instance_num = ninum%PLAYER_INSTANCES_COUNT;
-        struct PlayerInstanceInfo* inst_info = &player_instance_info[ustate->instance_num];
-        ustate->instance_remain_turns = inst_info->length_turns;
-        InstncInfo_Func callback = inst_info->start_cb;
-        if (callback != NULL) {
-            callback(user, &inst_info->start_callback_parameters[0]);
-        }
+    }
+    if ((user == OBSERVER_USER) && (ninum == PI_ZoomToPos)) {
+        observer_camera_jump(coord_subtile(ustate->zoom_to_pos_x), coord_subtile(ustate->zoom_to_pos_y));
+        return;
+    }
+    if (!begin_user_instance(ustate, ninum, force)) {
+        return;
+    }
+    struct PlayerInstanceInfo* inst_info = &player_instance_info[ustate->instance_num];
+    InstncInfo_Func callback = inst_info->start_cb;
+    if (callback != NULL) {
+        callback(user, &inst_info->start_callback_parameters[0]);
     }
 }
 
