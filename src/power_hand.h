@@ -75,7 +75,7 @@ TbBool power_hand_can_take_thing(PlayerNumber plyr_idx, NetUserId user, const st
 struct Thing *get_thing_for_power_hand(PlayerNumber plyr_idx, NetUserId user, const struct UserState *ustate, ThingIndex tng_idx);
 TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx);
 TbBool thing_is_ready_for_hand_or_slap(const struct Thing *thing, PlayerNumber plyr_idx);
-struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
+struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y, TbBool local_prediction);
 
 void play_power_hand_pickup_sounds(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 TbBool insert_thing_into_hand_list(struct UserState *ustate, PlayerNumber plyr_idx, ThingIndex tng_idx);

@@ -54,6 +54,7 @@
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "local_possession.h"
 #include "map_utils.h"
 #include "front_simple.h"
@@ -9093,7 +9094,9 @@ static void draw_things_on_map_block(struct Map *mapblk, struct Camera *frontvie
             break;
         }
         i = thing->next_on_mapblk;
-        draw_thing_on_map_block(thing, mapblk, frontview_cam);
+        if (!local_hand_hides_thing(thing)) {
+            draw_thing_on_map_block(thing, mapblk, frontview_cam);
+        }
         k++;
         if (k > THINGS_COUNT) {
             ERRORLOG("Infinite loop detected when sweeping things list");

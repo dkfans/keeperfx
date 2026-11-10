@@ -52,6 +52,7 @@
 #include "engine_render.h"
 #include "gui_draw.h"
 #include "local_camera.h"
+#include "local_hand.h"
 
 #include <math.h>
 #include "post_inc.h"
@@ -343,8 +344,9 @@ static void draw_overlay_possessed_thing(const struct MinimapOverlay *ov, int32_
 
 static void draw_overlay_creature(struct Thing *thing, const struct MinimapOverlay *ov)
 {
-    if (thing_is_picked_up(thing))
+    if (thing_is_picked_up(thing) || local_hand_holds_thing(thing)) {
         return;
+    }
     const PlayerNumber plyr_idx = ov->player->id_number;
     const TbBool blink_on = (get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate;
     TbPixel col1 = 31;

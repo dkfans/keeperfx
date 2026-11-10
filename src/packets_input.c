@@ -212,7 +212,7 @@ static void apply_packet_hand_drop_target(struct UserState *ustate, const struct
     }
 }
 
-enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const struct Packet *pckt)
+enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const struct Packet *pckt, TbBool local_prediction)
 {
     PlayerNumber plyr_idx = ustate->player_id;
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
@@ -228,7 +228,7 @@ enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const stru
         return HandCursor_Remove;
     }
     enum HandCursorUse hand_use = HandCursor_Idle;
-    struct Thing *thing = get_nearest_thing_for_hand_or_slap(plyr_idx, pckt->pos_x, pckt->pos_y);
+    struct Thing *thing = get_nearest_thing_for_hand_or_slap(plyr_idx, pckt->pos_x, pckt->pos_y, local_prediction);
     if (!thing_is_invalid(thing) && !ustate->one_click_lock_cursor) {
         SYNCDBG(19,"Thing %d under hand at (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
         ustate->thing_under_hand = thing->index;
@@ -343,7 +343,7 @@ static void process_dungeon_power_hand_state(NetUserId user)
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
     struct UserState* ustate = get_user_state(user);
     struct Packet* pckt = get_packet(user);
-    enum HandCursorUse hand_use = update_hand_cursor_state(ustate, pckt);
+    enum HandCursorUse hand_use = update_hand_cursor_state(ustate, pckt, false);
     if (hand_use == HandCursor_Grabbing) {
         return;
     }

@@ -68,6 +68,7 @@
 
 #include "keeperfx.hpp"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "observer.h"
 #include "post_inc.h"
 
@@ -664,8 +665,8 @@ void draw_power_hand(void)
         return;
     }
     TbBool hover_hand = power_hand_is_hovering(get_displayed_user());
-    thing = thing_get(ustate->hand_thing_idx);
-    if (!thing_exists(thing)) {
+    thing = get_hand_view(get_displayed_user());
+    if (thing == NULL) {
         if (hover_hand && ustate->work_state == PSt_CtrlDungeon) {
             RendererSubmitKeeperHandSprite(cursor_x+scale_ui_value(60*global_hand_scale), cursor_y+scale_ui_value(40*global_hand_scale),
                   game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags());
@@ -713,7 +714,7 @@ void draw_power_hand(void)
     }
     int32_t inputpos_x;
     int32_t inputpos_y;
-    picktng = get_first_held_thing(ustate);
+    picktng = get_held_thing_view(get_displayed_user());
     if ((picktng != NULL) && ((picktng->rendering_flags & TRF_Invisible) == 0))
     {
         SYNCDBG(7,"Holding %s",thing_model_name(picktng));
@@ -877,6 +878,14 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
     return -1;
 }
 
+static long near_map_block_thing_filter_ready_for_local_hand(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if (local_hand_hides_thing(thing)) {
+        return -1;
+    }
+    return near_map_block_thing_filter_ready_for_hand_or_slap(thing, param, maximizer);
+}
+
 TbBool thing_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     switch (thing->class_id)
@@ -894,12 +903,14 @@ TbBool thing_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y)
+struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y, TbBool local_prediction)
 {
-    Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
-    filter = near_map_block_thing_filter_ready_for_hand_or_slap;
+    Thing_Maximizer_Filter filter = near_map_block_thing_filter_ready_for_hand_or_slap;
+    if (local_prediction) {
+        filter = near_map_block_thing_filter_ready_for_local_hand;
+    }
     param.plyr_idx = plyr_idx;
     param.primary_number = pos_x;
     param.secondary_number = pos_y;
@@ -1344,6 +1355,14 @@ static int mini_things_in_hand_units_per_px(void)
     return calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
 }
 
+static struct ObjectConfigStats *get_held_object_model_stats(const struct Thing *thing)
+{
+    if (object_is_gold_hoard(thing)) {
+        return get_object_model_stats(ObjMdl_Goldl);
+    }
+    return get_object_model_stats(thing->model);
+}
+
 static long mini_thing_in_hand_sprite(const struct Thing *thing)
 {
     if (thing_is_creature(thing))
@@ -1351,13 +1370,13 @@ static long mini_thing_in_hand_sprite(const struct Thing *thing)
     if (thing->class_id == TCls_DeadCreature)
         return GPS_room_graveyard_std_s;
     if (thing_is_object(thing))
-        return get_object_model_stats(thing->model)->hand_icon;
+        return get_held_object_model_stats(thing)->hand_icon;
     return GPS_room_hatchery_std_s;
 }
 
 long get_mini_things_in_hand_width(NetUserId user)
 {
-    const struct UserState *ustate = get_user_state(user);
+    const struct UserState *ustate = get_user_state_prediction(user);
     PlayerNumber plyr_idx = ustate->player_id;
     if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT) || (ustate->num_things_in_hand == 0))
         return 0;
@@ -1392,7 +1411,7 @@ void draw_mini_things_in_hand(long x, long y)
 void draw_user_mini_things_in_hand(NetUserId user, long x, long y)
 {
     SYNCDBG(7,"Starting");
-    const struct UserState *ustate = get_user_state(user);
+    const struct UserState *ustate = get_user_state_prediction(user);
     if (user_state_invalid(ustate) || (ustate->player_id < 0) || (ustate->player_id >= PLAYERS_COUNT))
         return;
     struct Dungeon *dungeon = get_dungeon(ustate->player_id);
@@ -1410,8 +1429,7 @@ void draw_user_mini_things_in_hand(NetUserId user, long x, long y)
     long scrbase_x = x;
     long scrbase_y = y - scale_ui_value(58);
     expshift_x = scale_ui_value(abs(i)) / 2;
-    for (i = ustate->num_things_in_hand-1; i >= 0; i--)
-    {
+    for (i = ustate->num_things_in_hand - 1; i >= 0; i--) {
         int ratio = mini_things_in_hand_columns(dungeon->owner);
         int icol = i % ratio;
         int irow = i / ratio;
@@ -1505,7 +1523,7 @@ void draw_user_mini_things_in_hand(NetUserId user, long x, long y)
         } else
         if ((thing->class_id == TCls_Object))
         {
-            spr_idx = get_object_model_stats(thing->model)->hand_icon;
+            spr_idx = mini_thing_in_hand_sprite(thing);
             if (irow > 0)
                 shift_y = 20;
             else
@@ -1621,7 +1639,7 @@ void set_held_thing_draw(struct Thing *thing)
     if (thing->class_id != TCls_Object) {
         return;
     }
-    const struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
+    const struct ObjectConfigStats *objst = get_held_object_model_stats(thing);
     int32_t anim = objst->sprite_anim_idx;
     if (objst->sprite_anim_idx_in_hand != 0) {
         anim = objst->sprite_anim_idx_in_hand;
