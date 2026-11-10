@@ -457,6 +457,9 @@ TbBool object_is_gold(const struct Thing *thing)
  */
 TbBool object_is_gold_hoard(const struct Thing *thing)
 {
+    if (thing->class_id != TCls_Object) {
+        return false;
+    }
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->genre == OCtg_GoldHoard);
 }
