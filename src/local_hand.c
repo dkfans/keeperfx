@@ -57,6 +57,7 @@ struct HandPrediction {
     struct Thing hand;
     uint32_t pending_actions[LocalHandAction_Count];
     GameTurn turn;
+    GameTurn creature_dropped_turn;
     TbBool hand_exists;
 };
 
@@ -144,6 +145,29 @@ static void grab_predicted_thing(struct HandPrediction *pred, ThingIndex tng_idx
     influence_predicted_thing(pred, thing, PI_Grab);
 }
 
+static void slap_predicted_thing(struct HandPrediction *pred, const struct Thing *thing)
+{
+    struct UserState *ustate = &pred->ustate;
+    TbBool blocked_by_drop = ((GameTurnDelta)(pred->turn - pred->creature_dropped_turn) <= SLAP_BLOCKED_TURNS_AFTER_DROP);
+    if (!thing_exists(thing) || (ustate->instance_num == PI_Whip) || blocked_by_drop) {
+        return;
+    }
+    if (!can_cast_spell(ustate->player_id, get_local_user(), PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+        return;
+    }
+    influence_predicted_thing(pred, thing, PI_Whip);
+}
+
+static void hit_predicted_thing(struct HandPrediction *pred, struct Thing *thing)
+{
+    TbBool is_creature = thing_is_creature(thing);
+    TbBool reacts_to_slap = thing_is_object(thing) || (is_creature && !creature_under_spell_effect(thing, CSAfF_Freeze));
+    if (reacts_to_slap && claim_unshown_action(pred, LocalHandAction_Slap)) {
+        show_power_slap_feedback(thing);
+    }
+    start_predicted_instance(pred, PI_WhipEnd);
+}
+
 static TbBool drop_predicted_thing(struct HandPrediction *pred, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct UserState *ustate = &pred->ustate;
@@ -154,6 +178,9 @@ static TbBool drop_predicted_thing(struct HandPrediction *pred, MapSubtlCoord st
     enum HeldThingDropOutcome outcome = get_held_thing_drop_outcome(thing, thing_get(ustate->thing_under_hand));
     if ((outcome == HTDrop_Gold) && pred->hand_exists) {
         set_gold_dropped_hand_graphic(ustate, &pred->hand, get_player(ustate->player_id), pred->turn);
+    }
+    if (thing_is_creature(thing)) {
+        pred->creature_dropped_turn = pred->turn;
     }
     if (ustate->num_things_in_hand == 1) {
         start_predicted_instance(pred, PI_Drop);
@@ -232,6 +259,11 @@ static void apply_predicted_hand_packet(struct HandPrediction *pred, const struc
             drop_predicted_thing(pred, heldtng->mappos.x.stl.num, heldtng->mappos.y.stl.num);
         }
         break;
+    case PckA_UsePwrOnThing:
+        if (pckt->actn_par1 == PwrK_SLAP) {
+            slap_predicted_thing(pred, thing_get(pckt->actn_par2));
+        }
+        break;
     }
 }
 
@@ -243,6 +275,8 @@ static void finish_predicted_instance(struct HandPrediction *pred, unsigned char
     set_predicted_hand_graphic(pred, get_hand_instance_end_animation(inum));
     if ((inum == PI_Grab) && influenced) {
         place_predicted_thing(pred, thing);
+    } else if ((inum == PI_Whip) && influenced && thing_slappable(thing, ustate->player_id)) {
+        hit_predicted_thing(pred, thing);
     }
 }
 
@@ -277,6 +311,7 @@ static void predict_hand(struct HandPrediction *pred)
         pred->hand = *handtng;
     }
     pred->turn = get_gameturn() + 1;
+    pred->creature_dropped_turn = get_dungeon(ustate->player_id)->last_creature_dropped_gameturn;
     for (GameTurn turn = input_lag_first_pending_turn(); (GameTurnDelta)(get_gameturn() - turn) > 0; turn++) {
         const struct Packet *pckt = get_history_packet(user, turn);
         if (pckt != NULL) {

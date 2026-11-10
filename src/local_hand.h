@@ -33,6 +33,7 @@ struct UserState;
 
 enum LocalHandAction {
     LocalHandAction_PickUp,
+    LocalHandAction_Slap,
     LocalHandAction_Count,
 };
 
