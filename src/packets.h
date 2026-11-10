@@ -332,7 +332,27 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
+enum RightReleaseHandUse {
+    RRelease_Unused,
+    RRelease_Ignored,
+    RRelease_DropHeldThing,
+    RRelease_Slap,
+};
+
+enum HandCursorUse {
+    HandCursor_Remove,
+    HandCursor_Grabbing,
+    HandCursor_Idle,
+    HandCursor_Show,
+};
+
 struct Thing *get_thing_under_hand(NetUserId user, MapCoord x, MapCoord y);
+enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const struct Packet *pckt);
+void press_cursor_buttons(struct UserState *ustate, const struct Packet *pckt);
+TbBool begin_left_release(struct UserState *ustate, struct Packet *pckt);
+void finish_left_release(struct UserState *ustate, struct Packet *pckt);
+enum RightReleaseHandUse begin_right_release(struct UserState *ustate, const struct Packet *pckt);
+void finish_cursor_release(struct UserState *ustate, struct Packet *pckt, enum RightReleaseHandUse release_use, TbBool dropped);
 TbBool process_dungeon_control_packet_clicks(NetUserId user);
 TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user, const struct Packet *pckt);
 TbBool process_user_dungeon_control_packet_action(NetUserId user);
