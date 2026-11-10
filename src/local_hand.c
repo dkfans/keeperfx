@@ -52,6 +52,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define LOCAL_HAND_FEEDBACK_MARGIN_TURNS 4
+#define MAX_HEALTH_FLASHES 8
+#define DAMAGE_FLASH_TURNS 1
+
 struct HandPrediction {
     struct UserState ustate;
     struct Thing hand;
@@ -61,10 +65,19 @@ struct HandPrediction {
     TbBool hand_exists;
 };
 
+struct HealthFlash {
+    ThingIndex index;
+    GameTurn creation_turn;
+    GameTurn slap_turn;
+    GameTurn hidden_damage_turn;
+};
+
 static struct HandPrediction prediction;
 static TbBool prediction_active;
 static uint32_t done_actions[LocalHandAction_Count];
 static uint32_t shown_actions[LocalHandAction_Count];
+static struct HealthFlash health_flashes[MAX_HEALTH_FLASHES];
+static int32_t next_health_flash;
 static struct Thing held_view;
 static GameTurn held_view_turn;
 /******************************************************************************/
@@ -77,6 +90,37 @@ static TbBool claim_unshown_action(struct HandPrediction *pred, enum LocalHandAc
     }
     shown_actions[action] = action_number;
     return true;
+}
+
+static struct HealthFlash *find_health_flash(const struct Thing *thing)
+{
+    const GameTurnDelta lifetime = HEALTH_BAR_FLASH_TURNS + game.input_lag_turns + LOCAL_HAND_FEEDBACK_MARGIN_TURNS;
+    for (int32_t i = 0; i < MAX_HEALTH_FLASHES; i++) {
+        struct HealthFlash *flash = &health_flashes[i];
+        TbBool same_thing = (flash->index == thing->index) && (flash->creation_turn == thing->creation_turn);
+        if (same_thing && ((GameTurnDelta)(get_gameturn() - flash->slap_turn) <= lifetime)) {
+            return flash;
+        }
+    }
+    return NULL;
+}
+
+static void flash_predicted_health(const struct Thing *thing)
+{
+    const struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    TbBool slap_hurts = (calculate_slap_damage(thing) > 0) && (thing->health >= 0) && !flag_is_set(cctrl->creature_control_flags, CCFlg_PreventDamage);
+    if (!slap_hurts) {
+        return;
+    }
+    struct HealthFlash *flash = find_health_flash(thing);
+    if (flash == NULL) {
+        flash = &health_flashes[next_health_flash];
+        next_health_flash = (next_health_flash + 1) % MAX_HEALTH_FLASHES;
+    }
+    flash->index = thing->index;
+    flash->creation_turn = thing->creation_turn;
+    flash->slap_turn = get_gameturn();
+    flash->hidden_damage_turn = thing->last_turn_damaged;
 }
 
 static void show_predicted_hand(struct HandPrediction *pred)
@@ -164,6 +208,9 @@ static void hit_predicted_thing(struct HandPrediction *pred, struct Thing *thing
     TbBool reacts_to_slap = thing_is_object(thing) || (is_creature && !creature_under_spell_effect(thing, CSAfF_Freeze));
     if (reacts_to_slap && claim_unshown_action(pred, LocalHandAction_Slap)) {
         show_power_slap_feedback(thing);
+        if (is_creature) {
+            flash_predicted_health(thing);
+        }
     }
     start_predicted_instance(pred, PI_WhipEnd);
 }
@@ -355,6 +402,7 @@ void reset_local_hand(void)
     prediction_active = false;
     memset(done_actions, 0, sizeof(done_actions));
     memset(shown_actions, 0, sizeof(shown_actions));
+    memset(health_flashes, 0, sizeof(health_flashes));
     held_view.index = 0;
 }
 
@@ -460,6 +508,31 @@ void apply_local_hand_to_activity_counts(ThingModel crmodel, int32_t *gui_job_co
     const struct UserState *ustate = &prediction.ustate;
     for (int32_t i = 0; i < ustate->num_things_in_hand; i++) {
         adjust_local_activity_count(thing_get(ustate->things_in_hand[i]), crmodel, gui_job_counts, -1);
+    }
+}
+
+TbBool local_hand_shows_flash(const struct Thing *thing, enum LocalHandFlash flash)
+{
+    TbBool server_flashes = (thing->creature.health_bar_turns > 0);
+    GameTurnDelta predicted_turns = HEALTH_BAR_FLASH_TURNS;
+    if (flash == LocalHandFlash_Damage) {
+        server_flashes = (thing->last_turn_damaged == get_gameturn());
+        predicted_turns = DAMAGE_FLASH_TURNS;
+    }
+    const struct HealthFlash *health_flash = find_health_flash(thing);
+    if (health_flash == NULL) {
+        return server_flashes;
+    }
+    TbBool predicted = ((GameTurnDelta)(get_gameturn() - health_flash->slap_turn) < predicted_turns);
+    TbBool from_confirmed_slap = (thing->last_turn_damaged == health_flash->hidden_damage_turn);
+    return predicted || (server_flashes && !from_confirmed_slap);
+}
+
+void local_hand_hide_damage_flash(const struct Thing *thing)
+{
+    struct HealthFlash *flash = find_health_flash(thing);
+    if (flash != NULL) {
+        flash->hidden_damage_turn = thing->last_turn_damaged;
     }
 }
 /******************************************************************************/

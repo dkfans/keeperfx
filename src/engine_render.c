@@ -5025,15 +5025,12 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
         || (thing->class_id == TCls_DeadCreature)
         || (ustate->work_state == PSt_QueryAll))
     {
-        if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
+        if (local_hand_shows_flash(thing, LocalHandFlash_Damage)) {
+            RendererAddDrawFlags(Lb_SPRITE_REMAP);
+            lbSpriteReMapPtr = red_pal;
+        } else if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
             RendererAddDrawFlags(Lb_SPRITE_REMAP);
             lbSpriteReMapPtr = white_pal;
-        } else {
-            if (thing->last_turn_damaged == get_gameturn())
-            {
-                RendererAddDrawFlags(Lb_SPRITE_REMAP);
-                lbSpriteReMapPtr = red_pal;
-            }
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;
@@ -5412,7 +5409,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         h_add += (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
     }
 
-    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
+    if (local_hand_shows_flash(thing, LocalHandFlash_HealthFlower) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
     {
         int flash_color = get_player_color_idx(thing->owner);
         if (flash_color == PLAYER_NEUTRAL)
@@ -8101,7 +8098,10 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 
     if (!thing_is_invalid(thing))
     {
-        if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
+        if (local_hand_shows_flash(thing, LocalHandFlash_Damage)) {
+            RendererAddDrawFlags(Lb_SPRITE_REMAP);
+            lbSpriteReMapPtr = red_pal;
+        } else if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
           struct Camera *active_cam = get_local_active_camera();
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
@@ -8134,12 +8134,6 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   }
               }
           }
-        } else {
-            if (thing->last_turn_damaged == get_gameturn())
-            {
-                RendererAddDrawFlags(Lb_SPRITE_REMAP);
-                lbSpriteReMapPtr = red_pal;
-            }
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;

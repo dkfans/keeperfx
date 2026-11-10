@@ -37,6 +37,11 @@ enum LocalHandAction {
     LocalHandAction_Count,
 };
 
+enum LocalHandFlash {
+    LocalHandFlash_HealthFlower,
+    LocalHandFlash_Damage,
+};
+
 /******************************************************************************/
 void reset_local_hand(void);
 void update_local_hand(void);
@@ -47,6 +52,8 @@ struct Thing *get_held_thing_view(NetUserId user);
 TbBool local_hand_holds_thing(const struct Thing *thing);
 TbBool local_hand_hides_thing(const struct Thing *thing);
 void apply_local_hand_to_activity_counts(ThingModel crmodel, int32_t *gui_job_counts);
+TbBool local_hand_shows_flash(const struct Thing *thing, enum LocalHandFlash flash);
+void local_hand_hide_damage_flash(const struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus
