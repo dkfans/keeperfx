@@ -1634,7 +1634,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, Net
         }
     }
     set_held_thing_draw(picktng);
-    if (insert_thing_into_power_hand_list(picktng, plyr_idx, user)) {
+    if (insert_thing_into_power_hand_list(picktng, plyr_idx, user) && !local_hand_takes_over_action(user, LocalHandAction_PickUp)) {
         play_power_hand_pickup_sounds(thing, plyr_idx);
     }
     clear_thing_velocity(picktng);
