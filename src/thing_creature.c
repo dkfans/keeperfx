@@ -6257,7 +6257,7 @@ HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoint
         cdamage = 0;
     }
     if (cdamage > 0) {
-        thing->creature.health_bar_turns = 8;
+        thing->creature.health_bar_turns = HEALTH_BAR_FLASH_TURNS;
     }
     return cdamage;
 }

@@ -4294,7 +4294,7 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints 
 {
     if ((thing->health >= 0) && (delta > 0))
     {
-        thing->creature.health_bar_turns = 8;
+        thing->creature.health_bar_turns = HEALTH_BAR_FLASH_TURNS;
         thing->health -= delta;
     }
 }
