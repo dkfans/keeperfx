@@ -352,6 +352,20 @@ void set_power_hand_graphic(NetUserId user, long HandAnimationID)
     set_hand_graphic(ustate, thing_get(ustate->hand_thing_idx), get_user_player(user), HandAnimationID, get_gameturn());
 }
 
+TbBool set_idle_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, const struct Thing *heldtng, GameTurn turn)
+{
+    if ((ustate->thing_under_hand != 0) || (heldtng == NULL)) {
+        set_hand_graphic(ustate, handtng, player, HndA_Hover, turn);
+        return false;
+    }
+    int32_t hand_animation = HndA_Hold;
+    if (object_is_gold(heldtng)) {
+        hand_animation = HndA_HoldGold;
+    }
+    set_hand_graphic(ustate, handtng, player, hand_animation, turn);
+    return true;
+}
+
 void set_new_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, const struct Thing *heldtng, GameTurn turn)
 {
     int32_t hand_animation = HndA_Pickup;

@@ -56,6 +56,7 @@ TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *
 struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 void set_power_hand_graphic(NetUserId user, long HandAnimationID);
 void set_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, int32_t hand_animation, GameTurn turn);
+TbBool set_idle_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, const struct Thing *heldtng, GameTurn turn);
 void set_new_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, const struct Thing *heldtng, GameTurn turn);
 void set_gold_dropped_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, GameTurn turn);
 int32_t find_thing_in_list(const ThingIndex *things, uint8_t count, ThingIndex tng_idx);
