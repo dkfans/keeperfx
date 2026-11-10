@@ -53,6 +53,7 @@
 #include "engine_arrays.h"
 #include "engine_camera.h"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "engine_redraw.h"
 #include "sounds.h"
 #include "config_settings.h"
@@ -328,7 +329,9 @@ TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing
       } else
       {
           slap_creature(player, thing);
-          show_power_slap_feedback(thing);
+          if (!local_hand_takes_over_action(user, LocalHandAction_Slap)) {
+              show_power_slap_feedback(thing);
+          }
           thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, get_user_dungeon_yaw(user));
           thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, get_user_dungeon_yaw(user));
       }
@@ -369,7 +372,9 @@ TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing
       break;
       case TCls_Object:
           if (object_is_slappable_by_player(thing, player->id_number)) {
-              show_power_slap_feedback(thing);
+              if (!local_hand_takes_over_action(user, LocalHandAction_Slap)) {
+                  show_power_slap_feedback(thing);
+              }
               slap_object(thing);
           }
           break;
