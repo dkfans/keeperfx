@@ -191,6 +191,7 @@ SAVE_STRUCT(GuiMessage, struct GuiMessage,
     SAVE_FIELD(struct GuiMessage, target_idx, SV_I16),
     SAVE_FIELD(struct GuiMessage, type, SV_I8),
     SAVE_FIELD(struct GuiMessage, icon_idx, SV_I16),
+    SAVE_FIELD(struct GuiMessage, archon_digit, SV_I8),
 );
 
 SAVE_STRUCT(LogUserDesyncInfo, struct LogUserDesyncInfo,

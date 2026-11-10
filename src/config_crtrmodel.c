@@ -46,6 +46,7 @@
 #include "console_cmd.h"
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
+#include "net_filecheck.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -2795,6 +2796,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
 static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s model %ld from file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",crtr_model,fname);
+    add_loaded_file_checksum(fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {

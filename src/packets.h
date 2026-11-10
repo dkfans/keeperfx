@@ -230,6 +230,9 @@ enum TbPacketControl {
         PCtr_Ascend         = 0x80000,
         PCtr_Descend        = 0x100000,
         PCtr_ViewZoomPos    = 0x200000,
+        PCtr_GameMenuOpen   = 0x400000,
+        PCtr_SpecialMenuOpen = 0x800000,
+        PCtr_ChatOpen       = 0x1000000,
 };
 
 /**
@@ -331,6 +334,7 @@ void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned c
 void set_packet_pause_toggle(void);
 struct Thing *get_thing_under_hand(NetUserId user, MapCoord x, MapCoord y);
 TbBool process_dungeon_control_packet_clicks(NetUserId user);
+TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user, const struct Packet *pckt);
 TbBool process_user_dungeon_control_packet_action(NetUserId user);
 void process_user_creature_control_packet_control(NetUserId user);
 void process_user_creature_passenger_packet_action(NetUserId user);

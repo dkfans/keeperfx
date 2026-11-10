@@ -50,6 +50,7 @@
 #include "net_spectator.h"
 #include "observer.h"
 #include "frontmenu_ingame_evnt.h"
+#include "net_filecheck.h"
 #include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
@@ -194,6 +195,8 @@ static TbBool init_level(void)
 
     recheck_all_mod_exist();
 
+    reset_loaded_file_checksums();
+    add_loaded_file_checksum(prepare_file_path(campaign.fgroup, campaign.fname));
     luascript_loaded = open_lua_script(get_selected_level_number());
     // Restore campaign-layer sounds before creature configs load, so creature cfg custom
     // sounds are added to the already-restored bank (not wiped afterwards).
@@ -412,6 +415,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         game.local_plyr_idx = default_loc_player;
         my_player_number = default_loc_player;
     }
+    net_lobby_empty_seats = 0;
     if (!init_level()) {
         coroutine_clear(context, true);
         return;
@@ -421,6 +425,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     if (local)
     {
         game.game_kind = GKind_LocalGame;
+        frontnet_skirmish_resolve_seats();
         init_players_local_game();
         if (AssignCpuKeepers || campaign.assignCpuKeepers) {
             ShouldAssignCpuKeepers = 1;
@@ -456,15 +461,13 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
-        setup_computer_players();
+        setup_computer_players(net_lobby_empty_seats);
     } else
     {
         SYNCDBG(5,"Setting up uninitialized players as zombie players");
         setup_zombie_players();
     }
-    if (game.game_kind == GKind_MultiGame) {
-        setup_alliances();
-    }
+    setup_alliances();
     post_init_level();
     post_init_players();
     post_init_packets();
@@ -524,6 +527,7 @@ void clear_complete_game(void)
         game.user_states[user].player_id = PLAYER_NONE;
     }
     memset(&intralvl, 0, sizeof(struct IntralevelData));
+    clear_custom_intralevel_data();
     replay.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     replay.checksum_verify = start_params.packet_checksum_verify;

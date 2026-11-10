@@ -434,7 +434,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
             continue;
         }
 
-        if (can_cast_spell(dungeon->owner, caspl->pwkind, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
+        if (can_cast_spell(dungeon->owner, NO_USER,caspl->pwkind, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
         {
             powerst = get_power_model_stats(caspl->pwkind);
             spconf = get_spell_config(powerst->spell_idx);
@@ -678,7 +678,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
             {
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount))
                 {
-                    magic_use_available_power_on_thing(comp->dungeon->owner, PwrK_HEALCRTR, power_level, 0, 0, creatng, PwMod_Default);
+                    magic_use_available_power_on_thing(comp->dungeon->owner, NO_USER,PwrK_HEALCRTR, power_level, 0, 0, creatng, PwMod_Default);
                     return CTaskRet_Unk1;
                 }
                 return CTaskRet_Unk4;
@@ -762,7 +762,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
             if ((cctrl->instance_available[CrInst_HEAL] != 0) && (cctrl->slap_turns == 0))
             {
                 //slap creature so he will heal himself
-                if (can_cast_spell(dungeon->owner, PwrK_SLAP, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
+                if (can_cast_spell(dungeon->owner, NO_USER,PwrK_SLAP, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
                 {
                     struct CreatureModelConfig* crconf;
                     crconf = creature_stats_get_from_thing(creatng);
@@ -827,7 +827,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                 && !creature_under_spell_effect(creatng, CSAfF_Invisibility)
                 && !creature_is_immune_to_spell_effect(creatng, CSAfF_Invisibility))
                 { // TODO: check if PwrK_CONCEAL is still applying Invisibility, in case it changes?
-                    magic_use_available_power_on_thing(creatng->owner, PwrK_CONCEAL, 8, 0, 0, creatng, PwMod_Default);
+                    magic_use_available_power_on_thing(creatng->owner, NO_USER,PwrK_CONCEAL, 8, 0, 0, creatng, PwMod_Default);
                 }
                 else if (!creature_is_being_dropped(creatng) && can_thing_be_picked_up_by_player(creatng, dungeon->owner))
                 {

@@ -262,7 +262,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         break;
     case 3:
         // Drop all held things, by keeper
-        if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules[plyr_idx].gameplay.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
+        if ((game.conf.rules[plyr_idx].gameplay.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0)
         {
             if (no_backup)
                 dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
@@ -783,7 +783,7 @@ static TbBool should_use_delta_time_on_menu()
         case FeSt_LEVEL_SELECT:
         case FeSt_CAMPAIGN_SELECT:
         case FeSt_MAPPACK_SELECT:
-        case FeSt_MP_MAPPACK_SELECT:
+        case FeSt_SKIRMISH_LOBBY:
         case FeSt_LAND_VIEW:
         case FeSt_NETLAND_VIEW:
         case FeSt_TORTURE:
@@ -944,8 +944,6 @@ static TbBool wait_at_frontend(void)
     // Note that we cannot use LbMoveGameCursorToHostCursor for this, because the buffer position may remain unchanged.
     LbMouseSetPositionInitial(lbDisplay.MMouseX, lbDisplay.MMouseY);
 
-    try_restore_frontend_error_box();
-
     memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
     poll_inputs();
     clear_mouse_pressed_lrbutton();
@@ -1042,6 +1040,7 @@ static TbBool wait_at_frontend(void)
           break;
     case FeSt_START_MPLEVEL:
           memset(&intralvl, 0, sizeof(struct IntralevelData));
+          clear_custom_intralevel_data();
           set_flag(local_system_flags, GSF_NetworkActive);
           skip_high_score_screen = 1;
           game.game_kind = GKind_MultiGame;

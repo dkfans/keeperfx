@@ -73,10 +73,6 @@ const char *net_join_error_text(enum NetJoinRejection reason)
         return get_string(GUIStr_NetSpectatorsFull);
     case NetJoin_SpectatorDesynced:
         return get_string(GUIStr_NetSpectatorDesynced);
-    case NetJoin_MapMismatch:
-        return get_string(GUIStr_NetUnsyncedMap);
-    case NetJoin_FxdataMismatch:
-        return get_string(GUIStr_NetVerifyFxdataSame);
     default:
         return NULL;
     }
@@ -120,7 +116,8 @@ void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
-    TbBool enabled = network_is_host() && net_number_of_enum_players > 1 && !net_player_colours_conflict();
+    TbBool enough_players = net_number_of_enum_players > 1 || frontnet_service_selected(FrontendNetSvc_Skirmish);
+    TbBool enabled = network_is_host() && enough_players && !net_player_colours_conflict();
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * enabled) & LbBtnF_Enabled;
 }
 
@@ -453,7 +450,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
             break;
         struct NetMessage *nmsg;
         nmsg = &net_message[netmsg_id];
-        TbBool sender_active = nmsg->connection_id == net_user_info[nmsg->plyr_idx].connection_id && net_player_colour[nmsg->plyr_idx] >= 0;
+        TbBool sender_active = nmsg->connection_id == net_user_info[nmsg->plyr_idx].connection_id && network_user_active(nmsg->plyr_idx);
         int icon_y = font_height - spr->SHeight * fs_units_per_px / 16;
         if (sender_active) {
             frontnet_draw_player_icon(nmsg->plyr_idx, gbtn->scr_pos_x, y + gbtn->scr_pos_y + (icon_y >> 1), fs_units_per_px);
@@ -559,10 +556,8 @@ void frontnet_service_select(struct GuiButton *gbtn)
   if ( ((local_system_flags & GSF_AllowOnePlayer) != 0)
      && (srvidx+1 >= net_number_of_services) )
   {
-      frontend_set_player_number(default_loc_player);
-      fe_network_active = 0;
-      net_service_index_selected = FrontendNetSvc_Skirmish;
-      frontend_set_state(FeSt_MP_MAPPACK_SELECT);
+      frontnet_skirmish_setup();
+      frontend_set_state(FeSt_SKIRMISH_LOBBY);
   } else
   if (srvidx < 0)
   {

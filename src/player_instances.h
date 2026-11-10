@@ -118,6 +118,9 @@ TbBool set_selected_thing_f(struct UserState *ustate, struct Thing *thing, const
 TbBool clear_selected_thing(struct UserState *ustate);
 
 TbBool user_controls_thing(NetUserId user, const struct Thing *thing, uint32_t uct_flags);
+TbBool thing_controlled_by_other_user(NetUserId user, const struct Thing *thing, uint32_t uct_flags);
+TbBool leave_user_controlled_creature(NetUserId user);
+TbBool thing_is_possessed(const struct Thing *thing);
 NetUserId get_user_controlling_thing(const struct Thing *thing, uint32_t uct_flags);
 
 void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos);

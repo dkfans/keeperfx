@@ -229,7 +229,8 @@
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\moonphase.c" />
-    <ClCompile Include="src\net_checksums.c" />
+    <ClCompile Include="src\net_checksum_turn.c" />
+    <ClCompile Include="src\net_filecheck.c" />
     <ClCompile Include="src\net_exchange_common.c" />
     <ClCompile Include="src\net_exchange_gameplay.c" />
     <ClCompile Include="src\net_spectator.c" />
@@ -325,6 +326,7 @@
     <ClCompile Include="src\kfx\save\core\save_codec.cpp" />
     <ClCompile Include="src\kfx\save\core\save_config_overlay.cpp" />
     <ClCompile Include="src\kfx\save\SaveCatalogue.cpp" />
+    <ClCompile Include="src\kfx\save\SaveCampaignProgress.cpp" />
     <ClCompile Include="src\kfx\save\SaveContinue.cpp" />
     <ClCompile Include="src\kfx\save\SaveGameFile.cpp" />
     <ClCompile Include="src\kfx\save\SaveManager.cpp" />
@@ -435,7 +437,8 @@
     <ClInclude Include="src\kernel_memtracker.h" />
     <ClInclude Include="src\lua_api_lens.h" />
     <ClInclude Include="src\lua_api_sound.h" />
-    <ClInclude Include="src\net_checksums.h" />
+    <ClInclude Include="src\net_checksum_turn.h" />
+    <ClInclude Include="src\net_filecheck.h" />
     <ClInclude Include="src\net_exchange_common.h" />
     <ClInclude Include="src\net_exchange_gameplay.h" />
     <ClInclude Include="src\net_spectator.h" />

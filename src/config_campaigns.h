@@ -178,6 +178,7 @@ struct CampaignsList {
   struct GameCampaign *items;
   unsigned long items_num;
   unsigned long items_count;
+  uint32_t ordered_num;
 };
 
 /******************************************************************************/

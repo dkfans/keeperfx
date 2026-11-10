@@ -46,7 +46,9 @@ extern "C" {
 #define SERVER_ID 0
 #define SOLO_HUMAN_ID 0 /* human player's user id in non-multiplayer, when relevant */
 #define OBSERVER_USER MAX_NET_CONNECTIONS /* dummy user for observers */
-#define NET_MSG_BUFFER_SIZE 5000
+#define NO_USER -1
+#define NET_MSG_BUFFER_SIZE 20480
+#define NET_UNSEATED_MSG_MAX_SIZE 5000
 #define INVALID_USER_ID 23456
 
 typedef int NetUserId;
@@ -155,9 +157,7 @@ struct NetState {
     const struct NetSP *sp;
     struct NetUser users[MAX_NET_CONNECTIONS];
     TbBool users_timed_out[MAX_NET_CONNECTIONS];
-    enum NetJoinRejection users_leave_reason[MAX_NET_CONNECTIONS];
     uint64_t reconnect_tokens[MAX_NET_USERS];
-    enum NetJoinRejection leave_reason;
     struct NetFrame *exchg_queue;
     char password[32];
     NetUserId my_id;

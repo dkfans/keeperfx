@@ -180,7 +180,7 @@ struct Thing *create_and_control_creature_as_controller(NetUserId user, ThingMod
     if (thing->class_id == TCls_Creature) {
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         SYNCDBG(7,"Possessing creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
-        set_player_lens(player->id_number, crconf->eye_effect);
+        set_user_lens(user, crconf->eye_effect);
     }
     return thing;
 }

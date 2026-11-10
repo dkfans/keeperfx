@@ -21,7 +21,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "net_main.h"
-#include "net_checksums.h"
+#include "net_filecheck.h"
 #include "user_prefs.h"
 #include "packets.h"
 #include <stdint.h>
@@ -67,7 +67,7 @@ struct PacketSaveHead {
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
     int8_t frontend_alliances;
-    char user_names[MAX_NET_USERS][20];
+    char user_names[MAX_NET_USERS][PLAYER_MP_NAME_LEN];
 };
 
 #pragma pack()

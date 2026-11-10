@@ -323,8 +323,45 @@ _backtrace(int depth , LPCONTEXT context)
     }
 }
 
+/** Writes keeperfx_crash_<timestamp>.dmp next to the exe, for post-mortem
+ *  inspection in WinDbg or Visual Studio. Returns FALSE if no dump was written. */
+static BOOL write_minidump(LPEXCEPTION_POINTERS info, char *path, DWORD path_len)
+{
+    DWORD dir_len = GetModuleFileNameA(NULL, path, path_len);
+    if (dir_len == 0 || dir_len >= path_len)
+        dir_len = 0;
+    while (dir_len > 0 && path[dir_len - 1] != '\\' && path[dir_len - 1] != '/')
+        dir_len--;
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    snprintf(path + dir_len, path_len - dir_len, "keeperfx_crash_%04u%02u%02u_%02u%02u%02u.dmp",
+             st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+    HANDLE file = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                              FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE)
+        return FALSE;
+    MINIDUMP_EXCEPTION_INFORMATION exception_info;
+    exception_info.ThreadId = GetCurrentThreadId();
+    exception_info.ExceptionPointers = info;
+    exception_info.ClientPointers = FALSE;
+    const MINIDUMP_TYPE dump_type = (MINIDUMP_TYPE)(MiniDumpScanMemory
+        | MiniDumpWithIndirectlyReferencedMemory | MiniDumpWithThreadInfo);
+    BOOL written = MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
+                                     file, dump_type, &exception_info, NULL, NULL);
+    CloseHandle(file);
+    if (!written)
+        DeleteFileA(path);
+    return written;
+}
+
 static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
 {
+    // Dump before anything touches game state, so a crash inside logging
+    // still leaves something to diagnose.
+    char dump_path[MAX_PATH];
+    BOOL dump_written = write_minidump(info, dump_path, sizeof(dump_path));
+    DWORD dump_error = dump_written ? 0 : GetLastError();
+
     switch (info->ExceptionRecord->ExceptionCode) {
     case EXCEPTION_ACCESS_VIOLATION:
         switch (info->ExceptionRecord->ExceptionInformation[0])
@@ -350,14 +387,22 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
         LbErrorLog("Failure code %lx received.\n",info->ExceptionRecord->ExceptionCode);
         break;
     }
+    LbErrorLog("Faulting instruction at %p on thread %lu.\n",
+               info->ExceptionRecord->ExceptionAddress, GetCurrentThreadId());
+    if (dump_written)
+        LbErrorLog("Minidump written: %s\n", dump_path);
+    else
+        LbErrorLog("Minidump not written (error %lu)\n", dump_error);
     log_replay_crashlog();
-    if (!SymInitialize(GetCurrentProcess(), 0, TRUE)) {
-        LbErrorLog("Failed to init symbol context\n");
-    }
-    else {
-            _backtrace(16 , info->ContextRecord);
-            SymCleanup(GetCurrentProcess());
-    }
+    // dbghelp allows one symbol session per process. Tracy builds already own
+    // it, so a failed SymInitialize means reuse that session, not give up.
+    HANDLE process = GetCurrentProcess();
+    BOOL owns_symbols = SymInitialize(process, 0, TRUE);
+    if (!owns_symbols)
+        SymRefreshModuleList(process);
+    _backtrace(16 , info->ContextRecord);
+    if (owns_symbols)
+        SymCleanup(process);
     RendererResetScreen(true);
     LbErrorLogClose();
     return EXCEPTION_EXECUTE_HANDLER;

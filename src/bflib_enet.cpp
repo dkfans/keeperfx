@@ -160,7 +160,7 @@ namespace
             enet_packet_destroy(packet);
             return;
         }
-        if ((source >= MAX_NET_USERS && (packet->dataLength > NET_MSG_BUFFER_SIZE || queued_packets[source] >= 32)) || (client_peer && net_join_role == NetRole_Spectator && (packet->dataLength > 16 * 1024 * 1024 || queued_bytes[source] + packet->dataLength > 32 * 1024 * 1024))) {
+        if ((source >= MAX_NET_USERS && (packet->dataLength > NET_UNSEATED_MSG_MAX_SIZE || queued_packets[source] >= 32)) || (client_peer && net_join_role == NetRole_Spectator && (packet->dataLength > 16 * 1024 * 1024 || queued_bytes[source] + packet->dataLength > 32 * 1024 * 1024))) {
             enet_packet_destroy(packet);
             netstate.sp->drop_user(source, NetJoin_Locked);
             return;
@@ -234,7 +234,7 @@ namespace
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED && !netstate.simulating_disconnect) {
-                    enet_peer_disconnect(peer, netstate.leave_reason);
+                    enet_peer_disconnect(peer, 0);
                 }
             }
             enet_host_flush(host);
@@ -719,9 +719,6 @@ namespace
             }
         } else {
             user_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
-        }
-        if (data >= NetJoin_MapMismatch && data < NetJoin_Count) {
-            netstate.users_leave_reason[user_id] = (enum NetJoinRejection)data;
         }
         const char *disconnect_reason = "timed out";
         if (drop_reason == NETDROP_DISCONNECT) {

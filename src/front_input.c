@@ -2071,7 +2071,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
         return;
     }
     int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
-    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(player) && !local_cursor_is_locked() && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
+    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(get_local_user()) &&!local_cursor_is_locked() && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
         set_packet_power_on_thing(pckt, PwrK_SLAP, local_state.local_thing_under_hand);
         return;
     }
@@ -2450,7 +2450,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
   TbBool cursor_locked = local_cursor_is_locked();
-  TbBool hand_is_empty = power_hand_is_empty(player);
+  TbBool hand_is_empty = power_hand_is_empty(get_local_user());
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= local_state.engine_window_width/pixel_size)
    || (pointer_y >= local_state.engine_window_height/pixel_size))
@@ -2976,7 +2976,7 @@ static void get_player_gui_clicks(void)
       }
       if (right_button_released)
       {
-        if ((predicted_ustate->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
+        if ((predicted_ustate->work_state != PSt_HoldInHand) || power_hand_is_empty(get_local_user()))
         {
           if ( !turn_off_all_window_menus() )
           {
@@ -3163,6 +3163,19 @@ void input(void)
         pckt->additional_packet_values |= PCAdV_RotatePressed;
     else
         pckt->additional_packet_values &= ~PCAdV_RotatePressed;
+    if (menu_is_active(GMnu_OPTIONS) || menu_is_active(GMnu_QUIT) || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE)
+        || menu_is_active(GMnu_VIDEO) || menu_is_active(GMnu_SOUND) || menu_is_active(GMnu_AUTOPILOT))
+        set_packet_control(pckt, PCtr_GameMenuOpen);
+    else
+        unset_packet_control(pckt, PCtr_GameMenuOpen);
+    if (flag_is_set(get_local_user_state()->init_flags, UsrIF_NewMPMessage))
+        set_packet_control(pckt, PCtr_ChatOpen);
+    else
+        unset_packet_control(pckt, PCtr_ChatOpen);
+    if (menu_is_active(GMnu_DUNGEON_SPECIAL) || menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE))
+        set_packet_control(pckt, PCtr_SpecialMenuOpen);
+    else
+        unset_packet_control(pckt, PCtr_SpecialMenuOpen);
 
     get_inputs();
     if ((game.mode_flags & MFlg_IsDemoMode) == 0 && !replay.load_enable) {

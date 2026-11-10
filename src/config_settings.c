@@ -47,6 +47,7 @@ unsigned char i_can_see_levels[] = {30, 45, 60, 254,};
 struct GameSettings settings;
 static struct GameSettings settings_saved;
 static struct ConfigInfo net_config_saved;
+static struct ConfigInfo skirmish_config_saved;
 /******************************************************************************/
 
 static const struct { unsigned char code; const char *name; } keycode_table[] = {
@@ -405,6 +406,7 @@ void setup_default_settings(void)
     settings.computer_assistant_kind       = DEFAULT_COMPUTER_ASSIST;
     settings.reconnect_token               = 0;
     net_config_info                        = default_net_config_info;
+    skirmish_config_info                   = default_skirmish_config_info;
 
     for (int i = 0; i < GAME_KEYS_COUNT; i++)
     {
@@ -426,6 +428,7 @@ TbBool load_settings(void)
         save_settings();
         settings_saved = settings;
         net_config_saved = net_config_info;
+        skirmish_config_saved = skirmish_config_info;
         return false;
     }
 
@@ -549,6 +552,12 @@ TbBool load_settings(void)
         if (val && value_type(val) == VALUE_STRING) settings.reconnect_token = strtoull(value_string(val), NULL, 16);
     }
 
+    vsec = value_dict_get(&root, "skirmish");
+    if (vsec) {
+        val = value_dict_get(vsec, "max_players");
+        if (val && value_type(val) == VALUE_INT32) skirmish_config_info.max_players = (uint8_t)clamp(value_int32(val), MIN_NET_USERS, MAX_NET_USERS);
+    }
+
     value_fini(&root);
 
     // sanity checks
@@ -567,12 +576,14 @@ TbBool load_settings(void)
     settings.highlight_mode = clamp(settings.highlight_mode, false, true);
     settings_saved = settings;
     net_config_saved = net_config_info;
+    skirmish_config_saved = skirmish_config_info;
     return true;
 }
 
 short save_settings(void)
 {
-    if (memcmp(&settings, &settings_saved, sizeof(settings)) == 0 && memcmp(&net_config_info, &net_config_saved, sizeof(net_config_info)) == 0)
+    if (memcmp(&settings, &settings_saved, sizeof(settings)) == 0 && memcmp(&net_config_info, &net_config_saved, sizeof(net_config_info)) == 0
+     && memcmp(&skirmish_config_info, &skirmish_config_saved, sizeof(skirmish_config_info)) == 0)
         return true;
 
     char *fname = prepare_file_path(FGrp_Save, "settings.toml");
@@ -637,12 +648,15 @@ short save_settings(void)
     TOSAVE("cheats_enabled = %d\n", (int)net_config_info.cheats_enabled);
     TOSAVE("computer_assistant = %d\n", (int)net_config_info.computer_assistant);
     TOSAVE("reconnect_token = \"%016llx\"\n", (unsigned long long)settings.reconnect_token);
+    TOSAVE("\n[skirmish]\n");
+    TOSAVE("max_players = %d\n", (int)skirmish_config_info.max_players);
 #undef TOSAVE
 
     LbFileSaveAt(fname, buf, len);
     free(buf);
     settings_saved = settings;
     net_config_saved = net_config_info;
+    skirmish_config_saved = skirmish_config_info;
     return true;
 }
 

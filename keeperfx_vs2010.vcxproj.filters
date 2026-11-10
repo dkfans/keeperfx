@@ -297,6 +297,7 @@
     <ClCompile Include="src\kfx\save\core\save_codec.cpp" />
     <ClCompile Include="src\kfx\save\core\save_config_overlay.cpp" />
     <ClCompile Include="src\kfx\save\SaveCatalogue.cpp" />
+    <ClCompile Include="src\kfx\save\SaveCampaignProgress.cpp" />
     <ClCompile Include="src\kfx\save\SaveContinue.cpp" />
     <ClCompile Include="src\kfx\save\SaveGameFile.cpp" />
     <ClCompile Include="src\kfx\save\SaveManager.cpp" />
@@ -351,7 +352,8 @@
     <ClCompile Include="src\kfx\ui\GameUI.cpp" />
     <ClCompile Include="src\kfx_memory.c" />
     <ClCompile Include="src\kernel_memtracker.c" />
-    <ClCompile Include="src\net_checksums.c" />
+    <ClCompile Include="src\net_checksum_turn.c" />
+    <ClCompile Include="src\net_filecheck.c" />
     <ClCompile Include="src\net_input_lag.c" />
     <ClCompile Include="src\value_util.c" />
     <ClCompile Include="src\replay.c" />
@@ -702,7 +704,8 @@
     <ClInclude Include="src\kfx_memory.h" />
     <ClInclude Include="src\kernel_memtracker.h" />
     <ClInclude Include="src\kfx_pch.h" />
-    <ClInclude Include="src\net_checksums.h" />
+    <ClInclude Include="src\net_checksum_turn.h" />
+    <ClInclude Include="src\net_filecheck.h" />
     <ClInclude Include="src\net_input_lag.h" />
     <ClInclude Include="src\platform.h" />
     <ClInclude Include="src\post_inc.h" />
