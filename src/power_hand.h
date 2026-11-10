@@ -76,6 +76,8 @@ TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl
 TbBool thing_is_ready_for_hand_or_slap(const struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
+void play_power_hand_pickup_sounds(struct Thing *thing, PlayerNumber plyr_idx);
+TbBool insert_thing_into_hand_list(struct UserState *ustate, PlayerNumber plyr_idx, ThingIndex tng_idx);
 TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool replace_thing_in_power_hand_list(const struct Thing *oldtng, const struct Thing *newtng, PlayerNumber plyr_idx);
@@ -97,6 +99,7 @@ struct Thing *create_power_hand(NetUserId user);
 void delete_power_hand(NetUserId user);
 void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y);
 
+void set_held_thing_draw(struct Thing *thing);
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
 void set_dropped_thing_position(struct Thing *droptng, const struct Coord3d *dstpos);
