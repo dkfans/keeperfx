@@ -45,6 +45,7 @@ struct Thing *get_hand_view(NetUserId user);
 struct Thing *get_held_thing_view(NetUserId user);
 TbBool local_hand_holds_thing(const struct Thing *thing);
 TbBool local_hand_hides_thing(const struct Thing *thing);
+void apply_local_hand_to_activity_counts(ThingModel crmodel, int32_t *gui_job_counts);
 
 /******************************************************************************/
 #ifdef __cplusplus

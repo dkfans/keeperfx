@@ -405,6 +405,28 @@ TbBool local_hand_hides_thing(const struct Thing *thing)
 {
     return local_hand_holds_thing(thing);
 }
+
+static void adjust_local_activity_count(const struct Thing *thing, ThingModel crmodel, int32_t *gui_job_counts, int32_t delta)
+{
+    TbBool counted = (thing->class_id == TCls_Creature) && (thing->model == crmodel) && (thing->owner == prediction.ustate.player_id)
+        && creature_counts_in_dungeon_stats(thing);
+    if (!counted) {
+        return;
+    }
+    int32_t gui_job = get_creature_gui_job(thing);
+    gui_job_counts[gui_job] = max(gui_job_counts[gui_job] + delta, 0);
+}
+
+void apply_local_hand_to_activity_counts(ThingModel crmodel, int32_t *gui_job_counts)
+{
+    if (!prediction_active) {
+        return;
+    }
+    const struct UserState *ustate = &prediction.ustate;
+    for (int32_t i = 0; i < ustate->num_things_in_hand; i++) {
+        adjust_local_activity_count(thing_get(ustate->things_in_hand[i]), crmodel, gui_job_counts, -1);
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
