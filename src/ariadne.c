@@ -2864,7 +2864,8 @@ static AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ar
 
 static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
 {
-    struct Coord3d nav_boundry_pos;
+    // Only x or y is replaced below; start from the given position so the returned z is defined
+    struct Coord3d nav_boundry_pos = *pos;
     struct Coord3d potentional_next_pos_3d;
     struct Coord3d original_mappos;
 
