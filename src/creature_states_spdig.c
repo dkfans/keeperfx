@@ -1262,9 +1262,12 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     else
     {
-        if (user_controls_thing(get_local_user(), spdigtng, UCT_Direct | UCT_Other))
+        // Whether someone controls the digger decides what it does next, so ask about any
+        // user: asking only about the local one made clients disagree. Only the sound is local.
+        if (user_controls_thing(ANY_USER, spdigtng, UCT_Direct | UCT_Other))
         {
-            play_non_3d_sample(snd_refusal);
+            if (user_controls_thing(get_local_user(), spdigtng, UCT_Direct | UCT_Other))
+                play_non_3d_sample(snd_refusal);
             internal_set_thing_state(spdigtng, state);
             return 1;
         }
