@@ -985,26 +985,50 @@ long gold_being_dropped_on_creature(long plyr_idx, NetUserId user, struct Thing 
  * @param droptng
  * @param dstpos
  */
+void set_dropped_thing_position(struct Thing *droptng, const struct Coord3d *dstpos)
+{
+    droptng->mappos.x.val = dstpos->x.val;
+    droptng->mappos.y.val = dstpos->y.val;
+    int32_t ceiling_height = get_ceiling_height_at(&droptng->mappos);
+    int32_t floor_height = get_floor_height_at(&droptng->mappos);
+    int32_t fall_dist = ceiling_height - floor_height;
+    if (fall_dist < 0) {
+        fall_dist = 0;
+    } else if (fall_dist > subtile_coord(3,0)) {
+        fall_dist = subtile_coord(3,0);
+    }
+    int32_t max_height = ceiling_height - droptng->clipbox_size_z;
+    droptng->mappos.z.val = fall_dist + floor_height;
+    if (droptng->mappos.z.val > max_height) {
+        droptng->mappos.z.val = max_height;
+    }
+}
+
+void set_dropped_object_draw(struct Thing *thing)
+{
+    if (object_is_mature_food(thing)) {
+        set_thing_draw(thing, 819, 256, -1, -1, 0, ODC_Default);
+        return;
+    }
+    struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
+    set_thing_draw(thing, objst->sprite_anim_idx, objst->anim_speed, -1, -1, 0, ODC_Default); //return to normal after sprite_anim_idx_in_hand
+}
+
+enum HeldThingDropOutcome get_held_thing_drop_outcome(const struct Thing *droptng, const struct Thing *overtng)
+{
+    if (object_is_gold(droptng)) {
+        return HTDrop_Gold;
+    }
+    if (thing_is_mature_food(droptng) && thing_is_creature(overtng) && creature_able_to_eat(overtng)) {
+        return HTDrop_Eaten;
+    }
+    return HTDrop_Ground;
+}
+
 void drop_held_thing_on_ground(struct Dungeon *dungeon, NetUserId user, struct Thing *droptng, const struct Coord3d *dstpos)
 {
     begin_fp_hand_drop(droptng);
-    droptng->mappos.x.val = dstpos->x.val;
-    droptng->mappos.y.val = dstpos->y.val;
-    long ceiling_height = get_ceiling_height_at(&droptng->mappos);
-    long floor_height = get_floor_height_at(&droptng->mappos);
-    long fall_dist = ceiling_height - floor_height;
-    if (fall_dist < 0) {
-        fall_dist = 0;
-    } else
-    if (fall_dist > subtile_coord(3,0)) {
-        fall_dist = subtile_coord(3,0);
-    }
-    long max_height = ceiling_height - droptng->clipbox_size_z;
-    droptng->mappos.z.val = fall_dist + floor_height;
-    if (droptng->mappos.z.val > max_height)
-    {
-        droptng->mappos.z.val = max_height;
-    }
+    set_dropped_thing_position(droptng, dstpos);
     remove_thing_from_limbo(droptng);
     if (thing_is_creature(droptng))
     {
@@ -1034,19 +1058,20 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, NetUserId user, struct T
     } else
     if (thing_is_object(droptng))
     {
-        if (object_is_mature_food(droptng)) {
-            set_thing_draw(droptng, 819, 256, -1, -1, 0, ODC_Default);
-        }
-        else
-        {
-            struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
-            set_thing_draw(droptng, objst->sprite_anim_idx, objst->anim_speed, -1, -1, 0, ODC_Default); //return to normal after sprite_anim_idx_in_hand
-        }
+        set_dropped_object_draw(droptng);
         droptng->continue_state = droptng->active_state;
         droptng->active_state = ObSt_BeingDropped;
     }
 
     reset_interpolation_of_thing(droptng);
+}
+
+TbBool get_held_thing_drop_position(const struct Thing *droptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Coord3d *pos)
+{
+    pos->x.val = subtile_coord_center(stl_x);
+    pos->y.val = subtile_coord_center(stl_y);
+    pos->z.val = get_thing_height_at_xy(droptng, pos);
+    return !thing_in_wall_at(droptng, pos);
 }
 
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
@@ -1067,10 +1092,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     }
     // Check if object will fit into that position
     struct Coord3d pos;
-    pos.x.val = subtile_coord_center(stl_x);
-    pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_thing_height_at_xy(droptng, &pos);
-    if (thing_in_wall_at(droptng, &pos)) {
+    if (!get_held_thing_drop_position(droptng, stl_x, stl_y, &pos)) {
         return 0;
     }
     if (!lua_on_creature_drop(droptng, plyr_idx, &pos)) {
@@ -1082,30 +1104,22 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
         return 0;
     }
     struct Thing *overtng = thing_get(ustate->thing_under_hand);
-    if (object_is_gold_pile(droptng))
-    {
-        if (thing_is_creature(overtng) && creature_able_to_get_salary(overtng))
-        {
+    switch (get_held_thing_drop_outcome(droptng, overtng)) {
+    case HTDrop_Gold:
+        if (thing_is_creature(overtng) && creature_able_to_get_salary(overtng)) {
             gold_being_dropped_on_creature(plyr_idx, user, droptng, overtng);
-        } else
-        {
+        } else {
             drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx, user);
             play_action_sample(plyr_idx, user, snd_coin_drop);
         }
         destroy_object(droptng);
-    } else
-    if (thing_is_object(droptng) && object_is_mature_food(droptng))
-    {
-        if (thing_is_creature(overtng) && creature_able_to_eat(overtng))
-        {
-            food_eaten_by_creature(droptng, overtng);
-        } else
-        {
-            drop_held_thing_on_ground(dungeon, user, droptng, &pos);
-        }
-    } else
-    {
+        break;
+    case HTDrop_Eaten:
+        food_eaten_by_creature(droptng, overtng);
+        break;
+    case HTDrop_Ground:
         drop_held_thing_on_ground(dungeon, user, droptng, &pos);
+        break;
     }
     if (ustate->num_things_in_hand == 1) {
         set_user_instance(user, PI_Drop, 0);
@@ -1800,10 +1814,7 @@ short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dng
     if (!can_drop_thing_here(stl_x, stl_y, dngn_idx, allow_unclaimed_path)) {
       return false;
     }
-    pos.x.val = subtile_coord_center(stl_x);
-    pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_thing_height_at_xy(thing, &pos);
-    return !thing_in_wall_at(thing, &pos);
+    return get_held_thing_drop_position(thing, stl_x, stl_y, &pos);
 }
 
 static TbBool hand_rule_unset(struct HandRule *hand_rule, const struct Thing *thing)
