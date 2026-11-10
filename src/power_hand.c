@@ -374,7 +374,7 @@ void set_gold_dropped_hand_graphic(struct UserState *ustate, struct Thing *handt
     ustate->hand_animation_until_turn = turn + HAND_GOLD_DROP_ANIMATION_TURNS;
 }
 
-static int find_in_list(const ThingIndex *things, uint8_t count, ThingIndex tng_idx)
+int32_t find_thing_in_list(const ThingIndex *things, uint8_t count, ThingIndex tng_idx)
 {
     for (int i = 0; i < count; i++) {
         if (things[i] == tng_idx) {
@@ -396,7 +396,7 @@ static int find_held_thing(PlayerNumber plyr_idx, ThingIndex tng_idx, ThingIndex
         }
         *things = ustate->things_in_hand;
         *count = &ustate->num_things_in_hand;
-        int idx = find_in_list(*things, **count, tng_idx);
+        int idx = find_thing_in_list(*things, **count, tng_idx);
         if (idx >= 0) {
             return idx;
         }
@@ -404,7 +404,7 @@ static int find_held_thing(PlayerNumber plyr_idx, ThingIndex tng_idx, ThingIndex
     struct Dungeon *dungeon = get_dungeon(plyr_idx);
     *things = dungeon->things_in_hand;
     *count = &dungeon->num_things_in_hand;
-    int idx = find_in_list(*things, **count, tng_idx);
+    int idx = find_thing_in_list(*things, **count, tng_idx);
     if (idx >= 0) {
         return idx;
     }
@@ -417,7 +417,7 @@ static int find_held_thing(PlayerNumber plyr_idx, ThingIndex tng_idx, ThingIndex
     return -1;
 }
 
-static void remove_held_thing_at(ThingIndex *things, uint8_t *count, int idx)
+void remove_held_thing_at(ThingIndex *things, uint8_t *count, int idx)
 {
     for (int i = idx; i < *count - 1; i++) {
         things[i] = things[i + 1];
@@ -801,21 +801,22 @@ TbBool object_is_slappable_by_player(const struct Thing *thing, PlayerNumber ply
   }
 }*/
 
+TbBool thing_is_ready_for_hand_or_slap(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (thing_is_picked_up(thing) || (thing->active_state == CrSt_CreatureUnconscious)) {
+        return false;
+    }
+    return can_thing_be_picked_up_by_player(thing, plyr_idx) || thing_slappable(thing, plyr_idx);
+}
+
 long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    long dist_x;
-    long dist_y;
-    if (!thing_is_picked_up(thing)
-        && (thing->active_state != CrSt_CreatureUnconscious))
-    {
-      if (can_thing_be_picked_up_by_player(thing, param->plyr_idx) || thing_slappable(thing, param->plyr_idx))
-      {
-          // note that abs() is not required because we're computing square of the values
-          dist_x = param->primary_number-(MapCoord)thing->mappos.x.val;
-          dist_y = param->secondary_number-(MapCoord)thing->mappos.y.val;
-          // This function should return max value when the distance is minimal, so:
-          return INT32_MAX-(dist_x*dist_x + dist_y*dist_y);
-      }
+    if (thing_is_ready_for_hand_or_slap(thing, param->plyr_idx)) {
+        // note that abs() is not required because we're computing square of the values
+        int32_t dist_x = param->primary_number - (MapCoord)thing->mappos.x.val;
+        int32_t dist_y = param->secondary_number - (MapCoord)thing->mappos.y.val;
+        // This function should return max value when the distance is minimal, so:
+        return INT32_MAX - (dist_x * dist_x + dist_y * dist_y);
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -1617,6 +1618,26 @@ static TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx, 
     return thing_exists(thing);
 }
 
+TbBool power_hand_can_take_thing(PlayerNumber plyr_idx, const struct UserState *ustate, const struct Thing *thing)
+{
+    if (ustate->num_things_in_hand >= game.conf.rules[plyr_idx].gameplay.max_things_in_hand) {
+        return false;
+    }
+    return thing_exists(thing) && !thing_is_possessed(thing) && can_thing_be_picked_up_by_player(thing, plyr_idx);
+}
+
+struct Thing *get_thing_for_power_hand(PlayerNumber plyr_idx, const struct UserState *ustate, ThingIndex tng_idx)
+{
+    struct Thing *thing = thing_get(tng_idx);
+    if ((!thing_exists(thing) || !can_thing_be_picked_up_by_player(thing, plyr_idx)) && (ustate->thing_under_hand > 0)) {
+        thing = thing_get(ustate->thing_under_hand);
+    }
+    if (!power_hand_can_take_thing(plyr_idx, ustate, thing)) {
+        return INVALID_THING;
+    }
+    return thing;
+}
+
 TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
@@ -1625,26 +1646,8 @@ TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl
     if (power_hand_is_full(user)) {
         return Lb_FAIL;
     }
-    thing = thing_get(tng_idx);
-    if (!thing_exists(thing))
-    {
-        thing = INVALID_THING;
-    } else
-    if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
-    {
-        thing = INVALID_THING;
-    }
-    if (thing_is_invalid(thing))
-    {
-        const short under_hand = get_user_state(user)->thing_under_hand;
-        if (under_hand > 0)
-            thing = thing_get(under_hand);
-    }
-    if (!thing_exists(thing) || thing_is_possessed(thing)) {
-        return Lb_FAIL;
-    }
-    if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
-    {
+    thing = get_thing_for_power_hand(plyr_idx, get_user_state(user), tng_idx);
+    if (thing_is_invalid(thing)) {
         return Lb_FAIL;
     }
     if (thing_is_special_box(thing))
