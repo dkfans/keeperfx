@@ -426,11 +426,6 @@ void remove_held_thing_at(ThingIndex *things, uint8_t *count, int idx)
     things[*count] = 0;
 }
 
-TbBool power_hand_is_empty(NetUserId user)
-{
-    return get_user_state(user)->num_things_in_hand == 0;
-}
-
 TbBool power_hand_is_hovering(NetUserId user)
 {
     return get_user_thing_under_hand(user) > 0;
@@ -445,9 +440,16 @@ TbBool power_hand_is_full(NetUserId user)
     return ustate->num_things_in_hand >= game.conf.rules[ustate->player_id].gameplay.max_things_in_hand;
 }
 
-struct Thing *get_first_thing_in_power_hand(NetUserId user)
+struct Thing *get_first_held_thing(const struct UserState *ustate)
 {
-    return thing_get(get_user_state(user)->things_in_hand[0]);
+    if (ustate->num_things_in_hand == 0) {
+        return NULL;
+    }
+    struct Thing *thing = thing_get(ustate->things_in_hand[0]);
+    if (!thing_exists(thing)) {
+        return NULL;
+    }
+    return thing;
 }
 
 /** Removes a thing from whichever of the keeper's lists holds it, without any further processing. */
@@ -597,7 +599,7 @@ void draw_power_hand(void)
 
             draw_gui_panel_sprite_centered(cursor_x+scale_ui_value(24*global_hand_scale), cursor_y+scale_ui_value(32*global_hand_scale), ps_units_per_px, roomst->medsym_sprite_idx, 0);
         }
-        if ((!power_hand_is_empty(get_displayed_user())) && (game.small_map_state == 1))
+        if ((ustate->num_things_in_hand > 0) && (game.small_map_state == 1))
         {
             draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
         }
@@ -633,7 +635,7 @@ void draw_power_hand(void)
     }
     if (ustate->work_state != PSt_HoldInHand) {
       TbBool draw_hand = hover_hand;
-      if ((ustate->work_state == PSt_CtrlDungeon) && !power_hand_is_empty(get_displayed_user())) {
+      if ((ustate->work_state == PSt_CtrlDungeon) && (ustate->num_things_in_hand > 0)) {
         draw_hand = (ustate->primary_cursor_state != CSt_DoorKey) && (ustate->secondary_cursor_state != CSt_DoorKey);
       }
       if ((ustate->work_state != PSt_CtrlDungeon) || !draw_hand)
@@ -658,8 +660,8 @@ void draw_power_hand(void)
     }
     int32_t inputpos_x;
     int32_t inputpos_y;
-    picktng = get_first_thing_in_power_hand(get_displayed_user());
-    if ((thing_exists(picktng)) && ((picktng->rendering_flags & TRF_Invisible) == 0))
+    picktng = get_first_held_thing(ustate);
+    if ((picktng != NULL) && ((picktng->rendering_flags & TRF_Invisible) == 0))
     {
         SYNCDBG(7,"Holding %s",thing_model_name(picktng));
         switch (picktng->class_id)
@@ -1482,7 +1484,7 @@ struct Thing *create_power_hand(NetUserId user)
         return INVALID_THING;
     }
     ustate->hand_thing_idx = thing->index;
-    set_new_hand_graphic(ustate, thing, get_user_player(user), get_first_thing_in_power_hand(user), get_gameturn());
+    set_new_hand_graphic(ustate, thing, get_user_player(user), get_first_held_thing(ustate), get_gameturn());
     place_thing_in_limbo(thing);
     return thing;
 }

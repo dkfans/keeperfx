@@ -1082,9 +1082,8 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 0;
   case PckA_DumpHeldThingToOldPos:
       dungeon = get_players_num_dungeon(plyr_idx);
-      if (!power_hand_is_empty(user))
-      {
-          thing = get_first_thing_in_power_hand(user);
+      thing = get_first_held_thing(ustate);
+      if (thing != NULL) {
           dump_first_held_thing_on_map(plyr_idx, user, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return false;

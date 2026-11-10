@@ -60,10 +60,9 @@ void set_new_hand_graphic(struct UserState *ustate, struct Thing *handtng, const
 void set_gold_dropped_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, GameTurn turn);
 int32_t find_thing_in_list(const ThingIndex *things, uint8_t count, ThingIndex tng_idx);
 void remove_held_thing_at(ThingIndex *things, uint8_t *count, int idx);
-TbBool power_hand_is_empty(NetUserId user);
 TbBool power_hand_is_hovering(NetUserId user);
 TbBool power_hand_is_full(NetUserId user);
-struct Thing *get_first_thing_in_power_hand(NetUserId user);
+struct Thing *get_first_held_thing(const struct UserState *ustate);
 void draw_power_hand(void);
 void draw_user_mini_things_in_hand(NetUserId user, long x, long y);
 long get_mini_things_in_hand_width(NetUserId user);

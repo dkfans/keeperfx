@@ -114,7 +114,7 @@ static TbBool update_dig_highlight(const struct Packet *pckt, MapSubtlCoord stl_
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     TbBool cursor_is_locked = dig_cursor.cursor_button_down && dig_cursor.cursor_locked && ((pckt->control_flags & PCtr_LBtnClick) == 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
     if ((cursor_context != CSt_PickAxe) && !cursor_is_locked) {
-        if ((cursor_context != CSt_PowerHand) || power_hand_is_empty(get_local_user()) ||!can_dig_here(stl_x, stl_y, my_player_number, true)) {
+        if ((cursor_context != CSt_PowerHand) || (ustate->num_things_in_hand == 0) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
             return false;
         }
     }
@@ -188,7 +188,7 @@ static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta p
             tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         } else {
             has_roomspace = update_dig_highlight(pckt, stl_x, stl_y);
-            TbBool holding_thing = !power_hand_is_empty(get_local_user());
+            TbBool holding_thing = (ustate->num_things_in_hand > 0);
             TbBool chosen_subtile_is_high = has_roomspace && holding_thing;
             set_flag_value(ustate->additional_flags, UsrAF_ChosenSubTileIsHigh, chosen_subtile_is_high);
             if (chosen_subtile_is_high) {

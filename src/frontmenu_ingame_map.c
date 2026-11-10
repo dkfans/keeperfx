@@ -674,16 +674,14 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     int32_t y;
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
-    struct Thing *thing;
     do_map_rotate_stuff_subtile(curr_mx - start_x - MapDiagonalLength/2, curr_my - start_y - MapDiagonalLength/2, &x, &y, zoom);
     game.hand_over_subtile_x = x;
     game.hand_over_subtile_y = y;
     player = get_my_player();
-    thing = get_first_thing_in_power_hand(get_local_user());
-    if (!thing_is_invalid(thing))
-    {
-        if (can_place_thing_here(thing, x, y, player->id_number))
-          game.small_map_state = 1;
+    const struct UserState *ustate = get_local_user_state_prediction();
+    struct Thing *thing = get_first_held_thing(ustate);
+    if ((thing != NULL) && can_place_thing_here(thing, x, y, player->id_number)) {
+        game.small_map_state = 1;
     }
     if (right_button_clicked)
       right_button_clicked = 0;
