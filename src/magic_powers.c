@@ -649,6 +649,15 @@ TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     return dungeon->soe_explored_flags[soe_y][soe_x];
 }
 
+HitPoints calculate_slap_damage(const struct Thing *thing)
+{
+    const struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
+    if (crconf->slaps_to_kill <= 0) {
+        return 0;
+    }
+    return calculate_correct_creature_max_health(thing) / crconf->slaps_to_kill;
+}
+
 void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 {
     struct CreatureModelConfig *crconf;
@@ -658,11 +667,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     crconf = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
     anger_apply_anger_to_creature(thing, crconf->annoy_slapped, AngR_Other, 1);
-    if (crconf->slaps_to_kill > 0)
-    {
-        HitPoints slap_damage = calculate_correct_creature_max_health(thing) / crconf->slaps_to_kill;
-        apply_damage_to_thing_and_display_health(thing, slap_damage, player->id_number);
-    }
+    apply_damage_to_thing_and_display_health(thing, calculate_slap_damage(thing), player->id_number);
     powerst = get_power_model_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
     cctrl->slap_turns = powerst->duration;
@@ -1806,7 +1811,7 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     dungeon = get_dungeon(player->id_number);
     struct UserState *ustate = get_user_state(user);
     const TbBool slapping = user_state_invalid(ustate) ? player->slap_cooldown_until_turn > get_gameturn() : ustate->instance_num == PI_Whip;
-    if (slapping || get_gameturn() - dungeon->last_creature_dropped_gameturn <= 10) {
+    if (slapping || get_gameturn() - dungeon->last_creature_dropped_gameturn <= SLAP_BLOCKED_TURNS_AFTER_DROP) {
         return Lb_OK;
     }
     player->slap_cooldown_until_turn = get_gameturn() + player_instance_info[PI_Whip].length_turns;
