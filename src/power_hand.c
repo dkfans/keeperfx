@@ -331,6 +331,24 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber p
     return picktng;
 }
 
+void set_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, int32_t hand_animation, GameTurn turn)
+{
+    TbBool slapping = (hand_animation == HndA_Slap) || (hand_animation == HndA_SideSlap);
+    if ((ustate->hand_animation_until_turn >= turn) && slapping) {
+        ustate->hand_animation_until_turn = 0;
+    }
+    if (ustate->hand_animation_until_turn >= turn) {
+        return;
+    }
+    if ((ustate->hand_animationId == hand_animation) && (hand_animation != HndA_Pickup)) {
+        return;
+    }
+    ustate->hand_animationId = hand_animation;
+    const struct PowerHandConfigStats *pwrhnd = &game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx];
+    TbBool animate_once = (hand_animation != HndA_Hover) && (hand_animation != HndA_HoldGold);
+    set_thing_draw(handtng, pwrhnd->anim_idx[hand_animation], pwrhnd->anim_speed[hand_animation], game.conf.crtr_conf.sprite_size, animate_once, 0, ODC_Default);
+}
+
 void set_power_hand_graphic(NetUserId user, long HandAnimationID)
 {
     struct UserState *ustate = get_user_state(user);
@@ -338,30 +356,23 @@ void set_power_hand_graphic(NetUserId user, long HandAnimationID)
         // (computer keepers have no hand animation)
         return;
     }
-    if (ustate->hand_animation_until_turn >= get_gameturn())
-    {
-        if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
-          ustate->hand_animation_until_turn = 0;
+    set_hand_graphic(ustate, thing_get(ustate->hand_thing_idx), get_user_player(user), HandAnimationID, get_gameturn());
+}
+
+void set_new_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, const struct Thing *heldtng, GameTurn turn)
+{
+    int32_t hand_animation = HndA_Pickup;
+    if ((heldtng != NULL) && object_is_gold(heldtng)) {
+        hand_animation = HndA_HoldGold;
     }
-    if (ustate->hand_animation_until_turn < get_gameturn())
-    {
-        if ((ustate->hand_animationId != HandAnimationID) || (HandAnimationID == HndA_Pickup))
-        {
-            ustate->hand_animationId = HandAnimationID;
-            struct Thing *thing = thing_get(ustate->hand_thing_idx);
-            const struct PlayerInfo *player = get_user_player(user);
-            int32_t anim_idx = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
-            short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
-            if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
-            {
-                set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
-            }
-            else
-            {
-                set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 1, 0, ODC_Default);
-            }
-        }
-    }
+    ustate->hand_animationId = HndA_None;
+    set_hand_graphic(ustate, handtng, player, hand_animation, turn);
+}
+
+void set_gold_dropped_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, GameTurn turn)
+{
+    set_hand_graphic(ustate, handtng, player, HndA_Hover, turn);
+    ustate->hand_animation_until_turn = turn + HAND_GOLD_DROP_ANIMATION_TURNS;
 }
 
 static int find_in_list(const ThingIndex *things, uint8_t count, ThingIndex tng_idx)
@@ -900,8 +911,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx, NetUs
     }
     struct UserState *ustate = get_user_state(user);
     if (!user_state_invalid(ustate)) {
-        set_power_hand_graphic(user, HndA_Hover);
-        ustate->hand_animation_until_turn = get_gameturn() + 16;
+        set_gold_dropped_hand_graphic(ustate, thing_get(ustate->hand_thing_idx), get_user_player(user), get_gameturn());
     }
 }
 
@@ -1486,7 +1496,6 @@ struct Thing *create_power_hand(NetUserId user)
         return INVALID_THING;
     }
     struct Thing *thing;
-    struct Thing *grabtng;
     struct Coord3d pos;
     pos.x.val = 0;
     pos.y.val = 0;
@@ -1497,19 +1506,7 @@ struct Thing *create_power_hand(NetUserId user)
         return INVALID_THING;
     }
     ustate->hand_thing_idx = thing->index;
-    ustate->hand_animationId = 0;
-    grabtng = get_first_thing_in_power_hand(user);
-    if (thing_is_invalid(thing))
-    {
-      set_power_hand_graphic(user, HndA_Hover);
-    } else
-    if ((grabtng->class_id == TCls_Object) && object_is_gold_pile(grabtng))
-    {
-        set_power_hand_graphic(user, HndA_HoldGold);
-    } else
-    {
-        set_power_hand_graphic(user, HndA_Pickup);
-    }
+    set_new_hand_graphic(ustate, thing, get_user_player(user), get_first_thing_in_power_hand(user), get_gameturn());
     place_thing_in_limbo(thing);
     return thing;
 }

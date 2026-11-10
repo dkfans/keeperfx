@@ -33,8 +33,10 @@ extern "C" {
 struct Thing;
 struct PlayerInfo;
 struct Dungeon;
+struct UserState;
 
 #define HAND_RULE_SLOTS_COUNT 8
+#define HAND_GOLD_DROP_ANIMATION_TURNS 16
 
 #pragma pack()
 /******************************************************************************/
@@ -47,6 +49,9 @@ TbBool object_is_pickable_by_hand_to_hold(const struct Thing* thing);
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 void set_power_hand_graphic(NetUserId user, long HandAnimationID);
+void set_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, int32_t hand_animation, GameTurn turn);
+void set_new_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, const struct Thing *heldtng, GameTurn turn);
+void set_gold_dropped_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, GameTurn turn);
 TbBool power_hand_is_empty(NetUserId user);
 TbBool power_hand_is_hovering(NetUserId user);
 TbBool power_hand_is_full(NetUserId user);
