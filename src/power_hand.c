@@ -1047,7 +1047,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         }
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
         stop_creature_sound(droptng, 5);
-        if (is_my_player_number(dungeon->owner)) {
+        if (is_my_player_number(dungeon->owner) && !local_hand_predicted_drop(droptng)) {
             play_creature_sound(droptng, CrSnd_Drop, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = get_gameturn();

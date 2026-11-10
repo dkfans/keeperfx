@@ -51,9 +51,12 @@ struct Thing *get_hand_view(NetUserId user);
 struct Thing *get_held_thing_view(NetUserId user);
 TbBool local_hand_holds_thing(const struct Thing *thing);
 TbBool local_hand_hides_thing(const struct Thing *thing);
+struct Thing *find_local_dropped_view(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *view_idx);
 void apply_local_hand_to_activity_counts(ThingModel crmodel, int32_t *gui_job_counts);
 TbBool local_hand_shows_flash(const struct Thing *thing, enum LocalHandFlash flash);
 void local_hand_hide_damage_flash(const struct Thing *thing);
+TbBool local_hand_predicted_drop(const struct Thing *thing);
+TbBool local_hand_showed_landing(const struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

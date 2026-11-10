@@ -278,7 +278,7 @@ static const char splittypes[64] = {
 }
 #endif
 /******************************************************************************/
-static void draw_things_on_map_block(struct Map *mapblk, struct Camera *frontview_cam);
+static void draw_things_on_map_block(struct Map *mapblk, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Camera *frontview_cam);
 static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
 static int render_sprite_debug_level = 0;
 static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf);
@@ -4073,7 +4073,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         colmn = blank_colmn;
         if (map_block_revealed(mapblk, my_player_number))
         {
-            draw_things_on_map_block(mapblk, NULL);
+            draw_things_on_map_block(mapblk, center_x, stl_y, NULL);
             colmn = get_map_column(mapblk);
         }
         // Retrieve solidmasks for surrounding area
@@ -4490,7 +4490,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         cur_colmn = unrev_colmn;
         if (map_block_revealed(cur_mapblk, my_player_number))
         {
-            draw_things_on_map_block(cur_mapblk, NULL);
+            draw_things_on_map_block(cur_mapblk, stl_x + xaval + xidx, stl_y, NULL);
             cur_colmn = get_map_column(cur_mapblk);
             solidmsk_cur_raw = cur_colmn->solidmask;
             solidmsk_cur = solidmsk_cur_raw;
@@ -4680,7 +4680,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         cur_colmn = unrev_colmn;
         if (map_block_revealed(cur_mapblk, my_player_number))
         {
-            draw_things_on_map_block(cur_mapblk, NULL);
+            draw_things_on_map_block(cur_mapblk, stl_x + xaval + xidx, stl_y, NULL);
             cur_colmn = get_map_column(cur_mapblk);
         }
         // Get solidmasks of sibling columns
@@ -8848,7 +8848,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.y = (render_floorpos - map_z_pos); // For shadows
 
         // Shadows
-        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_BeingSacrificed) == 0))
+        if ((thing->class_id == TCls_Creature) && ((thing->movement_flags & TMvF_BeingSacrificed) == 0))
         {
             int count;
             int i;
@@ -9049,7 +9049,7 @@ static void draw_thing_on_map_block(struct Thing *thing, struct Map *mapblk, str
     }
 }
 
-static void draw_things_on_map_block(struct Map *mapblk, struct Camera *frontview_cam)
+static void draw_things_on_map_block(struct Map *mapblk, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Camera *frontview_cam)
 {
     int32_t i = get_mapwho_thing_index(mapblk);
     uint32_t k = 0;
@@ -9070,6 +9070,11 @@ static void draw_things_on_map_block(struct Map *mapblk, struct Camera *frontvie
             break_mapwho_infinite_chain(mapblk);
             break;
         }
+    }
+    int32_t view_idx = 0;
+    struct Thing *viewtng;
+    while ((viewtng = find_local_dropped_view(stl_x, stl_y, &view_idx)) != NULL) {
+        draw_thing_on_map_block(viewtng, mapblk, frontview_cam);
     }
 }
 
@@ -9201,7 +9206,7 @@ void draw_frontview_engine(struct Camera *cam)
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {
-                    draw_things_on_map_block(mapblk, cam);
+                    draw_things_on_map_block(mapblk, stl_x, stl_y, cam);
                 }
             }
             stl_x -= x_step1[qdrant];
