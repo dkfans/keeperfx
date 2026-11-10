@@ -60,6 +60,9 @@ namespace
     ENetPeer *client_peer = nullptr;
     enet_uint32 connection_ids[MAX_NET_CONNECTIONS] = {0};
     enet_uint32 resync_saved_window[MAX_NET_CONNECTIONS] = {0};
+    // When anything (including unsequenced gameplay data) last arrived from each peer, by peer
+    // index. ENet's own lastReceiveTime only moves on acknowledgements.
+    enet_uint32 peer_heard_at[MAX_NET_CONNECTIONS] = {0};
     int host_is_dual_stack = 0;
     TransferRateTracker download_rate_tracker = {0, 0};
     TransferRateTracker upload_rate_tracker = {0, 0};
@@ -231,6 +234,7 @@ namespace
         client_peer = nullptr;
         memset(connection_ids, 0, sizeof(connection_ids));
         memset(resync_saved_window, 0, sizeof(resync_saved_window));
+        memset(peer_heard_at, 0, sizeof(peer_heard_at));
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED && !netstate.simulating_disconnect) {
@@ -756,22 +760,29 @@ namespace
             }
             NetUserId destination = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
             bool spectator_peer = client_peer == nullptr && destination >= MAX_NET_USERS;
-            if (resync_saved_window[peer_index] == 0 && !spectator_peer) {
-                continue;
-            }
             enet_uint32 retry_interval = max(peer->roundTripTime + 4 * peer->roundTripTimeVariance, 100U) * 2;
             ENetList *commands = &peer->sentReliableCommands;
             for (ENetListIterator current = enet_list_begin(commands); current != enet_list_end(commands); current = enet_list_next(current)) {
                 ENetOutgoingCommand *command = reinterpret_cast<ENetOutgoingCommand *>(current);
-                if (command->packet == nullptr || command->packet->dataLength == 0) {
+                // ENet doubles a reliable command's retry time on every resend, so after a few
+                // seconds without a connection the next resend can be many seconds away and the
+                // peer times out (PEER_TIMEOUT_MS) although the link is back. Once the peer has
+                // been heard from since a command was last sent, resend it at the normal pace.
+                bool link_back = peer_index < MAX_NET_CONNECTIONS && peer_heard_at[peer_index] != 0
+                    && ENET_TIME_LESS(command->sentTime, peer_heard_at[peer_index]) && command->sendAttempts > 1;
+                bool spectator_command = false;
+                bool resync_command = false;
+                if (command->packet != nullptr && command->packet->dataLength > 0) {
+                    spectator_command = spectator_peer && command->packet->data[0] == NETMSG_SPECTATOR_TURN;
+                    resync_command = resync_saved_window[peer_index] != 0 && command->packet->dataLength > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && command->packet->data[0] == NETMSG_RESYNC_DATA;
+                }
+                if (!spectator_command && !resync_command && !link_back) {
                     continue;
                 }
-                bool spectator_command = spectator_peer && command->packet->data[0] == NETMSG_SPECTATOR_TURN;
-                bool resync_command = resync_saved_window[peer_index] != 0 && command->packet->dataLength > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && command->packet->data[0] == NETMSG_RESYNC_DATA;
-                if (!spectator_command && !resync_command) {
+                if (command->roundTripTimeout <= retry_interval) {
                     continue;
                 }
-                command->roundTripTimeout = min(command->roundTripTimeout, retry_interval);
+                command->roundTripTimeout = retry_interval;
                 enet_uint32 command_timeout = command->sentTime + command->roundTripTimeout;
                 if (ENET_TIME_LESS(command_timeout, peer->nextTimeout)) {
                     peer->nextTimeout = command_timeout;
@@ -822,6 +833,12 @@ namespace
                 report_dropped_peer(enet_event.peer, enet_event.data, NETDROP_TIMEOUT);
                 break;
             case ENET_EVENT_TYPE_RECEIVE: {
+                {
+                    size_t index = enet_event.peer - host->peers;
+                    if (index < MAX_NET_CONNECTIONS) {
+                        peer_heard_at[index] = host->serviceTime | 1;
+                    }
+                }
                 user_id = SERVER_ID;
                 if (!client_peer) {
                     user_id = NetUserId(reinterpret_cast<ptrdiff_t>(enet_event.peer->data));
