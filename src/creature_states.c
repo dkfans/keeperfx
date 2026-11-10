@@ -84,6 +84,7 @@
 #include "creature_states_tresr.h"
 #include "creature_states_barck.h"
 
+#include "engine_camera.h"
 #include "keeperfx.hpp"
 #include "kfx/ai/TargetSearchProbe.h"
 #include "post_inc.h"
@@ -1552,7 +1553,7 @@ static short process_creature_being_dropped(struct Thing *creatng)
         {
             struct Dungeon* dungeon = get_dungeon(creatng->owner);
             if (!dungeon_invalid(dungeon)) {
-                dungeon->camera_deviate_jump = 96;
+                dungeon->camera_deviate_jump = TREMBLING_LANDING_CAMERA_DEVIATE_JUMP;
             }
         }
         // Make sure computer control flag is set (almost) accordingly to job, so that we won't start a fight when in captivity
