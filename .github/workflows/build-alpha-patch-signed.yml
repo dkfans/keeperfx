@@ -13,6 +13,14 @@ jobs:
     if: github.repository == 'dkfans/keeperfx'
     uses: ./.github/workflows/build-alpha-patch-unsigned.yml
 
+  call-alpha-linux-patch-build:
+
+    name: Trigger Alpha Linux Patch Build
+    if: github.repository == 'dkfans/keeperfx'
+    uses: ./.github/workflows/build-linux-patch.yml
+    with:
+      package-suffix: 'Alpha'
+
   sign-alpha-patch-artifact:
 
     name: "Sign Alpha Patch"
