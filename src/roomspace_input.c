@@ -114,7 +114,7 @@ static TbBool update_dig_highlight(const struct Packet *pckt, MapSubtlCoord stl_
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     TbBool cursor_is_locked = dig_cursor.cursor_button_down && dig_cursor.cursor_locked && ((pckt->control_flags & PCtr_LBtnClick) == 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
     if ((cursor_context != CSt_PickAxe) && !cursor_is_locked) {
-        if ((cursor_context != CSt_PowerHand) || power_hand_is_empty(player) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
+        if ((cursor_context != CSt_PowerHand) || power_hand_is_empty(get_local_user()) ||!can_dig_here(stl_x, stl_y, my_player_number, true)) {
             return false;
         }
     }
@@ -140,6 +140,9 @@ static void apply_packet_prediction(NetUserId user, const struct Packet *pckt)
     apply_user_pref_packet_action(ustate, pckt);
     apply_first_person_packet_action(ustate, pckt);
     apply_creature_input_packet_values(ustate, pckt);
+    if (ustate->view_type == PVT_DungeonTop) {
+        process_dungeon_control_packet_spell_overcharge(user, pckt);
+    }
     ustate->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
     if (pckt->action == PckA_SetPlyrState) {
         ustate->work_state = pckt->actn_par1;
@@ -185,7 +188,7 @@ static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta p
             tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         } else {
             has_roomspace = update_dig_highlight(pckt, stl_x, stl_y);
-            TbBool holding_thing = !power_hand_is_empty(get_my_player());
+            TbBool holding_thing = !power_hand_is_empty(get_local_user());
             TbBool chosen_subtile_is_high = has_roomspace && holding_thing;
             set_flag_value(ustate->additional_flags, UsrAF_ChosenSubTileIsHigh, chosen_subtile_is_high);
             if (chosen_subtile_is_high) {

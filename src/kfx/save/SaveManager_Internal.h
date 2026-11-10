@@ -47,10 +47,6 @@ template <> struct RecordTraits<HighScore> {
     static constexpr uint32_t kind = SFK_HighScore;
     static const SaveStructDesc &Desc() { return save_desc_HighScore; }
 };
-template <> struct RecordTraits<IntralevelData> {
-    static constexpr uint32_t kind = SFK_Continue;
-    static const SaveStructDesc &Desc() { return save_desc_IntralevelData; }
-};
 template <> struct RecordTraits<ContinueData> {
     static constexpr uint32_t kind = SFK_Continue;
     static const SaveStructDesc &Desc() { return save_desc_ContinueData; }
@@ -122,12 +118,13 @@ struct ReadResult {
     uint8_t *nams_data; uint32_t nams_len;
     uint8_t *conf_data; uint32_t conf_len;
     char *lua_data; uint32_t lua_len;
+    char *custom_ilvl_data; uint32_t custom_ilvl_len;
 };
 
-/** Encodes a full KFXS buffer (META + SCHM + NAMS + CONF + GAME + ILVL + LUA). baseline may be NULL (no
+/** Encodes a full KFXS buffer (META + SCHM + NAMS + CONF + GAME + ILVL + CILD + LUA). baseline may be NULL (no
  *  level set up yet); the CONF chunk is then an empty overlay. */
-enum SaveResult Build(const Game *game_state, const IntralevelData *ilvl, const Configs *baseline,
-    const char *lua_data, uint32_t lua_len, const CatalogueEntry *centry, SaveBuffer *out, SaveError *err);
+enum SaveResult Build(const Game *game_state, const IntralevelData *ilvl, const char *custom_ilvl_data, uint32_t custom_ilvl_len,
+    const Configs *baseline, const char *lua_data, uint32_t lua_len, const CatalogueEntry *centry, SaveBuffer *out, SaveError *err);
 
 /** Builds the save from the running game and writes it. */
 bool Write(IFileSystem &filesystem, const char *fname, const CatalogueEntry *centry);
@@ -160,5 +157,17 @@ int SlotFromFilename(const char *fname);
 bool ReadLegacyTitle(IFileSystem &filesystem, const char *fname, CatalogueEntry *centry);
 
 } // namespace savegame
+
+/** Campaign progress files (SaveCampaignProgress.cpp). */
+namespace campaignprogress {
+
+/** A campaign progress file: the IntralevelData, and optional custom intralevel.
+  * ilvl and custom are untouched on failure. */
+enum SaveResult Read(IFileSystem &filesystem, const char *fname, IntralevelData *ilvl, std::vector<uint8_t> *custom, SaveError *err);
+
+/** Writes a campaign progress file. Failures are logged. */
+bool Write(IFileSystem &filesystem, const char *fname, const IntralevelData *ilvl, const void *custom, uint32_t custom_len);
+
+} // namespace campaignprogress
 
 #endif

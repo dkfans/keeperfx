@@ -76,9 +76,22 @@ static void test_continue_files()
     memset(&il2, 0x55, sizeof(il2));
     il.continue_level = 7;
     il.levels_completed[2] = 9;
-    expect("progress written", savefile::WriteRecord(fs, "p.cid", il));
-    expect("progress read", savefile::ReadRecord(fs, "p.cid", il2, &err) == SVR_Ok);
+    std::vector<uint8_t> custom;
+    const char blob[] = "custom\0bytes";
+    expect("progress written", campaignprogress::Write(fs, "p.cid", &il, blob, sizeof(blob)));
+    expect("progress read", campaignprogress::Read(fs, "p.cid", &il2, &custom, &err) == SVR_Ok);
     expect("progress equal", memcmp(&il, &il2, sizeof(il)) == 0);
+    expect("custom data equal", custom.size() == sizeof(blob) && memcmp(custom.data(), blob, sizeof(blob)) == 0);
+
+    memset(&il2, 0x55, sizeof(il2));
+    expect("progress without custom data written", campaignprogress::Write(fs, "p0.cid", &il, nullptr, 0));
+    expect("progress without custom data read", campaignprogress::Read(fs, "p0.cid", &il2, &custom, &err) == SVR_Ok
+        && custom.empty() && memcmp(&il, &il2, sizeof(il)) == 0);
+
+    memset(&il2, 0x55, sizeof(il2));
+    expect("old progress written", savefile::detail::WriteRecords(fs, "old.cid", SFK_Continue, &save_desc_IntralevelData, &il, sizeof(il), 1));
+    expect("old progress read", campaignprogress::Read(fs, "old.cid", &il2, &custom, &err) == SVR_Ok
+        && custom.empty() && memcmp(&il, &il2, sizeof(il)) == 0);
 
     memset(&cd, 0, sizeof(cd));
     memset(&cd2, 0, sizeof(cd2));
@@ -87,6 +100,7 @@ static void test_continue_files()
     expect("link read", (savefile::ReadRecord(fs, "last.sav", cd2, &err) == SVR_Ok)
         && (strcmp(cd2.link_fname, "fx1g0003.sav") == 0));
     expect("a progress file is not a link", savefile::ReadRecord(fs, "p.cid", cd2, &err) != SVR_Ok);
+    expect("a link is not a progress file", campaignprogress::Read(fs, "last.sav", &il2, &custom, &err) != SVR_Ok);
 }
 
 static void test_whole_files()

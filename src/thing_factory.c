@@ -282,7 +282,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                         game.max_custom_box_kind = box_kind;
                     }
                 }
-                else if (object_is_gold_pile(thing))
+                else if (object_is_gold_pile(thing) || (thing->model == ObjMdl_SpinningCoin))
                 {
                     VALUE* value = value_dict_get(init_data, "GoldValue");
                     if (value != NULL)

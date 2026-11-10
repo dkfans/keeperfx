@@ -6717,11 +6717,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Mysterieuze Doos: Er valt niet te achterhalen wat dit zal doen."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Spelers hebben verschillende versies van het level."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""
@@ -7258,17 +7253,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "Je bent verslagen. Houd als host het spel draaiende tot de wedstrijd is afgelopen."
 
-
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "Controleer of /fxdata/ op alle pc's hetzelfde is."
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "WAARSCHUWING: aangepaste sprites komen niet overeen met %s!"
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
@@ -7567,3 +7551,15 @@ msgstr "Wachten op %s: %d,%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "Verbinding instabiel: %d,%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host"
+msgstr "Bestanden verschillen tussen %s en host"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Single-Player Maps (co-op)..."
+msgstr "Singleplayer-levels (co-op)..."

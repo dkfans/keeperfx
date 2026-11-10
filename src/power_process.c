@@ -87,19 +87,19 @@ void set_chosen_power_none(void)
     game.chosen_spell_tooltip = 0;
 }
 
-unsigned char general_expand_check(NetUserId user)
+unsigned char general_expand_check(PlayerNumber plyr_idx, const struct UserState *ustate)
 {
-    return get_user_state(user)->cast_expand_level != 0;
+    return ustate->cast_expand_level != 0;
 }
 
-unsigned char sight_of_evil_expand_check(NetUserId user)
+unsigned char sight_of_evil_expand_check(PlayerNumber plyr_idx, const struct UserState *ustate)
 {
-    return get_user_state(user)->cast_expand_level != 0 && !player_uses_power_sight(get_user_player(user)->id_number);
+    return ustate->cast_expand_level != 0 && !player_uses_power_sight(plyr_idx);
 }
 
-unsigned char call_to_arms_expand_check(NetUserId user)
+unsigned char call_to_arms_expand_check(PlayerNumber plyr_idx, const struct UserState *ustate)
 {
-    return get_user_state(user)->cast_expand_level != 0 && !player_uses_power_call_to_arms(get_user_player(user)->id_number);
+    return ustate->cast_expand_level != 0 && !player_uses_power_call_to_arms(plyr_idx);
 }
 
 void process_armageddon(void)

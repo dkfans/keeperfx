@@ -740,8 +740,16 @@ enum GUIPanelSprite {
     GPS_plyrsym_symbol_player_white_good_dead = 540,
     GPS_plyrsym_symbol_player_any_dead = 541,
     GPS_plyrsym_symbol_room_white_std = 542,
+    GPS_room_portal_std_l = 543,
+    GPS_room_portal_dis_l = 544,
+    GPS_room_portal_std_s = 545,
+    GPS_room_portal_dis_s = 546,
 
     GPS_rpanel_rpanel_extra = 547,
+    GPS_crspell_timer_std_s = 548,
+    GPS_crspell_timer_dis_s = 549,
+    GPS_crspell_timer_std_l = 554,
+    GPS_crspell_timer_dis_l = 555,
 
     GPS_keepower_timebomb_std_s = 550,
     GPS_keepower_timebomb_dis_s = 551,
@@ -763,6 +771,10 @@ enum GUIPanelSprite {
     GPS_rpanel_manufacture_cant = 839,
     GPS_portrt_qmark = 840,
     GPS_message_rpanel_msg_blank_std = 920,
+    GPS_symbols_symbol_map = 921,
+    GPS_symbols_symbol_sell = 922,
+    GPS_symbols_symbol_idle = 923,
+    GPS_symbols_symbol_typing = 924,
 
     GUI_PANEL_SPRITES_COUNT = 950,
     GUI_PANEL_SPRITES_NEW = 512,

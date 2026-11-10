@@ -2709,8 +2709,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     // Get the selected index
     while (i != 0)
     {
-        struct PlayerInfo *player = get_player(room->owner);
-        if (player->roomspace.is_active)
+        if (keeper_roomspace_is_active(room->owner))
         {
             MapSlabCoord slb_x = slb_num_decode_x(i);
             MapSlabCoord slb_y = slb_num_decode_y(i);
@@ -5020,7 +5019,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     struct CreatureStateConfig* next_stati = get_thing_state_info_num(next_state);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        if ( (next_stati->state_type != CrStTyp_Idle) )
+        if ((next_stati->state_type != CrStTyp_Idle) && (next_state != CrSt_CreatureSlapCowers))
         {
             return false;
         }

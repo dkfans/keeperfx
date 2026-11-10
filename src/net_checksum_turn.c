@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file net_checksums.c
- *     Network checksum computation and desync analysis for multiplayer games.
+/** @file net_checksum_turn.c
+ *     Per-turn game state checksums and desync analysis for multiplayer games.
  * @par Purpose:
  *     Computes checksums for multiplayer sync and stores history for debugging.
  * @par Comment:
@@ -17,11 +17,8 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "net_checksums.h"
-#include "bflib_dernc.h"
-#include "config.h"
+#include "net_checksum_turn.h"
 #include "game_legacy.h"
-#include "game_merge.h"
 #include "net_game.h"
 #include "packets.h"
 #include "player_data.h"
@@ -38,7 +35,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define CHECKSUM_ADD(checksum, value) checksum = ((checksum << 5) | (checksum >> 27)) ^ (ulong)(value)
 #define SNAPSHOT_BUFFER_SIZE 15
 
 struct ChecksumSnapshot {
@@ -243,32 +239,6 @@ short checksums_different(void)
         }
     }
     return mismatch;
-}
-
-TbBigChecksum calculate_file_checksum(const char *fname)
-{
-    int32_t file_size = (int32_t)LbFileLengthRnc(fname);
-    TbBigChecksum checksum = 0;
-    CHECKSUM_ADD(checksum, file_size);
-    if (file_size <= 0) {
-        return checksum;
-    }
-    unsigned char *file_buf = malloc(file_size);
-    if (file_buf != NULL && LbFileLoadAt(fname, file_buf) == file_size) {
-        CHECKSUM_ADD(checksum, rnc_crc(file_buf, file_size));
-    }
-    free(file_buf);
-    return checksum;
-}
-
-void calculate_network_startup_map_checksums(TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT])
-{
-    LevelNumber lvnum = get_loaded_level_number();
-    short fgroup = get_level_fgroup(lvnum);
-    for (int i = 0; i < NETWORK_STARTUP_MAP_FILE_COUNT; i++) {
-        char* fname = prepare_file_fmtpath(fgroup, "map%05u.%s", lvnum, network_startup_compare_files[i]);
-        checksums[i] = calculate_file_checksum(fname);
-    }
 }
 
 void update_turn_checksums(void) {

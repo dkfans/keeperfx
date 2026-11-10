@@ -6819,11 +6819,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Загадкова коробка: Невідомо, що від неї очікувати."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Приєднаний гравець має мапу версії, що відрізняється у хоста."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""
@@ -7369,17 +7364,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "Ви зазнали поразки. Як хост, залиште гру запущеною до завершення матчу."
 
-
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "Перевірте, що /fxdata/ однакова на всіх ПК."
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "УВАГА: користувацькі спрайти не збігаються з %s!"
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
@@ -7702,3 +7686,15 @@ msgstr "Очікування %s: %d,%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "Нестабільне з'єднання: %d,%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host"
+msgstr "Файли у %s та хоста відрізняються"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Single-Player Maps (co-op)..."
+msgstr "Одиночні мапи (кооператив)..."

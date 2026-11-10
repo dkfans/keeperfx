@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "bflib_basics.h"
 
+#define PLAYER_MP_NAME_LEN 20
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,8 +48,6 @@ enum NetJoinRejection {
     NetJoin_SpectatorsFull = 7,
     NetJoin_SpectatorsUnsupported = 8,
     NetJoin_SpectatorDesynced = 9,
-    NetJoin_MapMismatch = 10,
-    NetJoin_FxdataMismatch = 11,
     NetJoin_Count,
 };
 
@@ -106,7 +105,7 @@ struct TbNetworkPlayerEntry {
 
 struct TbNetworkCallbackData {
   char svc_name[12];
-  char plyr_name[20];
+  char plyr_name[PLAYER_MP_NAME_LEN];
   char session_data[32];
 };
 

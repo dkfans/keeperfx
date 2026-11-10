@@ -49,8 +49,6 @@ void init_custom_campaign_sprites(const char *dir_path, const char *dir_desc);
 void show_ignored_fxdata_zip_messages(void);
 void load_sprites_for_multi_front(LevelNumber lvnum);
 
-extern TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
-
 int32_t get_anim_id(const char *name, struct ObjectConfigStats* objst);
 int32_t get_anim_id_(const char* name);
 int32_t get_icon_id(const char *name);

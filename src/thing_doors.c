@@ -35,6 +35,7 @@
 #include "map_blocks.h"
 #include "map_ceiling.h"
 #include "map_utils.h"
+#include "net_game.h"
 #include "sounds.h"
 #include "config_sounds.h"
 #include "gui_topmsg.h"
@@ -284,7 +285,7 @@ long destroy_door(struct Thing *doortng)
     do_slab_efficiency_alteration(slb_x, slb_y);
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        if (!player_exists(get_user_player(user)))
+        if (!user_present(user) || !player_exists(get_user_player(user)))
             continue;
         struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
         if (thing == INVALID_THING)

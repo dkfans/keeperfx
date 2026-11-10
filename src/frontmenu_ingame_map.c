@@ -679,7 +679,7 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     game.hand_over_subtile_x = x;
     game.hand_over_subtile_y = y;
     player = get_my_player();
-    thing = get_first_thing_in_power_hand(player);
+    thing = get_first_thing_in_power_hand(get_local_user());
     if (!thing_is_invalid(thing))
     {
         if (can_place_thing_here(thing, x, y, player->id_number))

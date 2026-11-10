@@ -1110,22 +1110,33 @@ int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *r
 
 void keeper_start_roomspace(NetUserId user, const struct RoomSpace *roomspace, RoomKind rkind)
 {
-    struct PlayerInfo *player = get_user_player(user);
-    if (player->roomspace.is_active) {
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate) || ustate->roomspace.is_active) {
         return;
     }
-    player->roomspace = *roomspace;
-    player->roomspace.user = user;
-    player->roomspace.plyr_idx = player->id_number;
-    player->roomspace.rkind = rkind;
-    player->roomspace.is_active = true;
-    player->roomspace.buildx = roomspace->left;
-    player->roomspace.buildy = roomspace->top;
+    ustate->roomspace = *roomspace;
+    ustate->roomspace.user = user;
+    ustate->roomspace.plyr_idx = ustate->player_id;
+    ustate->roomspace.rkind = rkind;
+    ustate->roomspace.is_active = true;
+    ustate->roomspace.buildx = roomspace->left;
+    ustate->roomspace.buildy = roomspace->top;
     if (roomspace->drag_mode) {
-        player->roomspace.buildx = roomspace->drag_start_x;
-        player->roomspace.buildy = roomspace->drag_start_y;
+        ustate->roomspace.buildx = roomspace->drag_start_x;
+        ustate->roomspace.buildy = roomspace->drag_start_y;
     }
-    find_next_point(&player->roomspace, false);
+    find_next_point(&ustate->roomspace, false);
+}
+
+TbBool keeper_roomspace_is_active(PlayerNumber plyr_idx)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        const struct UserState *ustate = get_user_state(user);
+        if ((ustate->player_id == plyr_idx) && ustate->roomspace.is_active)
+            return true;
+    }
+    return false;
 }
 
 static void keeper_update_roomspace(struct RoomSpace *roomspace)
@@ -1151,11 +1162,12 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
 
 void update_roomspaces()
 {
-    for (PlayerNumber plyr_idx = 0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        if (is_active_keeper(get_player(plyr_idx)))
+        struct UserState *ustate = get_user_state(user);
+        if (ustate->roomspace.is_active && is_active_keeper(get_player(ustate->roomspace.plyr_idx)))
         {
-            keeper_update_roomspace(&get_player(plyr_idx)->roomspace);
+            keeper_update_roomspace(&ustate->roomspace);
         }
     }
 }

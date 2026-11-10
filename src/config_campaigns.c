@@ -1376,6 +1376,7 @@ TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries
     }
     clist->items_count = num_entries;
     clist->items_num = 0;
+    clist->ordered_num = 0;
     for (long i = 0; i < num_entries; i++)
         clear_campaign(&clist->items[i]);
     return true;
@@ -1535,6 +1536,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
         pos = nl ? nl + 1 : end;
     }
     KfxFree(fbuf);
+    clist->ordered_num = beg;
     sort_campaigns_quicksort(clist, beg, clist->items_num);
 }
 

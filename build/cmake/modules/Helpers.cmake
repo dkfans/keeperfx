@@ -57,8 +57,12 @@ function(apply_keeperfx_link_flags TARGET)
     endif()
 endfunction()
 
+# Move debug info into <binary>.debug, linked from the stripped binary by
+# .gnu_debuglink. Always on for MinGW. On Linux only with KFX_SPLIT_DEBUG=ON
+# (release packaging): a dev or Steam Deck build keeps its symbols embedded, so
+# a copied binary still debugs without the .debug file next to it.
 function(apply_keeperfx_debug_split TARGET)
-    if(NOT WIN32 OR MSVC)
+    if(MSVC OR (NOT WIN32 AND NOT KFX_SPLIT_DEBUG))
         return()
     endif()
     if(NOT CMAKE_OBJCOPY)

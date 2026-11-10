@@ -6749,11 +6749,6 @@ msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Tajemná truhla: Nelze předvídat, co to udělá."
 
-#: guitext:1006
-msgctxt "Network game message"
-msgid "Joined player has different map version from host."
-msgstr "Připojený hráč má jinou verzi mapy než hostitel."
-
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""
@@ -7290,16 +7285,6 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "Byl jsi poražen. Jako hostitel ponech hru spuštěnou, dokud zápas neskončí."
 
-#: guitext:1113
-msgctxt "Network game message"
-msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "Ověřte, že /fxdata/ je na všech počítačích stejné."
-
-#: guitext:1114
-msgctxt "Network game message"
-msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "VAROVÁNÍ: vlastní sprity se neshodují s %s!"
-
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
@@ -7622,3 +7607,15 @@ msgstr "Čekání na %s: %d,%d"
 msgctxt "On-screen message"
 msgid "Connection unstable: %d.%d"
 msgstr "Nestabilní připojení: %d,%d"
+
+#: guitext:1170
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "Files differ between %s and host"
+msgstr "Soubory se liší mezi %s a hostitelem"
+
+#: guitext:1171
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Single-Player Maps (co-op)..."
+msgstr "Mapy pro jednoho hráče (kooperace)..."

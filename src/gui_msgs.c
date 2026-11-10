@@ -44,6 +44,25 @@
 
 int chat_font_size = 20;
 
+static void draw_archon_digit(long icon_x, long icon_y, int units_per_px, const struct TbSprite *icon_spr, int digit)
+{
+    const struct TbSprite *digit_spr = get_button_sprite(GBS_creature_flower_level_01 + digit - 1);
+    int icon_left;
+    int icon_top;
+    int icon_right;
+    int icon_bottom;
+    sprite_visible_box(icon_spr, &icon_left, &icon_top, &icon_right, &icon_bottom);
+    int left;
+    int top;
+    int right;
+    int bottom;
+    sprite_visible_box(digit_spr, &left, &top, &right, &bottom);
+    // the horns are the widest part, so overlap the shield instead
+    const long x = icon_x + (icon_right - right - (right - left) / 2) * units_per_px / 16;
+    const long y = icon_y + (icon_bottom - bottom) * units_per_px / 16;
+    LbSpriteDrawResized(x, y, units_per_px, digit_spr);
+}
+
 void message_draw(void)
 {
     SYNCDBG(7,"Starting");
@@ -175,6 +194,9 @@ void message_draw(void)
                 case MsgType_Player:
                 {
                     draw_gui_panel_sprite_left_player(x, y, icon_units_per_px, spr_idx, plyr_idx);
+                    if (game.messages[i].archon_digit > 0) {
+                        draw_archon_digit(x, y, icon_units_per_px, get_panel_sprite(spr_idx), game.messages[i].archon_digit);
+                    }
                     break;
                 }
                 case MsgType_Creature:
@@ -288,6 +310,7 @@ void message_add(char type, short idx, const char *text)
     game.messages[0].target_idx = -1;
     game.messages[0].type = type;
     game.messages[0].icon_idx = 0;
+    game.messages[0].archon_digit = 0;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
@@ -320,6 +343,7 @@ void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_
     game.messages[0].target_idx = target_idx;
     game.messages[0].type = type;
     game.messages[0].icon_idx = 0;
+    game.messages[0].archon_digit = 0;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
