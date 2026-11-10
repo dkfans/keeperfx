@@ -51,6 +51,8 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
+#define HAND_DROP_TARGET_MAX_SUBTILES 3
+
 extern void update_double_click_detection(NetUserId user);
 
 // Returns false if mouse is on map edges or on GUI
@@ -193,6 +195,23 @@ static enum RightReleaseHandUse get_right_release_hand_use(const struct UserStat
     return RRelease_Slap;
 }
 
+static void apply_packet_hand_drop_target(struct UserState *ustate, const struct Packet *pckt)
+{
+    if ((pckt->action != PckA_SetHandDropTarget) || flag_is_set(ustate->additional_flags, UsrAF_ChosenSubTileIsHigh)) {
+        return;
+    }
+    ustate->thing_under_hand = 0;
+    struct Thing *thing = thing_get(pckt->actn_par1);
+    if (!thing_exists(thing) || !thing_is_ready_for_hand_or_slap(thing, ustate->player_id)) {
+        return;
+    }
+    int32_t distance_x = abs((MapSubtlCoord)thing->mappos.x.stl.num - coord_subtile(pckt->pos_x));
+    int32_t distance_y = abs((MapSubtlCoord)thing->mappos.y.stl.num - coord_subtile(pckt->pos_y));
+    if (max(distance_x, distance_y) <= HAND_DROP_TARGET_MAX_SUBTILES) {
+        ustate->thing_under_hand = thing->index;
+    }
+}
+
 enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const struct Packet *pckt)
 {
     PlayerNumber plyr_idx = ustate->player_id;
@@ -291,6 +310,9 @@ enum RightReleaseHandUse begin_right_release(struct UserState *ustate, const str
     enum RightReleaseHandUse release_use = get_right_release_hand_use(ustate);
     if (release_use == RRelease_Ignored) {
         ustate->ignore_next_PCtr_RBtnRelease = false;
+    }
+    if (release_use == RRelease_DropHeldThing) {
+        apply_packet_hand_drop_target(ustate, pckt);
     }
     return release_use;
 }
