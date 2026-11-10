@@ -87,6 +87,7 @@ TbBool update_controlled_creature_movement(const struct Thing *thing, struct Cre
 void slow_down_controlled_creature(struct CreatureControl *cctrl);
 struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
+TbBool creature_counts_in_dungeon_stats(const struct Thing *creatng);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 

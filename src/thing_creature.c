@@ -2378,21 +2378,22 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
     }
 }
 
+TbBool creature_counts_in_dungeon_stats(const struct Thing *creatng)
+{
+    if (is_hero_thing(creatng) || is_neutral_thing(creatng)) {
+        return false;
+    }
+    if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
+        return false;
+    }
+    const struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    return !flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature);
+}
+
 void update_creature_count(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl;
-    if (!thing_exists(creatng)) {
-        return;
-    }
-    if (is_hero_thing(creatng) || is_neutral_thing(creatng)) {
-        return;
-    }
-    if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
-        return;
-    }
-    cctrl = creature_control_get_from_thing(creatng);
-    if (flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature)){
+    if (!thing_exists(creatng) || !creature_counts_in_dungeon_stats(creatng)) {
         return;
     }
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
