@@ -14,6 +14,7 @@
 #include "engine_render.h"
 #include "frontmenu_ingame_evnt.h"
 #include "player_data.h"
+#include "local_hand.h"
 #include "power_hand.h"
 #include "slab_data.h"
 #include "tasks_list.h"
@@ -174,6 +175,7 @@ static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta p
     if ((pckt != NULL) && (pending_turns >= 0)) {
         apply_packet_prediction(user, pckt);
     }
+    apply_local_hand_prediction(ustate);
     if (has_roomspace) {
         *direct_packet = *pckt;
         MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);

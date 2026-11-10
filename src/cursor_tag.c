@@ -35,6 +35,7 @@
 #include "thing_creature.h"
 #include "packets.h"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "net_game.h"
 #include "post_inc.h"
 

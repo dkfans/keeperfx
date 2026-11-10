@@ -348,7 +348,7 @@ enum HandCursorUse {
 };
 
 struct Thing *get_thing_under_hand(NetUserId user, MapCoord x, MapCoord y);
-enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const struct Packet *pckt);
+enum HandCursorUse update_hand_cursor_state(struct UserState *ustate, const struct Packet *pckt, TbBool local_prediction);
 void press_cursor_buttons(struct UserState *ustate, const struct Packet *pckt);
 TbBool begin_left_release(struct UserState *ustate, struct Packet *pckt);
 void finish_left_release(struct UserState *ustate, struct Packet *pckt);

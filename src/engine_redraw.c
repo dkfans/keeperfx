@@ -47,6 +47,7 @@
 #include "engine_lenses.h"
 #include "kfx/ui/GameUI.h"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "local_possession.h"
 #include "front_simple.h"
 #include "front_easter.h"
