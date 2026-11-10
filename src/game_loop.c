@@ -653,6 +653,12 @@ static void gameplay_loop_logic()
     }
     if (local_state.process_turn_time > turns_per_second + 1)
         local_state.process_turn_time = turns_per_second + 1;
+    // In a network game everyone waited while this game stalled (they need its turns), so there is
+    // nothing to catch up: running the missed turns back to back would only take it ahead of the
+    // others, where it waits for their packets each turn and takes them for network delay (and
+    // the input lag goes up). The same limit applies after waiting for the network.
+    if (network_is_active() && local_state.process_turn_time > 2.0)
+        local_state.process_turn_time = 2.0;
     while (local_state.process_turn_time < 1.0)
     {
         gameplay_loop_draw();
