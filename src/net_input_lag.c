@@ -9,6 +9,7 @@
 #include "game_legacy.h"
 #include "net_main.h"
 #include "bflib_datetm.h"
+#include "bflib_enet.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -177,6 +178,40 @@ static void input_lag_update_request(void)
     }
 }
 
+/**
+ * Host: the most input lag the network can explain, from the round trip times to the players.
+ * A packet from one client reaches another through the host, so the longest path is the two
+ * slowest links. Lateness beyond this comes from a computer that can't keep up, which no input
+ * lag cures: without the cap, a slow player pushed the input lag to MAXIMUM_INPUT_LAG_TURNS.
+ * Returns MAXIMUM_INPUT_LAG_TURNS when a round trip time is unknown.
+ */
+static int32_t input_lag_network_cap(void)
+{
+    int32_t slowest = 0;
+    int32_t second = 0;
+    for (NetUserId id = 0; id < netstate.max_users; id += 1) {
+        if (id == netstate.my_id || netstate.users[id].progress != USER_LOGGEDIN) {
+            continue;
+        }
+        uint32_t rtt = GetPing(id);
+        if (rtt == 0) {
+            return MAXIMUM_INPUT_LAG_TURNS;
+        }
+        int32_t one_way = (int32_t)(rtt / 2 + 2 * GetPingVariance(id));
+        if (one_way > slowest) {
+            second = slowest;
+            slowest = one_way;
+        } else if (one_way > second) {
+            second = one_way;
+        }
+    }
+    if (turns_per_second <= 0) {
+        return MAXIMUM_INPUT_LAG_TURNS;
+    }
+    int32_t path_ms = slowest + second + INPUT_LAG_NETWORK_CAP_SLACK_MS;
+    return min((path_ms * turns_per_second + 999) / 1000, MAXIMUM_INPUT_LAG_TURNS);
+}
+
 void input_lag_update(struct Packet *packet)
 {
     packet->input_lag_turns = 0;
@@ -196,6 +231,10 @@ void input_lag_update(struct Packet *packet)
         if (peer_packet != NULL && (uint8_t)peer_packet->input_lag_turns <= MAXIMUM_INPUT_LAG_TURNS && peer_packet->input_lag_turns > packet->input_lag_turns) {
             packet->input_lag_turns = peer_packet->input_lag_turns;
         }
+    }
+    int32_t cap = input_lag_network_cap();
+    if (packet->input_lag_turns > cap) {
+        packet->input_lag_turns = cap;
     }
     if (GetRemoteUserCount() <= 0) {
         input_lag_reset_samples();

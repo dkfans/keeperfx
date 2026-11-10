@@ -14,6 +14,9 @@
 // whole number of turns had the game waiting in most turns (a quarter of the time at 300 ms
 // round trip) to save one turn of input lag.
 #define INPUT_LAG_TOLERATED_WAIT_MS 10
+// Added to the network delay the round trip times explain, for the host's handling and jitter
+// they don't show, before the input lag is capped there (input_lag_network_cap).
+#define INPUT_LAG_NETWORK_CAP_SLACK_MS 60
 // Extra headroom required before a decrease, so the input lag can't oscillate between two values.
 #define INPUT_LAG_DECREASE_MARGIN_MS 10
 

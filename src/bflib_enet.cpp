@@ -1140,6 +1140,22 @@ uint32_t GetPing(NetUserId id)
     return ping;
 }
 
+uint32_t GetPingVariance(NetUserId id)
+{
+    ENetPeer *peer = client_peer;
+    if (peer != nullptr) {
+        if (id != SERVER_ID) {
+            return 0;
+        }
+    } else {
+        peer = find_user_peer(id);
+    }
+    if (!IsPeerConnected(peer)) {
+        return 0;
+    }
+    return peer->roundTripTimeVariance;
+}
+
 uint32_t GetPlayersPing(void)
 {
     if (client_peer != nullptr) {
