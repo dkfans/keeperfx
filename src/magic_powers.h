@@ -31,6 +31,8 @@ extern "C" {
 struct PlayerInfo;
 struct Thing;
 
+#define SLAP_BLOCKED_TURNS_AFTER_DROP 10
+
 extern const long power_sight_close_instance_time[];
 
 enum CastCheckFlags {
@@ -84,6 +86,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, NetUserId user, Power
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags);
 TbResult magic_use_power_on_level(PlayerNumber plyr_idx, NetUserId user, PowerKind spl_idx, KeepPwrLevel power_level, unsigned long mod_flags);
 
+HitPoints calculate_slap_damage(const struct Thing *thing);
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);
 TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, const struct Coord3d *cta_pos);
