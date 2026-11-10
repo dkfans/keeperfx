@@ -107,6 +107,7 @@ void set_user_instance(NetUserId user, int32_t ninum, TbBool force);
 TbBool begin_user_instance(struct UserState *ustate, int32_t ninum, TbBool force);
 int32_t get_hand_instance_animation(unsigned char inum);
 int32_t get_hand_instance_end_animation(unsigned char inum);
+void show_power_slap_feedback(struct Thing *thing);
 TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing);
 TbBool player_instance_controls_camera(unsigned char inum);
 void process_user_instance(NetUserId user);

@@ -293,9 +293,27 @@ int32_t pinstfe_hand_drop(NetUserId user, int32_t *n)
     return 0;
 }
 
+void show_power_slap_feedback(struct Thing *thing)
+{
+    struct PowerConfigStats *powerst = get_power_model_stats(PwrK_SLAP);
+    if (thing_is_object(thing)) {
+        struct Thing *efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
+        if (!thing_is_invalid(efftng)) {
+            thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+        }
+        return;
+    }
+    if (creature_model_bleeds(thing->model)) {
+        struct Coord3d pos = thing->mappos;
+        pos.z.val += thing->clipbox_size_z >> 1;
+        create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
+    }
+    play_creature_sound(thing, CrSnd_Slap, 3, 0);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+}
+
 TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing)
 {
-    struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
     struct TrapConfigStats *trapst;
     struct ShotConfigStats* shotst;
     if (!thing_exists(thing) || !thing_slappable(thing, player->id_number))
@@ -304,19 +322,13 @@ TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing
   {
   case TCls_Creature:
   {
-      struct Coord3d pos;
       if (creature_under_spell_effect(thing, CSAfF_Freeze))
       {
           kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
       } else
       {
           slap_creature(player, thing);
-          pos.x.val = thing->mappos.x.val;
-          pos.y.val = thing->mappos.y.val;
-          pos.z.val = thing->mappos.z.val + (thing->clipbox_size_z >> 1);
-          if ( creature_model_bleeds(thing->model) )
-              create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
-          thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+          show_power_slap_feedback(thing);
           thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, get_user_dungeon_yaw(user));
           thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, get_user_dungeon_yaw(user));
       }
@@ -356,17 +368,11 @@ TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing
       }
       break;
       case TCls_Object:
-      {
-          struct Thing* efftng;
-          if (object_is_slappable_by_player(thing, player->id_number))
-          {
-            efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
-            if (!thing_is_invalid(efftng))
-              thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-            slap_object(thing);
+          if (object_is_slappable_by_player(thing, player->id_number)) {
+              show_power_slap_feedback(thing);
+              slap_object(thing);
           }
           break;
-      }
   }
   return true;
 }

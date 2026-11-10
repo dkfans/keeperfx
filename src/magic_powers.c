@@ -696,7 +696,6 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     if (possessor >= 0) {
         PaletteApplyPainToUser(possessor, 5);
     }
-    play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
 TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
