@@ -1675,7 +1675,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, Net
     set_held_thing_draw(picktng);
     // A co-user's possessed creature: its view squishes down, so the possessor's pitch is set now
     begin_fp_hand_pickup(picktng);
-    if (insert_thing_into_power_hand_list(picktng, plyr_idx, user)) {
+    if (insert_thing_into_power_hand_list(picktng, plyr_idx, user) && !local_hand_takes_over_action(user, LocalHandAction_PickUp)) {
         play_power_hand_pickup_sounds(thing, plyr_idx, user);
     }
     clear_thing_velocity(picktng);

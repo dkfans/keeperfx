@@ -55,15 +55,29 @@ extern "C" {
 struct HandPrediction {
     struct UserState ustate;
     struct Thing hand;
+    uint32_t pending_actions[LocalHandAction_Count];
     GameTurn turn;
     TbBool hand_exists;
 };
 
 static struct HandPrediction prediction;
 static TbBool prediction_active;
+static uint32_t done_actions[LocalHandAction_Count];
+static uint32_t shown_actions[LocalHandAction_Count];
 static struct Thing held_view;
 static GameTurn held_view_turn;
 /******************************************************************************/
+static TbBool claim_unshown_action(struct HandPrediction *pred, enum LocalHandAction action)
+{
+    pred->pending_actions[action]++;
+    const uint32_t action_number = done_actions[action] + pred->pending_actions[action];
+    if (action_number <= shown_actions[action]) {
+        return false;
+    }
+    shown_actions[action] = action_number;
+    return true;
+}
+
 static void show_predicted_hand(struct HandPrediction *pred)
 {
     if (pred->hand_exists) {
@@ -114,6 +128,9 @@ static void place_predicted_thing(struct HandPrediction *pred, struct Thing *thi
         return;
     }
     insert_thing_into_hand_list(ustate, ustate->player_id, thing->index);
+    if (claim_unshown_action(pred, LocalHandAction_PickUp)) {
+        play_power_hand_pickup_sounds(thing, ustate->player_id, get_local_user());
+    }
 }
 
 static void grab_predicted_thing(struct HandPrediction *pred, ThingIndex tng_idx)
@@ -253,6 +270,7 @@ static void predict_hand(struct HandPrediction *pred)
     const NetUserId user = get_local_user();
     const struct UserState *ustate = get_user_state(user);
     const struct Thing *handtng = thing_get(ustate->hand_thing_idx);
+    memset(pred->pending_actions, 0, sizeof(pred->pending_actions));
     pred->ustate = *ustate;
     pred->hand_exists = thing_exists(handtng);
     if (pred->hand_exists) {
@@ -300,6 +318,8 @@ static TbBool local_hand_can_predict(void)
 void reset_local_hand(void)
 {
     prediction_active = false;
+    memset(done_actions, 0, sizeof(done_actions));
+    memset(shown_actions, 0, sizeof(shown_actions));
     held_view.index = 0;
 }
 
@@ -309,7 +329,13 @@ void update_local_hand(void)
         reset_local_hand();
         return;
     }
+    for (int32_t action = 0; action < LocalHandAction_Count; action++) {
+        shown_actions[action] = max(shown_actions[action], done_actions[action]);
+    }
     predict_hand(&prediction);
+    for (int32_t action = 0; action < LocalHandAction_Count; action++) {
+        shown_actions[action] = min(shown_actions[action], done_actions[action] + prediction.pending_actions[action]);
+    }
     prediction_active = true;
     update_held_view();
     struct UserState predicted_ustate = *get_local_user_state_prediction();
@@ -329,6 +355,15 @@ void apply_local_hand_prediction(struct UserState *ustate)
     ustate->hand_animation_until_turn = predicted->hand_animation_until_turn;
     ustate->instance_num = predicted->instance_num;
     ustate->instance_remain_turns = predicted->instance_remain_turns;
+}
+
+TbBool local_hand_takes_over_action(NetUserId user, enum LocalHandAction action)
+{
+    if (!prediction_active || !is_local_user(user)) {
+        return false;
+    }
+    done_actions[action]++;
+    return done_actions[action] <= shown_actions[action];
 }
 
 struct Thing *get_hand_view(NetUserId user)

@@ -31,10 +31,16 @@ extern "C" {
 struct Thing;
 struct UserState;
 
+enum LocalHandAction {
+    LocalHandAction_PickUp,
+    LocalHandAction_Count,
+};
+
 /******************************************************************************/
 void reset_local_hand(void);
 void update_local_hand(void);
 void apply_local_hand_prediction(struct UserState *ustate);
+TbBool local_hand_takes_over_action(NetUserId user, enum LocalHandAction action);
 struct Thing *get_hand_view(NetUserId user);
 struct Thing *get_held_thing_view(NetUserId user);
 TbBool local_hand_holds_thing(const struct Thing *thing);
