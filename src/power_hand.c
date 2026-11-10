@@ -1082,7 +1082,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, NetUserId user, struct T
             initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
         }
         stop_creature_sound(droptng, 5);
-        if (is_local_action(dungeon->owner, user)) {
+        if (is_local_action(dungeon->owner, user) && !local_hand_predicted_drop(droptng)) {
             play_creature_sound(droptng, CrSnd_Drop, 3, 0);
         } else if (thing_possessed_by_local_user(droptng)) {
             // A co-user dropped the creature this user is inside

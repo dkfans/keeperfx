@@ -56,13 +56,32 @@ extern "C" {
 #define MAX_HEALTH_FLASHES 8
 #define DAMAGE_FLASH_TURNS 1
 
+struct HandDrop {
+    ThingIndex index;
+    GameTurn turn;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
+    TbBool lands_on_ground;
+};
+
 struct HandPrediction {
     struct UserState ustate;
     struct Thing hand;
+    struct HandDrop drops[MAX_THINGS_IN_HAND];
+    int32_t drop_count;
     uint32_t pending_actions[LocalHandAction_Count];
+    GameTurn packet_turn;
     GameTurn turn;
     GameTurn creature_dropped_turn;
     TbBool hand_exists;
+};
+
+struct DroppedView {
+    struct Thing thing;
+    struct CreatureControl cctrl;
+    GameTurn packet_turn;
+    GameTurn turn;
+    TbBool landed;
 };
 
 struct HealthFlash {
@@ -76,6 +95,8 @@ static struct HandPrediction prediction;
 static TbBool prediction_active;
 static uint32_t done_actions[LocalHandAction_Count];
 static uint32_t shown_actions[LocalHandAction_Count];
+static struct DroppedView dropped_views[MAX_THINGS_IN_HAND];
+static int32_t dropped_view_count;
 static struct HealthFlash health_flashes[MAX_HEALTH_FLASHES];
 static int32_t next_health_flash;
 static struct Thing held_view;
@@ -229,6 +250,15 @@ static TbBool drop_predicted_thing(struct HandPrediction *pred, MapSubtlCoord st
     if (thing_is_creature(thing)) {
         pred->creature_dropped_turn = pred->turn;
     }
+    if (pred->drop_count < MAX_THINGS_IN_HAND) {
+        struct HandDrop *drop = &pred->drops[pred->drop_count];
+        drop->index = thing->index;
+        drop->turn = pred->packet_turn;
+        drop->stl_x = stl_x;
+        drop->stl_y = stl_y;
+        drop->lands_on_ground = (outcome == HTDrop_Ground);
+        pred->drop_count++;
+    }
     if (ustate->num_things_in_hand == 1) {
         start_predicted_instance(pred, PI_Drop);
     }
@@ -357,14 +387,154 @@ static void predict_hand(struct HandPrediction *pred)
     if (pred->hand_exists) {
         pred->hand = *handtng;
     }
+    pred->drop_count = 0;
     pred->turn = get_gameturn() + 1;
     pred->creature_dropped_turn = get_dungeon(ustate->player_id)->last_creature_dropped_gameturn;
     for (GameTurn turn = input_lag_first_pending_turn(); (GameTurnDelta)(get_gameturn() - turn) > 0; turn++) {
         const struct Packet *pckt = get_history_packet(user, turn);
+        pred->packet_turn = turn;
         if (pckt != NULL) {
             apply_predicted_hand_packet(pred, pckt);
         }
         step_predicted_hand(pred);
+    }
+}
+
+static TbBool get_dropped_view_next_position(struct Thing *thing, struct Coord3d *pos)
+{
+    if (thing->class_id == TCls_Creature) {
+        return get_creature_move_position(thing, pos, false);
+    }
+    return get_thing_next_position(pos, thing) && !thing_in_wall_at(thing, pos);
+}
+
+static void step_dropped_view(struct DroppedView *view)
+{
+    struct Thing *thing = &view->thing;
+    thing->previous_mappos = thing->mappos;
+    thing->previous_floor_height = thing->floor_height;
+    apply_thing_pushes_to_velocity(thing);
+    struct Coord3d pos;
+    if (get_dropped_view_next_position(thing, &pos)) {
+        thing->mappos = pos;
+    }
+    thing->floor_height = get_thing_height_at(thing, &thing->mappos);
+    if (thing->class_id == TCls_Creature) {
+        update_creature_graphic_anim(thing, &view->cctrl);
+        view->cctrl.anim_time = thing->anim_time;
+        if (!view->landed && thing_has_landed(thing)) {
+            view->landed = true;
+            if (flag_is_set(get_creature_model_flags(thing), CMF_Trembling) && !creature_under_spell_effect(thing, CSAfF_Chicken)) {
+                get_dungeon(prediction.ustate.player_id)->camera_deviate_jump = TREMBLING_LANDING_CAMERA_DEVIATE_JUMP;
+            }
+        }
+    }
+    apply_thing_drag_and_gravity(thing);
+    advance_thing_animation(thing);
+    update_thing_sound(thing);
+    view->turn++;
+}
+
+static void create_dropped_view(const struct HandDrop *drop)
+{
+    const struct Thing *thing = thing_get(drop->index);
+    TbBool droppable = thing_is_creature(thing) || (thing_is_object(thing) && !object_is_gold_hoard(thing));
+    if (!droppable || (dropped_view_count >= MAX_THINGS_IN_HAND)) {
+        return;
+    }
+    struct DroppedView *view = &dropped_views[dropped_view_count];
+    dropped_view_count++;
+    view->thing = *thing;
+    view->packet_turn = drop->turn;
+    view->turn = drop->turn;
+    view->landed = false;
+    struct Thing *viewtng = &view->thing;
+    struct Coord3d pos;
+    get_held_thing_drop_position(viewtng, drop->stl_x, drop->stl_y, &pos);
+    set_dropped_thing_position(viewtng, &pos);
+    viewtng->floor_height = get_thing_height_at(viewtng, &viewtng->mappos);
+    viewtng->snd_emitter_id = 0;
+    clear_thing_velocity(viewtng);
+    clear_flag(viewtng->alloc_flags, TAlF_IsInLimbo);
+    set_flag_value(viewtng->rendering_flags, TRF_Invisible, !drop->lands_on_ground);
+    if (thing_is_object(thing)) {
+        set_dropped_object_draw(viewtng);
+        viewtng->active_state = ObSt_BeingDropped;
+        return;
+    }
+    view->cctrl = *creature_control_get_from_thing(thing);
+    view->cctrl.instance_id = CrInst_NULL;
+    view->cctrl.distance_to_destination = 0;
+    viewtng->active_state = CrSt_CreatureBeingDropped;
+    play_creature_sound(viewtng, CrSnd_Drop, 3, 0);
+}
+
+static void release_dropped_view(int32_t view_idx)
+{
+    struct DroppedView *view = &dropped_views[view_idx];
+    if (view->thing.snd_emitter_id != 0) {
+        S3DDestroySoundEmitter(view->thing.snd_emitter_id);
+    }
+    dropped_view_count--;
+    dropped_views[view_idx] = dropped_views[dropped_view_count];
+}
+
+static const struct DroppedView *find_dropped_view(const struct Thing *thing)
+{
+    for (int32_t i = 0; i < dropped_view_count; i++) {
+        if ((dropped_views[i].thing.index == thing->index) && (dropped_views[i].thing.creation_turn == thing->creation_turn)) {
+            return &dropped_views[i];
+        }
+    }
+    return NULL;
+}
+
+static const struct DroppedView *find_view_for_drop(const struct HandDrop *drop)
+{
+    for (int32_t i = 0; i < dropped_view_count; i++) {
+        if ((dropped_views[i].thing.index == drop->index) && (dropped_views[i].packet_turn == drop->turn)) {
+            return &dropped_views[i];
+        }
+    }
+    return NULL;
+}
+
+static TbBool dropped_view_is_pending(const struct DroppedView *view)
+{
+    for (int32_t i = 0; i < prediction.drop_count; i++) {
+        if (find_view_for_drop(&prediction.drops[i]) == view) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static TbBool dropped_view_is_falling(const struct DroppedView *view)
+{
+    const struct Thing *thing = thing_get(view->thing.index);
+    if (!thing_exists(thing) || (thing->creation_turn != view->thing.creation_turn) || thing_is_picked_up(thing)) {
+        return false;
+    }
+    TbBool still_descending = (thing->previous_mappos.z.val != thing->mappos.z.val);
+    return (thing->active_state == view->thing.active_state) && (!thing_has_landed(thing) || still_descending);
+}
+
+static void update_dropped_views(void)
+{
+    for (int32_t i = dropped_view_count - 1; i >= 0; i--) {
+        if (!dropped_view_is_pending(&dropped_views[i]) && !dropped_view_is_falling(&dropped_views[i])) {
+            release_dropped_view(i);
+        }
+    }
+    for (int32_t i = 0; i < prediction.drop_count; i++) {
+        if (find_view_for_drop(&prediction.drops[i]) == NULL) {
+            create_dropped_view(&prediction.drops[i]);
+        }
+    }
+    for (int32_t i = 0; i < dropped_view_count; i++) {
+        while ((GameTurnDelta)(get_gameturn() - dropped_views[i].turn) > 0) {
+            step_dropped_view(&dropped_views[i]);
+        }
     }
 }
 
@@ -399,6 +569,9 @@ static TbBool local_hand_can_predict(void)
 
 void reset_local_hand(void)
 {
+    while (dropped_view_count > 0) {
+        release_dropped_view(0);
+    }
     prediction_active = false;
     memset(done_actions, 0, sizeof(done_actions));
     memset(shown_actions, 0, sizeof(shown_actions));
@@ -420,6 +593,7 @@ void update_local_hand(void)
         shown_actions[action] = min(shown_actions[action], done_actions[action] + prediction.pending_actions[action]);
     }
     prediction_active = true;
+    update_dropped_views();
     update_held_view();
     struct UserState predicted_ustate = *get_local_user_state_prediction();
     apply_local_hand_prediction(&predicted_ustate);
@@ -486,7 +660,22 @@ TbBool local_hand_holds_thing(const struct Thing *thing)
 
 TbBool local_hand_hides_thing(const struct Thing *thing)
 {
-    return local_hand_holds_thing(thing);
+    if (local_hand_holds_thing(thing)) {
+        return true;
+    }
+    return local_hand_predicted_drop(thing);
+}
+
+struct Thing *find_local_dropped_view(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *view_idx)
+{
+    while (*view_idx < dropped_view_count) {
+        struct Thing *thing = &dropped_views[*view_idx].thing;
+        (*view_idx)++;
+        if ((thing->mappos.x.stl.num == stl_x) && (thing->mappos.y.stl.num == stl_y) && !flag_is_set(thing->rendering_flags, TRF_Invisible)) {
+            return thing;
+        }
+    }
+    return NULL;
 }
 
 static void adjust_local_activity_count(const struct Thing *thing, ThingModel crmodel, int32_t *gui_job_counts, int32_t delta)
@@ -508,6 +697,12 @@ void apply_local_hand_to_activity_counts(ThingModel crmodel, int32_t *gui_job_co
     const struct UserState *ustate = &prediction.ustate;
     for (int32_t i = 0; i < ustate->num_things_in_hand; i++) {
         adjust_local_activity_count(thing_get(ustate->things_in_hand[i]), crmodel, gui_job_counts, -1);
+    }
+    for (int32_t i = 0; i < dropped_view_count; i++) {
+        const struct Thing *viewtng = &dropped_views[i].thing;
+        if (thing_is_picked_up(thing_get(viewtng->index))) {
+            adjust_local_activity_count(viewtng, crmodel, gui_job_counts, 1);
+        }
     }
 }
 
@@ -534,6 +729,17 @@ void local_hand_hide_damage_flash(const struct Thing *thing)
     if (flash != NULL) {
         flash->hidden_damage_turn = thing->last_turn_damaged;
     }
+}
+
+TbBool local_hand_predicted_drop(const struct Thing *thing)
+{
+    return (find_dropped_view(thing) != NULL);
+}
+
+TbBool local_hand_showed_landing(const struct Thing *thing)
+{
+    const struct DroppedView *view = find_dropped_view(thing);
+    return (view != NULL) && view->landed;
 }
 /******************************************************************************/
 #ifdef __cplusplus
