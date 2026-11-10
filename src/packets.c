@@ -1264,6 +1264,8 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
             toggle_computer_player(plyr_idx);
         }
         break;
+    case PckA_SetHandDropTarget:
+        break;
     default:
         return process_user_dungeon_control_cheats_packet_action(user, pckt);
     }

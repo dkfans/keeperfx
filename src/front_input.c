@@ -2067,11 +2067,19 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
 {
     struct PlayerInfo* player = get_my_player();
     const struct UserState* ustate = get_local_user_state_prediction();
-    if ((get_local_view_type() != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_state.local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
+    if ((get_local_view_type() != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (pckt->action != PckA_None)) {
         return;
     }
     int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
-    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && (ustate->num_things_in_hand == 0) && !local_cursor_is_locked() && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
+    TbBool hand_released = right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && !local_cursor_is_locked();
+    if (hand_released && (ustate->num_things_in_hand > 0)) {
+        set_packet_action(pckt, PckA_SetHandDropTarget, local_state.local_thing_under_hand, 0, 0, 0);
+        return;
+    }
+    if ((local_state.local_thing_under_hand <= 0) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
+        return;
+    }
+    if (hand_released && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
         set_packet_power_on_thing(pckt, PwrK_SLAP, local_state.local_thing_under_hand);
         return;
     }
