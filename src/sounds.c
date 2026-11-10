@@ -130,6 +130,21 @@ void play_user_sample(int user, SoundSmplTblID smptbl_idx)
     play_non_3d_sample(smptbl_idx);
 }
 
+TbBool is_local_action(PlayerNumber plyr_idx, int user)
+{
+    if (user == NO_USER) {
+        return is_my_player_number(plyr_idx);
+    }
+    return is_local_user(user);
+}
+
+void play_action_sample(PlayerNumber plyr_idx, int user, SoundSmplTblID smptbl_idx)
+{
+    if (is_local_action(plyr_idx, user)) {
+        play_non_3d_sample(smptbl_idx);
+    }
+}
+
 void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID smptbl_idx)
 {
     if (SoundDisabled)

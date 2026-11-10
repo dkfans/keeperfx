@@ -497,7 +497,7 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     {
         powerst = get_power_model_stats(PwrK_PICKUPCRTR);
         thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (is_my_player_number(plyr_idx)) {
+        if (is_local_action(plyr_idx, user)) {
             play_creature_sound(thing, CrSnd_Hang, 3, 1);
         }
     }
@@ -947,7 +947,7 @@ long gold_being_dropped_on_creature(long plyr_idx, NetUserId user, struct Thing 
  * @param droptng
  * @param dstpos
  */
-void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, const struct Coord3d *dstpos)
+void drop_held_thing_on_ground(struct Dungeon *dungeon, NetUserId user, struct Thing *droptng, const struct Coord3d *dstpos)
 {
     droptng->mappos.x.val = dstpos->x.val;
     droptng->mappos.y.val = dstpos->y.val;
@@ -974,7 +974,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         }
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
         stop_creature_sound(droptng, 5);
-        if (is_my_player_number(dungeon->owner)) {
+        if (is_local_action(dungeon->owner, user)) {
             play_creature_sound(droptng, CrSnd_Drop, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = get_gameturn();
@@ -1014,7 +1014,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     struct Thing *droptng = thing_get(ustate->things_in_hand[0]);
     if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, is_creature_droppable_on_path(droptng))) {
         // Make a rejection sound
-        play_user_sample(user, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
         return 0;
     }
     // Check if object will fit into that position
@@ -1027,7 +1027,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     }
     if (!lua_on_creature_drop(droptng, plyr_idx, &pos)) {
         // Make a rejection sound
-        play_user_sample(user, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
         return 0;
     }
     if (!thing_exists(droptng) || (ustate->num_things_in_hand < 1) || (ustate->things_in_hand[0] != droptng->index)) {
@@ -1042,7 +1042,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
         } else
         {
             drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx, user);
-            play_player_sample(plyr_idx, snd_coin_drop);
+            play_action_sample(plyr_idx, user, snd_coin_drop);
         }
         destroy_object(droptng);
     } else
@@ -1053,11 +1053,11 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
             food_eaten_by_creature(droptng, overtng);
         } else
         {
-            drop_held_thing_on_ground(dungeon, droptng, &pos);
+            drop_held_thing_on_ground(dungeon, user, droptng, &pos);
         }
     } else
     {
-        drop_held_thing_on_ground(dungeon, droptng, &pos);
+        drop_held_thing_on_ground(dungeon, user, droptng, &pos);
     }
     if (ustate->num_things_in_hand == 1) {
         set_user_instance(user, PI_Drop, 0);
@@ -1083,7 +1083,7 @@ void dump_thing_held_by_any_player(struct Thing *thing)
             }
             const struct Coord3d *pos;
             pos = &dungeon->essential_pos;
-            drop_held_thing_on_ground(dungeon, thing, pos);
+            drop_held_thing_on_ground(dungeon, NO_USER, thing, pos);
             if (remove_thing_from_power_hand_list(thing, dungeon->owner)) {
                 holding_plyr_idx = dungeon->owner;
             }
@@ -1102,7 +1102,7 @@ void queue_held_thing_drop(PlayerNumber plyr_idx, struct Thing *thing)
     if (dungeon->num_things_in_hand < game.conf.rules[plyr_idx].gameplay.max_things_in_hand) {
         dungeon->things_in_hand[dungeon->num_things_in_hand++] = thing->index;
     } else {
-        drop_held_thing_on_ground(dungeon, thing, dungeon_get_essential_pos(plyr_idx));
+        drop_held_thing_on_ground(dungeon, NO_USER, thing, dungeon_get_essential_pos(plyr_idx));
     }
 }
 
@@ -1129,7 +1129,7 @@ static TbBool drop_first_queued_thing(PlayerNumber plyr_idx)
     struct Thing *thing = thing_get(dungeon->things_in_hand[0]);
     remove_held_thing_at(dungeon->things_in_hand, &dungeon->num_things_in_hand, 0);
     if (thing_exists(thing)) {
-        drop_held_thing_on_ground(dungeon, thing, dungeon_get_essential_pos(plyr_idx));
+        drop_held_thing_on_ground(dungeon, NO_USER, thing, dungeon_get_essential_pos(plyr_idx));
         lua_on_creature_drop(thing, plyr_idx, &thing->mappos);
     }
     return true;
@@ -1599,7 +1599,7 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 static TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
 {
     if (!lua_on_pick_up(thing, plyr_idx)) {
-        play_user_sample(user, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
         return false;
     }
     // The handler may have removed the thing; then there is nothing left to pick up

@@ -4131,8 +4131,9 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
         {
             // If cannot find a valid target, do not use it and don't consider it used.
 
-            // Make a rejection sound
-            play_non_3d_sample(snd_refusal);
+            if (user_controls_thing(get_local_user(), thing, UCT_Direct | UCT_Other)) {
+                play_non_3d_sample(snd_refusal);
+            }
             return 0;
         }
     }

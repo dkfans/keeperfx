@@ -374,7 +374,7 @@ void set_local_packet_turn(void);
 void clear_packets(void);
 void post_init_packets(void);
 struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_idx,long rkind);
-TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
+TbBool player_sell_room_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool packets_process_cheats(NetUserId user, PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
 /******************************************************************************/

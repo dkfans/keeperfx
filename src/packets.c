@@ -189,7 +189,7 @@ struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_id
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
     MapCoord x = ((ustate->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_x), 0) : slab_subtile_center(subtile_slab(stl_x)));
     MapCoord y = ((ustate->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_y), 0) : slab_subtile_center(subtile_slab(stl_y)));
-    struct Room* room = player_build_room_at(x, y, plyr_idx, rkind, ustate->boxsize);
+    struct Room* room = player_build_room_at(x, y, plyr_idx, user, rkind, ustate->boxsize);
     if (!room_is_invalid(room))
     {
         if (ustate->boxsize > 0)
@@ -298,7 +298,7 @@ static TbBool resync_game_allowed(void)
     return true;
 }
 
-TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
+TbBool player_sell_room_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Room* room = subtile_room_get(stl_x, stl_y);
     if (room_is_invalid(room))
@@ -315,7 +315,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         dungeon->camera_deviate_jump = 192;
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
-    play_player_sample(plyr_idx, snd_tile_sell);
+    play_action_sample(plyr_idx, user, snd_tile_sell);
     if (revenue != 0)
     {
         struct Coord3d pos;

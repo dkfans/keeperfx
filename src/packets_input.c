@@ -162,7 +162,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
         }
         else
         {
-            play_player_sample(player->id_number, snd_refusal);
+            play_user_sample(user, snd_refusal);
         }
         unset_packet_control(pckt, PCtr_LBtnClick);
       return false;
@@ -173,7 +173,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
     }
     else
     {
-        play_player_sample(player->id_number, snd_refusal);
+        play_user_sample(user, snd_refusal);
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
     return true;
@@ -301,7 +301,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     // fall through
                 case CSt_PickAxe:
                     if (!ustate->render_roomspace.drag_mode && at_limit) {
-                        play_player_sample(player->id_number, snd_refusal);
+                        play_user_sample(user, snd_refusal);
                         output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                     }
                     break;
@@ -410,7 +410,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                         use_power_hand(plyr_idx, user, stl_x, stl_y, 0);
                     }
                     else if (ustate->render_roomspace.drag_mode && at_limit) {
-                        play_player_sample(player->id_number, snd_refusal);
+                        play_user_sample(user, snd_refusal);
                         output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                     }
                 }
@@ -544,15 +544,15 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
             // Trying to sell room
             if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
             {
-                player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
+                player_sell_room_at_subtile(plyr_idx, user, stl_x, stl_y);
             } else
                 // Trying to sell door
-            if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
+            if (player_sell_door_at_subtile(plyr_idx, user, stl_x, stl_y))
             {
                 // Nothing to do here - door already sold
             } else
                 // Trying to sell trap
-            if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y, ustate->full_slab_cursor != 0))
+            if (player_sell_trap_at_subtile(plyr_idx, user, stl_x, stl_y, ustate->full_slab_cursor != 0))
             {
                 // Nothing to do here - trap already sold
             } else
@@ -571,17 +571,17 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
             return false;
         }
         // Subtile Mode
-        if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y, ustate->full_slab_cursor != 0))
+        if (player_sell_trap_at_subtile(plyr_idx, user, stl_x, stl_y, ustate->full_slab_cursor != 0))
         {
             // Nothing to do here - trap already sold
         } else
-        if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
+        if (player_sell_door_at_subtile(plyr_idx, user, stl_x, stl_y))
         {
             // Nothing to do here - door already sold
         } else
         if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
         {
-            player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
+            player_sell_room_at_subtile(plyr_idx, user, stl_x, stl_y);
         }
         else
         {
@@ -624,11 +624,11 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(NetUserId user)
     }
     if (can_place == 0)
     {
-        play_player_sample(player->id_number, snd_refusal);
+        play_user_sample(user, snd_refusal);
         unset_packet_control(pckt, PCtr_LBtnClick);
         return false;
     }
-    if (!player_place_trap_at(stl_x, stl_y, plyr_idx, ustate->chosen_trap_kind))
+    if (!player_place_trap_at(stl_x, stl_y, plyr_idx, user, ustate->chosen_trap_kind))
     {
         unset_packet_control(pckt, PCtr_LBtnClick);
         return false;
@@ -806,7 +806,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                 i = tag_cursor_blocks_place_door(player->id_number, user, stl_x, stl_y);
                 if ((pckt->control_flags & PCtr_LBtnClick) != 0)
                 {
-                    packet_place_door(stl_x, stl_y, player->id_number, ustate->chosen_door_kind, i);
+                    packet_place_door(stl_x, stl_y, player->id_number, user, ustate->chosen_door_kind, i);
                 }
                 unset_packet_control(pckt, PCtr_LBtnClick);
             }
