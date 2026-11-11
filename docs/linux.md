@@ -41,8 +41,8 @@ native `keeperfx` and `keeperfx_hvlog` executables, the libraries they need (in
 
 A KeeperFX folder you unpacked yourself is a *portable* install: saves, settings,
 the log, screenshots and replays stay in it, as on Windows. If the game folder is
-read only for you, or belongs to another user (a package installed system wide),
-they go to the XDG folders instead: `~/.local/share/keeperfx` (saves, replays,
+read only for you (a package installed system wide), they go to the XDG folders
+instead: `~/.local/share/keeperfx` (saves, replays,
 screenshots, and maps, campaigns and mods you add), `~/.config/keeperfx`
 (`settings.toml`, and a `keeperfx.cfg` with the options you change),
 `~/.local/state/keeperfx` (`keeperfx.log`) and `~/.cache/keeperfx`. `-userdir

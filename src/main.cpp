@@ -2170,6 +2170,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbErrorLogSetup(userdirs_get(UsrDir_State), selected_log_file_name, 5);
     userdirs_log_summary();
     userdirs_migrate();
+    // Tell the player, once, when their files of the game folder were copied into the user folders.
+    if (userdirs_migration_notice() != NULL)
+        queue_frontend_error_box(userdirs_migration_notice());
 
     retval = process_command_line(argc,argv);
     if (retval < 1)

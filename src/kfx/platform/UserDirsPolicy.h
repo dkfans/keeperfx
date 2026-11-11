@@ -60,8 +60,8 @@ struct Request {
     std::string win_local_app_data;
     /** The game folder, already chosen with ResolveGameDir(). */
     std::string game_dir;
-    /** True when the current user can write in the game folder and owns it. Only called when the rules need it. */
-    std::function<bool()> game_dir_is_users;
+    /** True when the current user can write in the game folder. Only called when the rules need it. */
+    std::function<bool()> game_dir_is_writable;
 };
 
 /** The folders and how they were found. */

@@ -24,8 +24,13 @@ std::string FromPath(const std::filesystem::path &path);
  *  specification asks. Returns false and a message when it can't. */
 bool MakeDirs(const std::string &dir, std::string &error);
 
-/** True when dir is a folder the current user can create files in and, on Unix, owns. */
-bool IsUsersWritableDir(const std::string &dir);
+/** True when dir is a folder the current user can create files in. Who owns it doesn't matter: on FAT, NTFS and
+ *  exFAT mounts, network shares and container volumes the owner the OS reports is often not the user who plays. */
+bool IsWritableDir(const std::string &dir);
+
+/** True when the file is the current user's to take along: the user owns it, or it is on a file system that keeps
+ *  no owners (FAT, exFAT, NTFS and network shares on Unix, FAT and exFAT on Windows) and the user can read it. */
+bool FileIsUsers(const std::string &path);
 
 /** True when a and b name the same existing folder. */
 bool SameDir(const std::string &a, const std::string &b);

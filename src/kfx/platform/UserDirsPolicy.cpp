@@ -198,9 +198,8 @@ Resolution Resolve(const Request &request)
             }
         }
         if (portable < 0) {
-            portable = (request.game_dir_is_users && request.game_dir_is_users()) ? 1 : 0;
-            res.reason = portable ? "the game folder is writable and belongs to this user"
-                                  : "the game folder is read only for this user, or belongs to another user";
+            portable = (request.game_dir_is_writable && request.game_dir_is_writable()) ? 1 : 0;
+            res.reason = portable ? "the game folder is writable" : "the game folder is read only for this user";
         }
         if (portable) {
             res.mode = Mode::Portable;

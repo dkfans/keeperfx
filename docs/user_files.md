@@ -12,7 +12,7 @@ without administrator rights, a macOS app bundle) keeps your files in your own p
 The game writes which folders it uses at the start of its log:
 
 ```
-User files are kept in the per-user folders, because the game folder is read only for this user, or belongs to another user
+User files are kept in the per-user folders, because the game folder is read only for this user
   game   folder: /usr/share/keeperfx (KEEPERFX_GAME_DIR)
   data   folder: /home/me/.local/share/keeperfx ($HOME/.local/share)
   config folder: /home/me/.config/keeperfx ($HOME/.config)
@@ -71,17 +71,23 @@ The game decides at every start, in this order:
 2. `-portable` or `KEEPERFX_PORTABLE=1`: your files in the game folder. The log says so when that folder is read
    only, since nothing could be saved.
 3. `-noportable` or `KEEPERFX_PORTABLE=0`: the per-user folders, even when the game folder is writable.
-4. Otherwise, **portable when you can write in the game folder and, on Unix, it belongs to you**; the per-user
-   folders when not.
+4. Otherwise, **portable when you can write in the game folder**; the per-user folders when not. The game finds
+   out by creating (and deleting) a file there.
 
-Why this rule: every existing install is a folder the player unpacked and owns, so every existing install stays
-portable and nothing about it changes: no moved saves, no new places to look, and the launchers, which read and
-write `keeperfx.cfg`, `save/`, `replays/` and `mods/` next to the executable, keep working. An install that the
-player can't write to could never have worked as a portable one, so switching it to the per-user folders breaks
-nothing. A marker file was considered and rejected: the release archives would have to ship it, and an install
-updated without it (copying only the executable, or an old patch) would silently lose its saves. The ownership
-test on Unix keeps a shared install (`/opt/keeperfx` writable by a group) from mixing several players' saves.
-Running the game as root in a system folder makes it portable; don't do that.
+Why this rule: an install the player can write to is one KeeperFX has always kept the player's files in, so every
+such install stays portable and nothing about it changes: no moved saves, no new places to look, and the
+launchers, which read and write `keeperfx.cfg`, `save/`, `replays/` and `mods/` next to the executable, keep
+working. An install that the player can't write to could never have worked as a portable one, so switching it to
+the per-user folders breaks nothing. Who owns the folder doesn't count: on FAT, exFAT and NTFS mounts (a Windows
+partition shared with Linux, an SD card), network shares and container volumes the owner the system reports is
+often root or another user, and such an install would otherwise move the player's saves away from where Windows
+finds them. A marker file was considered and rejected: the release archives would have to ship it, and an install
+updated without it (copying only the executable, or an old patch) would silently lose its saves.
+
+An install that several users can write to (`/opt/keeperfx` writable by a group) is therefore portable for all of
+them, and they share its saves and settings, as before. To give each user their own, start the game with
+`-noportable` or set `KEEPERFX_PORTABLE=0` for them (in a wrapper script, or system wide), or make the folder read
+only. Running the game as root in a system folder makes it portable; don't do that.
 
 ### Command line options and environment variables
 
@@ -133,7 +139,10 @@ as before.
 When an install that was portable starts keeping your files elsewhere (it was made read only, or you asked with
 `-noportable` or `-userdir`), the game copies your files over at that start:
 
-- `save/` (with `settings.toml` going to the config folder), `replays/` and `scrshots/` of the game folder;
+- `save/` (with `settings.toml` going to the config folder), `replays/` and `scrshots/` of the game folder, but
+  only the files that are yours: those you own, or, on a file system that keeps no owners (FAT, exFAT, NTFS and
+  network shares on Linux, FAT and exFAT on Windows), those you can read. The files of whoever else played in the
+  install (root, an administrator, another user) stay theirs, settings included;
 - `renderer_prefs.ini` from where earlier versions kept it (`SDL_GetPrefPath`), in every mode, when the config
   folder has none.
 
@@ -142,6 +151,9 @@ says when it differs from the game folder's), and every copy is compared with it
 name. When a copy fails (a full disk, say) the log says so and the next start tries again; once all went well the
 install is recorded in `migrated_installs.txt` in the data folder and isn't copied again. Saves made later in the
 game folder by an older version are not copied after that.
+
+The log lists every file copied, kept or left, and says where your files are now. The player is told too, once: a
+message in the main menu says where the saves and settings are kept, why, and how many files were copied or left.
 
 `keeperfx.cfg` is not copied: the game still reads the game folder's, so edits made there still count. Maps,
 campaigns and mods you put in the game folder stay there and are still found.

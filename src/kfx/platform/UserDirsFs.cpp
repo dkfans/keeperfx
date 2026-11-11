@@ -19,6 +19,13 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <cstring>
+#if defined(__linux__)
+#include <sys/vfs.h>
+#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+#include <sys/param.h>
+#include <sys/mount.h>
+#endif
 #endif
 
 namespace fs = std::filesystem;
@@ -146,7 +153,7 @@ bool MakeDirs(const std::string &dir, std::string &error)
     return true;
 }
 
-bool IsUsersWritableDir(const std::string &dir)
+bool IsWritableDir(const std::string &dir)
 {
 #ifdef _WIN32
     char name[64];
@@ -165,10 +172,7 @@ bool IsUsersWritableDir(const std::string &dir)
     struct stat st;
     if ((stat(d.c_str(), &st) != 0) || !S_ISDIR(st.st_mode))
         return false;
-    // A folder of another user (a system wide install that root owns, or a shared one) is not this user's to fill,
-    // even when it is writable.
-    if (st.st_uid != geteuid())
-        return false;
+    // Creating a file is the test: access() doesn't see read only mounts on every system, nor ACLs.
     char name[64];
     snprintf(name, sizeof(name), "/.keeperfx-write-test-%ld", (long)getpid());
     const std::string probe = d + name;
@@ -180,6 +184,106 @@ bool IsUsersWritableDir(const std::string &dir)
     return true;
 #endif
 }
+
+#ifdef _WIN32
+
+/** True when the volume of path keeps owners and permissions (NTFS, ReFS), false for FAT and exFAT. */
+static bool VolumeKeepsOwners(const std::wstring &path)
+{
+    wchar_t volume[MAX_PATH + 1];
+    if (!GetVolumePathNameW(path.c_str(), volume, MAX_PATH + 1))
+        return true;
+    DWORD flags = 0;
+    if (!GetVolumeInformationW(volume, NULL, 0, NULL, NULL, &flags, NULL, 0))
+        return true;
+    return (flags & FILE_PERSISTENT_ACLS) != 0;
+}
+
+bool FileIsUsers(const std::string &path)
+{
+    const std::wstring wide = WidePath(path);
+    if (!VolumeKeepsOwners(wide)) {
+        HANDLE h = CreateFileW(wide.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+        if (h == INVALID_HANDLE_VALUE)
+            return false;
+        CloseHandle(h);
+        return true;
+    }
+    DWORD needed = 0;
+    GetFileSecurityW(wide.c_str(), OWNER_SECURITY_INFORMATION, NULL, 0, &needed);
+    if (needed == 0)
+        return false;
+    std::vector<unsigned char> sd(needed);
+    if (!GetFileSecurityW(wide.c_str(), OWNER_SECURITY_INFORMATION, (PSECURITY_DESCRIPTOR)sd.data(), needed, &needed))
+        return false;
+    PSID owner = NULL;
+    BOOL defaulted = FALSE;
+    if (!GetSecurityDescriptorOwner((PSECURITY_DESCRIPTOR)sd.data(), &owner, &defaulted) || (owner == NULL))
+        return false;
+    HANDLE token = NULL;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
+        return false;
+    DWORD len = 0;
+    GetTokenInformation(token, TokenUser, NULL, 0, &len);
+    std::vector<unsigned char> user(len ? len : 1);
+    bool same = false;
+    if ((len > 0) && GetTokenInformation(token, TokenUser, user.data(), len, &len))
+        same = EqualSid(owner, ((TOKEN_USER *)user.data())->User.Sid) != FALSE;
+    CloseHandle(token);
+    return same;
+}
+
+#else
+
+/** True when the file system of path keeps no owners of its own, so the owner stat() gives is the one the whole
+ *  mount was given (FAT, exFAT, NTFS, FUSE mounts such as ntfs-3g, SMB shares, WSL's Windows drives). */
+static bool FileSystemHasNoOwners(const std::string &path)
+{
+#if defined(__linux__)
+    struct statfs sf;
+    if (statfs(path.c_str(), &sf) != 0)
+        return false;
+    switch ((unsigned long)sf.f_type) {
+    case 0x4d44UL:     // FAT (msdos, vfat)
+    case 0x2011bab0UL: // exFAT
+    case 0x5346544eUL: // NTFS (ntfs)
+    case 0x7366746eUL: // NTFS (ntfs3)
+    case 0x65735546UL: // FUSE (ntfs-3g, exfat-fuse and other user space file systems)
+    case 0xff534d42UL: // CIFS
+    case 0xfe534d42UL: // SMB2
+    case 0x517bUL:     // SMB
+    case 0x01021997UL: // 9P (the Windows drives in WSL 2)
+        return true;
+    default:
+        return false;
+    }
+#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+    struct statfs sf;
+    if (statfs(path.c_str(), &sf) != 0)
+        return false;
+    static const char *const kinds[] = {"msdos", "msdosfs", "exfat", "ntfs", "smbfs", "cifs", "fusefs"};
+    for (const char *k : kinds) {
+        if (strncmp(sf.f_fstypename, k, strlen(k)) == 0)
+            return true;
+    }
+    return false;
+#else
+    (void)path;
+    return false;
+#endif
+}
+
+bool FileIsUsers(const std::string &path)
+{
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0)
+        return false;
+    if (st.st_uid == geteuid())
+        return true;
+    return FileSystemHasNoOwners(path) && (access(path.c_str(), R_OK) == 0);
+}
+
+#endif
 
 bool SameDir(const std::string &a, const std::string &b)
 {

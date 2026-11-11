@@ -17,6 +17,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <vector>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -53,7 +54,7 @@ static void expect_eq(const char *what, const std::string &got, const std::strin
 struct Env {
     std::map<std::string, std::string> vars;
     int probes = 0;
-    bool game_is_users = false;
+    bool game_is_writable = false;
 
     Request Make(Convention convention, const std::string &home = "/home/u")
     {
@@ -65,9 +66,9 @@ struct Env {
             auto it = vars.find(name);
             return (it == vars.end()) ? std::string() : it->second;
         };
-        r.game_dir_is_users = [this]() {
+        r.game_dir_is_writable = [this]() {
             probes++;
-            return game_is_users;
+            return game_is_writable;
         };
         return r;
     }
@@ -77,7 +78,7 @@ static void test_xdg_defaults()
 {
     Env e;
     Resolution r = Resolve(e.Make(Convention::Xdg));
-    expect("xdg: per user when the game folder isn't the user's", r.mode == Mode::PerUser);
+    expect("xdg: per user when the game folder is read only", r.mode == Mode::PerUser);
     expect_eq("xdg: game", r.dir[KindGame], "/opt/keeperfx");
     expect_eq("xdg: data", r.dir[KindData], "/home/u/.local/share/keeperfx");
     expect_eq("xdg: config", r.dir[KindConfig], "/home/u/.config/keeperfx");
@@ -130,9 +131,9 @@ static void test_xdg_no_home()
 static void test_portable_detection()
 {
     Env e;
-    e.game_is_users = true;
+    e.game_is_writable = true;
     Resolution r = Resolve(e.Make(Convention::Xdg));
-    expect("auto: portable when the game folder is the user's", r.mode == Mode::Portable);
+    expect("auto: portable when the game folder is writable", r.mode == Mode::Portable);
     expect_eq("portable: data", r.dir[KindData], "/opt/keeperfx");
     expect_eq("portable: config", r.dir[KindConfig], "/opt/keeperfx");
     expect_eq("portable: state", r.dir[KindState], "/opt/keeperfx");
@@ -146,7 +147,7 @@ static void test_portable_detection()
     expect("-noportable: per user although writable", r.mode == Mode::PerUser);
     expect("-noportable: no probe", e.probes == 0);
 
-    e.game_is_users = false;
+    e.game_is_writable = false;
     req = e.Make(Convention::Xdg);
     req.option_portable = 1;
     r = Resolve(req);
@@ -157,7 +158,7 @@ static void test_portable_detection()
     r = Resolve(e.Make(Convention::Xdg));
     expect("KEEPERFX_PORTABLE=yes", r.mode == Mode::Portable);
     e.vars["KEEPERFX_PORTABLE"] = "0";
-    e.game_is_users = true;
+    e.game_is_writable = true;
     r = Resolve(e.Make(Convention::Xdg));
     expect("KEEPERFX_PORTABLE=0", r.mode == Mode::PerUser);
     req = e.Make(Convention::Xdg);
@@ -205,7 +206,7 @@ static void test_userdir_and_overrides()
     expect_eq("override: data untouched", r.dir[KindData], "/home/u/.local/share/keeperfx");
     expect_eq("override: origin", r.origin[KindConfig], "-configdir");
 
-    e.game_is_users = true;
+    e.game_is_writable = true;
     r = Resolve(e.Make(Convention::Xdg));
     expect("override in portable mode", (r.mode == Mode::Portable) && (r.dir[KindState] == "/logs") && (r.dir[KindData] == "/opt/keeperfx"));
 }
@@ -325,13 +326,13 @@ static void test_make_dirs()
     struct stat st;
     expect("make dirs: created folders are private", (stat(T("a/b").c_str(), &st) == 0) && ((st.st_mode & 0777) == 0700));
 #endif
-    expect("writable: temp folder", IsUsersWritableDir(T("a")));
-    expect("writable: missing folder", !IsUsersWritableDir(T("nope")));
+    expect("writable: temp folder", IsWritableDir(T("a")));
+    expect("writable: missing folder", !IsWritableDir(T("nope")));
     expect("writable: no probe file left", !fs::exists(ToPath(T("a/b/.keeperfx-write-test"))) && (std::distance(fs::directory_iterator(ToPath(T("a"))), fs::directory_iterator()) == 1));
 #ifndef _WIN32
     if (geteuid() != 0) {
         chmod(T("a/b/c").c_str(), 0500);
-        expect("writable: read only folder", !IsUsersWritableDir(T("a/b/c")));
+        expect("writable: read only folder", !IsWritableDir(T("a/b/c")));
         chmod(T("a/b/c").c_str(), 0700);
     }
 #endif
@@ -459,6 +460,63 @@ static void test_narrow_paths()
 #endif
 }
 
+
+static void test_portable_rule_on_disk()
+{
+    // A writable folder counts, whoever owns it: the system's temporary folder belongs to root and everyone may
+    // write in it, like an NTFS or FAT mount with uid=0, a shared install or a container volume.
+    std::error_code ec;
+    const fs::path sys_tmp = fs::temp_directory_path(ec);
+#ifndef _WIN32
+    struct stat st;
+    if (!ec && (stat(sys_tmp.c_str(), &st) == 0) && (st.st_uid != geteuid()))
+        expect("portable: a writable folder of another owner", IsWritableDir(FromPath(sys_tmp)));
+    // Files: the user's own, or one of root's on a file system with owners.
+    write_file(T("mine.txt"), "x");
+    expect("file is users: own file", FileIsUsers(T("mine.txt")));
+    if ((geteuid() != 0) && (stat("/etc/passwd", &st) == 0) && (st.st_uid != geteuid()))
+        expect("file is users: root's file", !FileIsUsers("/etc/passwd"));
+    expect("file is users: missing file", !FileIsUsers(T("nope.txt")));
+#else
+    write_file(T("mine.txt"), "x");
+    expect("file is users: own file", FileIsUsers(T("mine.txt")));
+#endif
+}
+
+static void test_migration_other_users()
+{
+    const std::string game = T("install3");
+    make_install(game);
+    MigrationPaths p;
+    p.game_dir = game;
+    p.data_dir = T("user3/data");
+    p.config_dir = T("user3/config");
+    // Only the replays are this user's: the saves and settings are those of whoever played in the install before.
+    p.file_is_users = [](const std::string &path) { return path.find("replays") != std::string::npos; };
+    MigrationResult r = MigrateInstall(p);
+    expect("migrate others: complete", r.ran && r.complete);
+    expect("migrate others: counts", (r.copied == 1) && (r.left == 6) && (r.failed == 0));
+    expect_eq("migrate others: own replay copied", read_file(T("user3/data/replays/campaign/20260101T000000_c1.fxpkt")), "replay");
+    expect("migrate others: saves left", !fs::exists(ToPath(T("user3/data/save/fx1g0000.sav"))));
+    expect("migrate others: settings left", !fs::exists(ToPath(T("user3/config/settings.toml"))));
+    bool said = false;
+    for (const std::string &l : r.lines)
+        said |= (l.find("belongs to another user") != std::string::npos);
+    expect("migrate others: the log says why", said);
+    r = MigrateInstall(p);
+    expect("migrate others: once", !r.ran);
+
+    // The default test is the file's owner: the test's own files are copied.
+    const std::string game4 = T("install4");
+    make_install(game4);
+    MigrationPaths p4;
+    p4.game_dir = game4;
+    p4.data_dir = T("user4/data");
+    p4.config_dir = T("user4/config");
+    r = MigrateInstall(p4);
+    expect("migrate own: all copied", r.ran && r.complete && (r.copied == 7) && (r.left == 0));
+}
+
 int main()
 {
     test_xdg_defaults();
@@ -489,6 +547,8 @@ int main()
     test_migration();
     test_migration_failure();
     test_narrow_paths();
+    test_portable_rule_on_disk();
+    test_migration_other_users();
     fs::remove_all(ToPath(tmp_root), ec);
 
     printf("%d checks, %d failed\n", checks, fails);

@@ -9,12 +9,15 @@
  *     It only ever copies. A file that is already in the per-user folders is
  *     kept, whatever its date, nothing in the install is changed or deleted,
  *     and a copy is checked against the original before it gets its final name.
- *     When something fails, the next start tries again.
+ *     When something fails, the next start tries again. Only the files of the
+ *     user who plays are copied: in an install another user (or root, or an
+ *     administrator) played in, their saves and settings stay theirs.
  */
 /******************************************************************************/
 #ifndef KFX_USERDIRSMIGRATE_H
 #define KFX_USERDIRSMIGRATE_H
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -25,6 +28,8 @@ struct MigrationPaths {
     std::string data_dir;   /**< Where save/, replays/ and scrshots/ go. */
     std::string config_dir; /**< Where settings.toml goes, unless it stays in save/. */
     bool settings_in_save_folder = false;
+    /** True when a file of the install is the current user's to copy; FileIsUsers() when not set. */
+    std::function<bool(const std::string &path)> file_is_users;
 };
 
 struct MigrationResult {
@@ -35,6 +40,8 @@ struct MigrationResult {
     int copied = 0;
     int kept = 0;
     int failed = 0;
+    /** Files left in the install because they belong to another user. */
+    int left = 0;
     /** One line per thing done, for the log. */
     std::vector<std::string> lines;
 };

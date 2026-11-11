@@ -47,6 +47,7 @@ bool g_user_layer = false;
 Resolution g_res;
 std::string g_game_origin;
 std::string g_settings_file;
+std::string g_migration_notice;
 /** Problems found before the log existed; written by userdirs_log_summary(). */
 std::vector<std::string> g_errors;
 
@@ -291,7 +292,7 @@ extern "C" void userdirs_init(int argc, char *argv[])
 
     req.game_dir = StripSeparator(game.dir);
     req.env = GetEnvString;
-    req.game_dir_is_users = [&req]() { return IsUsersWritableDir(req.game_dir); };
+    req.game_dir_is_writable = [&req]() { return IsWritableDir(req.game_dir); };
     std::vector<std::string> warnings;
 #ifdef _WIN32
     req.win_saved_games = KnownFolder(FOLDERID_SavedGames, "Saved Games", warnings);
@@ -314,7 +315,7 @@ extern "C" void userdirs_init(int argc, char *argv[])
         std::string error;
         if (!MakeDirs(g_res.dir[k], error)) {
             g_errors.push_back(std::string("the ") + KindName(k) + " folder is unusable: " + error);
-        } else if (!IsUsersWritableDir(g_res.dir[k])) {
+        } else if (!IsWritableDir(g_res.dir[k])) {
             g_errors.push_back(std::string("can't write in the ") + KindName(k) + " folder \"" + g_res.dir[k] + "\"");
         }
 #ifdef _WIN32
@@ -324,7 +325,7 @@ extern "C" void userdirs_init(int argc, char *argv[])
     }
 
     // Portable by request in a folder this user can't write: saves and settings would fail without a word.
-    if ((g_res.mode == Mode::Portable) && (g_res.origin[KindData] == "portable") && !IsUsersWritableDir(g_res.dir[KindGame]))
+    if ((g_res.mode == Mode::Portable) && (g_res.origin[KindData] == "portable") && !IsWritableDir(g_res.dir[KindGame]))
         g_errors.push_back("the game folder \"" + g_res.dir[KindGame] + "\" is read only, so saves, settings and logs can't be "
                            "written; leave out -portable / " + env_portable_name + " or give -userdir");
     // Say it on the console too: these problems may leave the game without a log.
@@ -381,15 +382,37 @@ extern "C" void userdirs_migrate(void)
     MigrationResult result = MigrateInstall(paths);
     if (!result.ran)
         return;
-    JUSTMSG("Copying the saves, settings, replays and screenshots of the game folder into the user folders, once:");
+    JUSTMSG("The game folder %s is not used for your files (%s). Copying your saves, settings, replays and "
+            "screenshots from it into the user folders, once:", AbsolutePath(g_res.dir[KindGame]).c_str(), g_res.reason.c_str());
     for (const std::string &line : result.lines)
         JUSTMSG("  %s", line.c_str());
     if (result.complete) {
-        JUSTMSG("Copied %d files, kept %d that were already there. The game folder was left as it was.", result.copied, result.kept);
+        JUSTMSG("Copied %d files, kept %d that were already there, left %d of other users. The game folder was left as it was.",
+                result.copied, result.kept, result.left);
     } else {
-        ERRORMSG("Copied %d files, kept %d, %d could not be copied. Nothing in the game folder was changed or deleted; "
-                 "the next start tries again.", result.copied, result.kept, result.failed);
+        ERRORMSG("Copied %d files, kept %d, left %d of other users, %d could not be copied. Nothing in the game folder "
+                 "was changed or deleted; the next start tries again.", result.copied, result.kept, result.left, result.failed);
     }
+    JUSTMSG("Your files are now in %s (settings in %s).", AbsolutePath(g_res.dir[KindData]).c_str(),
+            AbsolutePath(g_res.dir[KindConfig]).c_str());
+
+    std::string notice = "Your saves and settings are now kept in\n" + AbsolutePath(g_res.dir[KindData]) + "\n";
+    if (!SettingsInSaveFolder(g_res))
+        notice += "and " + AbsolutePath(g_res.dir[KindConfig]) + "\n";
+    notice += "because " + g_res.reason + ".\n";
+    if (result.copied + result.kept > 0)
+        notice += "The " + std::to_string(result.copied + result.kept) + " files of the game folder were copied there; the game folder was not changed.\n";
+    if (result.left > 0)
+        notice += std::to_string(result.left) + " files of other users were left in the game folder.\n";
+    if (!result.complete)
+        notice += std::to_string(result.failed) + " files could not be copied; the game tries again at the next start.\n";
+    notice += "The log, " + std::string(log_file_name) + ", lists them.";
+    g_migration_notice = notice;
+}
+
+extern "C" const char *userdirs_migration_notice(void)
+{
+    return g_migration_notice.empty() ? NULL : g_migration_notice.c_str();
 }
 
 extern "C" const char *userdirs_get(enum UserDirKind kind)

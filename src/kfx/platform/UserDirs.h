@@ -52,6 +52,11 @@ char *userdirs_path(char *dst, size_t dst_size, enum UserDirKind kind, const cha
  *  portable install. */
 const char *userdirs_settings_file(void);
 
+/** When the user's files of the game folder were just copied into the per-user folders (or left there because they
+ *  are another user's), a message for the player saying where their files are now; NULL otherwise. Set by
+ *  userdirs_migrate(), so once per install. */
+const char *userdirs_migration_notice(void);
+
 /** The number of values a folder option takes (-gamedir DIR: 1, -portable: 0), or -1 for other options.
  *  The option is given without its leading '-'. */
 int userdirs_option_value_count(const char *option);

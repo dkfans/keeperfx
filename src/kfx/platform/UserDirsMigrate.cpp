@@ -162,6 +162,12 @@ MigrationResult MigrateInstall(const MigrationPaths &paths)
                 Count(result, CopyOutcome::Failed, "can't name a copy of a file in " + FromPath(root));
                 continue;
             }
+            const bool users = paths.file_is_users ? paths.file_is_users(from) : FileIsUsers(from);
+            if (!users) {
+                result.left++;
+                result.lines.push_back("left " + from + ": it belongs to another user");
+                continue;
+            }
             std::string message;
             Count(result, CopyOnce(from, to, message), message);
         }
