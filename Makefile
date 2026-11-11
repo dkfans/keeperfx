@@ -176,7 +176,7 @@ $(TESTS_OBJ) $(CU_OBJS): .EXTRA_PREREQS = $(OBJDIR)/tests/.build_config
 DEPFLAGS = -MMD -MP -MF "$(@:%.o=%.d)" -MT"$@"
 DEFFLAGS = -DSPNG_STATIC=1 -DAL_LIBTYPE_STATIC
 DEBUG ?= 0
-OPTFLAGS = -march=x86-64 -msse2 -mfpmath=sse -ffp-contract=off -ftrivial-auto-var-init=zero -fno-omit-frame-pointer $(if $(filter 1,$(DEBUG)),-O0,-O3)
+OPTFLAGS = -march=x86-64 -msse2 -mfpmath=sse -ffp-contract=off -fno-omit-frame-pointer $(if $(filter 1,$(DEBUG)),-O0,-O3)
 DBGFLAGS = $(if $(filter 1,$(DEBUG)),-g -DDEBUG,$(if $(CV2PDB),-g,))
 std_LOGFLAGS = -DBFDEBUG_LEVEL=0
 hvlog_LOGFLAGS = -DBFDEBUG_LEVEL=10
