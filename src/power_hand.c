@@ -1030,6 +1030,9 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
         play_user_sample(user, snd_refusal);
         return 0;
     }
+    if (!thing_exists(droptng) || (ustate->num_things_in_hand < 1) || (ustate->things_in_hand[0] != droptng->index)) {
+        return 0;
+    }
     struct Thing *overtng = thing_get(ustate->thing_under_hand);
     if (object_is_gold_pile(droptng))
     {

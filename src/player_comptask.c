@@ -783,6 +783,9 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
     if (!lua_on_creature_drop(droptng, comp->dungeon->owner, &locpos)) {
         return 0;
     }
+    if (!thing_exists(droptng) || (comp->held_thing_idx != droptng->index)) {
+        return 0;
+    }
     int i;
     i = max_height - height;
     if (i < 0) {
