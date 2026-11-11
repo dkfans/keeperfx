@@ -1829,6 +1829,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             {
                 room_pos.x.val = subtile_coord_center(room->central_stl_x);
                 room_pos.y.val = subtile_coord_center(room->central_stl_y);
+                room_pos.z.val = get_floor_height_at(&room_pos);
                 allowed = creature_can_navigate_to(thing, &room_pos, NavRtF_NoOwner);
                 if (!allowed)
                 {
