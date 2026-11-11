@@ -117,15 +117,19 @@ static void make_loaded_file_name(const char *fname, char *out, size_t out_size)
 {
     normalise_path(fname, out, out_size);
     // A file the player added to their data folder is compared by the same name as the game's copy it replaces.
+    // When one folder is in another (a data folder inside the game folder), the deepest one names the file.
     const char *base_directories[] = {keeper_runtime_directory, install_info.inst_path, userdirs_get(UsrDir_Data)};
+    size_t best_length = 0;
     for (int i = 0; i < sizeof(base_directories) / sizeof(base_directories[0]); i++) {
         char base[FULLPATH_SIZE];
         normalise_path(base_directories[i], base, sizeof(base));
         size_t base_length = strlen(base);
-        if (base_length > 0 && strncmp(out, base, base_length) == 0 && out[base_length] == '/') {
-            memmove(out, out + base_length + 1, strlen(out + base_length + 1) + 1);
-            return;
+        if (base_length > best_length && strncmp(out, base, base_length) == 0 && out[base_length] == '/') {
+            best_length = base_length;
         }
+    }
+    if (best_length > 0) {
+        memmove(out, out + best_length + 1, strlen(out + best_length + 1) + 1);
     }
 }
 

@@ -877,7 +877,7 @@ extern "C" TbBool play_music_track(int track) {
 	} else if (features_enabled & Ft_NoCdMusic) {
 		// play_music() itself skips restarting if this exact resolved file is
 		// already the one actually playing (e.g. reloading a save for the same level).
-		char fpath[2048];
+		char fpath[FULLPATH_SIZE];
 		if (!resolve_track_music_path(track, fpath, sizeof(fpath))) {
 			WARNLOG("No music file found for track %d in the music folder", track);
 			return false;
