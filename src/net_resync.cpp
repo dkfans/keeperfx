@@ -1125,8 +1125,9 @@ TbBool send_resync_game(void)
         }
         char *delta = NULL;
         size_t delta_size = 0;
-        const struct DeltaHashes *client = &user_hashes[user_index];
-        if (user_wants_delta(user_index) && client->hashes != NULL && client->header.generation == previous_generation) {
+        if (user_wants_delta(user_index) && user_hashes[user_index].hashes != NULL && user_hashes[user_index].header.generation == previous_generation) {
+            // user_wants_delta() keeps spectators (user_index >= MAX_NET_USERS) out of user_hashes
+            const struct DeltaHashes *client = &user_hashes[user_index];
             // The host's chunks of the size this client used, the same for all clients in practice.
             if (host_chunk_bits != client->header.chunk_bits) {
                 free_delta_chunks(&host_chunks);
