@@ -442,7 +442,8 @@ static void disable_lua_file_io(lua_State *L)
  * the keys of a table in pairs() order would act in a different order on each
  * client of a multiplayer game. This pairs() visits the keys in a fixed order:
  * numbers ascending, then strings by bytes, then booleans; keys that cannot be
- * ordered (tables, functions, userdata) come last in traversal order. */
+ * ordered (tables, functions, userdata) come last in traversal order, which
+ * can still differ between clients. next() is the stock one. */
 struct LuaSortKey {
     int rank;
     lua_Number num;
@@ -480,43 +481,42 @@ static int lua_sort_key_cmp(const void *va, const void *vb)
     return (a->pos < b->pos) ? -1 : (a->pos > b->pos);
 }
 
-static int lua_ordered_pairs_iter(lua_State *L)
-{
-    /* upvalue 1: the table, 2: array of keys in order, 3: position */
-    int pos = (int)lua_tointeger(L, lua_upvalueindex(3));
-    int count = (int)lua_objlen(L, lua_upvalueindex(2));
-    while (pos < count) {
-        pos++;
-        lua_rawgeti(L, lua_upvalueindex(2), pos);
-        lua_pushvalue(L, -1);
-        lua_rawget(L, lua_upvalueindex(1));
-        if (!lua_isnil(L, -1)) {
-            lua_pushinteger(L, pos);
-            lua_replace(L, lua_upvalueindex(3));
-            return 2;
-        }
-        lua_pop(L, 2); // key removed during the traversal
-    }
-    lua_pushinteger(L, pos);
-    lua_replace(L, lua_upvalueindex(3));
-    lua_pushnil(L);
-    return 1;
-}
+/* The iterator is a Lua function, so LuaJIT can compile loops over pairs()
+ * (with a C iterator every step leaves compiled code). Its state is the table
+ * { t, keys in order, position }. It has no upvalues (rawget is looked up as a
+ * global), so an iterator a script keeps in saved state survives a save. */
+static const char lua_ordered_pairs_iter_src[] =
+    "return function(state)\n"
+    "    local t, keys, i = state[1], state[2], state[3]\n"
+    "    while true do\n"
+    "        i = i + 1\n"
+    "        local k = keys[i]\n"
+    "        if k == nil then\n"
+    "            state[3] = i - 1\n"
+    "            return nil\n"
+    "        end\n"
+    "        local v = rawget(t, k)\n"
+    "        if v ~= nil then\n" // keys removed during the traversal are skipped
+    "            state[3] = i\n"
+    "            return k, v\n"
+    "        end\n"
+    "    end\n"
+    "end\n";
 
 static int lua_ordered_pairs(lua_State *L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
+    lua_settop(L, 1); // pairs(t, extra) must not shift the indices below
     int count = 0;
-    lua_newtable(L); // 2: keys in traversal order
+    lua_newtable(L); // 2: keys in traversal order; also keeps the key strings alive
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
         lua_pop(L, 1);
         lua_pushvalue(L, -1);
         lua_rawseti(L, 2, ++count);
     }
-    struct LuaSortKey *keys = (struct LuaSortKey *)malloc(sizeof(struct LuaSortKey) * (count > 0 ? count : 1));
-    if (keys == NULL)
-        return luaL_error(L, "not enough memory");
+    // 3: sort records. Userdata rather than malloc: a Lua error below cannot leak it.
+    struct LuaSortKey *keys = (struct LuaSortKey *)lua_newuserdata(L, sizeof(struct LuaSortKey) * (count > 0 ? count : 1));
     for (int i = 0; i < count; i++) {
         lua_rawgeti(L, 2, i + 1);
         struct LuaSortKey *k = &keys[i];
@@ -543,22 +543,30 @@ static int lua_ordered_pairs(lua_State *L)
         lua_pop(L, 1);
     }
     qsort(keys, count, sizeof(struct LuaSortKey), lua_sort_key_cmp);
-    lua_createtable(L, count, 0); // 3: keys in sorted order
+    lua_pushvalue(L, lua_upvalueindex(1)); // 4: the iterator
+    lua_createtable(L, 3, 0); // 5: its state
+    lua_pushvalue(L, 1);
+    lua_rawseti(L, 5, 1);
+    lua_createtable(L, count, 0); // the keys in sorted order
     for (int i = 0; i < count; i++) {
         lua_rawgeti(L, 2, keys[i].pos);
-        lua_rawseti(L, 3, i + 1);
+        lua_rawseti(L, -2, i + 1);
     }
-    free(keys);
-    lua_pushvalue(L, 1);
-    lua_pushvalue(L, 3);
+    lua_rawseti(L, 5, 2);
     lua_pushinteger(L, 0);
-    lua_pushcclosure(L, lua_ordered_pairs_iter, 3);
-    return 1;
+    lua_rawseti(L, 5, 3);
+    lua_pushnil(L);
+    return 3;
 }
 
 static void install_ordered_pairs(lua_State *L)
 {
-    lua_pushcfunction(L, lua_ordered_pairs);
+    if ((luaL_loadstring(L, lua_ordered_pairs_iter_src) != 0) || (lua_pcall(L, 0, 1, 0) != 0)) {
+        ERRORLOG("Cannot create the pairs() iterator: %s", lua_tostring(L, -1));
+        lua_pop(L, 1);
+        return;
+    }
+    lua_pushcclosure(L, lua_ordered_pairs, 1);
     lua_setglobal(L, "pairs");
 }
 
