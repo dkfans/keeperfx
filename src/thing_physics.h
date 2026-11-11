@@ -59,6 +59,8 @@ void creature_set_speed(struct Thing *thing, long speed);
 
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos);
 long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
+long get_thing_height_at_xy(const struct Thing *thing, const struct Coord3d *pos);
+long get_thing_height_at_xy_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
 long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
 TbBool creature_can_pass_through_wall_at(const struct Thing *thing, const struct Coord3d *pos);

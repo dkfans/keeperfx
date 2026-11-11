@@ -609,6 +609,25 @@ long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coo
         return pos_z_floor;
 }
 
+/**
+ * Height at which the thing would stand at pos, for a position of which only x and y
+ * are set. Where the thing does not fit (a wall, a low ceiling) get_thing_height_at()
+ * returns pos->z; here the thing keeps its own height instead.
+ */
+long get_thing_height_at_xy(const struct Thing *thing, const struct Coord3d *pos)
+{
+    return get_thing_height_at_xy_with_radius(thing, pos, thing_collision_radius(thing));
+}
+
+long get_thing_height_at_xy_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
+{
+    struct Coord3d xypos;
+    xypos.x.val = pos->x.val;
+    xypos.y.val = pos->y.val;
+    xypos.z.val = thing->mappos.z.val;
+    return get_thing_height_at_with_radius(thing, &xypos, radius);
+}
+
 TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord height_beg, MapCoord height_end)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
