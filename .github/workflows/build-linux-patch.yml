@@ -44,6 +44,8 @@ jobs:
       with:
         fetch-depth: 0
 
+    - uses: ./.github/actions/prepare-official-build
+
     - name: Update system
       run: |
         set -eux
