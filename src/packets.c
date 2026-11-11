@@ -1012,7 +1012,7 @@ TbBool process_user_global_packet_action(NetUserId user)
   case PckA_UsePwrHandPick:
       thing = thing_get(pckt->actn_par1);
       if ((pckt->control_flags & PCtr_Gui) != 0) {
-          magic_use_available_power_on_thing(plyr_idx, user, PwrK_HAND, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
+          magic_use_available_power_on_thing(plyr_idx, user, PwrK_HAND, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_PickUpEvent);
       } else {
           use_power_hand(plyr_idx, user, thing->mappos.x.stl.num, thing->mappos.y.stl.num, pckt->actn_par1);
       }

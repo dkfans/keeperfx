@@ -63,6 +63,7 @@
 #include "game_legacy.h"
 #include "sprites.h"
 #include "frontmenu_ingame_tabs.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "local_camera.h"
@@ -1013,7 +1014,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     struct Thing *droptng = thing_get(ustate->things_in_hand[0]);
     if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, is_creature_droppable_on_path(droptng))) {
         // Make a rejection sound
-        play_player_sample(plyr_idx, snd_refusal);
+        play_user_sample(user, snd_refusal);
         return 0;
     }
     // Check if object will fit into that position
@@ -1022,6 +1023,14 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_thing_height_at_xy(droptng, &pos);
     if (thing_in_wall_at(droptng, &pos)) {
+        return 0;
+    }
+    if (!lua_on_creature_drop(droptng, plyr_idx, &pos)) {
+        // Make a rejection sound
+        play_user_sample(user, snd_refusal);
+        return 0;
+    }
+    if (!thing_exists(droptng) || (ustate->num_things_in_hand < 1) || (ustate->things_in_hand[0] != droptng->index)) {
         return 0;
     }
     struct Thing *overtng = thing_get(ustate->thing_under_hand);
@@ -1059,6 +1068,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
 
 void dump_thing_held_by_any_player(struct Thing *thing)
 {
+    PlayerNumber holding_plyr_idx = PLAYER_NONE;
     int i;
     for (i=0; i<PLAYERS_COUNT; i++)
     {
@@ -1074,8 +1084,14 @@ void dump_thing_held_by_any_player(struct Thing *thing)
             const struct Coord3d *pos;
             pos = &dungeon->essential_pos;
             drop_held_thing_on_ground(dungeon, thing, pos);
-            remove_thing_from_power_hand_list(thing, dungeon->owner);
+            if (remove_thing_from_power_hand_list(thing, dungeon->owner)) {
+                holding_plyr_idx = dungeon->owner;
+            }
         }
+    }
+    // Inform only once, for the player who really held the thing
+    if (holding_plyr_idx != PLAYER_NONE) {
+        lua_on_creature_drop(thing, holding_plyr_idx, &thing->mappos);
     }
 }
 
@@ -1114,6 +1130,7 @@ static TbBool drop_first_queued_thing(PlayerNumber plyr_idx)
     remove_held_thing_at(dungeon->things_in_hand, &dungeon->num_things_in_hand, 0);
     if (thing_exists(thing)) {
         drop_held_thing_on_ground(dungeon, thing, dungeon_get_essential_pos(plyr_idx));
+        lua_on_creature_drop(thing, plyr_idx, &thing->mappos);
     }
     return true;
 }
@@ -1170,6 +1187,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
             if (remove_thing_from_power_hand(thing, dungeon->owner))
             {
                 teleport_armageddon_influenced_creature(thing);
+                lua_on_creature_drop(thing, dungeon->owner, &thing->mappos);
                 return false;
             }
         }
@@ -1574,6 +1592,20 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     return remove_thing_from_power_hand_list(thing, plyr_idx);;
 }
 
+/**
+ * Asks the level script whether the player may pick up the thing; plays the refusal sound for the user if not.
+ * Also false if the script removed the thing.
+ */
+static TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
+{
+    if (!lua_on_pick_up(thing, plyr_idx)) {
+        play_user_sample(user, snd_refusal);
+        return false;
+    }
+    // The handler may have removed the thing; then there is nothing left to pick up
+    return thing_exists(thing);
+}
+
 TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
@@ -1606,10 +1638,18 @@ TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl
     }
     if (thing_is_special_box(thing))
     {
+        // A special box is opened instead of picked up, so a denial keeps it closed
+        if (!script_allows_pick_up(thing, plyr_idx, user)) {
+            return Lb_FAIL;
+        }
         activate_dungeon_special(thing, player);
         return Lb_OK;
     }
     if (!is_power_available(plyr_idx, PwrK_HAND)) {
+        return Lb_FAIL;
+    }
+    // Ask the script before the grab starts, so a denied pick up shows no grab animation
+    if (!script_allows_pick_up(thing, plyr_idx, user)) {
         return Lb_FAIL;
     }
     prepare_thing_for_power_hand(thing->index, plyr_idx, user);

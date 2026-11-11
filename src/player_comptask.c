@@ -60,6 +60,7 @@
 #include "game_legacy.h"
 #include "cursor_tag.h"
 #include "gui_msgs.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -779,6 +780,12 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
         ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(droptng),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
         return 0;
     }
+    if (!lua_on_creature_drop(droptng, comp->dungeon->owner, &locpos)) {
+        return 0;
+    }
+    if (!thing_exists(droptng) || (comp->held_thing_idx != droptng->index)) {
+        return 0;
+    }
     int i;
     i = max_height - height;
     if (i < 0) {
@@ -821,6 +828,14 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
         SYNCDBG(7,"Computer tries to pick up %s index %d which cannot be dropped at given place", thing_model_name(thing),(int)thing->index);
         return 0;
     }
+    if (!lua_on_pick_up(thing, comp->dungeon->owner)) {
+        SYNCDBG(7,"Computer tries to pick up %s index %d which is denied by script", thing_model_name(thing),(int)thing->index);
+        return 0;
+    }
+    // The handler may have removed the thing
+    if (!thing_exists(thing)) {
+        return 0;
+    }
     computer_pick_thing_by_hand(comp, thing);
     comp->held_thing_idx = thing->index;
     comp->tasks_did--;
@@ -850,6 +865,7 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
     locpos.z.val = get_thing_height_at(thing, &locpos);
     drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
     comp->held_thing_idx = 0;
+    lua_on_creature_drop(thing, comp->dungeon->owner, &locpos);
     return true;
 }
 

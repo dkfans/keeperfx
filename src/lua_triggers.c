@@ -291,15 +291,68 @@ void lua_on_level_up(struct Thing *thing)
 	}
 }
 
-void lua_on_pick_up(struct Thing* thing, PlayerNumber plyr_idx)
+/**
+ * Informs the level script that a thing is about to be picked up by the hand.
+ * @return True if the pick up is allowed, false if a Lua handler denied it.
+ */
+TbBool lua_on_pick_up(struct Thing* thing, PlayerNumber plyr_idx)
 {
     SYNCDBG(6, "Starting");
     lua_getglobal(Lvl_script, "OnPickUp");
+    if (!lua_isfunction(Lvl_script, -1))
+    {
+        lua_pop(Lvl_script, 1);
+        return true;
+    }
+    lua_pushThing(Lvl_script, thing);
+    lua_pushPlayer(Lvl_script, plyr_idx);
+    if (!CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 1, 0), "OnPickUp"))
+    {
+        // CheckLua already popped the error object; a broken script must not block the hand
+        return true;
+    }
+    TbBool denied = lua_toboolean(Lvl_script, -1);
+    lua_pop(Lvl_script, 1);
+    return !denied;
+}
+
+/**
+ * A thing is being about to be dropped from the hand.
+ * Forced drops (keeper defeated, Armageddon teleport, computer fallback) call this too,
+ * but ignore the result, so a denial has no effect there.
+ * @return True if the drop is allowed, false if a Lua handler denied it.
+ */
+TbBool lua_on_creature_drop(struct Thing* thing, PlayerNumber plyr_idx, struct Coord3d *pos)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnCreatureDrop");
+    if (!lua_isfunction(Lvl_script, -1))
+    {
+        lua_pop(Lvl_script, 1);
+        return true;
+    }
+    lua_pushThing(Lvl_script, thing);
+    lua_pushPlayer(Lvl_script, plyr_idx);
+    lua_pushPos(Lvl_script, pos);
+    if (!CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 1, 0), "OnCreatureDrop"))
+    {
+        // CheckLua already popped the error object; a broken script must not lock things in the hand
+        return true;
+    }
+    TbBool denied = lua_toboolean(Lvl_script, -1);
+    lua_pop(Lvl_script, 1);
+    return !denied;
+}
+
+void lua_on_creature_landed(struct Thing *crtng, PlayerNumber plyr_idx)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnCreatureLanded");
     if (lua_isfunction(Lvl_script, -1))
     {
-        lua_pushThing(Lvl_script, thing);
+        lua_pushThing(Lvl_script, crtng);
         lua_pushPlayer(Lvl_script, plyr_idx);
-        CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0), "OnPickUp");
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0), "OnCreatureLanded");
     }
     else
     {
