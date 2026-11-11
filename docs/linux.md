@@ -37,6 +37,20 @@ native `keeperfx` and `keeperfx_hvlog` executables, the libraries they need (in
    `./keeperfx_hvlog` is the heavy-log version for bug reports. Both write
    `keeperfx.log` in the KeeperFX folder.
 
+### Where your saves and settings are
+
+A KeeperFX folder you unpacked yourself is a *portable* install: saves, settings,
+the log, screenshots and replays stay in it, as on Windows. If the game folder is
+read only for you, or belongs to another user (a package installed system wide),
+they go to the XDG folders instead: `~/.local/share/keeperfx` (saves, replays,
+screenshots, and maps, campaigns and mods you add), `~/.config/keeperfx`
+(`settings.toml`, and a `keeperfx.cfg` with the options you change),
+`~/.local/state/keeperfx` (`keeperfx.log`) and `~/.cache/keeperfx`. `-userdir
+<folder>` keeps them all in one folder of your choice, `-gamedir <folder>` starts
+a game whose files are elsewhere than the working folder, and the first lines of
+the log say which folders are used. See [user_files.md](user_files.md) for all the
+rules, options and environment variables.
+
 ### Requirements
 
 - 64-bit x86 Linux with glibc 2.39 or newer: Ubuntu 24.04, Debian 13, Fedora 40,
@@ -45,7 +59,8 @@ native `keeperfx` and `keeperfx_hvlog` executables, the libraries they need (in
   PulseAudio/PipeWire) libraries. Everything else ships in `lib/`.
 
 If the game does not start, run `ldd ./keeperfx | grep "not found"` to see
-which system library is missing, and read `keeperfx.log`.
+which system library is missing, and read `keeperfx.log` (in
+`~/.local/state/keeperfx` when the game folder is read only).
 
 For the Steam Deck, see also [steam-deck.md](steam-deck.md).
 
