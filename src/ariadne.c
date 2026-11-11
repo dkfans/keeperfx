@@ -2098,7 +2098,7 @@ static void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(s
             }
             pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
             pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
-            pos.z.val = get_thing_height_at(thing, &pos);
+            pos.z.val = get_thing_height_at_xy(thing, &pos);
             if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, hug_angle)) {
                 wallhug_distance_right = i;
                 break;
@@ -2120,7 +2120,7 @@ static void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(s
             }
             pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
             pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
-            pos.z.val = get_thing_height_at(thing, &pos);
+            pos.z.val = get_thing_height_at_xy(thing, &pos);
             if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, hug_angle)) {
                 wallhug_distance_left = i;
                 break;
@@ -2423,7 +2423,7 @@ static long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struc
     delta_y = distance_with_angle_to_coord_y(arid->move_speed, angle);
     requested_pos.x.val = (long)thing->mappos.x.val + delta_x;
     requested_pos.y.val = (long)thing->mappos.y.val + delta_y;
-    requested_pos.z.val = get_thing_height_at(thing, &requested_pos);
+    requested_pos.z.val = get_thing_height_at_xy(thing, &requested_pos);
     if (!ariadne_creature_blocked_by_wall_at(thing, &requested_pos))
     {
         arid->update_state = AridUpSt_OnLine;
@@ -2481,7 +2481,7 @@ static long ariadne_creature_can_continue_direct_line_to_waypoint(struct Thing *
         }
         pos_xlim.x.val = coord_fix;
         pos_xlim.y.val = thing->mappos.y.val;
-        pos_xlim.z.val = get_thing_height_at(thing, &pos_xlim);
+        pos_xlim.z.val = get_thing_height_at_xy(thing, &pos_xlim);
         coord_fix = thing->mappos.y.val;
         if (pos_dlim.y.val > thing->mappos.y.val) {
             coord_fix += speed;
@@ -2491,7 +2491,7 @@ static long ariadne_creature_can_continue_direct_line_to_waypoint(struct Thing *
         }
         pos_ylim.x.val = thing->mappos.x.val;
         pos_ylim.y.val = coord_fix;
-        pos_ylim.z.val = get_thing_height_at(thing, &pos_ylim);
+        pos_ylim.z.val = get_thing_height_at_xy(thing, &pos_ylim);
     }
     if (!ariadne_creature_blocked_by_wall_at(thing, &pos_xlim))
     {
