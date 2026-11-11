@@ -1185,7 +1185,7 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
                     int block_radius = subtile_coord(thing_nav_block_sizexy(thing), 0) / 2;
                     pos->x.val = subtile_coord_center(x);
                     pos->y.val = subtile_coord_center(y);
-                    pos->z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
+                    pos->z.val = get_thing_height_at_xy_with_radius(thing, pos, block_radius);
                     if (!thing_in_wall_at_with_radius(thing, pos, block_radius))
                     {
                         return true;
@@ -1223,7 +1223,7 @@ TbBool creature_find_any_position_to_move_within_slab(struct Coord3d *pos, const
         {
             pos->x.val = subtile_coord_center(x);
             pos->y.val = subtile_coord_center(y);
-            pos->z.val = get_thing_height_at(thing, pos);
+            pos->z.val = get_thing_height_at_xy(thing, pos);
             return true;
         }
         m = (m+1) % (STL_PER_SLB*STL_PER_SLB);
@@ -2755,7 +2755,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                 {
                     pos->x.val = subtile_coord_center(x);
                     pos->y.val = subtile_coord_center(y);
-                    pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                    pos->z.val = get_thing_height_at_xy_with_radius(thing, pos, nav_sizexy);
                     if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
                         return true;
                     }
@@ -2798,7 +2798,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                     {
                         pos->x.val = subtile_coord_center(astl_x);
                         pos->y.val = subtile_coord_center(astl_y);
-                        pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                        pos->z.val = get_thing_height_at_xy_with_radius(thing, pos, nav_sizexy);
                         if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
                             SYNCLOG("Thorough check succeeded where random check failed.");
                             return true;
@@ -3683,7 +3683,7 @@ void instruct_creature_to_damage_wall(struct Thing *creatng, MapSubtlCoord wall_
             struct Coord3d pos;
             pos.x.val = subtile_coord_center(stand_x);
             pos.y.val = subtile_coord_center(stand_y);
-            pos.z.val = get_thing_height_at(creatng, &pos);
+            pos.z.val = get_thing_height_at_xy(creatng, &pos);
             if (creature_can_navigate_to_with_storage(creatng, &pos, 0)) {
                 if ( setup_person_move_to_position(creatng, stand_x, stand_y, 0) )
                 {
