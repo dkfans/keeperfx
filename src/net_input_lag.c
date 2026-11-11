@@ -31,6 +31,8 @@ static int32_t input_lag_target;
 static GameTurn input_lag_processed_turn;
 static GameTurn input_lag_sample_start_turn;
 static TbBool input_lag_sampling;
+static int32_t input_lag_cap;
+static GameTurn input_lag_cap_turn;
 
 static void input_lag_reset_samples(void)
 {
@@ -62,6 +64,8 @@ void input_lag_reset(void)
     local_input_lag_request = game.input_lag_turns;
     input_lag_target = game.input_lag_turns;
     input_lag_processed_turn = 0;
+    input_lag_cap = 0;
+    input_lag_cap_turn = 0;
 }
 
 void input_lag_note_wait(TbClockMSec wait_time)
@@ -183,7 +187,7 @@ static void input_lag_update_request(void)
  * A packet from one client reaches another through the host, so the longest path is the two
  * slowest links. Lateness beyond this comes from a computer that can't keep up, which no input
  * lag cures: without the cap, a slow player pushed the input lag to MAXIMUM_INPUT_LAG_TURNS.
- * Returns MAXIMUM_INPUT_LAG_TURNS when a round trip time is unknown.
+ * Returns -1 when a round trip time is unknown.
  */
 static int32_t input_lag_network_cap(void)
 {
@@ -195,7 +199,7 @@ static int32_t input_lag_network_cap(void)
         }
         uint32_t rtt = GetPing(id);
         if (rtt == 0) {
-            return MAXIMUM_INPUT_LAG_TURNS;
+            return -1;
         }
         int32_t one_way = (int32_t)(rtt / 2 + 2 * GetPingVariance(id));
         if (one_way > slowest) {
@@ -206,10 +210,31 @@ static int32_t input_lag_network_cap(void)
         }
     }
     if (turns_per_second <= 0) {
-        return MAXIMUM_INPUT_LAG_TURNS;
+        return -1;
     }
     int32_t path_ms = slowest + second + INPUT_LAG_NETWORK_CAP_SLACK_MS;
     return min((path_ms * turns_per_second + 999) / 1000, MAXIMUM_INPUT_LAG_TURNS);
+}
+
+/**
+ * The network cap, held at its highest value since the input lag started sampling until it has
+ * been lower for INPUT_LAG_DECREASE_WINDOW_TURNS turns, like a decrease of the input lag itself: the round
+ * trip time and its variance move by a few milliseconds all the time, and near a turn boundary
+ * the cap would otherwise move by a turn each time, and the input lag with it.
+ */
+static int32_t input_lag_held_network_cap(GameTurn turn)
+{
+    int32_t cap = input_lag_network_cap();
+    if (cap < 0) {
+        return MAXIMUM_INPUT_LAG_TURNS;
+    }
+    // Until the input lag is sampled (game start, pause), the round trip times are not settled
+    // yet (ENet starts from 500 ms) and the input lag does not move: follow them without holding.
+    if (!input_lag_sampling || cap >= input_lag_cap || (GameTurnDelta)(turn - input_lag_cap_turn) >= INPUT_LAG_DECREASE_WINDOW_TURNS) {
+        input_lag_cap = cap;
+        input_lag_cap_turn = turn;
+    }
+    return input_lag_cap;
 }
 
 void input_lag_update(struct Packet *packet)
@@ -232,7 +257,7 @@ void input_lag_update(struct Packet *packet)
             packet->input_lag_turns = peer_packet->input_lag_turns;
         }
     }
-    int32_t cap = input_lag_network_cap();
+    int32_t cap = input_lag_held_network_cap(turn);
     if (packet->input_lag_turns > cap) {
         packet->input_lag_turns = cap;
     }
