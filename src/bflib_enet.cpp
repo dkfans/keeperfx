@@ -35,6 +35,8 @@
 #include "post_inc.h"
 
 #define NUM_CHANNELS 2
+// Nothing heard from a peer for this long counts as an outage (in a game peers send every turn).
+#define LINK_SILENCE_MS 1000
 #define HOLEPUNCH_CONNECT_DELAY_MS 1000
 #define HAPPY_EYEBALLS_DELAY_MS 250
 #define JOIN_CONNECT_POLL_DELAY_MS 16
@@ -63,6 +65,9 @@ namespace
     // When anything (including unsequenced gameplay data) last arrived from each peer, by peer
     // index. ENet's own lastReceiveTime only moves on acknowledgements.
     enet_uint32 peer_heard_at[MAX_NET_CONNECTIONS] = {0};
+    // Set when a peer is heard from again after LINK_SILENCE_MS of silence, cleared once the
+    // reliable messages sent to it meanwhile have been rescheduled.
+    bool peer_link_back[MAX_NET_CONNECTIONS] = {false};
     int host_is_dual_stack = 0;
     TransferRateTracker download_rate_tracker = {0, 0};
     TransferRateTracker upload_rate_tracker = {0, 0};
@@ -235,6 +240,7 @@ namespace
         memset(connection_ids, 0, sizeof(connection_ids));
         memset(resync_saved_window, 0, sizeof(resync_saved_window));
         memset(peer_heard_at, 0, sizeof(peer_heard_at));
+        memset(peer_link_back, 0, sizeof(peer_link_back));
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED && !netstate.simulating_disconnect) {
@@ -760,23 +766,30 @@ namespace
             }
             NetUserId destination = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
             bool spectator_peer = client_peer == nullptr && destination >= MAX_NET_USERS;
+            // ENet doubles a reliable command's retry time on every resend, so after a few seconds
+            // without a connection the next resend can be many seconds away and the peer times out
+            // (PEER_TIMEOUT_MS) although the link is back. When a peer is heard from again after
+            // an outage, the commands resent during it are resent once at the normal pace; ENet's
+            // back-off applies again after that.
+            bool link_back = peer_link_back[peer_index];
+            if (resync_saved_window[peer_index] == 0 && !spectator_peer && !link_back) {
+                continue;
+            }
+            if (link_back) {
+                peer_link_back[peer_index] = false;
+            }
             enet_uint32 retry_interval = max(peer->roundTripTime + 4 * peer->roundTripTimeVariance, 100U) * 2;
             ENetList *commands = &peer->sentReliableCommands;
             for (ENetListIterator current = enet_list_begin(commands); current != enet_list_end(commands); current = enet_list_next(current)) {
                 ENetOutgoingCommand *command = reinterpret_cast<ENetOutgoingCommand *>(current);
-                // ENet doubles a reliable command's retry time on every resend, so after a few
-                // seconds without a connection the next resend can be many seconds away and the
-                // peer times out (PEER_TIMEOUT_MS) although the link is back. Once the peer has
-                // been heard from since a command was last sent, resend it at the normal pace.
-                bool link_back = peer_index < MAX_NET_CONNECTIONS && peer_heard_at[peer_index] != 0
-                    && ENET_TIME_LESS(command->sentTime, peer_heard_at[peer_index]) && command->sendAttempts > 1;
+                bool resent_in_outage = link_back && command->sendAttempts > 1;
                 bool spectator_command = false;
                 bool resync_command = false;
                 if (command->packet != nullptr && command->packet->dataLength > 0) {
                     spectator_command = spectator_peer && command->packet->data[0] == NETMSG_SPECTATOR_TURN;
                     resync_command = resync_saved_window[peer_index] != 0 && command->packet->dataLength > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && command->packet->data[0] == NETMSG_RESYNC_DATA;
                 }
-                if (!spectator_command && !resync_command && !link_back) {
+                if (!spectator_command && !resync_command && !resent_in_outage) {
                     continue;
                 }
                 if (command->roundTripTimeout <= retry_interval) {
@@ -836,6 +849,9 @@ namespace
                 {
                     size_t index = enet_event.peer - host->peers;
                     if (index < MAX_NET_CONNECTIONS) {
+                        if (peer_heard_at[index] != 0 && ENET_TIME_DIFFERENCE(host->serviceTime, peer_heard_at[index]) >= LINK_SILENCE_MS) {
+                            peer_link_back[index] = true;
+                        }
                         peer_heard_at[index] = host->serviceTime | 1;
                     }
                 }
