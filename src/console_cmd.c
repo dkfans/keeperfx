@@ -1651,9 +1651,9 @@ TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
             slbkind = roomst->assigned_slab;
         } else {
             if (strcasecmp(pr1str, "Earth") == 0) {
-                slbkind = rand() % (4 - 2) + 2;
+                slbkind = GAME_RANDOM(4 - 2) + 2;
             } else if ((strcasecmp(pr1str, "Reinforced") == 0) || (strcasecmp(pr1str, "Fortified") == 0)) {
-                slbkind = rand() % (9 - 4) + 4;
+                slbkind = GAME_RANDOM(9 - 4) + 4;
             } else if (strcasecmp(pr1str, "Claimed") == 0) {
                 slbkind = SlbT_CLAIMED;
             } else if ((strcasecmp(pr1str, "Rock") == 0) || (strcasecmp(pr1str, "Impenetrable") == 0)) {

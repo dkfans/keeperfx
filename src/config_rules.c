@@ -343,7 +343,9 @@ int sac_compare_fn(const void* ptr_a, const void* ptr_b)
 {
     ThingModel a = *(const ThingModel*)ptr_a;
     ThingModel b = *(const ThingModel*)ptr_b;
-    return a < b;
+    // Descending order. This used to return a < b, which is not a valid qsort() comparator:
+    // glibc and msvcrt happened to sort descending with it, the WebAssembly C library did not.
+    return (a < b) - (a > b);
 }
 
 static void set_rules_defaults()

@@ -1262,9 +1262,12 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     else
     {
-        if (user_controls_thing(get_local_user(), spdigtng, UCT_Direct | UCT_Other))
+        // What the digger does next depends only on the synchronised control flag, never on
+        // which user is looking through it (a spectator must not change it). Only the sound is local.
+        if (flag_is_set(spdigtng->alloc_flags, TAlF_IsControlled))
         {
-            play_non_3d_sample(snd_refusal);
+            if (user_controls_thing(get_local_user(), spdigtng, UCT_Direct | UCT_Other))
+                play_non_3d_sample(snd_refusal);
             internal_set_thing_state(spdigtng, state);
             return 1;
         }
