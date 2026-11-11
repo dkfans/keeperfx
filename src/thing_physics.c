@@ -1007,7 +1007,7 @@ TbBool move_object_to_nearest_free_position(struct Thing *thing)
         {
             pos.x.val = subtile_coord_center(stl_x);
             pos.y.val = subtile_coord_center(stl_y);
-            pos.z.val = get_thing_height_at_with_radius(thing, &pos, nav_radius);
+            pos.z.val = get_thing_height_at_xy_with_radius(thing, &pos, nav_radius);
             if (!thing_in_wall_at_with_radius(thing, &pos, nav_radius))
             {
                 pos.z.val = get_thing_height_at(thing, &pos);
