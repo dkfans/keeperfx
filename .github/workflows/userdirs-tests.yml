@@ -1,0 +1,48 @@
+name: User folder tests
+
+# The tests of the user folder rules and of the migration of a portable install (tests/userdirs), on Linux and,
+# under Wine, on 32 and 64 bit Windows. Runs untrusted PR code, so read-only permissions.
+
+on:
+  pull_request:
+    paths:
+      - 'src/kfx/platform/UserDirs*'
+      - 'tests/userdirs/**'
+      - '.github/workflows/userdirs-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: "Test (${{ matrix.name }})"
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-x64, cxx: g++, cflags: "-fsanitize=address,undefined -fno-sanitize-recover=undefined", ldflags: "", exe: "", wine: false, pkgs: "g++" }
+          - { name: windows-i686, cxx: i686-w64-mingw32-g++, cflags: "", ldflags: "-static", exe: ".exe", wine: true, pkgs: "g++-mingw-w64-i686 wine wine32:i386 wine64" }
+          - { name: windows-x86_64, cxx: x86_64-w64-mingw32-g++, cflags: "", ldflags: "-static", exe: ".exe", wine: true, pkgs: "g++-mingw-w64-x86-64 wine wine32:i386 wine64" }
+    env:
+      WINEDEBUG: "-all"
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install tools
+      run: |
+        set -eux
+        if [ "${{ matrix.wine }}" = "true" ]; then sudo dpkg --add-architecture i386; fi
+        sudo apt-get update
+        sudo apt-get install -y ${{ matrix.pkgs }}
+
+    - name: Build
+      run: |
+        set -eux
+        mkdir -p out
+        CXX="${{ matrix.cxx }}" CFLAGS_EXTRA="${{ matrix.cflags }}" LDFLAGS_EXTRA="${{ matrix.ldflags }}" \
+          bash tests/userdirs/build.sh "out/kfx_userdirs_tests${{ matrix.exe }}"
+
+    - name: Run
+      run: ${{ matrix.wine && 'wine' || '' }} "out/kfx_userdirs_tests${{ matrix.exe }}"

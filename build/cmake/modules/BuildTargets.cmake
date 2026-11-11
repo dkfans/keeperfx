@@ -116,3 +116,18 @@ if(KFX_SAVE_TESTS)
     add_test(NAME kfx_save_tests COMMAND kfx_save_tests)
     kfx_status("TESTS" "kfx_save_tests (ctest)")
 endif()
+
+# User folder tests (tests/userdirs): the folder rules, the file helpers and the migration of a portable install,
+# without game code. Off by default. Build with -DKFX_USERDIRS_TESTS=ON, run with ctest.
+option(KFX_USERDIRS_TESTS "Build the user folder tests (kfx_userdirs_tests)" OFF)
+if(KFX_USERDIRS_TESTS)
+    enable_testing()
+    add_executable(kfx_userdirs_tests
+        "${CMAKE_SOURCE_DIR}/tests/userdirs/kfx_userdirs_tests.cpp"
+        "${CMAKE_SOURCE_DIR}/src/kfx/platform/UserDirsPolicy.cpp"
+        "${CMAKE_SOURCE_DIR}/src/kfx/platform/UserDirsFs.cpp"
+        "${CMAKE_SOURCE_DIR}/src/kfx/platform/UserDirsMigrate.cpp")
+    target_include_directories(kfx_userdirs_tests PRIVATE "${CMAKE_SOURCE_DIR}/src")
+    add_test(NAME kfx_userdirs_tests COMMAND kfx_userdirs_tests)
+    kfx_status("TESTS" "kfx_userdirs_tests (ctest)")
+endif()
