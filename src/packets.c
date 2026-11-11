@@ -315,11 +315,11 @@ TbBool player_sell_room_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSub
         dungeon->camera_deviate_jump = 192;
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
-    struct Coord3d pos;
-    set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
-    play_action_sample_at(plyr_idx, user, &pos, snd_tile_sell);
+    play_action_sample(plyr_idx, user, snd_tile_sell);
     if (revenue != 0)
     {
+        struct Coord3d pos;
+        set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
         create_price_effect(&pos, plyr_idx, revenue);
         player_add_offmap_gold(plyr_idx, revenue);
     }

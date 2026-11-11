@@ -224,7 +224,7 @@ struct UserState {
     TbBool first_person_dig_claim_mode;
     
     /** State related to first-person animation for being picked up / dropped by an archon co-user */
-    GameTurn fp_hand_pickup_tur
+    GameTurn fp_hand_pickup_turn;
     MapCoord fp_hand_x;
     MapCoord fp_hand_y;
     GameTurn fp_hand_drop_turn;

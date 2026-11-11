@@ -1158,13 +1158,13 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
             }
             dungeon->lvstats.bridges_built++;
         }
-      struct Coord3d pos;
-      set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
-      play_action_sample_at(plyr_idx, user, &pos, snd_tile_place);
-      if (slabs_left > 2) // more slabs follow this one
-      {
-          play_action_sample_at(plyr_idx, user, &pos, snd_larg_tile_down);
-          play_action_sample_at(plyr_idx, user, &pos, snd_larg_tile_up);
+      if (is_local_action(plyr_idx, user)) {
+          play_non_3d_sample(snd_tile_place);
+          if (slabs_left > 2) // more slabs follow this one
+          {
+              play_non_3d_sample(snd_larg_tile_down);
+              play_non_3d_sample(snd_larg_tile_up);
+          }
       }
     }
     return room;
