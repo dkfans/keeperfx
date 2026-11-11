@@ -215,7 +215,9 @@ Every place the game creates or changes a file, and every file of the player it 
 | speech extracted from `mapNNNNN.zip` | cache | `gui_soundmsgs.cpp` (was the shared temporary folder) | cache |
 | everything else (`data`, `fxdata`, `ldata`, `sound`, `music`, `levels`, `campgns`, `creatrs`, `lang`, `keeperfx.map`) | game | file groups, `bflib_filelst.c` | data, then game (read only) |
 
-Nothing in the simulation depends on these folders.
+No folder of the player's goes into saves or to other players: the custom music a save resumes is kept by its
+name relative to the game or data folder (`ldata/song.ogg`) and found again when the save is loaded; the files
+multiplayer compares are named the same way; and map scripts see their own path in that form too.
 
 ## Tests
 

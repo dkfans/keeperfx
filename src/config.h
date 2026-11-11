@@ -301,6 +301,13 @@ char *prepare_cache_file_path(char *dst, int dst_size, short fgroup, const char 
 TbBool load_cached_file(short fgroup, const char *fname, void *buffer, unsigned long len);
 /** Saves a file the game made into the cache folder, replacing the one there. */
 void save_cached_file(short fgroup, const char *fname, const void *buffer, unsigned long len);
+/** The name to keep of a file of the game or of the user's data folder in saves and anything sent to other players:
+ *  its path relative to that folder ("campgns/x/media/song.ogg"), the same for every player. False, and an empty
+ *  dst, when the file is in neither folder or the name doesn't fit. */
+TbBool make_game_file_name(const char *path, char *dst, size_t dst_size);
+/** The file of a name made by make_game_file_name(): the user's copy, else the game's (or INSTALL_PATH's). An
+ *  absolute path is kept as it is. False when no such file exists; dst is then the game folder's path. */
+TbBool find_game_file_by_name(const char *name, char *dst, size_t dst_size);
 /******************************************************************************/
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags);
 /******************************************************************************/

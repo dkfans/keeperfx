@@ -686,24 +686,43 @@ extern "C" void set_music_volume(SoundVolume value) {
 	}
 }
 
+/**
+ * Plays a music file: a path, or a name kept in a save (game.music_fname). game.music_fname gets the file's name
+ * relative to the game or data folder, which is the same for every player and holds no user's folder; a file
+ * outside those folders (given in the console) is played but not kept.
+ */
 extern "C" TbBool play_music(const char * fname) {
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
-	if (g_current_music_fname == fname) {
+	if ((fname == NULL) || (fname[0] == '\0')) {
+		return false;
+	}
+	char path[FULLPATH_SIZE];
+	if (!find_game_file_by_name(fname, path, sizeof(path))) {
+		snprintf(path, sizeof(path), "%s", fname);
+	}
+	char name[FULLPATH_SIZE];
+	if (!make_game_file_name(path, name, sizeof(name))) {
+		const TbBool absolute = (fname[0] == '/') || (fname[0] == '\\') || (fname[1] == ':');
+		snprintf(name, sizeof(name), "%s", absolute ? "" : fname);
+	}
+	if (strlen(name) >= sizeof(game.music_fname)) {
+		WARNLOG("Music file name too long to keep in saves: %s", name);
+		name[0] = '\0';
+	} else if (name[0] == '\0') {
+		WARNLOG("Music file %s is outside the game and data folders, saves won't resume it", path);
+	}
+	if (g_current_music_fname == path) {
 		return true;
 	}
-    game.music_track = -1;
-	// Guard against fname aliasing game.music_fname itself — snprintf with overlapping
-	// src/dest is undefined behaviour.
-	if (fname != game.music_fname) {
-		snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
-	}
+	game.music_track = -1;
+	snprintf(game.music_fname, sizeof(game.music_fname), "%s", name);
 	if (!g_mixer || !g_music_track) {
 		return false;
 	}
 	// SDL3_mixer: load into a MIX_Audio and bind it to the persistent music track.
-	MIX_Audio* new_audio = MIX_LoadAudio(g_mixer, game.music_fname, false);
+	MIX_Audio* new_audio = MIX_LoadAudio(g_mixer, path, false);
 	if (!new_audio) {
-		WARNLOG("Cannot load music from %s: %s", game.music_fname, SDL_GetError());
+		WARNLOG("Cannot load music from %s: %s", path, SDL_GetError());
 		return false;
 	}
 	// MIX_SetTrackAudio replaces any currently-bound audio; the old audio is no
@@ -714,11 +733,11 @@ extern "C" TbBool play_music(const char * fname) {
 		MIX_DestroyAudio(old_audio);
 	}
 	if (!MIX_PlayTrack(g_music_track, 0)) {
-		WARNLOG("Cannot play music from %s: %s", game.music_fname, SDL_GetError());
+		WARNLOG("Cannot play music from %s: %s", path, SDL_GetError());
 		return false;
 	}
 	MIX_SetTrackLoops(g_music_track, -1); // loop forever (was Mix_PlayMusic(music, -1))
-	g_current_music_fname = fname;
+	g_current_music_fname = path;
 	g_current_music_track = 0;
 	return true;
 }

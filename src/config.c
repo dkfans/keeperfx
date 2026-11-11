@@ -1470,6 +1470,44 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size, enum FileLa
   return dst;
 }
 
+TbBool make_game_file_name(const char *path, char *dst, size_t dst_size)
+{
+  if (userdirs_relative_name(path, install_info.inst_path, dst, dst_size))
+      return true;
+  if (dst_size > 0)
+      dst[0] = '\0';
+  return false;
+}
+
+TbBool find_game_file_by_name(const char *name, char *dst, size_t dst_size)
+{
+  if (dst_size == 0)
+      return false;
+  dst[0] = '\0';
+  if ((name == NULL) || (name[0] == '\0'))
+      return false;
+  if ((name[0] == '/') || (name[0] == '\\') || (name[1] == ':'))
+  {
+      snprintf(dst, dst_size, "%s", name);
+      return LbFileExists(dst);
+  }
+  const char *roots[3] = {NULL, keeper_runtime_directory, install_info.inst_path};
+  if (userdirs_has_user_layer())
+      roots[0] = userdirs_get(UsrDir_Data);
+  for (int i = 0; i < 3; i++)
+  {
+      if ((roots[i] == NULL) || (roots[i][0] == '\0'))
+          continue;
+      int len = snprintf(dst, dst_size, "%s/%s", roots[i], name);
+      if ((len >= 0) && ((size_t)len < dst_size) && LbFileExists(dst))
+          return true;
+  }
+  int len = snprintf(dst, dst_size, "%s/%s", keeper_runtime_directory, name);
+  if ((len < 0) || ((size_t)len >= dst_size))
+      dst[0] = '\0';
+  return false;
+}
+
 char *prepare_file_path_buf_in(char *dst, int dst_size, enum FileLayer layer, const char *mod_dir, short fgroup, const char *fname)
 {
   return _resolve_file_path_internal(dst, dst_size, layer, mod_dir, fgroup, fname);
