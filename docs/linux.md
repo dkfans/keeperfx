@@ -35,7 +35,7 @@ native `keeperfx` and `keeperfx_hvlog` executables, the libraries they need (in
    Command line options are the same as on Windows, see
    [Command Line Options](https://github.com/dkfans/keeperfx/wiki/Command-Line-Options).
    `./keeperfx_hvlog` is the heavy-log version for bug reports. Both write
-   `keeperfx.log` in the KeeperFX folder.
+   `keeperfx.log`, in the KeeperFX folder when it is a portable install (below).
 
 ### Where your saves and settings are
 
