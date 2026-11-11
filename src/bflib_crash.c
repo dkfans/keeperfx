@@ -57,6 +57,25 @@
 #include "post_inc.h"
 
 /******************************************************************************/
+/** Paths the crash handler needs, made when it is installed so that it allocates nothing when the game crashes. */
+static char crash_map_file[FULLPATH_SIZE];
+static char crash_state_dir[FULLPATH_SIZE];
+
+static void prepare_crash_paths(void)
+{
+#if (BFDEBUG_LEVEL > 7)
+    const char *map_name = "keeperfx_hvlog.map";
+#else
+    const char *map_name = "keeperfx.map";
+#endif
+    int len = snprintf(crash_map_file, sizeof(crash_map_file), "%s/%s", userdirs_get(UsrDir_Game), map_name);
+    if ((len < 0) || (len >= (int)sizeof(crash_map_file)))
+        crash_map_file[0] = '\0';
+    len = snprintf(crash_state_dir, sizeof(crash_state_dir), "%s", userdirs_get(UsrDir_State));
+    if ((len < 0) || (len >= (int)sizeof(crash_state_dir)))
+        crash_state_dir[0] = '\0';
+}
+
 static const char* sigstr(int s)
 {
   switch(s)
@@ -140,13 +159,8 @@ _backtrace(int depth , LPCONTEXT context)
     int64_t keeperFxBaseAddr = 0x00000000;
     char mapFileLine[512];
 
-    char mapFileName[FULLPATH_SIZE];
-    #if (BFDEBUG_LEVEL > 7)
-        userdirs_path(mapFileName, sizeof(mapFileName), UsrDir_Game, "keeperfx_hvlog.map");
-    #else
-        userdirs_path(mapFileName, sizeof(mapFileName), UsrDir_Game, "keeperfx.map");
-    #endif
-        FILE *mapFile = fopen(mapFileName, "r");
+    // The path was made when the handler was installed: nothing is allocated here.
+    FILE *mapFile = (crash_map_file[0] != '\0') ? fopen(crash_map_file, "r") : NULL;
 
     if (mapFile)
     {
@@ -332,7 +346,9 @@ static BOOL write_minidump(LPEXCEPTION_POINTERS info, char *path, DWORD path_len
 {
     SYSTEMTIME st;
     GetLocalTime(&st);
-    int len = snprintf(path, path_len, "%s\\keeperfx_crash_%04u%02u%02u_%02u%02u%02u.dmp", userdirs_get(UsrDir_State),
+    if (crash_state_dir[0] == '\0')
+        return FALSE;
+    int len = snprintf(path, path_len, "%s\\keeperfx_crash_%04u%02u%02u_%02u%02u%02u.dmp", crash_state_dir,
              st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
     if (len < 0 || (DWORD)len >= path_len)
         return FALSE;
@@ -622,6 +638,7 @@ static void install_posix_handler(int sig_id)
 
 void LbErrorParachuteInstall(void)
 {
+    prepare_crash_paths();
 #if defined(BF_POSIX_CRASH)
     install_posix_handler(SIGINT);
     install_posix_handler(SIGILL);
