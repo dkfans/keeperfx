@@ -633,6 +633,8 @@ void collect_rooms_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, struct Ro
         if (slabst->category == SlbAtCtg_RoomInterior)
         {
             struct Room* room = slab_room_get(sslb_x, sslb_y);
+            if (room_is_invalid(room))
+                continue;
             for (int i = 0; i < room_list_len; i++)
             {
                 if (room_list[i] == room) {
