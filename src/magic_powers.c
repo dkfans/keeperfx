@@ -1209,7 +1209,8 @@ static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx
 {
     if (power_hand_is_full(user) || thing_is_possessed(thing))
         return Lb_FAIL;
-    if (((mod_flags & PwMod_PickUpEvent) != 0) && !script_allows_pick_up(thing, plyr_idx))
+    // The refusal sound is played by magic_use_available_power_on_thing(); the script may also remove the thing
+    if (((mod_flags & PwMod_PickUpEvent) != 0) && (!lua_on_pick_up(thing, plyr_idx) || !thing_exists(thing)))
         return Lb_FAIL;
     if (place_thing_in_power_hand(thing, plyr_idx, user))
         return Lb_SUCCESS;
@@ -2069,7 +2070,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, NetUserId use
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
-        play_player_sample(plyr_idx, snd_refusal);
+        play_user_sample(user, snd_refusal);
     }
     return ret;
 }
@@ -2175,7 +2176,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, NetUserId u
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
-        play_player_sample(plyr_idx, snd_refusal);
+        play_user_sample(user, snd_refusal);
     }
     return ret;
 }

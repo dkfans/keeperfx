@@ -1014,7 +1014,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     struct Thing *droptng = thing_get(ustate->things_in_hand[0]);
     if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, is_creature_droppable_on_path(droptng))) {
         // Make a rejection sound
-        play_player_sample(plyr_idx, snd_refusal);
+        play_user_sample(user, snd_refusal);
         return 0;
     }
     // Check if object will fit into that position
@@ -1027,7 +1027,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     }
     if (!lua_on_creature_drop(droptng, plyr_idx, &pos)) {
         // Make a rejection sound
-        play_player_sample(plyr_idx, snd_refusal);
+        play_user_sample(user, snd_refusal);
         return 0;
     }
     struct Thing *overtng = thing_get(ustate->thing_under_hand);
@@ -1589,6 +1589,20 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     return remove_thing_from_power_hand_list(thing, plyr_idx);;
 }
 
+/**
+ * Asks the level script whether the player may pick up the thing; plays the refusal sound for the user if not.
+ * Also false if the script removed the thing.
+ */
+static TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
+{
+    if (!lua_on_pick_up(thing, plyr_idx)) {
+        play_user_sample(user, snd_refusal);
+        return false;
+    }
+    // The handler may have removed the thing; then there is nothing left to pick up
+    return thing_exists(thing);
+}
+
 TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
@@ -1622,7 +1636,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl
     if (thing_is_special_box(thing))
     {
         // A special box is opened instead of picked up, so a denial keeps it closed
-        if (!script_allows_pick_up(thing, plyr_idx)) {
+        if (!script_allows_pick_up(thing, plyr_idx, user)) {
             return Lb_FAIL;
         }
         activate_dungeon_special(thing, player);
@@ -1632,25 +1646,11 @@ TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl
         return Lb_FAIL;
     }
     // Ask the script before the grab starts, so a denied pick up shows no grab animation
-    if (!script_allows_pick_up(thing, plyr_idx)) {
+    if (!script_allows_pick_up(thing, plyr_idx, user)) {
         return Lb_FAIL;
     }
     prepare_thing_for_power_hand(thing->index, plyr_idx, user);
     return Lb_SUCCESS;
-}
-
-/**
- * Asks the level script whether the player may pick up the thing; plays the refusal sound if not.
- * Also false if the script removed the thing.
- */
-TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx)
-{
-    if (!lua_on_pick_up(thing, plyr_idx)) {
-        play_player_sample(plyr_idx, snd_refusal);
-        return false;
-    }
-    // The handler may have removed the thing; then there is nothing left to pick up
-    return thing_exists(thing);
 }
 
 void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y)
