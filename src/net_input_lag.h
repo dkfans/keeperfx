@@ -10,10 +10,7 @@
 #define INPUT_LAG_INCREASE_WINDOW_TURNS 20
 #define INPUT_LAG_DECREASE_WINDOW_TURNS 300
 // Waiting this long for a packet each turn is tolerated, in exchange for lower input lag.
-// Kept small: a wait shows as a stutter, and with 35 ms a link whose delay sat just above a
-// whole number of turns had the game waiting in most turns (a quarter of the time at 300 ms
-// round trip) to save one turn of input lag.
-#define INPUT_LAG_TOLERATED_WAIT_MS 10
+#define INPUT_LAG_TOLERATED_WAIT_MS 35
 // Added to the network delay the round trip times explain, for the host's handling and jitter
 // they don't show, before the input lag is capped there (input_lag_network_cap).
 #define INPUT_LAG_NETWORK_CAP_SLACK_MS 60
