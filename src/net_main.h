@@ -80,7 +80,7 @@ enum NetMessageType {
     NETMSG_SPECTATOR_CONVERSION,
     NETMSG_LOBBY_SETTINGS,
     NETMSG_SPECTATOR_SEAT,
-    NETMSG_RESYNC_HASHES,   // client -> host: chunk hashes of the client's state when it saw a desync
+    NETMSG_RESYNC_HASHES,   // host -> client: asks for them; client -> host: chunk hashes of its state (none: send the full state)
     NETMSG_RESYNC_DELTA,    // host -> client: the host's state as the client's chunks it can reuse and the bytes it lacks
     NETMSG_RESYNC_FULL_REQUEST, // client -> host: a delta could not be applied, send the full state
 };
