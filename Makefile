@@ -187,7 +187,6 @@ WARNFLAGS = \
 	-Werror \
 	-Wno-sign-compare \
 	-Wno-unused-parameter \
-	-Wno-maybe-uninitialized \
 	-Wno-strict-aliasing \
 	-Wno-unknown-pragmas \
 	-Wno-format-truncation

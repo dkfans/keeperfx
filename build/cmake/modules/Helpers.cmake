@@ -37,7 +37,7 @@ function(apply_keeperfx_warnings TARGET)
     elseif(WIN32)
         target_compile_options(${TARGET} PRIVATE
             -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter
-            -Wno-maybe-uninitialized -Wno-strict-aliasing -Wno-unknown-pragmas
+            -Wno-strict-aliasing -Wno-unknown-pragmas
             -Werror -Wno-format-truncation
             -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0 -O3
             $<$<COMPILE_LANGUAGE:C>:-Wimplicit>)
