@@ -61,7 +61,7 @@ unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 struct InstallInfo install_info;
-char keeper_runtime_directory[152];
+char keeper_runtime_directory[FULLPATH_SIZE];
 short api_enabled = false;
 uint16_t api_port = 5599;
 uint32_t packetsave_max_kb = 32768;
@@ -431,8 +431,9 @@ static void load_string_configuration(const char *buf, int32_t len, const char *
           // If the path is relative, resolve it against keeper_runtime_directory.
           // This makes INSTALL_PATH=./ work on platforms where CWD != data dir.
           if (install_info.inst_path[0] != '/' && strchr(install_info.inst_path, ':') == NULL) {
-              char resolved[304];
-              snprintf(resolved, sizeof(resolved), "%s/%s", keeper_runtime_directory, install_info.inst_path);
+              char resolved[sizeof(install_info.inst_path)];
+              if (snprintf(resolved, sizeof(resolved), "%s/%s", keeper_runtime_directory, install_info.inst_path) >= (int)sizeof(resolved))
+                  CONFWRNLOG("INSTALL_PATH is too long in %s.", config_textname);
               prepare_diskpath(resolved, sizeof(resolved));
               strncpy(install_info.inst_path, resolved, sizeof(install_info.inst_path)-1);
               install_info.inst_path[sizeof(install_info.inst_path)-1] = '\0';
@@ -1253,8 +1254,7 @@ short load_configuration(void)
   SYNCDBG(4,"Starting");
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
-  // Set default runtime directory and load the config file
-  strcpy(keeper_runtime_directory,".");
+  // keeper_runtime_directory is the game folder, which userdirs_init() chose.
   // Config file variables
   const char* sname; // Filename
   const char* fname; // Filepath

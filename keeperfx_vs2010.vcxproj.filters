@@ -277,6 +277,10 @@
     <ClCompile Include="src\gui_vscroll.c" />
     <ClCompile Include="src\kfx\platform\GLContextSDL.cpp" />
     <ClCompile Include="src\kfx\platform\FileSystemLb.cpp" />
+    <ClCompile Include="src\kfx\platform\UserDirs.cpp" />
+    <ClCompile Include="src\kfx\platform\UserDirsFs.cpp" />
+    <ClCompile Include="src\kfx\platform\UserDirsMigrate.cpp" />
+    <ClCompile Include="src\kfx\platform\UserDirsPolicy.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformLinux.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformManager.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformWindows.cpp" />
@@ -621,6 +625,10 @@
     <ClInclude Include="src\kfx\platform\GLContextSDL.h" />
     <ClInclude Include="src\kfx\platform\IGLContext.h" />
     <ClInclude Include="src\kfx\platform\FileSystemLb.h" />
+    <ClInclude Include="src\kfx\platform\UserDirs.h" />
+    <ClInclude Include="src\kfx\platform\UserDirsFs.h" />
+    <ClInclude Include="src\kfx\platform\UserDirsMigrate.h" />
+    <ClInclude Include="src\kfx\platform\UserDirsPolicy.h" />
     <ClInclude Include="src\kfx\platform\IFileSystem.h" />
     <ClInclude Include="src\kfx\platform\IPlatform.h" />
     <ClInclude Include="src\kfx\platform\IWindowSystem.h" />

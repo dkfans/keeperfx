@@ -258,7 +258,7 @@ struct ConfigFileData{
 };
 
 /******************************************************************************/
-extern char keeper_runtime_directory[152];
+extern char keeper_runtime_directory[FULLPATH_SIZE];
 
 #pragma pack()
 /******************************************************************************/
