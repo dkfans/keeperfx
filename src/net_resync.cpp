@@ -620,10 +620,12 @@ static TbBool apply_resync_game_message(const char * message_buffer, size_t mess
 // The resync data has no fixed layout (a union's stored bytes depend on the member in use), so
 // one changed thing can shift everything after it. Chunks therefore end where the content says
 // (a rolling hash), not at fixed offsets: a shift only changes the chunks around it. A 23 MB state
-// gives about 750 chunks (the hashes take ~6 KB).
+// gives about 750 chunks (the hashes take ~6 KB) while it is mostly runs of equal bytes, as it is
+// today; dense data gives up to three times as many. Past DELTA_MAX_CHUNKS a client cannot make
+// its hashes and gets the full state.
 //
-// A chunk is known by a 64-bit hash that also covers its length: with under a thousand chunks on
-// each side, a chunk the client lacks is taken for one it has with a chance below 10^6 / 2^64.
+// A chunk is known by a 64-bit hash that also covers its length: with at most DELTA_MAX_CHUNKS (2552)
+// on each side, a chunk the client lacks is taken for one it has with a chance below 10^7 / 2^64.
 // The rebuilt data is checked against a hash of the host's data with another seed, which does not
 // follow from the chunk hashes (as a CRC of the whole would, CRC being linear), so even then the
 // client asks for the full state rather than use a wrong one.
@@ -682,7 +684,7 @@ static inline uint64_t delta_rotl(uint64_t x, int r)
 static inline uint64_t delta_read64(const unsigned char *p)
 {
     uint64_t v;
-    memcpy(&v, p, sizeof(v)); // little-endian on every platform the game runs on
+    memcpy(&v, p, sizeof(v)); // in the machine's byte order: both ends of a game share it, as the packets do
     return v;
 }
 
@@ -697,7 +699,7 @@ static inline uint64_t delta_round(uint64_t acc, uint64_t input)
     return delta_rotl(acc + input * DELTA_P2, 31) * DELTA_P1;
 }
 
-/** XXH64: a fast 64-bit hash; the length is part of it. */
+/** XXH64 (the xxHash algorithm by Yann Collet, github.com/Cyan4973/xxHash): a fast 64-bit hash; the length is part of it. */
 static uint64_t delta_hash(const void *data, size_t len, uint64_t seed)
 {
     const unsigned char *p = (const unsigned char *)data;
@@ -833,8 +835,10 @@ static void send_delta_hashes(uint32_t generation)
     char *write_pos = begin_net_message(NETMSG_RESYNC_HASHES);
     memcpy(write_pos, &header, sizeof(header));
     write_pos += sizeof(header);
-    memcpy(write_pos, delta_base_chunks.hashes, header.chunk_count * sizeof(uint64_t));
-    write_pos += header.chunk_count * sizeof(uint64_t);
+    if (header.chunk_count != 0) {
+        memcpy(write_pos, delta_base_chunks.hashes, header.chunk_count * sizeof(uint64_t));
+        write_pos += header.chunk_count * sizeof(uint64_t);
+    }
     send_message_buffer(SERVER_ID, write_pos);
     NETLOG("Resync: sent the host %u chunk hashes (%u bytes) of turn %lu in %u ms", (unsigned)header.chunk_count,
         (unsigned)(write_pos - netstate.msg_buffer), (unsigned long)get_gameturn(), (unsigned)(LbTimerClock() - start_time));
@@ -1146,6 +1150,10 @@ TbBool send_resync_game(void)
     last_full_message = message_buffer;
     last_full_message_size = message_size;
     last_full_generation = netstate.gameplay_generation;
+    // Only a client that got a delta may ask for the full state: the others have it coming.
+    for (NetUserId user = SERVER_ID + 1; user < MAX_NET_USERS; user++) {
+        last_full_sent[user] = (delta_sent & (1u << user)) == 0;
+    }
     animate_resync_progress_bar(90, 100);
     NETLOG("Host: Resync data queued");
     return true;
