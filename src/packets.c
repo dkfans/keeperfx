@@ -1679,6 +1679,8 @@ void process_packets(void)
         if (netstate.resync_pending || (network_is_host() && resync_game_allowed())) {
             SYNCDBG(0,"Resyncing");
             resync_game();
+        } else if (!network_is_host()) {
+            net_resync_note_client_desync();
         }
     }
     if (replay.load_enable)

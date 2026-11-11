@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +35,10 @@ char *build_resync_game_data(size_t *full_resync_len);
 char *encode_resync_message(const void *buffer, size_t total_length, size_t *message_size);
 
 void intentional_desync();
+void net_resync_note_client_desync(void);
+void net_resync_forget_delta_state(void);
+TbError process_resync_hashes_message(NetUserId source, const char *buffer, size_t buffer_size);
+TbError process_resync_full_request_message(NetUserId source, const char *buffer, size_t buffer_size);
 
 #ifdef __cplusplus
 }

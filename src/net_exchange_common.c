@@ -326,7 +326,7 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
         netstate.sp->readmsg(source, netstate.msg_buffer, 0);
         return result;
     }
-    if (source == SERVER_ID && !network_is_host() && !network_user_is_spectator(netstate.my_id) && expected_frame_type == NETMSG_GAMEPLAY_UNSEQUENCED && message_buffer[0] == NETMSG_RESYNC_DATA) {
+    if (source == SERVER_ID && !network_is_host() && !network_user_is_spectator(netstate.my_id) && expected_frame_type == NETMSG_GAMEPLAY_UNSEQUENCED && (message_buffer[0] == NETMSG_RESYNC_DATA || message_buffer[0] == NETMSG_RESYNC_DELTA)) {
         netstate.resync_pending = true;
         return Lb_OK;
     }
@@ -399,6 +399,10 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
         return process_lobby_settings_message(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_SEAT:
         return process_network_spectator_seat(source, read_pos, payload_size);
+    case NETMSG_RESYNC_HASHES:
+        return process_resync_hashes_message(source, read_pos, payload_size);
+    case NETMSG_RESYNC_FULL_REQUEST:
+        return process_resync_full_request_message(source, read_pos, payload_size);
     default:
         return Lb_OK;
     }
