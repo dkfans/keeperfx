@@ -32,6 +32,10 @@ bool IsWritableDir(const std::string &dir);
  *  no owners (FAT, exFAT, NTFS and network shares on Unix, FAT and exFAT on Windows) and the user can read it. */
 bool FileIsUsers(const std::string &path);
 
+/** True when path, with every link in it followed, is dir or in dir (dir's links followed too). path need not
+ *  exist: the part of it that exists is resolved, the rest compared by name. */
+bool IsWithinDir(const std::string &dir, const std::string &path);
+
 /** True when a and b name the same existing folder. */
 bool SameDir(const std::string &a, const std::string &b);
 

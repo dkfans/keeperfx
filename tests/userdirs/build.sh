@@ -21,4 +21,5 @@ cd "$root"
 $cxx -std=c++17 -O1 -g -Wall -W -Wshadow -Werror -Wno-sign-compare -Wno-unused-parameter -Isrc ${CFLAGS_EXTRA:-} \
     tests/userdirs/kfx_userdirs_tests.cpp \
     src/kfx/platform/UserDirsPolicy.cpp src/kfx/platform/UserDirsFs.cpp src/kfx/platform/UserDirsMigrate.cpp \
+    src/kfx/platform/UserDirsScript.cpp \
     ${LDFLAGS_EXTRA:-} -o "$out"

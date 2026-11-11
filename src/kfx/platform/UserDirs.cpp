@@ -11,6 +11,7 @@
 #include "kfx/platform/UserDirsFs.h"
 #include "kfx/platform/UserDirsMigrate.h"
 #include "kfx/platform/UserDirsPolicy.h"
+#include "kfx/platform/UserDirsScript.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -413,6 +414,122 @@ extern "C" void userdirs_migrate(void)
 extern "C" const char *userdirs_migration_notice(void)
 {
     return g_migration_notice.empty() ? NULL : g_migration_notice.c_str();
+}
+
+namespace {
+
+bool CaseInsensitivePaths()
+{
+#if defined(_WIN32) || defined(__APPLE__)
+    return true;
+#else
+    return false;
+#endif
+}
+
+/** The absolute folders a script's files may be in: the data folder, the game folder, then extra_root. */
+std::vector<std::string> ScriptRoots(const char *extra_root)
+{
+    std::vector<std::string> roots;
+    roots.push_back(AbsolutePath(g_res.dir[KindData]));
+    roots.push_back(AbsolutePath(g_res.dir[KindGame]));
+    if ((extra_root != NULL) && (extra_root[0] != '\0'))
+        roots.push_back(AbsolutePath(extra_root));
+    return roots;
+}
+
+bool CopyOut(const std::string &value, char *dst, size_t dst_size)
+{
+    if (value.size() >= dst_size) {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return false;
+    }
+    memcpy(dst, value.c_str(), value.size() + 1);
+    return true;
+}
+
+} // namespace
+
+extern "C" TbBool userdirs_script_file(const char *path, enum ScriptFileAccess access, const char *extra_root, char *dst,
+                                       size_t dst_size, char *error, size_t error_size)
+{
+    std::string why;
+    std::string result;
+    if (!g_ready || (path == NULL)) {
+        why = "the folders are not set up";
+    } else {
+        const std::vector<std::string> roots = ScriptRoots(extra_root);
+        const ScriptPath sp = ScriptLogicalPath(path, roots, CaseInsensitivePaths());
+        if (!sp.ok) {
+            why = sp.error;
+        } else if (access == ScrFile_Read) {
+            // The user's copy, else the game's, else the INSTALL_PATH folder's; the game's when there is none, so
+            // that opening it fails as it should.
+            const std::string &data_dir = g_res.dir[KindData];
+            std::vector<std::string> bases;
+            if (g_user_layer)
+                bases.push_back(data_dir);
+            bases.push_back(g_res.dir[KindGame]);
+            if ((extra_root != NULL) && (extra_root[0] != '\0'))
+                bases.push_back(extra_root);
+            std::string base = g_res.dir[KindGame];
+            for (const std::string &b : bases) {
+                if (LbFileExists(Join(b, sp.logical).c_str())) {
+                    base = b;
+                    break;
+                }
+            }
+            result = Join(base, sp.logical);
+            if (!IsWithinDir(base, result))
+                why = "a link leads out of the game and data folders";
+        } else if (!ScriptMayWrite(sp.logical)) {
+            why = std::string("scripts may only write and remove files in ") + script_write_folders_text;
+        } else {
+            const std::string &data_dir = g_res.dir[KindData];
+            result = Join(data_dir, sp.logical);
+            if (!IsWithinDir(data_dir, result)) {
+                why = "a link leads out of the data folder";
+            } else if (access != ScrFile_Remove) {
+                std::string mkerr;
+                const std::string parent = FromPath(ToPath(result).parent_path());
+                if (!MakeDirs(parent, mkerr)) {
+                    why = mkerr;
+                } else if (!IsWithinDir(data_dir, result)) {
+                    why = "a link leads out of the data folder";
+                } else if ((access == ScrFile_Update) && g_user_layer && !LbFileExists(result.c_str())) {
+                    // Change the game's copy as a portable install would: copy it first.
+                    const std::string game_copy = Join(g_res.dir[KindGame], sp.logical);
+                    if (LbFileExists(game_copy.c_str()) && IsWithinDir(g_res.dir[KindGame], game_copy)) {
+                        std::string message;
+                        if (CopyOnce(game_copy, result, message) == CopyOutcome::Failed)
+                            why = message;
+                    }
+                }
+            }
+        }
+    }
+    if (why.empty() && !CopyOut(result, dst, dst_size))
+        why = "the path is too long";
+    if (!why.empty()) {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        snprintf(error, error_size, "%s: %s", (path != NULL) ? path : "(null)", why.c_str());
+        return false;
+    }
+    if (error_size > 0)
+        error[0] = '\0';
+    return true;
+}
+
+extern "C" TbBool userdirs_relative_name(const char *path, const char *extra_root, char *dst, size_t dst_size)
+{
+    if (!g_ready || (path == NULL) || (path[0] == '\0'))
+        return false;
+    const std::string rel = RelativeToRoots(AbsolutePath(path), ScriptRoots(extra_root), CaseInsensitivePaths());
+    if (rel.empty())
+        return false;
+    return CopyOut(rel, dst, dst_size);
 }
 
 extern "C" const char *userdirs_get(enum UserDirKind kind)

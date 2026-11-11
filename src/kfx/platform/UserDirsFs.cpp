@@ -285,6 +285,36 @@ bool FileIsUsers(const std::string &path)
 
 #endif
 
+/** The parts of a path, compared without regard to case on Windows. */
+static bool PathPartsEqual(const fs::path &a, const fs::path &b)
+{
+#ifdef _WIN32
+    return CompareStringOrdinal(a.c_str(), -1, b.c_str(), -1, TRUE) == CSTR_EQUAL;
+#else
+    return a == b;
+#endif
+}
+
+bool IsWithinDir(const std::string &dir, const std::string &path)
+{
+    std::error_code ec;
+    const fs::path d = fs::weakly_canonical(fs::absolute(ToPath(dir), ec), ec);
+    if (ec || d.empty())
+        return false;
+    const fs::path p = fs::weakly_canonical(fs::absolute(ToPath(path), ec), ec);
+    if (ec || p.empty())
+        return false;
+    auto pi = p.begin();
+    for (auto di = d.begin(); di != d.end(); ++di, ++pi) {
+        // weakly_canonical leaves an empty last part for a folder named with a trailing separator.
+        if (di->empty())
+            continue;
+        if ((pi == p.end()) || !PathPartsEqual(*di, *pi))
+            return false;
+    }
+    return true;
+}
+
 bool SameDir(const std::string &a, const std::string &b)
 {
     if (a == b)

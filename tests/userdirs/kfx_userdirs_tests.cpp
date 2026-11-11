@@ -8,6 +8,7 @@
 #include "kfx/platform/UserDirsFs.h"
 #include "kfx/platform/UserDirsMigrate.h"
 #include "kfx/platform/UserDirsPolicy.h"
+#include "kfx/platform/UserDirsScript.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -461,6 +462,145 @@ static void test_narrow_paths()
 }
 
 
+static ScriptPath SP(const std::string &path, bool case_insensitive = false)
+{
+    static const std::vector<std::string> roots = {"/home/u/.local/share/keeperfx", "/opt/keeperfx", "C:\\Games\\KeeperFX"};
+    return ScriptLogicalPath(path, roots, case_insensitive);
+}
+
+static void expect_script_ok(const char *what, const std::string &path, const std::string &logical, bool ci = false)
+{
+    ScriptPath r = SP(path, ci);
+    checks++;
+    if (!r.ok || (r.logical != logical)) {
+        printf("FAIL %s: \"%s\" gave %s \"%s\", want \"%s\"\n", what, path.c_str(), r.ok ? "ok" : "refused",
+               r.ok ? r.logical.c_str() : r.error.c_str(), logical.c_str());
+        fails++;
+    }
+}
+
+static void expect_script_refused(const char *what, const std::string &path, bool ci = false)
+{
+    ScriptPath r = SP(path, ci);
+    checks++;
+    if (r.ok || r.error.empty()) {
+        printf("FAIL %s: \"%s\" was allowed as \"%s\"\n", what, path.c_str(), r.logical.c_str());
+        fails++;
+    }
+}
+
+static void test_script_paths()
+{
+    // What the Workshop maps do.
+    expect_script_ok("script: Dungeon Architect's seed file", "levels/dungeon_architect/dungeon_architect_seed.txt",
+                     "levels/dungeon_architect/dungeon_architect_seed.txt");
+    expect_script_ok("script: a file beside the script, by its chunk name", "./campgns/heroes_journey/tempsavefile.txt",
+                     "campgns/heroes_journey/tempsavefile.txt");
+    expect_script_ok("script: absolute, in the data folder", "/home/u/.local/share/keeperfx/campgns/hj/tempsavefile.txt",
+                     "campgns/hj/tempsavefile.txt");
+    expect_script_ok("script: absolute, in the game folder", "/opt/keeperfx/levels/x/seed.txt", "levels/x/seed.txt");
+    expect_script_ok("script: Windows absolute, backslashes", "C:\\Games\\KeeperFX\\levels\\x\\seed.txt", "levels/x/seed.txt");
+    expect_script_ok("script: Windows absolute, slashes, other case", "c:/games/keeperfx/Levels/x.txt", "Levels/x.txt", true);
+    expect_script_refused("script: other case is another folder where case counts", "/OPT/keeperfx/levels/x.txt");
+    expect_script_ok("script: backslashes", "levels\\x\\seed.txt", "levels/x/seed.txt");
+    expect_script_ok("script: .. that stays inside", "levels/x/../y/seed.txt", "levels/y/seed.txt");
+    expect_script_ok("script: absolute with .. back inside", "/opt/keeperfx/levels/../campgns/a.txt", "campgns/a.txt");
+    expect_script_ok("script: doubled separators", "levels//x///a.txt", "levels/x/a.txt");
+    expect_script_ok("script: a dot inside a name", "levels/x/v1.2.txt", "levels/x/v1.2.txt");
+
+    // Out of the folders.
+    expect_script_refused("script: .. out of the folders", "../keeperfx.cfg");
+    expect_script_refused("script: .. out after a folder", "levels/../../x.txt");
+    expect_script_refused("script: .. out, backslashes", "levels\\..\\..\\x.txt");
+    expect_script_refused("script: absolute elsewhere", "/etc/passwd");
+    expect_script_refused("script: absolute .. out of the game folder", "/opt/keeperfx/../keeperfx2/x.txt");
+    expect_script_refused("script: a folder whose name starts like the game's", "/opt/keeperfx2/x.txt");
+    expect_script_refused("script: home", "/home/u/.bashrc");
+    expect_script_refused("script: another drive", "D:\\Games\\KeeperFX\\levels\\x.txt");
+    expect_script_refused("script: Windows absolute elsewhere", "C:\\Windows\\win.ini");
+    expect_script_refused("script: drive relative", "C:levels\\x.txt");
+    expect_script_refused("script: UNC", "\\\\server\\share\\x.txt");
+    expect_script_refused("script: UNC with slashes", "//server/share/x.txt");
+    expect_script_refused("script: device path", "\\\\.\\PhysicalDrive0");
+    expect_script_refused("script: long path prefix", "\\\\?\\C:\\Games\\KeeperFX\\levels\\x.txt");
+    expect_script_refused("script: the folder itself", "/opt/keeperfx");
+    expect_script_refused("script: empty", "");
+    expect_script_refused("script: only dots", "./.");
+
+    // Names Windows reads as something else.
+    expect_script_refused("script: alternate data stream", "levels/x/seed.txt:hidden");
+    expect_script_refused("script: stream of a folder", "levels/x:$DATA");
+    expect_script_refused("script: device CON", "levels/CON");
+    expect_script_refused("script: device nul with an extension", "levels/nul.txt");
+    expect_script_refused("script: device in lower case, as a folder", "levels/aux/x.txt");
+    expect_script_refused("script: COM1", "levels/com1.log");
+    expect_script_refused("script: LPT9", "LPT9");
+    expect_script_refused("script: COM superscript one", "levels/COM\xc2\xb9.txt");
+    expect_script_refused("script: CONOUT$", "levels/CONOUT$");
+    expect_script_refused("script: device with a trailing space", "levels/CON .txt");
+    expect_script_ok("script: a name that only starts like a device", "levels/console.txt", "levels/console.txt");
+    expect_script_ok("script: COM10 is no device", "levels/COM10.txt", "levels/COM10.txt");
+    expect_script_refused("script: trailing dot", "levels/x/seed.txt.");
+    expect_script_refused("script: trailing space", "levels/x/seed.txt ");
+    expect_script_refused("script: wildcard", "levels/*.txt");
+    expect_script_refused("script: angle bracket", "levels/<x>.txt");
+    expect_script_refused("script: pipe", "levels/a|b");
+    expect_script_refused("script: control character", "levels/a\tb");
+
+    // Where scripts may write.
+    expect("write: levels", ScriptMayWrite("levels/x/seed.txt"));
+    expect("write: campgns", ScriptMayWrite("campgns/hj/tempsavefile.txt"));
+    expect("write: multiplayer", ScriptMayWrite("multiplayer/classic/x.txt"));
+    expect("write: mods", ScriptMayWrite("mods/m/x.txt"));
+    expect("write: any case", ScriptMayWrite("Levels/x.txt"));
+    expect("write: not the game's files", !ScriptMayWrite("keeperfx.cfg"));
+    expect("write: not the data folder", !ScriptMayWrite("data/main.pal"));
+    expect("write: not saves", !ScriptMayWrite("save/fx1g0000.sav"));
+    expect("write: not the settings", !ScriptMayWrite("save/settings.toml"));
+    expect("write: not fxdata", !ScriptMayWrite("fxdata/lua/init.lua"));
+    expect("write: not a folder only", !ScriptMayWrite("levels/"));
+    expect("write: not a name that starts like one", !ScriptMayWrite("levelsx/a.txt"));
+
+    // Names kept in saves and sent to other players.
+    const std::vector<std::string> roots = {"/opt/keeperfx", "/opt/keeperfx/users/u", "C:\\Games\\KeeperFX"};
+    expect_eq("relative: game", RelativeToRoots("/opt/keeperfx/campgns/a/media/s.ogg", roots, false), "campgns/a/media/s.ogg");
+    expect_eq("relative: the deepest folder", RelativeToRoots("/opt/keeperfx/users/u/music/s.ogg", roots, false), "music/s.ogg");
+    expect_eq("relative: Windows", RelativeToRoots("c:\\games\\keeperfx\\music\\s.ogg", roots, true), "music/s.ogg");
+    expect_eq("relative: elsewhere", RelativeToRoots("/home/u/music/s.ogg", roots, false), "");
+    expect_eq("relative: relative paths are not compared", RelativeToRoots("music/s.ogg", roots, false), "");
+}
+
+static void test_within_dir()
+{
+    std::string error;
+    MakeDirs(T("within/data/levels"), error);
+    MakeDirs(T("outside"), error);
+    write_file(T("outside/secret.txt"), "secret");
+    expect("within: a file", IsWithinDir(T("within/data"), T("within/data/levels/x.txt")));
+    expect("within: a missing folder", IsWithinDir(T("within/data"), T("within/data/new/x.txt")));
+    expect("within: not a sibling", !IsWithinDir(T("within/data"), T("within/data2/x.txt")));
+    expect("within: not through ..", !IsWithinDir(T("within/data"), T("within/data/../../outside/secret.txt")));
+#ifdef _WIN32
+    std::string upper = T("within/data");
+    for (char &c : upper)
+        c = (char)toupper((unsigned char)c);
+    expect("within: Windows ignores case", IsWithinDir(upper, T("within/data/levels/x.txt")));
+    expect("within: Windows, backslashes", IsWithinDir(T("within\\data"), T("within/data/levels\\x.txt")));
+#endif
+    std::error_code ec;
+    fs::create_directory_symlink(ToPath(T("outside")), ToPath(T("within/data/levels/link")), ec);
+    if (ec) {
+        printf("skipped the link tests: %s\n", ec.message().c_str());
+    } else {
+        expect("within: a link out", !IsWithinDir(T("within/data"), T("within/data/levels/link/secret.txt")));
+        expect("within: a link out, file to make", !IsWithinDir(T("within/data"), T("within/data/levels/link/new.txt")));
+    }
+    // The data folder itself reached through a link is fine.
+    fs::create_directory_symlink(ToPath(T("within/data")), ToPath(T("datalink")), ec);
+    if (!ec)
+        expect("within: the folder through a link", IsWithinDir(T("datalink"), T("within/data/levels/x.txt")));
+}
+
 static void test_portable_rule_on_disk()
 {
     // A writable folder counts, whoever owns it: the system's temporary folder belongs to root and everyone may
@@ -528,6 +668,7 @@ int main()
     test_windows();
     test_game_dir();
     test_join();
+    test_script_paths();
 
     std::error_code ec;
     fs::path base = fs::temp_directory_path(ec);
@@ -547,6 +688,7 @@ int main()
     test_migration();
     test_migration_failure();
     test_narrow_paths();
+    test_within_dir();
     test_portable_rule_on_disk();
     test_migration_other_users();
     fs::remove_all(ToPath(tmp_root), ec);

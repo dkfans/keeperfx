@@ -281,6 +281,7 @@
     <ClCompile Include="src\kfx\platform\UserDirsFs.cpp" />
     <ClCompile Include="src\kfx\platform\UserDirsMigrate.cpp" />
     <ClCompile Include="src\kfx\platform\UserDirsPolicy.cpp" />
+    <ClCompile Include="src\kfx\platform\UserDirsScript.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformLinux.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformManager.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformWindows.cpp" />
@@ -629,6 +630,7 @@
     <ClInclude Include="src\kfx\platform\UserDirsFs.h" />
     <ClInclude Include="src\kfx\platform\UserDirsMigrate.h" />
     <ClInclude Include="src\kfx\platform\UserDirsPolicy.h" />
+    <ClInclude Include="src\kfx\platform\UserDirsScript.h" />
     <ClInclude Include="src\kfx\platform\IFileSystem.h" />
     <ClInclude Include="src\kfx\platform\IPlatform.h" />
     <ClInclude Include="src\kfx\platform\IWindowSystem.h" />

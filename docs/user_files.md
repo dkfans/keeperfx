@@ -129,10 +129,31 @@ you added counts as the game's file it replaces: everyone must have the same.
 
 ### Map scripts
 
-Lua scripts of maps open files by relative paths. A file a script writes goes to your data folder (making the sub
-folders it names); a file it reads is your copy if there is one, else the game folder's; `os.remove` only removes
-files in your data folder. Absolute paths are unchanged. In a portable install all of these are the game folder,
-as before.
+Maps come from the internet, so the Lua scripts of maps get to files by these rules (`io.open`, `os.remove`,
+`loadfile`, `dofile`):
+
+- A script names a file by its path relative to the game and data folders, such as
+  `levels/mymap/seed.txt`. `\` separates folders as `/` does. An absolute path is accepted when it is in the game
+  or the data folder (or `INSTALL_PATH`), and is then the same as its relative path.
+- Nothing outside those folders: `..` that leads out of them, absolute paths elsewhere, network and device paths
+  (`\\server\share`, `\\.\`, `\\?\`) and `C:x` are refused. So are names Windows would take for something
+  else, on every system, so that a map works the same everywhere: `:` (alternate data streams), the names of
+  devices (`CON`, `NUL`, `COM1`, `LPT1` and so on, with any extension), names ending in `.` or a space, and
+  `<>"|?*` and control characters. A link that leads out of the folders is refused too.
+- A script reads any file of those folders: your copy when your data folder has one, else the game's.
+- It writes and removes files only in `levels/`, `campgns/`, `multiplayer/` and `mods/` of your data folder (the
+  game folder in a portable install), making the folders it needs. So a map can't change or delete the program,
+  the game's data and configuration, your settings or your saves, even in a portable install; it can still change
+  files of other maps, campaigns and mods in those four folders. Appending to (or opening with `r+`) a file the game folder
+  has and your data folder hasn't first copies the game's file, so it changes as it would in a portable install.
+- A refused path makes `io.open`, `os.remove` and `loadfile` return `nil` and the reason, like any file that
+  can't be opened (`dofile` raises the error), and the log says why.
+- Scripts see their own path (`debug.getinfo(...).source`) as `./` and the path relative to the game or data
+  folder, such as `@./levels/map00001.lua`, whichever folder the file is in; that name works with `io.open`.
+
+Every Workshop map that uses files was tried with these rules: Dungeon Architect writes and reads
+`levels/dungeon_architect/dungeon_architect_seed.txt`, and Heroes' Journey writes, loads and removes a file beside
+its script, found from its own path. Before these rules, scripts could open and remove any file the player can.
 
 ## Moving from a portable install
 
@@ -181,7 +202,7 @@ Every place the game creates or changes a file, and every file of the player it 
 | `scrshots/scr*.png|bmp` screenshots | data | `scrcapt.c` (`FGrp_SShots`) | data |
 | `scrshots/game*.flc` recorded movies | data | `bflib_fmvids.cpp` (`FGrp_SShots`) | data |
 | `native_types.lua` (`!luatypedump`) | data | `lua_base.c` | data |
-| files of map scripts (`io.open`, `os.remove`) | data | `lua_base.c` | data for writing, data then game for reading |
+| files of map scripts (`io.open`, `os.remove`, `loadfile`, `dofile`) | data | `lua_base.c`, `UserDirsScript.cpp` | data (`levels/`, `campgns/`, `multiplayer/`, `mods/` only) for writing and removing, data then game for reading; see [Map scripts](#map-scripts) |
 | maps, campaigns, map packs, mods, original game files the player adds | user content | `config.c` file groups | data, then game |
 | `keeperfx.cfg` | config | `config_keeperfx.c` | game, then config |
 | `mods/load_order.cfg`, `campgn_order.txt`, `mappck_order.txt` | config | `config_mods.c`, `game_loop.c` | data, then game |
@@ -199,10 +220,12 @@ Nothing in the simulation depends on these folders.
 ## Tests
 
 `tests/userdirs` holds the unit tests of the rules and of the migration: every XDG case (set, unset, empty,
-relative), no home, portable detection and its overrides, `-userdir`, the per-folder overrides, macOS and Windows
-paths and their fallbacks, the game folder choice, and the migration in a temporary folder (copy, keep, once only,
-failure and retry, nothing changed in the install). On Windows they also check a folder named in a script the ANSI
-code page lacks. Run them with:
+relative), no home, portable detection and its overrides, a writable folder of another owner, `-userdir`, the
+per-folder overrides, macOS and Windows paths and their fallbacks, the game folder choice, the migration in a
+temporary folder (copy, keep, once only, failure and retry, files of other users left, nothing changed in the
+install), and the rule for map scripts' files (relative and absolute paths, `..`, drives, UNC and device paths,
+streams, device names, case on Windows, links out of the folders, where scripts may write). On Windows they also
+check a folder named in a script the ANSI code page lacks. Run them with:
 
 ```bash
 bash tests/userdirs/build.sh /tmp/kfx_userdirs_tests && /tmp/kfx_userdirs_tests

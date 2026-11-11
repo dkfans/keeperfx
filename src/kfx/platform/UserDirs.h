@@ -57,6 +57,28 @@ const char *userdirs_settings_file(void);
  *  userdirs_migrate(), so once per install. */
 const char *userdirs_migration_notice(void);
 
+/** What a map script does with a file. */
+enum ScriptFileAccess {
+    ScrFile_Read,   /**< Reads it: the user's copy, else the game's. */
+    ScrFile_Write,  /**< Creates or replaces it, in the user's data folder. */
+    ScrFile_Update, /**< Changes it (appends, "r+"), in the user's data folder, starting from the game's copy. */
+    ScrFile_Remove, /**< Removes it from the user's data folder. */
+};
+
+/**
+ * The file to open for a path a map script gives, following the rule in UserDirsScript.h: only files in the game
+ * and data folders (and extra_root, the INSTALL_PATH folder, when not NULL or empty), and writing and removing
+ * only in levels/, campgns/, multiplayer/ and mods/ of the data folder. Links that lead out of the folders are
+ * refused. Creates the folders of a file to write. Returns false and why in error when the path is refused.
+ */
+TbBool userdirs_script_file(const char *path, enum ScriptFileAccess access, const char *extra_root, char *dst,
+                            size_t dst_size, char *error, size_t error_size);
+
+/** The path of a file relative to the folder it is in, of the user's data folder, the game folder and extra_root
+ *  (which may be NULL or empty), with '/' separators; the deepest folder when they nest. False when it is in none
+ *  of them or the name doesn't fit. Only the names are compared. */
+TbBool userdirs_relative_name(const char *path, const char *extra_root, char *dst, size_t dst_size);
+
 /** The number of values a folder option takes (-gamedir DIR: 1, -portable: 0), or -1 for other options.
  *  The option is given without its leading '-'. */
 int userdirs_option_value_count(const char *option);

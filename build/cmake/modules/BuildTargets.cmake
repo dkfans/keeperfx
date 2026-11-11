@@ -126,7 +126,8 @@ if(KFX_USERDIRS_TESTS)
         "${CMAKE_SOURCE_DIR}/tests/userdirs/kfx_userdirs_tests.cpp"
         "${CMAKE_SOURCE_DIR}/src/kfx/platform/UserDirsPolicy.cpp"
         "${CMAKE_SOURCE_DIR}/src/kfx/platform/UserDirsFs.cpp"
-        "${CMAKE_SOURCE_DIR}/src/kfx/platform/UserDirsMigrate.cpp")
+        "${CMAKE_SOURCE_DIR}/src/kfx/platform/UserDirsMigrate.cpp"
+        "${CMAKE_SOURCE_DIR}/src/kfx/platform/UserDirsScript.cpp")
     target_include_directories(kfx_userdirs_tests PRIVATE "${CMAKE_SOURCE_DIR}/src")
     add_test(NAME kfx_userdirs_tests COMMAND kfx_userdirs_tests)
     kfx_status("TESTS" "kfx_userdirs_tests (ctest)")
