@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 #define ENET_DEFAULT_PORT 5556
+extern uint16_t enet_port;
 
 enum {
     ENET_CHANNEL_RELIABLE = 0,
@@ -30,15 +31,19 @@ enum {
 
 struct NetSP;
 struct NetSP* InitEnetSP();
-unsigned long GetPing(int id);
+uint32_t GetPing(int id);
+uint32_t GetPlayersPing(void);
 unsigned int GetPacketLoss(int id);
 unsigned int GetClientDataInTransit();
+int32_t GetResyncProgress(void);
 unsigned int GetClientPacketsLost();
 unsigned int GetUploadRateBytesPerSecond();
 unsigned int GetDownloadRateBytesPerSecond();
-void enet_matchmaking_host_update(void);
+int enet_matchmaking_host_update(void);
 extern uint16_t external_ipv4_port;
+extern char external_ipv4_address[64];
 extern int skip_holepunch;
+uint16_t enet_get_bound_port(void);
 uint16_t enet_get_bound_ipv6_port(void);
 
 #ifdef __cplusplus

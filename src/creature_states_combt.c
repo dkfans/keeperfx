@@ -48,6 +48,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -195,6 +196,10 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
     long dist = get_2d_distance(&thing->mappos, &enmtng->mappos);
+    if (!((enmtng->class_id == TCls_Door) || (thing->class_id == TCls_Door))) // Doors are positioned at the ceiling, with special code to hit them lower.
+    {
+        dist += (max(thing->mappos.z.val, enmtng->mappos.z.val) - min(thing->mappos.z.val, enmtng->mappos.z.val)) / 2;
+    }
     long avgc = ((long)enmtng->clipbox_size_xy + (long)thing->clipbox_size_xy) / 2;
     if (dist < avgc)
         return 0;
@@ -347,12 +352,18 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         {
             if (move_on_ground)
             {
-                if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+                KFX_C_ZONE_BEGIN_COLOR(ctx_reach_move1, "Combat: MoveToCombat (expensive)", KFX_COLOR_PATHFINDING);
+                long move_result = creature_can_move_to_combat(fightng, enmtng);
+                KFX_C_ZONE_END(ctx_reach_move1);
+                if (move_result >= 0) {
                     return AttckT_Melee;
                 }
             } else
             {
-                if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+                KFX_C_ZONE_BEGIN_COLOR(ctx_reach_hug1, "Combat: WallHugRoute (cheap)", KFX_COLOR_PATHFINDING);
+                long hug_result = slab_wall_hug_route(fightng, &enmtng->mappos, 8);
+                KFX_C_ZONE_END(ctx_reach_hug1);
+                if (hug_result > 0) {
                     return AttckT_Melee;
                 }
             }
@@ -378,13 +389,19 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         {
             if (move_on_ground)
             {
-                if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+                KFX_C_ZONE_BEGIN_COLOR(ctx_reach_move2, "Combat: MoveToCombat (expensive)", KFX_COLOR_PATHFINDING);
+                long move_result = creature_can_move_to_combat(fightng, enmtng);
+                KFX_C_ZONE_END(ctx_reach_move2);
+                if (move_result >= 0) {
                     return AttckT_Melee;
                 }
             }
             else
             {
-                if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+                KFX_C_ZONE_BEGIN_COLOR(ctx_reach_hug2, "Combat: WallHugRoute (cheap)", KFX_COLOR_PATHFINDING);
+                long hug_result = slab_wall_hug_route(fightng, &enmtng->mappos, 8);
+                KFX_C_ZONE_END(ctx_reach_hug2);
+                if (hug_result > 0) {
                     return AttckT_Melee;
                 }
             }
@@ -415,13 +432,19 @@ CrAttackType creature_can_have_combat_with_object(struct Thing* fightng, struct 
         // We can have a melee combat if we hear an enemy and we can move to it
         if (move_on_ground)
         {
-            if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+            KFX_C_ZONE_BEGIN_COLOR(ctx_reach_move_obj, "Combat: MoveToCombat (expensive)", KFX_COLOR_PATHFINDING);
+            long move_result = creature_can_move_to_combat(fightng, enmtng);
+            KFX_C_ZONE_END(ctx_reach_move_obj);
+            if (move_result >= 0) {
                 return AttckT_Melee;
             }
         }
         else
         {
-            if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+            KFX_C_ZONE_BEGIN_COLOR(ctx_reach_hug_obj, "Combat: WallHugRoute (cheap)", KFX_COLOR_PATHFINDING);
+            long hug_result = slab_wall_hug_route(fightng, &enmtng->mappos, 8);
+            KFX_C_ZONE_END(ctx_reach_hug_obj);
+            if (hug_result > 0) {
                 return AttckT_Melee;
             }
         }
@@ -1271,7 +1294,7 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        for (short j = 0; j < LAIR_ENEMY_MAX; j++)
+        for (short j = 0; j < CREATURE_TYPES_MAX; j++)
         {
             if (crmodel[j] == 0)
                 break;
@@ -1447,7 +1470,7 @@ short creature_door_combat(struct Thing *creatng)
     struct Thing* doortng = thing_get(cctrl->combat.battle_enemy_idx);
     if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
     {
-        ERRORLOG("The %s index %d is not in door combat but should be", thing_model_name(creatng), (int)creatng->index);
+        ERRORLOG("The %s index %d at %d,%d is not in door combat but should be", thing_model_name(creatng), creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, (int)creatng->index);
         set_start_state(creatng);
         return 0;
     }
@@ -2658,11 +2681,15 @@ CrAttackType check_for_possible_combat(struct Thing *creatng, struct Thing **fig
     uint32_t outscore = 0;
     // Check for combat with attacker - someone who already participates in a fight
     struct Thing* enmtng;
+    KFX_C_ZONE_BEGIN_COLOR(ctx_cfpc_attacker, "check_for_possible_combat.WithAttacker", KFX_COLOR_AI);
     CrAttackType attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, INT32_MAX, &outscore);
+    KFX_C_ZONE_END(ctx_cfpc_attacker);
     if (attack_type <= AttckT_Unset)
     {
         // Look for a new fight - with creature we're not fighting yet
+        KFX_C_ZONE_BEGIN_COLOR(ctx_cfpc_newenemy, "check_for_possible_combat.WithNewEnemy", KFX_COLOR_AI);
         attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, INT32_MAX);
+        KFX_C_ZONE_END(ctx_cfpc_newenemy);
     }
     if (attack_type <= AttckT_Unset) {
         return AttckT_Unset;

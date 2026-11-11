@@ -17,7 +17,10 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "gui_topmsg.h"
+#include "packets.h"
+#include "config_strings.h"
 
 #include <stdarg.h>
 #include "globals.h"
@@ -131,29 +134,30 @@ TbBool draw_onscreen_direct_messages(void)
         tx_units_per_px = scale_ui_value_lofi(16);
     }
     // Display in-game message for debug purposes
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     if ((render_onscreen_msg_time > 0.0) || erstat_check())
     {
-        if (LbScreenIsLocked())
+        if (RendererCanDraw())
         {
             LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
         }
         render_onscreen_msg_time -= game.delta_time;
     }
+    if (is_desync_warning_active() && RendererCanDraw()) {
+        LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, get_string(GUIStr_NetOutOfSync));
+    }
     unsigned int msg_pos = scale_value_by_vertical_resolution(200);
-    if ((game.system_flags & GSF_NetGameNoSync) != 0)
+    if ((local_system_flags & GSF_NetGameNoSync) != 0)
     {
-        ERRORLOG("OUT OF SYNC (GameTurn %7u)", get_gameturn());
-        if (LbScreenIsLocked())
+        if (RendererCanDraw())
         {
             LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "OUT OF SYNC");
         }
         msg_pos += scale_value_by_horizontal_resolution(20);
     }
-    if ((game.system_flags & GSF_NetSeedNoSync) != 0)
+    if ((local_system_flags & GSF_NetSeedNoSync) != 0)
     {
-        ERRORLOG("SEED OUT OF SYNC (GameTurn %7u)", get_gameturn());
-        if (LbScreenIsLocked())
+        if (RendererCanDraw())
         {
             LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "SEED OUT OF SYNC");
         }

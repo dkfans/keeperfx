@@ -111,17 +111,16 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
 }
 
 static TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
-    struct Camera* camera = get_player_active_camera(player);
-    if ((player->allocflags & PlaF_CompCtrl) != 0 || camera == NULL) {
+    if ((player->allocflags & PlaF_CompCtrl) != 0) {
         return 0;
     }
     TbBigChecksum checksum = 0;
     CHECKSUM_ADD(checksum, player->instance_remain_turns);
     CHECKSUM_ADD(checksum, player->instance_num);
-    if (player->victory_state == VicS_Undecided) {
-        CHECKSUM_ADD(checksum, camera->mappos.x.val);
-        CHECKSUM_ADD(checksum, camera->mappos.y.val);
-        CHECKSUM_ADD(checksum, camera->mappos.z.val);
+    const struct UserState *ustate = get_player_user_state(player);
+    if ((player->victory_state == VicS_Undecided) && !user_state_invalid(ustate)) {
+        CHECKSUM_ADD(checksum, ustate->dungeon_camera.x);
+        CHECKSUM_ADD(checksum, ustate->dungeon_camera.y);
     }
     return checksum;
 }
@@ -180,6 +179,14 @@ static void compute_checksums(struct DesyncChecksums* checksums) {
             checksums->players += compute_player_checksum(player);
         }
     }
+    checksums->dig_tasks = 0;
+    for (int i = 0; i < DUNGEONS_COUNT; i++) {
+        struct MapTask* task = get_dungeon(i)->task_list;
+        for (int t = 0; t < MAPTASKS_COUNT; t++) {
+            CHECKSUM_ADD(checksums->dig_tasks, task[t].kind);
+            CHECKSUM_ADD(checksums->dig_tasks, task[t].coords);
+        }
+    }
     checksums->action_seed = game.action_random_seed;
     checksums->ai_seed = game.ai_random_seed;
     checksums->player_seed = game.player_random_seed;
@@ -197,34 +204,41 @@ static struct ChecksumSnapshot* find_snapshot(GameTurn turn) {
 
 short checksums_different(void)
 {
-    int host_player_id = get_host_player_id();
-    struct Packet* host_packet = get_packet(host_player_id);
+    const NetUserId host_user_id = SERVER_ID;
+    struct Packet* host_packet = get_packet(host_user_id);
     TbBigChecksum host_checksum = host_packet->checksum;
     TbBool mismatch = false;
+    TbBool already_desynced = (local_system_flags & GSF_NetGameNoSync) != 0;
 
-    for (int i = 0; i < PLAYERS_COUNT; i++) {
-        struct PlayerInfo* player = get_player(i);
-        if (i == host_player_id) {
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        if (i == host_user_id) {
             continue;
         }
+        if (!user_present(i)) {
+            continue;
+        }
+        struct PlayerInfo* player = get_player(get_net_user_player_number(i));
         if (!player_exists(player)) {
             continue;
         }
-        if ((player->allocflags & PlaF_CompCtrl) != 0) {
+        struct Packet* packet = get_packet(i);
+        // no need to validate checksm for users who are dropping
+        // (and the host sometimes emits checksumless packets for such users)
+        if ((packet->action == PckA_QuitToMainMenu) || (packet->action == PckA_ForceApplicationClose)) {
             continue;
         }
-        if (!network_player_active(player->packet_num)) {
-            continue;
-        }
-        struct Packet* packet = get_packet_direct(player->packet_num);
         if (is_packet_empty(packet)) {
-            ERRORLOG("Missing checksum packet for player %d packet %d; host turn: %d", i, player->packet_num, host_packet->turn);
+            if (!already_desynced) {
+                ERRORLOG("Missing checksum packet for user %d; host turn: %d", i, host_packet->turn);
+            }
             desync_turn = host_packet->turn;
             mismatch = true;
             continue;
         }
         if (packet->checksum != host_checksum) {
-            ERRORLOG("Checksums %08x(Host) != %08x(Client) turn: %d vs %d", host_checksum, packet->checksum, host_packet->turn, packet->turn);
+            if (!already_desynced) {
+                ERRORLOG("Checksums %08x(Host) != %08x(Client) turn: %d vs %d", host_checksum, packet->checksum, host_packet->turn, packet->turn);
+            }
             desync_turn = host_packet->turn;
             mismatch = true;
         }
@@ -267,6 +281,7 @@ void update_turn_checksums(void) {
     snapshot_info->thing_count = 0;
     snapshot_info->player_count = 0;
     snapshot_info->room_count = 0;
+    memset(snapshot_info->dig_task_counts, 0, sizeof(snapshot_info->dig_task_counts));
     if (network_is_active()) {
         for (int i = 1; i < SYNCED_THINGS_COUNT; i++) {
             struct Thing* thing = thing_get(i);
@@ -320,18 +335,18 @@ void update_turn_checksums(void) {
         }
         for (int i = 0; i < PLAYERS_COUNT; i++) {
             struct PlayerInfo* player = get_player(i);
-            struct Camera* camera = get_player_active_camera(player);
-            if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0) || camera == NULL) {
+            if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
                 continue;
             }
             struct LogPlayerDesyncInfo* player_snapshot = &snapshot_info->players[snapshot_info->player_count++];
             player_snapshot->id = i;
             player_snapshot->instance_num = player->instance_num;
             player_snapshot->instance_remain_turns = player->instance_remain_turns;
-            if (player->victory_state == VicS_Undecided) {
-                player_snapshot->mappos = camera->mappos;
-            } else {
-                memset(&player_snapshot->mappos, 0, sizeof(player_snapshot->mappos));
+            memset(&player_snapshot->mappos, 0, sizeof(player_snapshot->mappos));
+            const struct UserState *ustate = get_player_user_state(player);
+            if ((player->victory_state == VicS_Undecided) && !user_state_invalid(ustate)) {
+                player_snapshot->mappos.x.val = ustate->dungeon_camera.x;
+                player_snapshot->mappos.y.val = ustate->dungeon_camera.y;
             }
             player_snapshot->checksum = compute_player_checksum(player);
         }
@@ -348,6 +363,11 @@ void update_turn_checksums(void) {
             room_snapshot->used_capacity = room->used_capacity;
             room_snapshot->checksum = get_room_checksum(room);
         }
+        for (int i = 0; i < DUNGEONS_COUNT; i++) {
+            struct Dungeon* dungeon = get_dungeon(i);
+            snapshot_info->dig_task_counts[i] = dungeon->task_count;
+            memcpy(snapshot_info->dig_tasks[i], dungeon->task_list, sizeof(dungeon->task_list));
+        }
     }
     snapshot_head = (snapshot_head + 1) % SNAPSHOT_BUFFER_SIZE;
 
@@ -362,11 +382,12 @@ void update_turn_checksums(void) {
     things_sum += checksums->effect_gens;
     things_sum += checksums->doors;
 
-    struct Packet* packet = get_packet(my_player_number);
+    struct Packet* packet = get_local_packet();
     packet->checksum = 0;
     packet->checksum += things_sum;
     packet->checksum += checksums->rooms;
     packet->checksum += checksums->players;
+    packet->checksum += checksums->dig_tasks;
     packet->checksum += checksums->action_seed;
     packet->checksum += checksums->player_seed;
     packet->checksum += checksums->ai_seed;
@@ -381,15 +402,49 @@ void pack_desync_history_for_resync(void) {
         game.log_snapshot.thing_count = 0;
         game.log_snapshot.player_count = 0;
         game.log_snapshot.room_count = 0;
+        memset(game.log_snapshot.dig_tasks, 0, sizeof(game.log_snapshot.dig_tasks));
+        memset(game.log_snapshot.dig_task_counts, 0, sizeof(game.log_snapshot.dig_task_counts));
         return;
     }
     game.host_checksums = snapshot->checksums;
     game.log_snapshot = snapshot->log_details;
 }
 
-static void log_thing_differences(struct LogDetailedSnapshot* client, const char* name, TbBigChecksum client_sum, TbBigChecksum host_sum, ThingClass filter_class) {
-    ERRORLOG("  %s %s - Host: %08lx, Client: %08lx", name, (client_sum == host_sum) ? "match" : "MISMATCH", (unsigned long)host_sum, (unsigned long)client_sum);
+static TbBool log_checksum_mismatch(const char* name, TbBigChecksum client_sum, TbBigChecksum host_sum)
+{
     if (client_sum == host_sum) {
+        return false;
+    }
+    ERRORLOG("  %s MISMATCH - Host: %08lx, Client: %08lx", name, (unsigned long)host_sum, (unsigned long)client_sum);
+    return true;
+}
+
+static void log_dig_task_differences(const struct LogDetailedSnapshot* client)
+{
+    const struct LogDetailedSnapshot* host = &game.log_snapshot;
+    int shown = 0;
+    for (int plyr_idx = 0; plyr_idx < DUNGEONS_COUNT && shown < 10; plyr_idx++) {
+        if (memcmp(host->dig_tasks[plyr_idx], client->dig_tasks[plyr_idx], sizeof(host->dig_tasks[plyr_idx])) == 0) {
+            continue;
+        }
+        ERRORLOG("    Player[%d] dig tags: Host count=%u, Client count=%u", plyr_idx, (unsigned)host->dig_task_counts[plyr_idx], (unsigned)client->dig_task_counts[plyr_idx]);
+        shown++;
+        for (int i = 0; (i < MAPTASKS_COUNT) && (shown < 10); i++) {
+            const struct MapTask* host_task = &host->dig_tasks[plyr_idx][i];
+            const struct MapTask* client_task = &client->dig_tasks[plyr_idx][i];
+            if ((host_task->kind == client_task->kind) && (host_task->coords == client_task->coords)) {
+                continue;
+            }
+            ERRORLOG("    Player[%d] dig tag[%d]: Host kind=%u stl=(%u,%u), Client kind=%u stl=(%u,%u)", plyr_idx, i,
+                (unsigned)host_task->kind, (unsigned)stl_num_decode_x(host_task->coords), (unsigned)stl_num_decode_y(host_task->coords),
+                (unsigned)client_task->kind, (unsigned)stl_num_decode_x(client_task->coords), (unsigned)stl_num_decode_y(client_task->coords));
+            shown++;
+        }
+    }
+}
+
+static void log_thing_differences(struct LogDetailedSnapshot* client, const char* name, TbBigChecksum client_sum, TbBigChecksum host_sum, ThingClass filter_class) {
+    if (!log_checksum_mismatch(name, client_sum, host_sum)) {
         return;
     }
     struct LogDetailedSnapshot* host = &game.log_snapshot;
@@ -476,11 +531,13 @@ void compare_desync_history_from_host(void) {
     struct LogDetailedSnapshot* client_snapshot = &snapshot->log_details;
 
     ERRORLOG("=== DESYNC ANALYSIS: Host (turn %lu) vs Client (turn %lu) ===", (unsigned long)host->game_turn, (unsigned long)client->game_turn);
-    ERRORLOG("  ACTION_SEED %s - Host: %08lx, Client: %08lx", (client->action_seed == host->action_seed) ? "match" : "MISMATCH", (unsigned long)host->action_seed, (unsigned long)client->action_seed);
-    ERRORLOG("  AI_SEED %s - Host: %08lx, Client: %08lx", (client->ai_seed == host->ai_seed) ? "match" : "MISMATCH", (unsigned long)host->ai_seed, (unsigned long)client->ai_seed);
-    ERRORLOG("  PLAYER_SEED %s - Host: %08lx, Client: %08lx", (client->player_seed == host->player_seed) ? "match" : "MISMATCH", (unsigned long)host->player_seed, (unsigned long)client->player_seed);
-    ERRORLOG("  Players %s - Host: %08lx, Client: %08lx", (client->players == host->players) ? "match" : "MISMATCH", (unsigned long)host->players, (unsigned long)client->players);
-    if (client->players != host->players) {
+    if (log_checksum_mismatch("DigTags", client->dig_tasks, host->dig_tasks)) {
+        log_dig_task_differences(client_snapshot);
+    }
+    log_checksum_mismatch("ACTION_SEED", client->action_seed, host->action_seed);
+    log_checksum_mismatch("AI_SEED", client->ai_seed, host->ai_seed);
+    log_checksum_mismatch("PLAYER_SEED", client->player_seed, host->player_seed);
+    if (log_checksum_mismatch("Players", client->players, host->players)) {
         for (int i = 0; i < client_snapshot->player_count; i++) {
             struct LogPlayerDesyncInfo* client_player = &client_snapshot->players[i];
             struct LogPlayerDesyncInfo* host_player = NULL;
@@ -501,8 +558,7 @@ void compare_desync_history_from_host(void) {
             }
         }
     }
-    ERRORLOG("  Rooms %s - Host: %08lx, Client: %08lx", (client->rooms == host->rooms) ? "match" : "MISMATCH", (unsigned long)host->rooms, (unsigned long)client->rooms);
-    if (client->rooms != host->rooms) {
+    if (log_checksum_mismatch("Rooms", client->rooms, host->rooms)) {
         int shown = 0;
         for (int i = 0; i < client_snapshot->room_count && shown < 10; i++) {
             struct LogRoomDesyncInfo* client_room = &client_snapshot->rooms[i];

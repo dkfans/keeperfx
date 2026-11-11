@@ -66,15 +66,16 @@ enum SlabFillStyle {
 };
 
 enum RoomCfgFlags {
-    RoCFlg_None            = 0x00,
-    RoCFlg_NoEnsign        = 0x01,
-    RoCFlg_CantVandalize   = 0x02,
-    RoCFlg_BuildTillBroke  = 0x04,
-    RoCFlg_CannotBeSold    = 0x08,
-    RoCFlg_CannotBeClaimed = 0x10,
-    RoCFlg_NotCounted      = 0x20,
-    RoCFlg_NoFlames        = 0x40,
-    RoCFlg_ListEnd         = 0x80,
+    RoCFlg_None            = 0x000,
+    RoCFlg_NoEnsign        = 0x001,
+    RoCFlg_CantVandalize   = 0x002,
+    RoCFlg_BuildTillBroke  = 0x004,
+    RoCFlg_CannotBeSold    = 0x008,
+    RoCFlg_CannotBeClaimed = 0x010,
+    RoCFlg_NotCounted      = 0x020,
+    RoCFlg_NoFlames        = 0x040,
+    RoCFlg_BoulderDestroys = 0x080,
+    RoCFlg_ListEnd         = 0x100,
 };
 
 /**
@@ -107,6 +108,7 @@ enum RoomRoleFlags {
     RoRoF_CrPoolLeave    = 0x00400000, /**< The room is a gate which allows a creature to leave the players dungeon back to pool. */
     RoRoF_PassWater      = 0x00800000, /**< The room is a bridge for use over water. */
     RoRoF_PassLava       = 0x01000000, /**< The room is a bridge for use over lava. */
+    RoRoF_PassAbyss      = 0x02000000,
 };
 
 struct SlabMap;
@@ -189,6 +191,8 @@ TbBool slab_kind_is_room_wall(RoomKind slbkind);
 TbBool slab_kind_is_friable_dirt(RoomKind slbkind);
 TbBool slab_kind_is_door(SlabKind slbkind);
 TbBool slab_kind_is_liquid(SlabKind slbkind);
+TbBool slab_kind_is_bridgeable(SlabKind slbkind);
+int slab_kind_from_wlb_type(unsigned char wlb_type);
 TbBool slab_kind_is_room(SlabKind slbkind);
 TbBool slab_kind_has_torches(SlabKind slbkind);
 /******************************************************************************/

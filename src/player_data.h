@@ -24,6 +24,8 @@
 #include "engine_camera.h"
 #include "bflib_video.h"
 #include "roomspace.h"
+#include "net_main.h"
+#include "user_prefs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,36 +35,30 @@ extern "C" {
 #define COLOURS_COUNT       9
 
 #define INVALID_PLAYER (&bad_player)
+#define INVALID_USER_STATE (&bad_user_state)
 
 #define PLAYER_MP_MESSAGE_LEN  64
+
+#define MINIMAP_ZOOM_MIN       128
+#define MINIMAP_ZOOM_DEFAULT   256
+#define MINIMAP_ZOOM_MAX       2048
 
 #define WANDER_POINTS_COUNT    200
 
 enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
-    PlaF_unusedparam             = 0x02,
-    PlaF_NewMPMessage            = 0x04,
-    PlaF_CreaturePassengerMode   = 0x08,
-    PlaF_KeyboardInputDisabled   = 0x10,
+    PlaF_Placeholder             = 0x02, /**< Human user disconnected, replaced by a computer > */
     PlaF_CompCtrl                = 0x40,
-    PlaF_MouseInputDisabled      = 0x80,
 };
 
 enum PlayerField6Flags {
-    PlaF6_DisplayNeedsUpdate = 0x01,
     PlaF6_PlyrHasQuit       = 0x02,
 };
 
-enum PlayerViewModes {
-    PVM_EmptyView = 0,
-    PVM_CreatureView, /**< View from a creature perspective, first person. */
-    PVM_IsoWibbleView, /**< Dungeon overview from isometric front perspective, simplified version - only 4 angles. */
-    PVM_ParchmentView, /**< Full screen parchment map view, showing dungeon schematic from top. */
-    PVM_unusedparam,
-    PVM_FrontView, /**< Dungeon overview from isometric front perspective, advanced version - fluent rotation. */
-    PVM_ParchFadeIn, /**< Transitional view when fading from Isometric view to Parchment map. */
-    PVM_ParchFadeOut, /**< Transitional view when fading from Parchment map back to Isometric view. */
-    PVM_IsoStraightView, /**< Same as PVM_IsoWibbleView, but without wibble. */
+enum LocalViewMode {
+    PVM_IsoWibbleView = 2, /**< Isometric dungeon view, freely rotating, with wibble. */
+    PVM_FrontView = 5, /**< Front dungeon view, four orientations. */
+    PVM_IsoStraightView = 8, /**< Same as PVM_IsoWibbleView, but without wibble. */
 };
 
 enum PlayerViewType {
@@ -89,22 +85,33 @@ enum PlayerCursorStates {
     CSt_PowerHand     = 3, // Power Hand cursor
 };
 
-enum PlayerAdditionalFlags {
-    PlaAF_None                      = 0x00,
-    PlaAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
-    PlaAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    PlaAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
-    PlaAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
-    PlaAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
-    // The below are unused in KFX
-    PlaAF_Unkn20                    = 0x20,
-    PlaAF_Unkn40                    = 0x40,
-    PlaAF_Unkn80                    = 0x80,
+enum UserInitFlags {
+    UsrIF_NewMPMessage            = 0x04,
+    UsrIF_CreaturePassengerMode   = 0x08,
+    UsrIF_KeyboardInputDisabled   = 0x10,
+    UsrIF_MouseInputDisabled      = 0x80,
+};
+
+enum UserAdditionalFlags {
+    UsrAF_None                      = 0x00,
+    UsrAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
+    UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
+    UsrAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell. TODO: move to LocalState
+    UsrAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell. TODO: move to LocalState
+    UsrAF_UnlockedLordTorture       = 0x10, // if this flag is set, the user will be sent to the Lord Torture Mini-game
+    UsrAF_Unkn20                    = 0x20,
+    UsrAF_Unkn40                    = 0x40,
+    UsrAF_Unkn80                    = 0x80,
 };
 
 enum PlayerTypes {
+    // a proper player with room flames, payday, captures neutrals
     PT_Keeper,
+    
+    // hero-style player: lacks room flames, sees whole map, can't capture neutral, no economy.
     PT_Roaming,
+    
+    // capturable by nearby keepers
     PT_Neutral
 };
 
@@ -144,20 +151,20 @@ struct CheatSelection
     unsigned char chosen_experience_level;
 };
 
+/*
+ * Per-player game data.
+ *
+ * Players present in a game can be human-controlled keepers, Computer-controlled keepers,
+ * "Placeholder" keepers (humans who have dropped and are replaced by a computer),
+ * "Roaming" (the hero team), or neutral (capturable by keepers).
+ * 
+ * Note: for legacy reasons, this struct currently contains some fields that
+ * should eventually be ported to UserState or LocalState.
+*/
 struct PlayerInfo {
     unsigned char allocflags;
-    TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
-    TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
-    TbBool paused_state_restore; /**< Used to restore pause state after saving */
-    TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
-    unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
-    unsigned char additional_flags; // Uses PlayerAdditionalFlags
-    unsigned char input_crtr_control;
-    unsigned char input_crtr_query;
     unsigned char display_flags;
-    unsigned char *lens_palette;
-    /** Index of packet slot associated with this player. */
-    unsigned char packet_num;
+    NetUserId user_id; // -1 if no user
     int32_t hand_animationId;
     unsigned int hand_busy_until_turn;
     char player_name[20];
@@ -165,14 +172,11 @@ struct PlayerInfo {
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
     unsigned char id_number;
-    TbBool is_active;
+    TbBool unused;
     short controlled_thing_idx;
     GameTurn controlled_thing_creatrn;
     short thing_under_hand;
     TbBool possession_lock;
-    unsigned char view_mode;
-    unsigned char active_camera_idx;
-    struct Camera cameras[4];
     MapCoord zoom_to_pos_x;
     MapCoord zoom_to_pos_y;
     struct Wander wandr_within;
@@ -181,94 +185,154 @@ struct PlayerInfo {
     short cta_flag_idx;
     short influenced_thing_idx;
     GameTurn influenced_thing_creation;
+    PlayerState work_state;
+    PlayerState continue_work_state;
+    char mp_message_text[PLAYER_MP_MESSAGE_LEN];
+    char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
+    char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
+    /** An "instance" is a short, scripted animation. See: enum PlayerInstanceNum */
+    unsigned char instance_num;
+    unsigned long instance_remain_turns;
+    /** Overcharge level while casting keeper powers. */
+    int32_t cast_expand_level;
+    GameTurn power_of_cooldown_turn;
+    int32_t game_version;
+    GameTurn display_objective_turn;
+    unsigned char hand_idx;
+    struct RoomSpace render_roomspace;
+    struct RoomSpace roomspace;
+    unsigned char roomspace_mode;
+    int roomspace_detection_looseness;
+    int roomspace_width;
+    int roomspace_height;
+    unsigned char roomspace_highlight_mode;
+    TbBool roomspace_drag_paint_mode;
+    unsigned char roomspace_l_shape;
+    TbBool roomspace_horizontal_first;
+    unsigned char player_type; //enum PlayerTypes
+    ThingModel special_digger;
+    unsigned short generate_speed;
+};
+
+/* Game state that exists per human user. Computer-controlled
+ * players do not have users.
+ *
+ * Local games only have a single user. Networked games have one
+ * user per client including the host.
+ */
+struct UserState {
+    unsigned char init_flags; // Uses UserInitFlags
+    unsigned char additional_flags; // Uses UserAdditionalFlags
+    unsigned char input_crtr_control;
+    unsigned char input_crtr_query;
+    short cursor_light_idx;
+    /** Cursor position, and the subtile it last clicked on. */
+    MapSubtlCoord cursor_subtile_x;
+    MapSubtlCoord cursor_subtile_y;
+    MapSubtlCoord previous_cursor_subtile_x;
+    MapSubtlCoord previous_cursor_subtile_y;
+    MapSubtlCoord cursor_clicked_subtile_x;
+    MapSubtlCoord cursor_clicked_subtile_y;
+    unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
+    TbBool mouse_on_map;
+    unsigned char primary_cursor_state;
+    unsigned char secondary_cursor_state;
+    TbBool one_click_mode_exclusive;
+    TbBool one_click_lock_cursor;
+    TbBool ignore_next_PCtr_RBtnRelease;
+    TbBool ignore_next_PCtr_LBtnRelease;
+    char swap_to_untag_mode;
+    TbBool interpolated_tagging;
+    /** First person (possession) controls. */
+    TbBool first_person_dig_claim_mode;
+    unsigned short selected_fp_thing_pickup;
+    unsigned char teleport_destination;
+    TbBool nearest_teleport;
+    BattleIndex battleid;
+    struct CheatSelection cheatselection;
+    unsigned char boxsize;
+    unsigned char chosen_room_kind;
+    unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
+    ThingModel chosen_trap_kind;
+    ThingModel chosen_door_kind;
+    PowerKind chosen_power_kind;
+    TbBool pickup_all_gold;
+    unsigned char view_type;
+    struct DungeonCamera dungeon_camera;
+    UserPreferences prefs;
+};
+
+/******************************************************************************/
+
+extern unsigned char my_player_number;
+
+#pragma pack()
+/******************************************************************************/
+
+struct LocalCameraState {
+    struct Camera current[CamIV_EndList];
+    struct Camera previous[CamIV_EndList];
+    struct Camera destination[CamIV_EndList];
+    float previous_deviation_x;
+    float previous_deviation_y;
+    float destination_deviation_x;
+    float destination_deviation_y;
+    TbBool ready;
+    MapCoord move_target[2];
+    MapCoordDelta move_delta[2];
+    struct Camera *move_cam;
+    TbBool rotation_pending;
+    int32_t rotation_angle;
+    TbBool has_rotation_pivot;
+    MapCoord rotation_pivot_x;
+    MapCoord rotation_pivot_y;
+    TbBool first_person_look_pending;
+    int32_t first_person_look_yaw;
+    int32_t first_person_look_pitch;
+    int32_t first_person_look_roll;
+    int32_t possession_start_zoom;
+};
+
+/* Miscellaneous state relating to this device and
+ * the local human player.
+ *
+ * Not sync'd over the network.
+ */
+extern struct LocalState {
+    unsigned char view_type;
+    TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
+    TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
+    TbBool status_menu_hidden_for_map; /**< The status menu is hidden for the map and status_menu_restore holds its visibility. */
+    TbBool tooltips_hidden_for_map; /**< Tooltips are off for a map fade and tooltips_restore holds the setting. */
+    TbBool paused_state_restore; /**< Used to restore pause state after saving */
+    TbBool display_needs_update;
+    short local_thing_under_hand;
+    TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
+    unsigned char *lens_palette;
+    unsigned char *main_palette;
+    int32_t palette_fade_step_map;
+    int32_t palette_fade_step_pain;
+    int32_t palette_fade_step_possession;
     short engine_window_width;
     short engine_window_height;
     short engine_window_x;
     short engine_window_y;
     short minimap_pos_x;
     short minimap_pos_y;
-    unsigned short minimap_zoom;
-    unsigned char view_type;
-    PlayerState work_state;
-    unsigned char primary_cursor_state;
-    unsigned char secondary_cursor_state;
-    PlayerState continue_work_state;
-    short cursor_light_idx;
-    char mp_message_text[PLAYER_MP_MESSAGE_LEN];
-    char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
-    char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
-    unsigned char chosen_room_kind;
-    unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
-    ThingModel chosen_trap_kind;
-    ThingModel chosen_door_kind;
-    PowerKind chosen_power_kind;
-    MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
-    MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
-    unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
-    /** Player instance, from PlayerInstanceNum enum. */
-    unsigned char instance_num;
-    unsigned long instance_remain_turns;
-    /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
-    char view_mode_restore;
-    int32_t dungeon_camera_zoom;
-    int32_t palette_fade_step_map;
-    int32_t palette_fade_step_pain;
-    int32_t palette_fade_step_possession;
-    unsigned char *main_palette;
-    /** Overcharge level while casting keeper powers. */
-    int32_t cast_expand_level;
-    char video_cluedo_mode;
-    MapCoordDelta zoom_to_movement_x;
-    MapCoordDelta zoom_to_movement_y;
-    GameTurn power_of_cooldown_turn;
-    int32_t game_version;
-    GameTurn display_objective_turn;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
-    unsigned char hand_idx;
-    struct CheatSelection cheatselection;
-    TbBool first_person_dig_claim_mode;
-    unsigned char teleport_destination;
-    TbBool nearest_teleport;
-    BattleIndex battleid;
-    unsigned short selected_fp_thing_pickup;
-    struct RoomSpace render_roomspace;
-    struct RoomSpace roomspace;
-    unsigned char roomspace_mode;
-    int user_defined_roomspace_width;
-    int roomspace_detection_looseness;
-    int roomspace_width;
-    int roomspace_height;
-    TbBool one_click_mode_exclusive;
-    TbBool one_click_lock_cursor;
-    TbBool ignore_next_PCtr_RBtnRelease;
-    TbBool ignore_next_PCtr_LBtnRelease;
-    char swap_to_untag_mode;
-    unsigned char roomspace_highlight_mode;
-    TbBool roomspace_no_default;
-    MapSubtlCoord cursor_subtile_x;
-    MapSubtlCoord cursor_subtile_y;
-    MapSubtlCoord previous_cursor_subtile_x;
-    MapSubtlCoord previous_cursor_subtile_y;
-    TbBool mouse_on_map;
-    TbBool interpolated_tagging;
-    TbBool roomspace_drag_paint_mode;
-    unsigned char roomspace_l_shape;
-    TbBool roomspace_horizontal_first;
-    TbBool pickup_all_gold;
-    unsigned char player_type; //enum PlayerTypes
-    ThingModel special_digger;
-    int isometric_tilt;
-    unsigned short generate_speed;
-    };
+    int roomspace_size;
+    // FIXME: use fixed-point precision instead
+    float camera_movement_x;
+    float camera_movement_y;
+    TbBool camera_speedup_pressed;
+    TbBool camera_rotate_cw;
+    TbBool camera_rotate_ccw;
+    TbBool camera_rotate_around_cursor;
+    struct LocalCameraState camera;
+    TbBool observer_camera_active;
+    unsigned char observer_camera_view_type;
+    unsigned char observer_camera_idx;
+} local_state;
 
-/******************************************************************************/
-
-extern unsigned char my_player_number;
-extern short local_thing_under_hand;
-
-#pragma pack()
-/******************************************************************************/
 extern unsigned short player_colors_map[];
 extern TbPixel player_path_colours[];
 extern TbPixel player_room_colours[];
@@ -277,14 +341,24 @@ extern TbPixel player_highlight_colours[];
 extern TbPixel possession_hit_colours[];
 extern unsigned short const player_cubes[];
 extern struct PlayerInfo bad_player;
+extern struct UserState bad_user_state;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
-#define get_my_player() get_player_f(my_player_number,__func__)
+struct PlayerInfo *get_my_player(void);
+const struct PlayerInfo *get_displayed_player(void);
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
+TbBool is_active_keeper(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
+struct UserState *get_user_state(NetUserId user);
+struct UserState *get_player_user_state(const struct PlayerInfo *player);
+struct UserState *get_local_user_state(void);
+uint32_t get_local_minimap_zoom(void);
+TbBool user_state_invalid(const struct UserState *ustate);
+int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view);
 TbBool is_my_player_number(PlayerNumber plyr_num);
+TbBool is_player_displayed(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
@@ -305,9 +379,11 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
 
-struct Camera *get_player_active_camera(const struct PlayerInfo *player);
-void set_player_active_camera(struct PlayerInfo *player, unsigned char cam_idx);
-unsigned char rotate_mode_to_view_mode(unsigned char mode);
+unsigned char get_player_view_type(const struct PlayerInfo *player);
+unsigned char get_player_active_camera_index(const struct PlayerInfo *player);
+int32_t get_player_dungeon_yaw(const struct PlayerInfo *player);
+enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
+void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);
 /******************************************************************************/

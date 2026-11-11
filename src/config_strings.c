@@ -387,8 +387,7 @@ const char * gui_string(unsigned int index)
 {
     static char string_invalid[64];
 
-    if (index >= GUI_STRINGS_COUNT)
-    {
+    if (index >= GUI_STRINGS_COUNT) {
         snprintf(string_invalid, sizeof(string_invalid), "untranslated <%d>", index);
         return string_invalid;
     }
@@ -429,6 +428,11 @@ const char * get_string(TextStringId stridx)
         return get_translation_file_string(stridx);
     else
         return gui_string(stridx - GUI_STRINGS_START);
+}
+
+TbBool string_idx_is_empty(TextStringId stridx)
+{
+    return (stridx == CpgStr_Empty || stridx == GUIStr_Empty);
 }
 
 unsigned long count_strings(char *strings, int size)

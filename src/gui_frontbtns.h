@@ -80,6 +80,7 @@ void kill_button(struct GuiButton *gbtn);
 void setup_radio_buttons(struct GuiMenu *gmnu);
 
 struct GuiButton* get_gui_button(int id);
+void update_gui_button_player_colors(void);
 struct GuiButtonInit* get_gui_button_init(struct GuiMenu * menu, int id);
 /******************************************************************************/
 #ifdef __cplusplus

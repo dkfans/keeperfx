@@ -2825,12 +2825,8 @@ msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr ""
-"Aqua: Creaturae lentius per aquam se movent. Construe pontem ut terram novam "
-"in aqua facias."
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Aqua: Creaturae libere per aquam se movent. Pontem exstrue ut regiones remotas coniungas."
 
 #: guitext:329
 msgctxt "Slab description"
@@ -2961,9 +2957,10 @@ msgid "Speed"
 msgstr "Celeritas"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "Portus COM"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "Abyssus: Puteus sine fundo, quem creaturae tuae bene vitabunt."
 
 #: guitext:354
 msgctxt "Menu interface item"
@@ -6425,12 +6422,12 @@ msgstr "Hostis ostium secretum tuum conspexit"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Libellae independentes"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Selectio terrae"
 
 #: guitext:943
@@ -6881,7 +6878,7 @@ msgstr "Libellae KDK"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
+msgid "The Good Guys"
 msgstr "Custos bonus"
 
 #: guitext:1025
@@ -7368,3 +7365,176 @@ msgstr "/fxdata/%.39s non oneratum."
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Instrue ut modulum in /mods/."
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "Conexio ad servitorem amissa est."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "Multiplayer spēle nav sinhronizēta."
+
+#: guitext:1124
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "Expeditiones"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Expeditionem continuare"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Network game interface"
+msgid "State"
+msgstr "Status"
+
+#: guitext:1127
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Version"
+msgstr "Versio"
+
+#: guitext:1128
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Unknown"
+msgstr "Ignotum"
+
+#: guitext:1129
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby"
+msgstr "Atrium"
+
+#: guitext:1130
+#, fuzzy
+msgctxt "Network game interface"
+msgid "In-game"
+msgstr "In ludo"
+
+#: guitext:1131
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Map"
+msgstr "Charta"
+
+#: guitext:1132
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Player list unavailable"
+msgstr "Index lusorum non praesto est"
+
+#: guitext:1133
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Maximum players"
+msgstr "Max. lusores"
+
+#: guitext:1134
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow observers"
+msgstr "Spectatores admittere"
+
+#: guitext:1135
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Settings"
+msgstr "Optiones"
+
+#: guitext:1136
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Confirm"
+msgstr "Confirmare"
+
+#: guitext:1137
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Game has already started."
+msgstr "Ludus iam incepit."
+
+#: guitext:1138
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Joining is temporarily locked."
+msgstr "Ingressus ad tempus clausus est."
+
+#: guitext:1139
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby is full."
+msgstr "Atrium plenum est."
+
+#: guitext:1140
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host is using a different game version."
+msgstr "Hospes alia versione ludi utitur."
+
+#: guitext:1141
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby Name"
+msgstr "Nomen atrii"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Acceleratio %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normalis"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Oneratio"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Colloquia spectatorum ostendere"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Spectatores tantum ludo iam incepto se adiungere possunt."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "Hospes spectare vetuit."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Omnes nexus spectatorum occupati sunt."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "Lusores colloquium spectatorum videre non possunt."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Spectator es"

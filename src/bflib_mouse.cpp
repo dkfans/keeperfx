@@ -18,6 +18,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_mouse.h"
 
 #include <string.h>
@@ -27,6 +28,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_video.h"
+#include "kfx/platform/PlatformManager.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"
@@ -78,7 +80,7 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
   pointerHandler.Install();
   lbMouseOffline = true;
   lbMouseInstalled = true;
-  LbMouseSetWindow(0,0,LbGraphicsScreenWidth(),LbGraphicsScreenHeight());
+  LbMouseSetWindow(0,0,RendererScreenWidth(),RendererScreenHeight());
   LbGrabMouseInit();
   ret = Lb_SUCCESS;
   if (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS)
@@ -115,8 +117,7 @@ TbResult LbMouseSetPosition(long x, long y)
   {
     return Lb_FAIL;
   }
-  SDL_Window *window = lbWindow;
-  SDL_WarpMouseInWindow(window, x, y);
+  PlatformManager_WarpCursor((int)x, (int)y);
   return Lb_SUCCESS;
 }
 
@@ -124,8 +125,10 @@ void LbMoveHostCursorToGameCursor(void)
 {
     int game_cursor_x = lbDisplay.MMouseX;
     int game_cursor_y = lbDisplay.MMouseY;
-    int host_cursor_x, host_cursor_y;
-    SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
+    int host_cursor_x = 0;
+    int host_cursor_y = 0;
+    if (!PlatformManager_GetCursorPosition(&host_cursor_x, &host_cursor_y))
+        return;
     if ((host_cursor_x != game_cursor_x) || (host_cursor_y != game_cursor_y))
     {
         LbMouseSetPosition(game_cursor_x, game_cursor_y);
@@ -136,8 +139,10 @@ TbResult LbMoveGameCursorToHostCursor(void)
 {
     int game_cursor_x = lbDisplay.MMouseX;
     int game_cursor_y = lbDisplay.MMouseY;
-    int host_cursor_x, host_cursor_y;
-    SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
+    int host_cursor_x = 0;
+    int host_cursor_y = 0;
+    if (!PlatformManager_GetCursorPosition(&host_cursor_x, &host_cursor_y))
+        return Lb_SUCCESS;
     if (((host_cursor_x != game_cursor_x) || (host_cursor_y != game_cursor_y)) && LbIsActive())
     {
         if (!pointerHandler.SetMousePosition(host_cursor_x, host_cursor_y))
@@ -150,13 +155,7 @@ TbResult LbMoveGameCursorToHostCursor(void)
 
 TbBool IsMouseInsideWindow(void)
 {
-    SDL_Window *window = SDL_GetMouseFocus();
-    TbBool isMouseInsideWindow = ((window != NULL) ? true : false); // if window == NULL then the mouse must be outside the kfx window
-    if (!LbIsMouseActive() && !lbMouseGrabbed)
-    {
-        isMouseInsideWindow = false; // LbIsMouseActive() == false when mouse cursor outside window
-    }
-    return isMouseInsideWindow;
+    return PlatformManager_IsCursorInWindow() ? true : false;
 }
 
 TbResult LbMouseChangeSprite(const struct TbSprite *pointerSprite)
@@ -232,6 +231,13 @@ TbResult LbMouseOnEndSwap(void)
     if (!pointerHandler.PointerEndSwap())
         return Lb_FAIL;
     return Lb_SUCCESS;
+}
+
+TbBool LbMouseGetActivePointerSprite(const struct TbSprite **out_spr, int32_t *out_x, int32_t *out_y, int *out_units_per_px)
+{
+    if ((!lbMouseInstalled) || (lbMouseOffline))
+        return false;
+    return pointerHandler.GetActivePointerSprite(out_spr, out_x, out_y, out_units_per_px);
 }
 
 void mouseControl(unsigned int action, struct TbPoint *pos)

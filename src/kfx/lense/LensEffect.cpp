@@ -29,6 +29,12 @@
 
 /******************************************************************************/
 
+uint32_t LensEffect::NextGPUVersion()
+{
+    static uint32_t s_version = 0;
+    return ++s_version;
+}
+
 LensEffect::LensEffect(LensEffectType type, const char* name)
     : m_type(type)
     , m_name(name)

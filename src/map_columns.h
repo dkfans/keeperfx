@@ -29,6 +29,7 @@ extern "C" {
 #define COLUMNS_COUNT          16384
 #define COLUMN_STACK_HEIGHT        8
 #define COLUMN_WALL_HEIGHT         5
+#define ABYSS_DEPTH                24
 /******************************************************************************/
 #pragma pack(1)
 
@@ -91,6 +92,7 @@ MapCoord get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 TbBool cube_is_lava(long cube_id);
 TbBool cube_is_water(long cube_id);
+TbBool cube_is_abyss(long cube_id);
 TbBool cube_is_sacrificial(long cube_id);
 TbBool cube_is_unclaimed_path(long cube_id);
 
@@ -98,6 +100,7 @@ TbBool subtile_is_unsafe(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_has_abyss_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

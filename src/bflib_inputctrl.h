@@ -47,7 +47,6 @@ enum InputDevices {
 extern volatile int lbUserQuit;
 extern volatile TbBool lbMouseGrab;
 extern volatile TbBool lbMouseGrabbed;
-extern volatile TbBool lbAppActive;
 extern unsigned char last_used_input_device;
 
 /******************************************************************************/

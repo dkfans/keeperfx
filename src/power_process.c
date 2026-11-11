@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "power_process.h"
 
 #include "globals.h"
@@ -85,22 +86,19 @@ void set_chosen_power_none(void)
     game.chosen_spell_tooltip = 0;
 }
 
-unsigned char general_expand_check(void)
+unsigned char general_expand_check(const struct PlayerInfo *player)
 {
-    struct PlayerInfo* player = get_my_player();
     return (player->cast_expand_level != 0);
 }
 
-unsigned char sight_of_evil_expand_check(void)
+unsigned char sight_of_evil_expand_check(const struct PlayerInfo *player)
 {
-    struct PlayerInfo* myplyr = get_my_player();
-    return (myplyr->cast_expand_level != 0) && (!player_uses_power_sight(myplyr->id_number));
+    return (player->cast_expand_level != 0) && (!player_uses_power_sight(player->id_number));
 }
 
-unsigned char call_to_arms_expand_check(void)
+unsigned char call_to_arms_expand_check(const struct PlayerInfo *player)
 {
-    struct PlayerInfo* myplyr = get_my_player();
-    return (myplyr->cast_expand_level != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
+    return (player->cast_expand_level != 0) && (!player_uses_power_call_to_arms(player->id_number));
 }
 
 void process_armageddon(void)
@@ -126,7 +124,7 @@ void process_armageddon(void)
             player = get_player(i);
             if (player_exists(player))
             {
-              if (player->is_active == 1)
+              if (is_active_keeper(player))
                 reveal_whole_map(player);
             }
         }
@@ -136,7 +134,7 @@ void process_armageddon(void)
         for (i=0; i < PLAYERS_COUNT; i++)
         {
             player = get_player(i);
-            if ( (player_exists(player)) && (player->is_active == 1) )
+            if (is_active_keeper(player))
             {
                 struct Dungeon* dungeon = get_dungeon(player->id_number);
                 if ((player->victory_state == VicS_Undecided) && (dungeon->num_active_creatrs == 0))
@@ -144,7 +142,7 @@ void process_armageddon(void)
                     event_kill_all_players_events(i);
                     set_player_as_lost_level(player);
                     if (is_my_player_number(i))
-                        LbPaletteSet(engine_palette);
+                        RendererPaletteSet(engine_palette);
                     struct Thing* heartng = get_player_soul_container(player->id_number);
                     if (thing_exists(heartng)) {
                         heartng->health = -1;
@@ -178,6 +176,22 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
     }
 }
 
+TbBool players_disease_can_infect_target_players_creatures(PlayerNumber source_player, PlayerNumber target_player)
+{
+    if (source_player == target_player)
+        return false;
+    if (source_player == game.neutral_player_num)
+        return false;
+    if (players_are_enemies(source_player, target_player))
+        return true;
+
+    struct PlayerInfo* player = get_player(source_player);
+    if (game.conf.rules[source_player].gameplay.allies_share_disease)
+        return (player_allied_with(player, target_player) == false);
+
+    return source_player != target_player;
+}
+
 void process_disease(struct Thing *creatng)
 {
     SYNCDBG(18, "Starting");
@@ -208,10 +222,9 @@ void process_disease(struct Thing *creatng)
                 tngcctrl = creature_control_get_from_thing(thing);
                 if (thing_is_creature(thing)
                 && !creature_is_for_dungeon_diggers_list(thing)
-                && (thing->owner != cctrl->disease_caster_plyridx)
+                && players_disease_can_infect_target_players_creatures(cctrl->disease_caster_plyridx,thing->owner)
                 && !creature_under_spell_effect(thing, CSAfF_Disease)
-                && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
-                && (cctrl->disease_caster_plyridx != game.neutral_player_num))
+                && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease))
                 { // Apply the spell kind stored in 'active_disease_spell'.
                     apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->exp_level, creatng->owner);
                     tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
@@ -236,12 +249,13 @@ void process_disease(struct Thing *creatng)
 void lightning_modify_palette(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
-    struct Camera* camera = get_player_active_camera(myplyr);
+    struct UserState* ustate = get_user_state(get_local_user());
+    struct Camera* camera = get_local_active_camera(myplyr);
 
     if (thing->health == 0)
     {
-      PaletteSetPlayerPalette(myplyr, engine_palette);
-      myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
+      PaletteSetUserPalette(get_local_user(), engine_palette);
+      ustate->additional_flags &= ~UsrAF_LightningPaletteIsActive;
       return;
     }
     if (camera == NULL)
@@ -251,24 +265,24 @@ void lightning_modify_palette(struct Thing *thing)
     }
     if (((thing->health % 8) != 7) && (thing->health != 1) && (UNSYNC_RANDOM(4) != 0))
     {
-        if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
+        if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) != 0)
         {
             if (get_chessboard_distance(&camera->mappos, &thing->mappos) < 11520)
             {
-                PaletteSetPlayerPalette(myplyr, engine_palette);
-                myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
+                PaletteSetUserPalette(get_local_user(), engine_palette);
+                ustate->additional_flags &= ~UsrAF_LightningPaletteIsActive;
             }
         }
         return;
     }
-    if ((myplyr->view_mode != PVM_ParchFadeIn) && (myplyr->view_mode != PVM_ParchFadeOut) && (myplyr->view_mode != PVM_ParchmentView))
+    if (get_local_view_type(myplyr) != PVT_MapScreen)
     {
-        if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) == 0)
+        if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) == 0)
         {
                         if (get_chessboard_distance(&camera->mappos, &thing->mappos) < 11520)
             {
-              PaletteSetPlayerPalette(myplyr, lightning_palette);
-              myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
+              PaletteSetUserPalette(get_local_user(), lightning_palette);
+              ustate->additional_flags |= UsrAF_LightningPaletteIsActive;
             }
         }
     }
@@ -372,7 +386,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 void draw_god_lightning(struct Thing *shotng)
 {
     struct PlayerInfo* player = get_player(shotng->owner);
-    const struct Camera* cam = get_local_camera(get_player_active_camera(player));
+    const struct Camera* cam = get_local_active_camera(player);
     if (cam == NULL) {
         return;
     }

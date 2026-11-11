@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_net.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -39,6 +40,7 @@
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "vidfade.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "bflib_enet.h"
@@ -46,6 +48,29 @@
 #include "net_lobby.h"
 #include "packets.h"
 #include "post_inc.h"
+
+const char *net_join_error_text(enum NetJoinRejection reason)
+{
+    switch (reason) {
+    case NetJoin_InGame:
+        return get_string(GUIStr_NetGameStarted);
+    case NetJoin_Locked:
+        return get_string(GUIStr_NetJoiningLocked);
+    case NetJoin_Full:
+        return get_string(GUIStr_NetLobbyFull);
+    case NetJoin_Version:
+    case NetJoin_SpectatorsUnsupported:
+        return get_string(GUIStr_NetDifferentVersion);
+    case NetJoin_SpectatorState:
+        return get_string(GUIStr_NetSpectatorGameNotRunning);
+    case NetJoin_SpectatorsDisabled:
+        return get_string(GUIStr_NetSpectatorsDisabled);
+    case NetJoin_SpectatorsFull:
+        return get_string(GUIStr_NetSpectatorsFull);
+    default:
+        return NULL;
+    }
+}
 
 /******************************************************************************/
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
@@ -55,7 +80,7 @@ void frontnet_session_up_maintain(struct GuiButton *gbtn)
 
 void frontnet_session_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_sessions - 1 > net_session_scroll_offset)) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_sessions - frontend_sessions_menu_items_visible > net_session_scroll_offset)) & LbBtnF_Enabled;
 }
 
 void frontnet_session_maintain(struct GuiButton *gbtn)
@@ -71,18 +96,6 @@ void frontnet_players_up_maintain(struct GuiButton *gbtn)
 void frontnet_players_down_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players - 1 > net_player_scroll_offset)) & LbBtnF_Enabled;
-}
-
-static TbBool frontnet_can_join_session(void)
-{
-    return (net_session_index_active >= 0)
-        && (net_session_index_active < net_number_of_sessions)
-        && (net_session[net_session_index_active] != NULL);
-}
-
-void frontnet_join_game_maintain(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * frontnet_can_join_session()) & LbBtnF_Enabled;
 }
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
@@ -118,9 +131,10 @@ TbBool frontnet_start_input(void)
     struct PlayerInfo *player = get_my_player();
     if (lbInkey == KC_RETURN) {
         if (player->mp_message_text[0] != '\0') {
-            send_network_chat_message(my_player_number, player->mp_message_text);
+            send_network_chat_message(netstate.my_id, player->mp_message_text);
         }
-        process_frontend_chat_message(my_player_number, player->mp_message_text);
+        process_frontend_chat_message(netstate.my_id, player->mp_message_text);
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
     } else if (lbInkey == KC_ESCAPE) {
         player->mp_message_text[0] = '\0';
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
@@ -152,25 +166,23 @@ void frontnet_session_set_player_name(struct GuiButton *gbtn)
 
 void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
-    const struct TbSprite *spr;
-    int i;
-    long pos_x;
-    long pos_y;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_nx1_tx5_c, 100);
-    spr = get_frontend_sprite(GFS_largearea_nx1_cor_l);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = get_frontend_sprite(GFS_largearea_nx1_tx5_c);
-    for (i=0; i < 4; i++)
-    {
-        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-        pos_x += spr->SWidth * fs_units_per_px / 16;
+    int scale = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_nx1_tx5_c, 100);
+    const struct TbSprite *left = get_frontend_sprite(GFS_largearea_nx1_cor_l);
+    const struct TbSprite *middle = get_frontend_sprite(GFS_largearea_nx1_tx5_c);
+    const struct TbSprite *right = get_frontend_sprite(GFS_largearea_nx1_cor_r);
+    int left_width = left->SWidth * scale / 16;
+    int right_width = right->SWidth * scale / 16;
+    int middle_width = gbtn->width - left_width - right_width;
+    LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, scale, left);
+    LbSpriteDrawResized(gbtn->scr_pos_x + gbtn->width - right_width, gbtn->scr_pos_y, scale, right);
+    struct GraphicsWindow window;
+    LbScreenStoreGraphicsWindow(&window);
+    LbScreenSetGraphicsWindow(gbtn->scr_pos_x + left_width, gbtn->scr_pos_y, middle_width, gbtn->height);
+    int tile_width = max(1, middle->SWidth * scale / 16);
+    for (int x = 0; x < middle_width; x += tile_width) {
+        LbSpriteDrawResized(x, 0, scale, middle);
     }
-    spr = get_frontend_sprite(GFS_largearea_nx1_cor_r);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
+    LbScreenLoadGraphicsWindow(&window);
 }
 
 void frontnet_session_up(struct GuiButton *gbtn)
@@ -181,13 +193,14 @@ void frontnet_session_up(struct GuiButton *gbtn)
 
 void frontnet_session_down(struct GuiButton *gbtn)
 {
-    if (net_session_scroll_offset < net_number_of_sessions - 1)
-      net_session_scroll_offset++;
+    if (net_session_scroll_offset < net_number_of_sessions - frontend_sessions_menu_items_visible) {
+        net_session_scroll_offset++;
+    }
 }
 
 void frontnet_draw_sessions_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, net_session_scroll_offset, 0, net_number_of_sessions);
+    frontend_draw_scroll_tab(gbtn, net_session_scroll_offset, frontend_sessions_menu_items_visible, net_number_of_sessions);
 }
 
 void frontnet_players_up(struct GuiButton *gbtn)
@@ -211,7 +224,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 {
     int i;
     i = frontend_button_caption_font(gbtn, 0);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LbTextSetFont(frontend_font[i]);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (2*LbTextLineHeight());
@@ -240,19 +253,57 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 
 void frontnet_session_add(struct GuiButton *gbtn)
 {
+    fade_out();
+    if (net_config_info.net_lobby_name[0] != '\0') {
+        snprintf(net_lobby_name, sizeof(net_lobby_name), "%s", net_config_info.net_lobby_name);
+    } else {
+        snprintf(net_lobby_name, sizeof(net_lobby_name), "Dungeon%03d", rand() % 1000);
+    }
     turn_on_menu(GMnu_FEADD_SESSION);
-    //TODO NET When clicked, it should display a modal text field (for IP address) and OK/Cancel buttons.
+    set_menu_visible_off(GMnu_FENET_SESSION);
     set_menu_visible_on(GMnu_FEADD_SESSION);
+    fade_palette_in = 1;
 }
 
 void frontnet_session_join(struct GuiButton *gbtn)
 {
-    long plyr_num;
-    if (!frontnet_can_join_session())
+    if (gbtn != NULL) {
+        int index = gbtn->content.lval + net_session_scroll_offset - 45;
+        if (index < 0 || index >= net_number_of_sessions || net_session[index] == NULL) {
+            return;
+        }
+        net_session_index_active = index;
+        net_session_index_active_id = net_session[index]->id;
+    }
+    if (net_session_index_active < 0 || net_session_index_active >= net_number_of_sessions || net_session[net_session_index_active] == NULL) {
         return;
-    plyr_num = network_session_join();
-    if (plyr_num < 0)
+    }
+    struct TbNetworkSessionNameEntry *session = net_session[net_session_index_active];
+    enum NetConnectionRole requested_role = net_join_role;
+    net_join_role = NetRole_Player;
+    enum NetJoinRejection reason = net_session_join_rejection(session);
+    if (session->phase == NetPhase_InGame) {
+        net_join_role = NetRole_Spectator;
+        reason = net_session_spectator_rejection(session);
+    } else if (gbtn == NULL && requested_role == NetRole_Spectator && session->phase == NetPhase_Unknown) {
+        net_join_role = NetRole_Spectator;
+        reason = NetJoin_Accepted;
+    }
+    const char *error = net_join_error_text(reason);
+    if (error) {
+        create_frontend_error_box(error);
         return;
+    }
+    int32_t plyr_num = network_session_join();
+    if (plyr_num < 0) {
+        return;
+    }
+    if (net_join_role == NetRole_Spectator) {
+        frontend_set_player_number(0);
+        fe_computer_players = 0;
+        frontend_set_state(FeSt_START_MPLEVEL);
+        return;
+    }
     frontend_set_player_number(plyr_num);
     frontend_set_state(FeSt_NET_START);
 }
@@ -269,14 +320,10 @@ void frontnet_return_to_main_menu(struct GuiButton *gbtn)
 
 void frontnet_add_session_back(struct GuiButton *gbtn)
 {
-    //TODO NET Finish session add menu
+    fade_out();
     turn_off_menu(GMnu_FEADD_SESSION);
-}
-
-void frontnet_add_session_done(struct GuiButton *gbtn)
-{
-    //TODO NET Finish session add menu
-    turn_off_menu(GMnu_FEADD_SESSION);
+    set_menu_visible_on(GMnu_FENET_SESSION);
+    fade_palette_in = 1;
 }
 
 void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
@@ -337,7 +384,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
     int i;
     i = frontend_button_caption_font(gbtn, 0);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LbTextSetFont(frontend_font[i]);
     int height;
     height = 0;
@@ -358,12 +405,12 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         if (netplyr_idx >= net_number_of_enum_players)
             break;
 
-        long subplyr_idx;
+        NetUserId subplyr_idx;
         for (subplyr_idx = 0; subplyr_idx < net_number_of_enum_players; subplyr_idx++)
         {
             if (subplyr_idx >= MAX_NET_USERS)
                 break;
-            if (net_player_info[subplyr_idx].network_user_active)
+            if (net_user_info[subplyr_idx].network_user_active)
             {
                 if (subplyr_idx == netplyr_idx)
                     break;
@@ -495,7 +542,7 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     const struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
-    lbDisplay.DrawFlags = Lb_SPRITE_FLIP_VERTIC;
+    RendererSetDrawFlags(Lb_SPRITE_FLIP_VERTIC);
     spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     int fs_units_per_px;
     fs_units_per_px = spr->SHeight * units_per_px / 26;
@@ -508,7 +555,7 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     pos_x += spr->SWidth*fs_units_per_px/16;
     spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
 }
 
 void frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn)
@@ -536,7 +583,7 @@ void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, c
     if (text != NULL)
     {
         LbTextSetFont(frontend_font[font_idx]);
-        lbDisplay.DrawFlags = 0;
+        RendererSetDrawFlags(0);
         int tx_units_per_px;
         tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
         height = LbTextLineHeight() * tx_units_per_px / 16;
@@ -575,10 +622,19 @@ void frontnet_draw_current_message(struct GuiButton *gbtn)
 
 void frontnet_draw_messages(struct GuiButton *gbtn)
 {
+    static unsigned char player_left_remap[PALETTE_COLORS];
+    static int player_left_remap_initialized;
+    if (!player_left_remap_initialized) {
+        for (int i = 0; i < PALETTE_COLORS; i++) {
+            int intensity = max(frontend_palette[3*i], max(frontend_palette[3*i+1], frontend_palette[3*i+2]));
+            player_left_remap[i] = LbPaletteFindColour(frontend_palette, intensity*5/8, intensity*3/8, intensity/4);
+        }
+        player_left_remap_initialized = 1;
+    }
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn, 0);
     LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     // While setting scale, aim for 4 lines of text
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (4*LbTextLineHeight());
@@ -597,22 +653,31 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
             break;
         struct NetMessage *nmsg;
         nmsg = &net_message[netmsg_id];
+        TbBool sender_active = nmsg->connection_id == net_user_info[nmsg->plyr_idx].connection_id;
         int num_active;
         num_active = 0;
-        int i;
-        for (i = nmsg->plyr_idx; i > 0; i--)
-        {
-          if ( net_player_info[i].network_user_active)
-            num_active++;
+        if (sender_active) {
+            for (int i = nmsg->plyr_idx; i > 0; i--) {
+                if (net_user_info[i].network_user_active) {
+                    num_active++;
+                }
+            }
         }
 
         spr = get_frontend_sprite(GFS_bullfrog_red_med+num_active);
 
-        i = font_height - spr->SHeight * fs_units_per_px / 16;
-        LbSpriteDrawResized(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (i >> 1), fs_units_per_px, spr);
+        int icon_y = font_height - spr->SHeight * fs_units_per_px / 16;
+        if (sender_active) {
+            LbSpriteDrawResized(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (icon_y >> 1), fs_units_per_px, spr);
+        } else {
+            lbSpriteReMapPtr = player_left_remap;
+            RendererSetDrawFlags(Lb_TEXT_REMAP);
+            LbSpriteDrawResizedRemap(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (icon_y >> 1), fs_units_per_px, spr, player_left_remap);
+        }
 
         LbTextSetWindow(gbtn->scr_pos_x, y + gbtn->scr_pos_y, gbtn->width, min(font_height, gbtn->height-y));
         LbTextDrawResized(spr->SWidth * fs_units_per_px / 16, 0, tx_units_per_px, nmsg->text);
+        RendererSetDrawFlags(0);
 
         y += font_height;
     }
@@ -684,7 +749,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   int font_idx;
   font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
   LbTextSetFont(frontend_font[font_idx]);
-  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+  RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
   // Set drawing window and draw the text
   int tx_units_per_px;
   tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
@@ -698,7 +763,7 @@ void frontnet_service_select(struct GuiButton *gbtn)
 {
   int srvidx;
   srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
-  if ( ((game.system_flags & GSF_AllowOnePlayer) != 0)
+  if ( ((local_system_flags & GSF_AllowOnePlayer) != 0)
      && (srvidx+1 >= net_number_of_services) )
   {
       frontend_set_player_number(default_loc_player);

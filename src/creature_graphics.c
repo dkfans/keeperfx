@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "creature_graphics.h"
 
 #include "globals.h"
@@ -24,6 +25,7 @@
 
 #include "player_data.h"
 #include "thing_creature.h"
+#include "thing_physics.h"
 #include "config_creature.h"
 #include "creature_instances.h"
 #include "creature_states.h"
@@ -293,9 +295,9 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     else
         val_in_range = 1;
     if ( val_in_range )
-      lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
+      RendererAddDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     else
-      lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+      RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     if (kspr->Rotable == 0)
     {
         kspr += frame;
@@ -425,42 +427,33 @@ void update_creature_rendering_flags(struct Thing *thing)
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags &= ~TRF_AnimateOnce;
     // Now set only those that should be
-    if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
-    {
+    if (is_thing_directly_controlled_by_player(thing, my_player_number) || is_thing_passenger_controlled_by_player(thing, my_player_number)) {
         thing->rendering_flags |= TRF_Invisible;
     }
-    if (thing_is_creature(thing))
-    {
+    if (thing_is_creature(thing)) {
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-        if (crconf->transparency_flags != 0)
-        {
+        if (crconf->transparency_flags != 0) {
             set_flag(thing->rendering_flags, crconf->transparency_flags);
         }
     }
-    if (creature_is_invisible(thing))
-    {
-      if (is_my_player_number(thing->owner))
-      {
-          thing->rendering_flags &= ~TRF_Transpar_Flags;
-          thing->rendering_flags |= TRF_Transpar_4;
-      } else
-      {
+    if (creature_is_invisible(thing)) {
+        if (is_player_displayed(thing->owner)) {
+            thing->rendering_flags &= ~TRF_Transpar_Flags;
+            thing->rendering_flags |= TRF_Transpar_4;
+        } else {
             thing->rendering_flags |= TRF_Invisible;
-            struct PlayerInfo* player = get_my_player();
+            const struct PlayerInfo *player = get_displayed_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
-            if ((creatng != thing) && (thing_is_creature(creatng)))
-            {
-                if ( (is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)) )
-                {
-                    if (creature_can_see_invisible(creatng))
-                    {
+            if ((creatng != thing) && (thing_is_creature(creatng))) {
+                if (is_thing_directly_controlled_by_player(creatng, player->id_number) || is_thing_passenger_controlled_by_player(creatng, player->id_number)) {
+                    if (creature_can_see_invisible(creatng)) {
                         thing->rendering_flags &= ~TRF_Invisible;
                         thing->rendering_flags &= ~TRF_Transpar_Flags;
                         thing->rendering_flags |= TRF_Transpar_4;
                     }
                 }
             }
-      }
+        }
     }
 }
 
@@ -532,7 +525,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, crconf->walking_anim_speed, CGI_Stand);
         } else
-        if (thing->floor_height < thing->mappos.z.val)
+        if (!thing_touching_floor(thing))
         {
             i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed + 1);
             update_creature_anim(thing, i, CGI_Stand);
@@ -560,7 +553,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_animation_by_sprite(thing, 256, 820);
         } else
-        if (thing->floor_height < thing->mappos.z.val)
+        if (!thing_touching_floor(thing))
         {
             update_creature_animation_by_sprite(thing, 256, 820);
         } else

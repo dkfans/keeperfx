@@ -2929,12 +2929,8 @@ msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr ""
-"Wasser: Kreaturen bewegen sich langsamer durch Wasser. Baut eine Brücke, um "
-"Wasser zu überwinden. [14.1]"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Wasser: Kreaturen bewegen sich ungehindert durchs Wasser. Baut eine Brücke, um entfernte Gebiete zu verbinden."
 
 #: guitext:329
 msgctxt "Slab description"
@@ -3067,9 +3063,10 @@ msgid "Speed"
 msgstr "Geschwindigkeit"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COM-Port"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "Abgrund: Eine bodenlose Grube, die Eure Kreaturen besser meiden sollten."
 
 #: guitext:354
 msgctxt "Menu interface item"
@@ -6669,12 +6666,12 @@ msgstr "Der Feind hat Eure Geheimtür entdeckt"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Levels zum freien Spielen"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Karten-Auswahl"
 
 #: guitext:943
@@ -7130,8 +7127,8 @@ msgstr "KDK Levels"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
-msgstr "Gute Kampagne"
+msgid "The Good Guys"
+msgstr "Die Guten"
 
 #: guitext:1025
 msgctxt "Menu interface item"
@@ -7622,3 +7619,175 @@ msgstr "/fxdata/%.39s wurde nicht geladen."
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installiere es als Mod im Ordner /mods/."
+
+#: guitext:1122
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "Netzwerkverbindung zum Server verloren."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "Das Mehrspielerspiel ist nicht mehr synchron."
+
+#: guitext:1124
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "Kampagnen"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Kampagne fortsetzen"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Network game interface"
+msgid "State"
+msgstr "Status"
+
+#: guitext:1127
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Version"
+msgstr "Version"
+
+#: guitext:1128
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Unknown"
+msgstr "Unbekannt"
+
+#: guitext:1129
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby"
+msgstr "Lobby"
+
+#: guitext:1130
+#, fuzzy
+msgctxt "Network game interface"
+msgid "In-game"
+msgstr "Im Spiel"
+
+#: guitext:1131
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Map"
+msgstr "Karte"
+
+#: guitext:1132
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Player list unavailable"
+msgstr "Spielerliste nicht verfügbar"
+
+#: guitext:1133
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Maximum players"
+msgstr "Max. Spieler"
+
+#: guitext:1134
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow observers"
+msgstr "Beobachter erlauben"
+
+#: guitext:1135
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: guitext:1136
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: guitext:1137
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Game has already started."
+msgstr "Das Spiel hat bereits begonnen."
+
+#: guitext:1138
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Joining is temporarily locked."
+msgstr "Beitritt vorübergehend gesperrt."
+
+#: guitext:1139
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby is full."
+msgstr "Die Lobby ist voll."
+
+#: guitext:1140
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host is using a different game version."
+msgstr "Der Host nutzt eine andere Spielversion."
+
+#: guitext:1141
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby Name"
+msgstr "Lobbyname"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Schneller Vorlauf %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normal"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Laden"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Zuschauerchat anzeigen"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Zuschauer können nur einem laufenden Spiel beitreten."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "Der Host hat den Beitritt von Zuschauern deaktiviert."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Alle Zuschauerverbindungen sind belegt."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "Spieler können den Zuschauerchat nicht sehen."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Du schaust zu"

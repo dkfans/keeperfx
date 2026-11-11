@@ -227,7 +227,7 @@ struct CreatureControl {
   struct {
       unsigned char objective;
       unsigned char original_objective;
-      char target_plyr_idx;
+      PlayerNumber target_plyr_idx;
       PlayerBitFlags player_broken_into_flags;
       int32_t tunnel_steps_counter;
       unsigned char tunnel_dig_direction;
@@ -354,7 +354,6 @@ struct CreatureControl {
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
     CrInstance active_instance_id;
-    char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
     struct Ariadne arid;

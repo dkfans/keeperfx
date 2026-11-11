@@ -70,6 +70,8 @@ const struct NamedCommand logicval_type[] = {
   {"FALSE",    2},
   {"YES",      1},
   {"NO",       2},
+  {"ALWAYS",   1},
+  {"NEVER",    2},
   {"1",        1},
   {"0",        2},
   {NULL,       0},
@@ -1011,6 +1013,7 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
 void set_defaults(const struct NamedFieldSet* named_fields_set, const char *config_textname)
 {
   memset(named_fields_set->get_struct_base(), 0, named_fields_set->struct_size * named_fields_set->max_count);
+  *named_fields_set->get_count() = 0;
 
   const struct NamedField* name_NamedField = NULL;
 
@@ -1251,8 +1254,8 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   }
   if (strcasecmp("RANDOM", itmname) == 0)
   {
-      i = (rand() % i);
-      return desc[i].num;
+      int32_t idx = (int32_t)LbRandomSeries((uint32_t)i, &game.action_random_seed, __func__, __LINE__);
+      return desc[idx].num;
   }
   return -1;
 }
@@ -1373,6 +1376,10 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
   case FGrp_MpLevels:
       mdir=keeper_runtime_directory;
       sdir="multiplayer";
+      break;
+  case FGrp_Replays:
+      mdir=keeper_runtime_directory;
+      sdir="replays";
       break;
   default:
       mdir=keeper_runtime_directory;
@@ -1830,16 +1837,54 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   return result;
 }
 
-short is_bonus_level(LevelNumber lvnum)
+/**
+ * Returns index of given level in the campaign's single_levels, or -1.
+ */
+int campaign_singleplayer_level_index(const struct GameCampaign *campgn, LevelNumber lvnum)
 {
-  if (lvnum < 1) return false;
+  if (lvnum < 1) return -1;
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
-    if (campaign.bonus_levels[i] == lvnum)
-    {
-        SYNCDBG(7,"Level %d identified as bonus",lvnum);
-        return true;
-    }
+    if (campgn->single_levels[i] == lvnum)
+        return i;
+  }
+  return -1;
+}
+
+/**
+ * Returns first index of given level in the campaign's bonus_levels, or -1.
+ */
+int campaign_bonus_level_index(const struct GameCampaign *campgn, LevelNumber lvnum)
+{
+  if (lvnum < 1) return -1;
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campgn->bonus_levels[i] == lvnum)
+        return i;
+  }
+  return -1;
+}
+
+/**
+ * Returns index of given level in the campaign's extra_levels, or -1.
+ */
+int campaign_extra_level_index(const struct GameCampaign *campgn, LevelNumber lvnum)
+{
+  if (lvnum < 1) return -1;
+  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
+  {
+    if (campgn->extra_levels[i] == lvnum)
+        return i;
+  }
+  return -1;
+}
+
+short is_bonus_level(LevelNumber lvnum)
+{
+  if (campaign_bonus_level_index(&campaign, lvnum) >= 0)
+  {
+      SYNCDBG(7,"Level %d identified as bonus",lvnum);
+      return true;
   }
   SYNCDBG(7,"Level %d not recognized as bonus",lvnum);
   return false;
@@ -1847,14 +1892,10 @@ short is_bonus_level(LevelNumber lvnum)
 
 short is_extra_level(LevelNumber lvnum)
 {
-  if (lvnum < 1) return false;
-  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
+  if (campaign_extra_level_index(&campaign, lvnum) >= 0)
   {
-      if (campaign.extra_levels[i] == lvnum)
-      {
-          SYNCDBG(7,"Level %d identified as extra",lvnum);
-          return true;
-      }
+      SYNCDBG(7,"Level %d identified as extra",lvnum);
+      return true;
   }
   SYNCDBG(7,"Level %d not recognized as extra",lvnum);
   return false;
@@ -1885,13 +1926,7 @@ int storage_index_for_bonus_level(LevelNumber bn_lvnum)
  */
 int array_index_for_singleplayer_level(LevelNumber sp_lvnum)
 {
-  if (sp_lvnum < 1) return -1;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.single_levels[i] == sp_lvnum)
-        return i;
-  }
-  return -1;
+  return campaign_singleplayer_level_index(&campaign, sp_lvnum);
 }
 
 /**
@@ -2191,6 +2226,15 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
     return false;
 }
 
+/**
+  * sets a custom ensign sprite sheet index for the level
+ */
+TbBool set_level_ensign(LevelNumber lvnum, short ensign_id)
+{    
+    if(!is_campaign_level(lvnum))
+        return false;
+    return update_or_create_level_ensign_override(lvnum, ensign_id);
+}
 
 /* @comment
  *     The loading items of load_config and load_config_for_mod need to be consistent.

@@ -20,6 +20,10 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+enum NavigationStateOperation {
+    NavigationState_Store,
+    NavigationState_Restore,
+};
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,7 +33,9 @@ extern "C" {
 
 /******************************************************************************/
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-long init_navigation(void);
+int32_t init_navigation(void);
+void rebuild_navigation(void);
+size_t transfer_navigation_state(void *buffer, enum NavigationStateOperation operation);
 
 /******************************************************************************/
 #ifdef __cplusplus

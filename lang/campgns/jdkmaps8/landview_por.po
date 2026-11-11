@@ -1,12 +1,12 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file speech_por.po
+#   @file jdkmaps8\landview_por.po
 #      KeeperFX Speeches translation file
 #  @par Purpose:
 #      Contains translation of the national speeches in the game.
 #  @par Comment:
-#      Use this file to improve the translation for specific language.
+#      Use this file to create or update script of speeches.
 #  @author   KeeperFX Team
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify

@@ -15,10 +15,14 @@
 /config/fxdata/*.dat
 /config/fxdata/*.fon
 .vs/
-build*/
+# Build output directories (build/ itself now holds tracked CMake modules under
+# build/cmake/, so ignore only alternative output dirs, not build/).
+/build-*/
 /out/*
 *.cache
-.vscode
+/.vscode/compile_settings.cfg
+/.vscode/game
+/.vscode/launch.json
 /libexterns
 docs/html
 docs/latex
@@ -44,5 +48,11 @@ res/keeperfx_icon.ico
 /src/ver_defs.h
 keeperfx.log
 crash_log.txt
+debug.log
 .local/
-.vscode/compile_and_copy_files.ps1
+/keeperfx_vs2010
+#temporary ignore.
+/build/tools
+
+# Personal CMake presets (per-dev deploy path etc.) - see CMakeUserPresets.json.example
+/CMakeUserPresets.json

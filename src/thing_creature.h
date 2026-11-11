@@ -237,14 +237,14 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
 void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long copies_num, long carried_gold, CrtrExpLevel exp_level, char spawn_type);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, short criteria);
-void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long select_id, TbMapLocation location, ThingModel effect_id, long count);
-void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id);
+void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long select_id, TbMapLocation location, EffectOrEffElModel effect_id, long count);
+void script_move_creature(struct Thing* thing, TbMapLocation location, EffectOrEffElModel effect_id);
 TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmodel, long operation, long anger);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 ThingModel get_random_appropriate_creature_kind(ThingModel original_model);
-TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level);
+struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level);
 /******************************************************************************/
 #ifdef __cplusplus
 }

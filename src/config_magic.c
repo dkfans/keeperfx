@@ -448,7 +448,7 @@ const struct NamedCommand magic_use_func_commands[] = {
 };
 
 
-const Expand_Check_Func powermodel_expand_check_func_list[] = {
+unsigned char (*const powermodel_expand_check_func_list[])(const struct PlayerInfo *player) = {
   NULL,
   general_expand_check,
   sight_of_evil_expand_check,
@@ -1434,7 +1434,7 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
         break;
     case PwrK_POSSESS:
         player = get_player(plyr_idx);
-        if (player->view_type == PVT_CreatureContrl)
+        if (get_player_view_type(player) == PVT_CreatureContrl)
         {
             thing = thing_get(player->controlled_thing_idx);
             prepare_to_controlled_creature_death(thing);

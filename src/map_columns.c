@@ -502,6 +502,12 @@ TbBool cube_is_water(long cube_id)
     return flag_is_set(cubest->properties_flags, CPF_IsWater);
 }
 
+TbBool cube_is_abyss(long cube_id)
+{
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsAbyss);
+}
+
 /* Returns if given cube is a sacrificial ground or magic door surface.
  * @param cube_id
  * @return */
@@ -544,6 +550,13 @@ TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long i;
     i = get_top_cube_at(stl_x, stl_y, NULL);
     return cube_is_water(i);
+}
+
+TbBool subtile_has_abyss_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    long i;
+    i = get_top_cube_at(stl_x, stl_y, NULL);
+    return cube_is_abyss(i);
 }
 
 /**

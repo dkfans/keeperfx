@@ -96,13 +96,6 @@ extern unsigned char *render_fade_tables;
 extern unsigned char *render_ghost;
 extern unsigned char *render_alpha;
 extern struct PolyPoint *polyscans;
-// Rename pending for these entries
-extern unsigned char *LOC_poly_screen;
-extern unsigned char *LOC_vec_map;
-extern unsigned char *LOC_vec_screen;
-extern long LOC_vec_screen_width;
-extern long LOC_vec_window_width;
-extern long LOC_vec_window_height;
 /******************************************************************************/
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/

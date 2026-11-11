@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "gui_frontbtns.h"
 
 #include "globals.h"
@@ -35,6 +36,7 @@
 #include "sprites.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -59,6 +61,14 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
     }
 }
 
+static TbBool button_accepts_left_click(const struct GuiButton *gbtn)
+{
+    if (gbtn->gbtype == LbBtnT_RadioBtn || gbtn->gbtype == LbBtnT_EditBox) {
+        return true;
+    }
+    return gbtn->click_event != NULL || (gbtn->flags & LbBtnF_Clickable) != 0 || gbtn->parent_menu != NULL;
+}
+
 void fake_button_click(int gmbtn_idx)
 {
     int i;
@@ -70,10 +80,8 @@ void fake_button_click(int gmbtn_idx)
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
         if (((gbtn->flags & LbBtnF_Active) != 0) && (gmnu->is_turned_on != 0) && (gbtn->id_num == gmbtn_idx))
         {
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
+            if (button_accepts_left_click(gbtn)) {
                 do_button_press_actions(gbtn, &gbtn->button_state_left_pressed, gbtn->click_event);
-            }
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
                 do_button_click_actions(gbtn, &gbtn->button_state_left_pressed, gbtn->click_event);
             }
         }
@@ -91,9 +99,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
     if ((gbtn->button_state_left_pressed) && (left_button_released))
     {
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
-            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
-        {
+        if (button_accepts_left_click(gbtn)) {
             left_button_released = 0;
             do_button_release_actions(gbtn, &gbtn->button_state_left_pressed, callback);
         }
@@ -213,100 +219,54 @@ void update_radio_button_data(struct GuiMenu *gmnu)
 
 TbBool gui_button_click_inputs(int gmbtn_idx)
 {
-    TbBool result;
-    struct GuiButton *gbtn;
-    if (gmbtn_idx < 0)
-      return false;
-    result = false;
-    gbtn = &active_buttons[gmbtn_idx];
+    if (gmbtn_idx < 0) {
+        return false;
+    }
+    TbBool result = false;
+    struct GuiButton *gbtn = &active_buttons[gmbtn_idx];
     Gf_Btn_Callback callback;
-    if (lbDisplay.MLeftButton)
-    {
+    if (lbDisplay.MLeftButton) {
         SYNCDBG(8,"Left down for button %d",(int)gmbtn_idx);
         result = true;
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
-           (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
-        {
-            if ((gbtn->flags & LbBtnF_Enabled) != 0)
-            {
-                SYNCDBG(18,"Left down action for type %d",(int)gbtn->gbtype);
-                switch (gbtn->gbtype)
-                {
-                case LbBtnT_HoldableBtn:
-                  if ((gbtn->button_state_left_pressed > 5) && (callback != NULL)) {
-                      callback(gbtn);
-                  } else {
-                      gbtn->button_state_left_pressed++;
-                  }
-                  break;
-                case LbBtnT_Hotspot:
-                  if (callback != NULL) {
-                      callback(gbtn);
-                  }
-                  break;
-                }
-            }
+        if (button_accepts_left_click(gbtn)) {
+            do_button_press_actions(gbtn, &gbtn->button_state_left_pressed, callback);
         }
-    } else
-    if (lbDisplay.MRightButton)
-    {
+    } else if (lbDisplay.MRightButton) {
         SYNCDBG(8,"Right down for button %d",(int)gmbtn_idx);
         result = true;
         callback = gbtn->rclick_event;
-        if ((callback != NULL) && ((gbtn->flags & LbBtnF_Enabled) != 0))
-        {
-            SYNCDBG(18,"Right down action for type %d",(int)gbtn->gbtype);
-            switch (gbtn->gbtype)
-            {
-            case LbBtnT_HoldableBtn:
-              if ((gbtn->button_state_right_pressed > 5) && (callback != NULL)) {
-                  callback(gbtn);
-              } else {
-                  gbtn->button_state_right_pressed++;
-              }
-              break;
-            case LbBtnT_Hotspot:
-              if (callback != NULL) {
-                  callback(gbtn);
-              }
-              break;
-            }
+        if (callback != NULL) {
+            do_button_press_actions(gbtn, &gbtn->button_state_right_pressed, callback);
         }
     }
-    if ( left_button_clicked )
-    {
+    if (left_button_clicked) {
         SYNCDBG(8,"Left click for button %d",(int)gmbtn_idx);
         result = true;
-        if (game.flash_button_index != 0)
-        {
-          if (gbtn->id_num == game.flash_button_index)
-            game.flash_button_index = 0;
+        if (game.flash_button_index != 0) {
+            if (gbtn->id_num == game.flash_button_index) {
+                game.flash_button_index = 0;
+            }
         }
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
-           (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
-        {
-          left_button_clicked = 0;
-          gui_last_left_button_pressed_id = gbtn->id_num;
-          do_button_click_actions(gbtn, &gbtn->button_state_left_pressed, callback);
+        if (button_accepts_left_click(gbtn)) {
+            left_button_clicked = 0;
+            gui_last_left_button_pressed_id = gbtn->id_num;
+            do_button_click_actions(gbtn, &gbtn->button_state_left_pressed, callback);
         }
-    } else
-    if ( right_button_clicked )
-    {
+    } else if (right_button_clicked) {
         SYNCDBG(8,"Right click for button %d",(int)gmbtn_idx);
         result = true;
-        if (game.flash_button_index != 0)
-        {
-          if (gbtn->id_num == game.flash_button_index)
-            game.flash_button_index = 0;
+        if (game.flash_button_index != 0) {
+            if (gbtn->id_num == game.flash_button_index) {
+                game.flash_button_index = 0;
+            }
         }
         callback = gbtn->rclick_event;
-        if ((callback != NULL))
-        {
-          right_button_clicked = 0;
-          gui_last_right_button_pressed_id = gbtn->id_num;
-          do_button_click_actions(gbtn, &gbtn->button_state_right_pressed, callback);
+        if (callback != NULL) {
+            right_button_clicked = 0;
+            gui_last_right_button_pressed_id = gbtn->id_num;
+            do_button_click_actions(gbtn, &gbtn->button_state_right_pressed, callback);
         }
     }
     return result;
@@ -483,19 +443,16 @@ void gui_pretty_background(struct GuiMenu *gmnu)
     switch (gmnu->visual_state)
     {
     case 1:
-        width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + scale_ui_value_lofi(86);
-        height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + scale_ui_value_lofi(64);
+    case 3:
+    {
+        float grown = (gmnu->visual_state == 1) ? gmnu->menu_init->fade_time - gmnu->fade_time : gmnu->fade_time;
+        width = fade_w * grown + scale_ui_value_lofi(86);
+        height = fade_h * grown + scale_ui_value_lofi(64);
         px = gmnu->pos_x + gmnu->width/2 - width/2;
         py = gmnu->pos_y + gmnu->height/2 - height/2;
         draw_ornate_slab_outline64k(px, py, units_per_pixel, width, height);
         break;
-    case 3:
-        width = gmnu->width;
-        height = gmnu->height;
-        px = gmnu->pos_x + gmnu->width/2 - width/2;
-        py = gmnu->pos_y + gmnu->height/2 - (gmnu->height - fade_h)/2;
-        draw_ornate_slab_outline64k(px, py, units_per_pixel, width, height);
-        break;
+    }
     default:
         draw_ornate_slab64k(gmnu->pos_x, gmnu->pos_y, units_per_pixel, gmnu->width, gmnu->height);
         break;
@@ -793,7 +750,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     LbSpriteDrawResized(x, y, units_per_px, spr);
     if (text != NULL)
     {
-        lbDisplay.DrawFlags = drw_flags;
+        RendererSetDrawFlags(drw_flags);
         LbTextSetFont(frontend_font[fntidx]);
         spr = get_frontend_sprite(spridx);
         h = LbTextHeight(text) * units_per_px / 16;
@@ -846,8 +803,7 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
 {
     int height_lines;
     TbBool draw_scrollbar;
-    switch (gbtn->content.lval)
-    {
+    switch (gbtn->content.lval) {
       case 24:
         height_lines = 2;
         draw_scrollbar = true;
@@ -871,6 +827,10 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
       case 91:
         height_lines = 4;
         draw_scrollbar = true;
+        break;
+      case 92:
+        height_lines = 6;
+        draw_scrollbar = false;
         break;
       case 94:
         height_lines = 10;
@@ -1010,6 +970,27 @@ struct GuiButton* get_gui_button(int id)
         }
     }
     return NULL;
+}
+
+void update_gui_button_player_colors(void)
+{
+    for (int menu_idx = 0; menu_idx < ACTIVE_MENUS_COUNT; menu_idx++) {
+        const struct GuiMenu *gmnu = get_active_menu(menu_idx);
+        if (gmnu->visual_state == 0) {
+            continue;
+        }
+        const struct GuiButtonInit *gbinit = gmnu->buttons;
+        for (int btn_idx = 0; btn_idx < ACTIVE_BUTTONS_COUNT && gbinit->gbtype != -1; btn_idx++) {
+            struct GuiButton *gbtn = &active_buttons[btn_idx];
+            if ((gbtn->flags & LbBtnF_Active) == 0 || gbtn->gmenu_idx != menu_idx) {
+                continue;
+            }
+            if (gbinit->sprite_idx != 0) {
+                gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx, my_player_number);
+            }
+            gbinit++;
+        }
+    }
 }
 
 struct GuiButtonInit * get_gui_button_init(struct GuiMenu * menu, int id)

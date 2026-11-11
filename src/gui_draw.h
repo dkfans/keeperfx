@@ -25,6 +25,7 @@
 #include "bflib_sprite.h"
 #include "globals.h"
 #include "vidmode.h"
+#include "kfx/renderer/DrawState.h" // TbDrawFlagsMask
 
 // Sprites
 // Maybe "Count + 1"? there is no sprite#517
@@ -38,6 +39,7 @@
 #define POS_GAMECTR  999
 #define ROUNDSLAB64K_LIGHT 0
 #define ROUNDSLAB64K_DARK 1
+#define ROUNDSLAB64K_DARKER 2
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,10 +68,14 @@ int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, lon
 
 void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width);
+void draw_slab64k_background(long pos_x, long pos_y, long width, long height);
+/** The tiling itself; draw_slab64k_background routes through the renderer first. */
+void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long height);
 void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type);
+void draw_round_slab64k_remap(int32_t pos_x, int32_t pos_y, int units_per_px, int32_t width, int32_t height, int32_t style_type, const unsigned char *cmap, TbPixel fill_colour);
 void draw_string64k(long x, long y, int units_per_px, const char * text);
 
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text);
@@ -82,8 +88,8 @@ int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx);
 #define draw_gui_panel_sprite_rmleft(x, y, units_per_px, spridx, remap) draw_gui_panel_sprite_rmleft_player(x, y, units_per_px, spridx, remap, my_player_number)
 void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx);
-void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx);
-void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color);
+void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx, TbDrawFlagsMask draw_flags);
+void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color, TbDrawFlagsMask draw_flags);
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx);
 void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap);
 

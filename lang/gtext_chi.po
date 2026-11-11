@@ -2605,10 +2605,8 @@ msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者�
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr "水: 怪物在水中移动更慢。在水上建造桥梁使其就像新的陆地。"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "水：怪物可以在水中自由移动。建造桥梁以连接远处的领地。"
 
 #: guitext:329
 msgctxt "Slab description"
@@ -2733,9 +2731,10 @@ msgid "Speed"
 msgstr "速度"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COM端口"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "深渊: 无底深坑，你的怪物最好避开。"
 
 #: guitext:354
 msgctxt "Menu interface item"
@@ -5537,22 +5536,22 @@ msgstr "遭遇战"
 #: guitext:877
 msgctxt "World direction"
 msgid "N"
-msgstr "N"
+msgstr "北"
 
 #: guitext:878
 msgctxt "World direction"
 msgid "E"
-msgstr "E"
+msgstr "东"
 
 #: guitext:879
 msgctxt "World direction"
 msgid "S"
-msgstr "S"
+msgstr "南"
 
 #: guitext:880
 msgctxt "World direction"
 msgid "W"
-msgstr "W"
+msgstr "西"
 
 #: guitext:881
 msgctxt "Menu interface item"
@@ -6048,12 +6047,12 @@ msgstr "敌人发现了你的暗门"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "更深的地下城"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "选择关卡"
 
 #: guitext:943
@@ -6966,3 +6965,176 @@ msgstr "/fxdata/%.39s 未加载。"
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "请将其作为模组安装到 /mods/ 文件夹中。"
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "与服务器的连接已中断。"
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "多人游戏不同步。"
+
+#: guitext:1124
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "战役"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "继续战役"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Network game interface"
+msgid "State"
+msgstr "状态"
+
+#: guitext:1127
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Version"
+msgstr "版本"
+
+#: guitext:1128
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Unknown"
+msgstr "未知"
+
+#: guitext:1129
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby"
+msgstr "大厅"
+
+#: guitext:1130
+#, fuzzy
+msgctxt "Network game interface"
+msgid "In-game"
+msgstr "游戏中"
+
+#: guitext:1131
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Map"
+msgstr "地图"
+
+#: guitext:1132
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Player list unavailable"
+msgstr "玩家列表不可用"
+
+#: guitext:1133
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Maximum players"
+msgstr "玩家上限"
+
+#: guitext:1134
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow observers"
+msgstr "允许观战"
+
+#: guitext:1135
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Settings"
+msgstr "设置"
+
+#: guitext:1136
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Confirm"
+msgstr "确认"
+
+#: guitext:1137
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Game has already started."
+msgstr "游戏已经开始。"
+
+#: guitext:1138
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Joining is temporarily locked."
+msgstr "暂时无法加入。"
+
+#: guitext:1139
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby is full."
+msgstr "大厅已满。"
+
+#: guitext:1140
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host is using a different game version."
+msgstr "主机使用的游戏版本不同。"
+
+#: guitext:1141
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby Name"
+msgstr "大厅名称"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "快进 %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "正常"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "加载中"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "显示观战聊天"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "观战者只能加入正在进行的游戏。"
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "房主已禁止观战者加入。"
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "所有观战连接均已占用。"
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "玩家无法看到观战者聊天。"
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "您正在观战"

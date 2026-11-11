@@ -1421,7 +1421,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_RUN_AFTER_VICTORY:
         if (scline->np[0] == 1)
         {
-            game.system_flags |= GSF_RunAfterVictory;
+            game.run_after_victory = true;
         }
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:

@@ -59,6 +59,7 @@ enum TbFileGroups {
         FGrp_CmpgMedia,
         FGrp_Music,
         FGrp_MpLevels,
+        FGrp_Replays,
         FGrp_Mods,
 };
 
@@ -284,8 +285,13 @@ short is_multiplayer_level(LevelNumber lvnum);
 short is_campaign_level(LevelNumber lvnum);
 short is_freeplay_level(LevelNumber lvnum);
 TbBool is_level_in_current_campaign(LevelNumber lvnum);
+TbBool set_level_ensign(LevelNumber lvnum, short ensign_id);
 int array_index_for_singleplayer_level(LevelNumber sp_lvnum);
 int storage_index_for_bonus_level(LevelNumber bn_lvnum);
+struct GameCampaign;
+int campaign_singleplayer_level_index(const struct GameCampaign *campgn, LevelNumber lvnum);
+int campaign_bonus_level_index(const struct GameCampaign *campgn, LevelNumber lvnum);
+int campaign_extra_level_index(const struct GameCampaign *campgn, LevelNumber lvnum);
 LevelNumber first_singleplayer_level(void);
 LevelNumber last_singleplayer_level(void);
 LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore);

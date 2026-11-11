@@ -122,6 +122,7 @@ void frontnetmap_draw(void);
 TbBool frontnetmap_update(void);
 void frontmap_input(void);
 void frontmap_draw(void);
+void landview_set_text(const char *text);
 TbBool frontmap_load(void);
 void frontmap_unload(void);
 long frontmap_update(void);
@@ -130,12 +131,15 @@ void compressed_window_draw(void);
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame);
 void set_level_name_text(LevelNumber lvnum, const char *lv_name);
 void draw_map_level_descriptions(void);
+TbBool init_netfont_palette_remap(char* land_view);
+void pop_palette_remap(void);
 
 TbBool initialize_description_speech(void);
 TbBool play_current_description_speech(short play_good);
 TbBool play_description_speech(LevelNumber lvnum, short play_good);
 void check_mouse_scroll(void);
 void update_velocity(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

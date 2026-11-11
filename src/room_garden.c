@@ -143,9 +143,12 @@ TbBool recreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubtl
             pos.x.val = subtile_coord_center(stl_x);
             pos.y.val = subtile_coord_center(stl_y);
             pos.z.val = 0;
-            struct Thing* foodtng = create_object(&pos, rrepos->models[ri], room->owner, -1);
+            struct Thing* foodtng = create_object(&pos, rrepos->models[ri], room->owner, room->index);
             if (!thing_is_invalid(foodtng))
             {
+                if (object_is_mature_food(foodtng)) {
+                    foodtng->food.life_remaining = -1;
+                }
                 rrepos->used--;
                 rrepos->models[ri] = 0;
                 rrepos->exp_level[ri] = 0;
@@ -224,8 +227,8 @@ int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoor
                 // If exceeded capacity of the room
                 if (room->used_capacity >= room->total_capacity)
                 {
-                    WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
-                    return -1; // re-create all (this could save the object if there are duplicates)
+                    WARNLOG("Trying to place %s back in room %s, that is already at %d/%d capacity",thing_model_name(thing), room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                    return -1; // re-create all 
                 } else
                 // If the thing is in wall, remove it but store to re-create later
                 if (thing_in_wall_at(thing, &thing->mappos))

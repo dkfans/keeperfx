@@ -42,6 +42,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "player_instances.h"
+#include "custom_sprites.h"
 
 #include <toml.h>
 #include "post_inc.h"
@@ -364,6 +365,8 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
         return 0;
     }
     lvinfo->location = LvLc_Custom;
+
+    load_sprites_for_multi_front(lvinfo->lvnum);
     pos = 0;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cmpgn_map_commands,cmd_num)
     while (pos<len)
@@ -475,8 +478,15 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
                 }
                 else
                 {
-                    WARNMSG("Invalid value '%s' for \"%s\" in '%s' file.", word_buf,
-                        COMMAND_TEXT(cmd_num), fname);
+                    k = get_ensign_id(word_buf);
+
+                    if (k >= 0)
+                    {
+                        lvinfo->ensign_type = CUSTOM_ENSIGN_BASE + k;
+                    } else {
+                        WARNMSG("Invalid value '%s' for \"%s\" in '%s' file.", word_buf,
+                            COMMAND_TEXT(cmd_num), fname);
+                    }
                 }
             }
             break;
@@ -769,7 +779,7 @@ static TbBool load_thing_file(LevelNumber lv_num)
     return true;
 }
 
-static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char *msg_name,
+static int load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char *msg_name,
                                  const char *sections, const char *count_field, const char *section_fmt,
                                  int max_count, TbBool (*section_loader)(VALUE *arg))
 {
@@ -777,7 +787,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     int32_t fsize = 0;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, ext, &fsize, LMFF_None);
     if (buf == NULL)
-        return false;
+        return -1;
     VALUE file_root, *root_ptr = &file_root;
     char err[255] = "";
     char key[64] = "";
@@ -786,7 +796,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     {
         WARNMSG("Unable to load %s file\n %s", msg_name, err);
         free(buf);
-        return false;
+        return -1;
     }
     VALUE *common_section = value_dict_get(root_ptr, "common");
     if (!common_section)
@@ -794,7 +804,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
         WARNMSG("No [common] in %s for level %d", msg_name, lv_num);
         value_fini(root_ptr);
         free(buf);
-        return false;
+        return -1;
     }
     int32_t total;
 
@@ -814,13 +824,14 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
         WARNMSG("Bad amount of secions in %s file", msg_name);
         value_fini(root_ptr);
         free(buf);
-        return false;
+        return -1;
     }
     if (total >= max_count)
     {
         WARNMSG("Only %d things supported, file has %d.", max_count,total);
 
     }
+    int status = 0;
     // Create sections
     for (int k = 0; k < total; k++)
     {
@@ -835,28 +846,23 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
             snprintf(key, sizeof(key), section_fmt, k);
             section = value_dict_get(root_ptr, key);
         }
-        if (value_type(section) != VALUE_DICT)
-        {
+        if (value_type(section) != VALUE_DICT) {
             WARNMSG("Invalid %s section %d", msg_name, k);
+            status = 1;
         }
-        else
-        {
-            if (!section_loader(section))
-            {
-                WARNMSG("Failed to load section %d from %s", k, msg_name);
-            }
+        else if (!section_loader(section)) {
+            WARNMSG("Failed to load section %d from %s", k, msg_name);
+            status = 1;
         }
     }
     value_fini(root_ptr);
     free(buf);
-    return true;
+    return status;
 }
 
 static TbBool load_tngfx_file(LevelNumber lv_num)
 {
-    return load_kfx_toml_file(lv_num, "tngfx", "TNGFX",
-                              "thing", "ThingsCount", "thing%d", THINGS_COUNT - 2,
-                              &thing_create_thing_adv);
+    return load_kfx_toml_file(lv_num, "tngfx", "TNGFX", "thing", "ThingsCount", "thing%d", THINGS_COUNT - 2, &thing_create_thing_adv) == 0;
 }
 
 TbBool load_action_point_file(LevelNumber lv_num)
@@ -902,7 +908,7 @@ TbBool load_aptfx_file(LevelNumber lv_num)
 {
     return load_kfx_toml_file(lv_num, "aptfx", "APTFX",
                               "actionpoint", "ActionPointsCount", "actionpoint%d", ACTN_POINTS_COUNT - 1,
-                              &actnpoint_create_actnpoint_adv);
+                              &actnpoint_create_actnpoint_adv) >= 0;
 }
 
 /**
@@ -1093,7 +1099,7 @@ TbBool initialise_map_wlb_auto(void)
     struct SlabConfigStats *slabst;
     unsigned long x;
     unsigned long y;
-    unsigned long n;
+    int n;
     unsigned long nbridge;
     nbridge = 0;
     for (y = 0; y < game.map_tiles_y; y++)
@@ -1101,12 +1107,21 @@ TbBool initialise_map_wlb_auto(void)
         for (x = 0; x < game.map_tiles_x; x++)
         {
             slb = get_slabmap_block(x, y);
-            if (slb->kind == SlbT_BRIDGE)
+            slabst = get_slab_stats(slb);
+            if (slabst->wlb_type == WlbT_Bridge)
             {
-                if (slabs_count_near(x, y, 1, SlbT_LAVA) > slabs_count_near(x, y, 1, SlbT_WATER))
-                    n = SlbT_LAVA;
-                else
-                    n = SlbT_WATER;
+                n = slab_kind_from_wlb_type(WlbT_Water);
+                long best = 0;
+                if (n >= 0)
+                    best = slabs_count_near(x, y, 1, n);
+                for (int slbkind = 0; slbkind < game.conf.slab_conf.slab_types_count; slbkind++) {
+                    if (slab_kind_is_bridgeable(slbkind) && (slabs_count_near(x, y, 1, slbkind) > best)) {
+                        n = slbkind;
+                        best = slabs_count_near(x, y, 1, slbkind);
+                    }
+                }
+                if (n < 0)
+                    n = SlbT_PATH;
                 nbridge++;
             }
             else
@@ -1144,13 +1159,12 @@ TbBool load_map_wlb_file(unsigned long lv_num)
         slb = get_slabmap_block(x,y);
         n = buf[i];
         slb->wlb_type = buf[i];
-        if ((n != WlbT_Water) || (slb->kind != SlbT_WATER))
-          if ((n != WlbT_Lava) || (slb->kind != SlbT_LAVA))
-            if (((n == WlbT_Water) || (n == WlbT_Lava)) && (slb->kind != SlbT_BRIDGE))
-            {
-                nfixes++;
-                slb->wlb_type = WlbT_None;
-            }
+        int slbkind = slab_kind_from_wlb_type(n);
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
+        if ((n != WlbT_None) && ((slbkind < 0) || ((slabst->wlb_type != WlbT_Bridge) && (slb->kind != slbkind)))) {
+            nfixes++;
+            slb->wlb_type = WlbT_None;
+        }
         i++;
       }
     free(buf);
@@ -1282,7 +1296,7 @@ static TbBool load_lgtfx_file(unsigned long lv_num)
 {
     TbBool ret = load_kfx_toml_file(lv_num, "lgtfx", "LGTFX",
                              "light", "LightsCount", "light%d", LIGHTS_COUNT - 1,
-                             &light_create_light_adv);
+                             &light_create_light_adv) >= 0;
     if (light_count_lights() > LIGHTS_COUNT / 2)
     {
         WARNMSG("More than %d%% of light slots used by static lights.", 100*light_count_lights()/LIGHTS_COUNT);

@@ -2,6 +2,8 @@
 #include "bflib_sprite.h"
 #include "bflib_filelst.h"
 #include "bflib_dernc.h"
+#include "globals.h"        // SYNCLOG
+#include "kfx/renderer/RendererBridge_UI.h" // RendererForgetSprites
 #include <vector>
 #include <memory>
 #include <map>
@@ -107,6 +109,14 @@ extern "C" TbSpriteSheet * load_spritesheet(const char * data_fname, const char 
 
 extern "C" void free_spritesheet(TbSpriteSheet ** sheet)
 {
+    if (sheet && *sheet && !(*sheet)->sprites.empty()) {
+        // IUIRenderer::ResolveSprite() caches handles keyed by TbSprite*; the
+        // next sheet loaded can reuse this memory, so drop this sheet's entries.
+        int32_t forgotten = RendererForgetSprites((*sheet)->sprites.data(), (long)(*sheet)->sprites.size());
+        if (forgotten > 0) {
+            SYNCLOG("forgot %d cached UI sprite handle(s) before freeing a sprite sheet", (int)forgotten);
+        }
+    }
     if (sheet) {
         delete *sheet;
         *sheet = NULL;
@@ -131,11 +141,17 @@ extern "C" TbBool add_sprite(TbSpriteSheet * sheet, unsigned char width, unsigne
 {
     try {
         sheet->data.emplace_back(std::vector<unsigned char >(static_cast<const unsigned char *>(data), static_cast<const unsigned char *>(data) + size));
+        const TbSprite * old_first = sheet->sprites.data();
+        const size_t old_count = sheet->sprites.size();
         try {
             sheet->sprites.emplace_back(TbSprite{sheet->data.back().data(), width, height});
         } catch (...) {
             sheet->data.pop_back();
             throw;
+        }
+        if (old_count > 0 && sheet->sprites.data() != old_first) {
+            // The sprites moved; their old addresses may be reused.
+            RendererForgetSprites(old_first, (long)old_count);
         }
         return true;
     } catch (const std::exception & e) {

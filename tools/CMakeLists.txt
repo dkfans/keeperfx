@@ -12,9 +12,12 @@ endif()
 
 set(DESTINATION_DIR ${CMAKE_SOURCE_DIR}/tools/png2ico/${CMAKE_HOST_SYSTEM_NAME})
 
-if( NOT EXISTS ${DESTINATION_DIR} )
+# Check for the extracted exe itself, not just the directory: DESTINATION_DIR
+# can already exist (e.g. a stale doc/ folder left by a Makefile tool build)
+# without the tool having been downloaded/extracted here.
+if( NOT EXISTS ${DESTINATION_DIR}/${EXE_FILE_NAME} )
 	file( MAKE_DIRECTORY ${DESTINATION_DIR} )
-	if( NOT EXISTS ${DESTINATION_DIR}/ZIP_FILE_NAME )
+	if( NOT EXISTS ${DESTINATION_DIR}/${ZIP_FILE_NAME} )
 		file( DOWNLOAD ${PNGTOICO_DOWNLOAD} ${DESTINATION_DIR}/${ZIP_FILE_NAME} SHOW_PROGRESS )
 	endif()
 

@@ -55,6 +55,7 @@
 #include "keeperfx.hpp"
 #include "config_spritecolors.h"
 #include "lua_triggers.h"
+#include "lua_cfg_funcs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -340,21 +341,13 @@ void init_reposition_struct(struct RoomReposition * rrepos)
 
 TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel)
 {
-    int ri;
-    // Don't store the same entry two times
-    for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
-    {
-        if (rrepos->models[ri] == tngmodel) {
-            return true;
-        }
-    }
     if (rrepos->used > ROOM_REPOSITION_COUNT)
     {
         ERRORLOG("Reposition entries to store (%d) exceed maximum %d", rrepos->used,ROOM_REPOSITION_COUNT);
         rrepos->used = ROOM_REPOSITION_COUNT;
         return false;
     }
-    for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
+    for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
     {
         if (rrepos->models[ri] == 0) {
             rrepos->models[ri] = tngmodel;
@@ -363,6 +356,19 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
         }
     }
     return true;
+}
+
+TbBool store_unique_reposition_entry(struct RoomReposition* rrepos, ThingModel tngmodel)
+{
+    int ri;
+    // Don't store the same entry two times
+    for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
+    {
+        if (rrepos->models[ri] == tngmodel) {
+            return true;
+        }
+    }
+    return store_reposition_entry(rrepos, tngmodel);
 }
 
 TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level)
@@ -613,9 +619,14 @@ void update_room_total_capacity(struct Room *room)
 {
     SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
     const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    Room_Update_Func cb = terrain_room_total_capacity_func_list[roomst->update_total_capacity_idx];
-    if (cb != NULL) {
-        cb(room);
+    if (roomst->update_total_capacity_idx < 0) {
+        luafunc_room_capacity_func(roomst->update_total_capacity_idx, room);
+    } else
+    {
+        Room_Update_Func cb = terrain_room_total_capacity_func_list[roomst->update_total_capacity_idx];
+        if (cb != NULL) {
+            cb(room);
+        }
     }
     SYNCDBG(7, "Finished");
 }
@@ -1302,13 +1313,24 @@ TbBool update_room_contents(struct Room *room)
 {
     const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
-    Room_Update_Func cb = terrain_room_used_capacity_func_list[roomst->update_storage_in_room_idx];
-    if (cb != NULL) {
-        cb(room);
+    if (roomst->update_storage_in_room_idx < 0) {
+        luafunc_room_capacity_func(roomst->update_storage_in_room_idx, room);
+    } else
+    {
+        Room_Update_Func cb = terrain_room_used_capacity_func_list[roomst->update_storage_in_room_idx];
+        if (cb != NULL) {
+            cb(room);
+        }
     }
-    cb = terrain_room_used_capacity_func_list[roomst->update_workers_in_room_idx];
-    if (cb != NULL) {
-        cb(room);
+
+    if (roomst->update_workers_in_room_idx < 0) {
+        luafunc_room_capacity_func(roomst->update_workers_in_room_idx, room);
+    } else
+    {
+        Room_Update_Func cb = terrain_room_used_capacity_func_list[roomst->update_workers_in_room_idx];
+        if (cb != NULL) {
+            cb(room);
+        }
     }
     return true;
 }
@@ -3238,22 +3260,15 @@ void reset_creatures_rooms(struct Room *room)
 
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char is_destroyed)
 {
-    if (room_role_matches(room->kind,RoRoF_PassWater|RoRoF_PassLava))
+    if (room_role_matches(room->kind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss))
     {
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-        switch (slabmap_wlb(slb))
-        {
-        case 1:
-            place_slab_type_on_map(SlbT_LAVA,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
-            break;
-        case 2:
-            place_slab_type_on_map(SlbT_WATER, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
-            break;
-        default:
+        int slbkind = slab_kind_from_wlb_type(slabmap_wlb(slb));
+        if (slbkind < 0) {
             ERRORLOG("WLB flags seem damaged for slab (%ld,%ld).",(long)slb_x,(long)slb_y);
-            place_slab_type_on_map(SlbT_PATH,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
-            break;
+            slbkind = SlbT_PATH;
         }
+        place_slab_type_on_map(slbkind, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
     } else
     {
         if ( is_destroyed )

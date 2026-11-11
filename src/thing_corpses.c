@@ -196,7 +196,7 @@ long move_dead_creature(struct Thing *thing)
         if (i < 0) i = 0;
         pos.y.val = i;
         i = (long)thing->mappos.z.val + (long)thing->velocity.z.val;
-        if (i < 0) i = 0;
+        if ((i < 0) && !subtile_has_abyss_on_top(pos.x.stl.num, pos.y.stl.num)) i = 0;
         pos.z.val = i;
         if ( !positions_equivalent(&thing->mappos, &pos) )
         {

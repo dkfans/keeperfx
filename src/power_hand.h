@@ -48,7 +48,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber p
 void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID);
 TbBool power_hand_is_empty(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
-struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
+struct Thing *get_first_thing_in_power_hand(const struct PlayerInfo *player);
 void draw_power_hand(void);
 void clear_things_in_hand(struct PlayerInfo *player);
 TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx);
@@ -87,6 +87,8 @@ TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx);
 void reset_hand_rules(void);
 void script_set_hand_rule(PlayerNumber plyr_idx, long crtr_id,long hand_rule_action,long hand_rule_slot,long hand_rule_type,long param);
+
+void process_things_in_dungeon_hand(void);
 
 enum HandRuleType {
     // hand_rule_test_fns are indexed by these enum values -> reordering or adding new types affects test_fns

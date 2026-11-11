@@ -64,26 +64,22 @@
         {
             "name": "Debug-Clang",
             "displayName": "Debug Clang",
-            "inherits": [ "base", "x86", "Debug", "Clang" ],
-            "hidden": true
+            "inherits": [ "base", "x86", "Debug", "Clang" ]
         },
         {
             "name": "Release-Clang",
             "displayName": "Release Clang",
-            "inherits": [ "base", "x86", "Release", "Clang" ],
-            "hidden": true
+            "inherits": [ "base", "x86", "Release", "Clang" ]
         },
         {
             "name": "Debug-MSVC",
             "displayName": "Debug MSVC",
-            "inherits": [ "base", "x86", "Debug", "MSVC" ],
-            "hidden": true
+            "inherits": [ "base", "x86", "Debug", "MSVC" ]
         },
         {
             "name": "Release-MSVC",
             "displayName": "Release MSVC",
-            "inherits": [ "base", "x86", "Release", "MSVC" ],
-            "hidden": true
+            "inherits": [ "base", "x86", "Release", "MSVC" ]
         },
 
         {
@@ -119,6 +115,19 @@
             "inherits": [ "MingGW32-Base", "x86", "Release" ],
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+
+        {
+            "name": "linux-deck",
+            "displayName": "Linux (Steam Deck bundle)",
+            "description": "Native x86-64 Linux build that installs as a self-contained bundle for the Steam Deck. Build in the pinned container (build/docker/deck.Dockerfile) so glibc matches the Deck; see docs/steam-deck.md.",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/deck",
+            "installDir": "${sourceDir}/out/keeperfx-deck",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "KFX_DECK_BUNDLE": "ON"
             }
         }
     ],

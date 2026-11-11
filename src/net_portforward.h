@@ -5,7 +5,6 @@
  * @file net_portforward.h
  *     Port forwarding support using NAT-PMP and UPnP.
  * @par Purpose:
- *     Automatic port forwarding for multiplayer hosting.
  *     Tries NAT-PMP first (simpler/faster), falls back to UPnP.
  * @author   KeeperFX Team
  * @date     01 Jan 2026
@@ -25,8 +24,7 @@
 extern "C" {
 #endif
 
-int port_forward_add_mapping(uint16_t port);
-void port_forward_remove_mapping(void);
+void port_forward_set_mapping(uint16_t port);
 
 #ifdef __cplusplus
 }

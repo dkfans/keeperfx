@@ -1,9 +1,9 @@
 #include "pre_inc.h"
 #include "bflib_fmvids.h"
 #include "bflib_video.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_inputctrl.h"
 #include "bflib_keybrd.h"
-#include "bflib_vidsurface.h"
 #include "bflib_fileio.h"
 #include "kjm_input.h"
 
@@ -23,138 +23,15 @@ extern "C" {
 #include <chrono>
 #include "thread.hpp"
 #include <vector>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include "post_inc.h"
 
 namespace {
 
-void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
+static void compute_scaled_video_rect(const AVFrame & frame, const int flags,
+	const int scanline, const int nlines,
+	int * out_spw, int * out_sph, int * out_dst_width, int * out_dst_height)
 {
-	const auto s = dst_shift >> 2;
-	auto w = ((uint32_t)width) >> 2;
-	auto * src = reinterpret_cast<uint32_t *>(srcbuf);
-	auto * dst = reinterpret_cast<uint32_t *>(dstbuf);
-	do {
-		const auto c = *src++;
-		const auto first_pixel_low_byte = c & 0xFF;
-		const auto first_pixel_high_byte = (c >> 8) & 0xFF;
-		const auto first_doubled_pixel = (first_pixel_high_byte << 24) + (first_pixel_high_byte << 16) + (first_pixel_low_byte << 8) + first_pixel_low_byte;
-		dst[0] = first_doubled_pixel;
-		dst[s] = first_doubled_pixel;
-		const auto second_pixel_low_byte = (c >> 16) & 0xFF;
-		const auto second_pixel_high_byte = (c >> 24) & 0xFF;
-		const auto second_doubled_pixel = (second_pixel_high_byte << 24) + (second_pixel_high_byte << 16) + (second_pixel_low_byte << 8) + second_pixel_low_byte;
-		dst[1] = second_doubled_pixel;
-		dst[s+1] = second_doubled_pixel;
-		dst += 2;
-		w--;
-	}
-	while (w > 0);
-}
-
-void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
-{
-	const auto s = dst_shift >> 2;
-	auto w = ((unsigned long)width) >> 2;
-	auto src = (uint32_t *)srcbuf;
-	auto dst = (uint32_t *)dstbuf;
-	do {
-		const auto n = *src++;
-		dst[0] = n;
-		dst[s] = n;
-		dst++;
-		w--;
-	}
-	while (w > 0);
-}
-
-void copy_to_screen_pxdblw(unsigned char *srcbuf, unsigned char *dstbuf, long width)
-{
-	auto w = ((unsigned long)width) >> 2;
-	auto src = (uint32_t *)srcbuf;
-	auto dst = (uint32_t *)dstbuf;
-	do {
-		const auto c = *src++;
-		const auto first_pixel_low_byte = c & 0xFF;
-		const auto first_pixel_high_byte = (c >> 8) & 0xFF;
-		dst[0] = (first_pixel_high_byte << 24) + (first_pixel_high_byte << 16) + (first_pixel_low_byte << 8) + first_pixel_low_byte;
-		const auto second_pixel_low_byte = (c >> 16) & 0xFF;
-		const auto second_pixel_high_byte = (c >> 24) & 0xFF;
-		dst[1] = (second_pixel_high_byte << 24) + (second_pixel_high_byte << 16) + (second_pixel_low_byte << 8) + second_pixel_low_byte;
-		dst += 2;
-		w--;
-	}
-	while (w > 0);
-}
-
-void copy_to_screen(const AVFrame & frame, const int flags)
-{
-	const auto src_pitch = frame.linesize[0];
-	auto srcbuf = frame.data[0];
-	long screen_buffer_center_offset;
-	if (flags & (SMK_PixelDoubleLine | SMK_InterlaceLine)) {
-		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * frame.height) >> 1);
-	} else {
-		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - frame.height) >> 1);
-	}
-	auto w = frame.width;
-	if (flags & SMK_PixelDoubleWidth) {
-		w = 2 * frame.width;
-	}
-	auto dstbuf = &lbDisplay.WScreen[screen_buffer_center_offset + ((LbScreenWidth() - w) >> 1)];
-	if (flags & SMK_PixelDoubleLine) {
-		if (flags & SMK_PixelDoubleWidth) {
-			for (int h = frame.height; h > 0; h--) {
-				copy_to_screen_pxquad(srcbuf, dstbuf, frame.width, lbDisplay.GraphicsScreenWidth);
-				dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
-				srcbuf += src_pitch;
-			}
-		} else {
-			for (int h = frame.height; h > 0; h--) {
-				copy_to_screen_pxdblh(srcbuf, dstbuf, frame.width, lbDisplay.GraphicsScreenWidth);
-				dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
-				srcbuf += src_pitch;
-			}
-		}
-	} else {
-		if (flags & SMK_PixelDoubleWidth) {
-				if (flags & SMK_InterlaceLine) {
-					for (int h = frame.height; h > 0; h--) {
-						copy_to_screen_pxdblw(srcbuf, dstbuf, frame.width);
-						dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
-						srcbuf += src_pitch;
-					}
-				} else {
-					for (int h = frame.height; h > 0; h--) {
-						copy_to_screen_pxdblw(srcbuf, dstbuf, frame.width);
-						dstbuf += lbDisplay.GraphicsScreenWidth;
-						srcbuf += src_pitch;
-					}
-				}
-		} else if (flags & SMK_InterlaceLine) {
-			for (int h = frame.height; h > 0; h--) {
-				memcpy(dstbuf, srcbuf, frame.width);
-				dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
-				srcbuf += src_pitch;
-			}
-		} else {
-			for (int h = frame.height; h > 0; h--) {
-				memcpy(dstbuf, srcbuf, frame.width);
-				dstbuf += lbDisplay.GraphicsScreenWidth;
-				srcbuf += src_pitch;
-			}
-		}
-	}
-}
-
-void copy_to_screen_scaled(const AVFrame & frame, const int flags)
-{
-	const auto src_pitch = frame.linesize[0];
-	const auto src_buf = frame.data[0];
-	const auto dst_buf = &lbDisplay.WScreen[0];
-	// Compute scaling ratio -> Output co-ordinates and output size
-	const int scanline = lbDisplay.GraphicsScreenWidth;
-	const int nlines = lbDisplay.GraphicsScreenHeight;
 	int spw = 0;
 	int sph = 0;
 	int dst_width = 0;
@@ -216,45 +93,10 @@ void copy_to_screen_scaled(const AVFrame & frame, const int flags)
 		dst_height = (int)(in_height * units_per_px / 16.0);
 	}
 
-	// Clearing top of the canvas
-	for (int sh = 0; sh < sph; sh++) {
-		memset(&dst_buf[sh * scanline], 0, scanline);
-	}
-	// Clearing bottom of the canvas
-	// (Note: it must be done before drawing, to make sure we won't overwrite last line)
-	for (int sh = sph + dst_height; sh < nlines; sh++) {
-		memset(&dst_buf[sh * scanline], 0, scanline);
-	}
-	// Now drawing
-	auto dhstart = sph;
-	for (int sh = 0; sh < frame.height; sh++) {
-		const auto dhend = sph + (dst_height * (sh + 1) / frame.height);
-		const auto src = &src_buf[sh * src_pitch];
-		// make for(k=0;k<dhend-dhstart;k++) but restrict k to draw area
-		const auto mhmin = max(0, -dhstart);
-		const auto mhmax = min(dhend - dhstart, nlines - dhstart);
-		for (int k = mhmin; k < mhmax; k++) {
-			const auto dst = &dst_buf[(dhstart + k) * scanline];
-			int dwstart = spw;
-			if (dwstart > 0) {
-				memset(dst, 0, dwstart);
-			}
-			for (int sw = 0; sw < frame.width; sw++) {
-				const auto dwend = spw + (dst_width * (sw + 1) / frame.width);
-				// make for(i=0;i<dwend-dwstart;i++) but restrict i to draw area
-				const auto mwmin = max(0, -dwstart);
-				const auto mwmax = min(dwend - dwstart, scanline - dwstart);
-				for (int i = mwmin; i < mwmax; i++) {
-					dst[dwstart+i] = src[sw];
-				}
-				dwstart = dwend;
-			}
-			if (dwstart < scanline) {
-				memset(dst+dwstart, 0, scanline-dwstart);
-			}
-		}
-		dhstart = dhend;
-	}
+	*out_spw = spw;
+	*out_sph = sph;
+	*out_dst_width = dst_width;
+	*out_dst_height = dst_height;
 }
 
 struct movie_t {
@@ -277,6 +119,8 @@ struct movie_t {
 	time_point m_video_start;
 	AVRational m_time_base;
 	SDL_AudioDeviceID m_audio_device = 0;
+	// SDL3 pushes audio through an SDL_AudioStream rather than SDL_QueueAudio().
+	SDL_AudioStream* m_sdl_audio_stream = nullptr;
 
 	int m_audio_index;
 	int m_video_index;
@@ -323,8 +167,9 @@ struct movie_t {
 			swr_free(&m_resampler);
 		}
 		if (m_audio_device > 0) {
-			SDL_CloseAudioDevice(m_audio_device);
+			SDL_CloseAudioDevice(m_audio_device); // also destroys bound streams
 			m_audio_device = 0;
+			m_sdl_audio_stream = nullptr;
 		}
 	}
 
@@ -336,10 +181,10 @@ struct movie_t {
 
 	AVSampleFormat sdl_to_ffmpeg_format(SDL_AudioFormat format) {
 		switch (format) {
-			case AUDIO_S8: return AV_SAMPLE_FMT_U8;
-			case AUDIO_S16SYS: return AV_SAMPLE_FMT_S16;
-			case AUDIO_S32SYS: return AV_SAMPLE_FMT_S32;
-			case AUDIO_F32SYS: return AV_SAMPLE_FMT_FLT;
+			case SDL_AUDIO_S8:  return AV_SAMPLE_FMT_U8;
+			case SDL_AUDIO_S16: return AV_SAMPLE_FMT_S16;
+			case SDL_AUDIO_S32: return AV_SAMPLE_FMT_S32;
+			case SDL_AUDIO_F32: return AV_SAMPLE_FMT_FLT;
 			default: return AV_SAMPLE_FMT_NONE;
 		}
 	}
@@ -361,24 +206,20 @@ struct movie_t {
 	void open_audio_device() {
         if (!flag_is_set(m_flags, SMK_NoSound))
         {
-            SDL_AudioSpec desired, obtained;
+            SDL_AudioSpec desired;
             desired.freq = 44100;
-            desired.format = AUDIO_F32SYS;
+            desired.format = SDL_AUDIO_F32;
             desired.channels = 2;
-            desired.silence = 0;
-            desired.samples = 0;
-            desired.padding = 0;
-            desired.size = 0;
-            desired.callback = nullptr;
-            desired.userdata = nullptr;
-            m_audio_device = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
-            if (m_audio_device <= 0) {
+            m_sdl_audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, nullptr, nullptr);
+            if (!m_sdl_audio_stream) {
                 throw std::runtime_error("Cannot open audio device");
             }
-            m_output_audio_channels = obtained.channels;
-            m_output_audio_frequency = obtained.freq;
-            m_output_audio_format = sdl_to_ffmpeg_format(obtained.format);
-            m_output_audio_layout = channels_to_ffmpeg_layout(obtained.channels);
+            m_audio_device = SDL_GetAudioStreamDevice(m_sdl_audio_stream);
+            // We push data in the desired format, so configure FFmpeg to match it.
+            m_output_audio_channels = desired.channels;
+            m_output_audio_frequency = desired.freq;
+            m_output_audio_format = sdl_to_ffmpeg_format(desired.format);
+            m_output_audio_layout = channels_to_ffmpeg_layout(desired.channels);
         }
 	}
 
@@ -512,32 +353,43 @@ struct movie_t {
 #endif
 			m_frame->nb_samples
 		);
-		SDL_QueueAudio(m_audio_device, buffer, num_samples * sample_size);
-		SDL_PauseAudioDevice(m_audio_device, 0);
+		// SDL3: SDL_QueueAudio -> SDL_PutAudioStreamData; devices start paused.
+		SDL_PutAudioStreamData(m_sdl_audio_stream, buffer, num_samples * sample_size);
+		SDL_ResumeAudioDevice(m_audio_device);
 		av_freep(&buffer);
 	}
 
 	void output_video_frame() {
 		// FFMpeg used to provide m_frame->palette_has_changed but it has been deprecated
 		// Assume the palette has changed every frame as there is no way for us to know anymore
-		SDL_Color palette[PALETTE_COLORS];
-		for (size_t i = 0; i < PALETTE_COLORS; ++i) {
-			palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
-			palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
-			palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
-		}
 		LbScreenWaitVbi(); // this is a no-op today
-		// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
-		SDL_SetPaletteColors(lbDrawSurface->format->palette, palette, 0, PALETTE_COLORS);
-		if (LbScreenLock() != Lb_SUCCESS) {
+		
+		if (!RendererBeginFrame()) {
 			return;
-		} else if (m_flags & (SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop)) { // new scaling mode
-			copy_to_screen_scaled(*m_frame, m_flags);
-		} else {
-			copy_to_screen(*m_frame, m_flags);
 		}
-		LbScreenUnlock();
-		LbScreenSwap();
+		const bool scaling_mode = (m_flags & (SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop)) != 0;
+		struct RendererPresentImageDesc present_desc = {};
+		present_desc.src = m_frame->data[0];
+		present_desc.src_pitch = m_frame->linesize[0];
+		present_desc.src_w = m_frame->width;
+		present_desc.src_h = m_frame->height;
+		present_desc.palette = PRESENT_PALETTE_EMBEDDED;
+		present_desc.embedded_palette = m_frame->data[1];
+		if (scaling_mode) {
+			compute_scaled_video_rect(*m_frame, m_flags, RendererScreenWidth(), RendererScreenHeight(),
+				&present_desc.dst_x, &present_desc.dst_y, &present_desc.dst_w, &present_desc.dst_h);
+		} else {
+			const int dst_w = (m_flags & SMK_PixelDoubleWidth) ? 2 * m_frame->width : m_frame->width;
+			const int dst_h = (m_flags & (SMK_PixelDoubleLine | SMK_InterlaceLine)) ? 2 * m_frame->height : m_frame->height;
+			present_desc.dst_x = (RendererPhysicalWidth() - dst_w) >> 1;
+			present_desc.dst_y = (RendererPhysicalHeight() - dst_h) >> 1;
+			present_desc.dst_w = dst_w;
+			present_desc.dst_h = dst_h;
+		}
+
+		RendererPresentImage(&present_desc);
+		RendererEndFrame();
+		RendererPresentFrame();
 	}
 
 	bool output_audio_frames() {
@@ -919,8 +771,8 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 			}
 			if (2*(long)k == animation.header.width) {
 				wend--;
-				cbf += LbGraphicsScreenWidth();
-				pbf += LbGraphicsScreenWidth();
+				cbf += RendererScreenWidth();
+				pbf += RendererScreenWidth();
 				continue;
 			}
 			if ( w > 0 ) {
@@ -995,8 +847,8 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 				}
 			}
 		}
-		cbuf += LbGraphicsScreenWidth();
-		pbuf += LbGraphicsScreenWidth();
+		cbuf += RendererScreenWidth();
+		pbuf += RendererScreenWidth();
 	}
 
 	if (animation.header.height+wend == 0) {
@@ -1048,8 +900,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 			++wend;
 		}
 		if ( wend != animation.header.width ) break;
-		cbuf += LbGraphicsScreenWidth();
-		pbuf += LbGraphicsScreenWidth();
+		cbuf += RendererScreenWidth();
+		pbuf += RendererScreenWidth();
 	}
 	if (hend != 0) {
 		hend = animation.header.height - hend;
@@ -1063,8 +915,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 				wend++;
 			}
 			if ( wend != animation.header.width ) break;
-			cbuf -= LbGraphicsScreenWidth();
-			pbuf -= LbGraphicsScreenWidth();
+			cbuf -= RendererScreenWidth();
+			pbuf -= RendererScreenWidth();
 		}
 		hdim = h - hend;
 		blksize = animation.header.width * (long)hend;
@@ -1152,8 +1004,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 					}
 				}
 			}
-			cbuf += LbGraphicsScreenWidth();
-			pbuf += LbGraphicsScreenWidth();
+			cbuf += RendererScreenWidth();
+			pbuf += RendererScreenWidth();
 		}
 	} else {
 		*(short *)animation.buffer_write_pointer = 0;

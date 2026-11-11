@@ -5,7 +5,6 @@
  * @file net_portforward.cpp
  *     Port forwarding support using NAT-PMP and UPnP.
  * @par Purpose:
- *     Automatic port forwarding for multiplayer hosting.
  *     Tries NAT-PMP first (simpler/faster), falls back to UPnP.
  * @author   KeeperFX Team
  * @date     01 Jan 2026
@@ -17,6 +16,14 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#endif
 #include "net_portforward.h"
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
@@ -26,11 +33,6 @@
 #include <miniupnpc/upnpcommands.h>
 #include <miniupnpc/upnperrors.h>
 
-#if defined(__MINGW32__)
-// mingw is somewhat broken...
-typedef struct LPMSG *MSG;
-#endif
-
 #define NATPMP_STATICLIB
 #ifdef __WIN32__
 #include <natpmp/natpmp.h>
@@ -38,9 +40,10 @@ typedef struct LPMSG *MSG;
 #include <natpmp.h>
 #endif
 
+#include <atomic>
 #include <cstdio>
 #include <ctime>
-#include <thread>
+#include <future>
 #ifdef __WIN32__
 #include <winsock2.h>
 #include <iphlpapi.h>
@@ -59,6 +62,8 @@ enum PortForwardMethod {
 
 static enum PortForwardMethod active_method = PORT_FORWARD_NONE;
 static uint16_t mapped_port = 0;
+static std::future<void> mapping_task;
+static std::atomic<uint32_t> mapping_generation = 0;
 
 static struct UPNPUrls upnp_urls;
 static struct IGDdatas upnp_data;
@@ -193,13 +198,11 @@ static int natpmp_add_port_mapping(uint16_t port) {
     return 1;
 }
 
-static void port_forward_add_mapping_internal(uint16_t port) {
+static void port_forward_add_mapping_internal(uint16_t port)
+{
     if (is_cgnat_detected()) {
         LbNetLog("CGNAT detected, automatic port forwarding unavailable\n");
         return;
-    }
-    if (active_method != PORT_FORWARD_NONE) {
-        port_forward_remove_mapping();
     }
     if (natpmp_add_port_mapping(port)) {
         return;
@@ -240,12 +243,8 @@ static void port_forward_add_mapping_internal(uint16_t port) {
     active_method = PORT_FORWARD_UPNP;
 }
 
-int port_forward_add_mapping(uint16_t port) {
-    std::thread(port_forward_add_mapping_internal, port).detach();
-    return 1;
-}
-
-void port_forward_remove_mapping(void) {
+static void port_forward_remove_mapping(void)
+{
     if (active_method == PORT_FORWARD_NONE || mapped_port == 0) {
         return;
     }
@@ -282,4 +281,31 @@ void port_forward_remove_mapping(void) {
     }
     mapped_port = 0;
     active_method = PORT_FORWARD_NONE;
+}
+
+void port_forward_set_mapping(uint16_t port)
+{
+    uint32_t generation = ++mapping_generation;
+    mapping_task = std::async(std::launch::async, [previous = std::move(mapping_task), port, generation]() mutable {
+        if (previous.valid()) {
+            previous.wait();
+            previous = {};
+        }
+        if (generation != mapping_generation) {
+            return;
+        }
+#ifdef _WIN32
+        WSADATA data;
+        if (WSAStartup(MAKEWORD(2, 2), &data) != 0) {
+            return;
+        }
+#endif
+        port_forward_remove_mapping();
+        if (port != 0 && generation == mapping_generation) {
+            port_forward_add_mapping_internal(port);
+        }
+#ifdef _WIN32
+        WSACleanup();
+#endif
+    });
 }

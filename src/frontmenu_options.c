@@ -17,6 +17,8 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_options.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -36,6 +38,7 @@
 #include "kjm_input.h"
 #include "packets.h"
 #include "config_settings.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "gui_topmsg.h"
 #include "lvl_script_commands.h"
@@ -43,7 +46,7 @@
 #include "sounds.h"
 #include "post_inc.h"
 
-#include <SDL2/SDL_mixer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -144,14 +147,14 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     } else {
         LbTextSetFont(frontend_font[1]);
     }
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     // This text is a bit condensed - button size is smaller than text height
     int tx_units_per_px = ((MyScreenHeight < 400) && (dbc_initialized && dbc_enabled)) ? scale_value_menu(32) : scale_value_menu(16);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     int height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(game_key_settings[key_id].string_id));
     unsigned char mods = settings.kbkeys[key_id].mods;
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
 
     char text[255];
     text[0] = '\0';
@@ -238,15 +241,28 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
-    struct Packet* pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_SwitchView, rotate_mode_to_view_mode(settings.video_rotate_mode), 0, 0, 0);
+    if (observer_is_active()) {
+        observer_set_view_mode(settings.video_rotate_mode);
+    } else {
+        struct Packet* pckt = get_local_packet();
+        TbBool front_view;
+        TbBool wibble = get_player_user_state(get_my_player())->prefs[UPref_Wibble] != 0;
+        rotate_mode_to_dungeon_view(settings.video_rotate_mode, &front_view, &wibble);
+        set_packet_action(pckt, PckA_SwitchView, front_view, wibble, 0, 0);
+    }
     save_settings();
 }
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
-    struct Packet* pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_SetCluedo, video_cluedo_mode, 0, 0, 0);
+    struct Packet* pckt = get_local_packet();
+    settings.video_cluedo_mode = video_cluedo_mode;
+    save_settings();
+    if (observer_is_active()) {
+        local_observer_user_state.prefs[UPref_WallHeight] = video_cluedo_mode;
+    } else {
+        set_packet_action(pckt, PckA_SetUserPref, UPref_WallHeight, video_cluedo_mode, 0, 0);
+    }
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)
@@ -301,7 +317,7 @@ void gui_set_mentor_volume(struct GuiButton *gbtn)
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->view_mode == PVM_FrontView)
+    if ((get_local_view_type(player) == PVT_DungeonTop) && (get_player_user_state(player)->prefs[UPref_FrontView] != 0))
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;

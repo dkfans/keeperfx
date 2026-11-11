@@ -20,14 +20,15 @@
 #ifndef NET_MATCHMAKING_H
 #define NET_MATCHMAKING_H
 
+#include "bflib_basics.h"
 #include "bflib_netsession.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MATCHMAKING_URL    "wss://matchmaking.keeperfx.workers.dev/ws"
-#define MATCHMAKING_IP_URL "https://matchmaking.keeperfx.workers.dev/ip"
+#define MATCHMAKING_HOST_MAX 128 /* max string length*/
+#define MATCHMAKING_URL_MAX (MATCHMAKING_HOST_MAX + 16)
 #define MATCHMAKING_ID_MAX 64
 #define MATCHMAKING_IP_MAX 64
 #define MATCHMAKING_NAME_MAX SESSION_NAME_MAX_LEN
@@ -38,20 +39,25 @@ typedef struct {
     char ipv6[MATCHMAKING_IP_MAX];
     int ipv4_port;
     int ipv6_port;
+    int direct_ipv4_port;
 } PunchAddresses;
 
 extern struct TbNetworkSessionNameEntry matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
+extern TbBool matchmaking_enabled;
+extern char matchmaking_ws_url[MATCHMAKING_URL_MAX];
+extern char matchmaking_ip_url[MATCHMAKING_URL_MAX];
 extern int matchmaking_session_count;
 extern char join_lobby_id[MATCHMAKING_ID_MAX];
 
+void matchmaking_set_server(const char* host);
 void matchmaking_connect_async(void);
-int matchmaking_connect(void);
 int matchmaking_request_list(void);
-void matchmaking_disconnect(void);
-void matchmaking_close_lobby(void);
+void matchmaking_disconnect(enum NetSessionPhase phase);
+void matchmaking_start_game(int map_number, const char *map_name);
+void matchmaking_service(void);
 void matchmaking_refresh_sessions(void);
-int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port);
-int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output);
+int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port);
+int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output);
 int matchmaking_poll_punch(PunchAddresses *output);
 
 #ifdef __cplusplus

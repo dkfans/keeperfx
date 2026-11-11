@@ -61,6 +61,7 @@
 #include "power_process.h"
 #include "net_game.h"
 #include "packets.h"
+#include "replay.h"
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"
@@ -68,6 +69,7 @@
 #include "engine_textures.h"
 
 #define BOOKMARKS_COUNT               5
+#define GAME_FAST_FORWARD_MAX           512
 
 #ifdef __cplusplus
 extern "C" {
@@ -199,6 +201,7 @@ struct DesyncChecksums {
     TbBigChecksum doors;
     TbBigChecksum rooms;
     TbBigChecksum players;
+    TbBigChecksum dig_tasks;
     TbBigChecksum action_seed;
     TbBigChecksum ai_seed;
     TbBigChecksum player_seed;
@@ -212,17 +215,18 @@ struct LogDetailedSnapshot {
     int player_count;
     struct LogRoomDesyncInfo rooms[ROOMS_COUNT];
     int room_count;
+    struct MapTask dig_tasks[DUNGEONS_COUNT][MAPTASKS_COUNT];
+    unsigned short dig_task_counts[DUNGEONS_COUNT];
 };
 
 struct Game {
     LevelNumber continue_level_number;
-    unsigned char system_flags;
+    TbBool run_after_victory;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
     unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
     unsigned char flags_gui;
     unsigned char mode_flags;
-    TbBool easter_eggs_enabled;
     unsigned char eastegg01_cntr;
     unsigned char eastegg02_cntr;
     char music_track; // cdrom / default music track to resume after load
@@ -232,6 +236,7 @@ struct Game {
     char active_lens_type;
     unsigned char applied_lens_type;
     struct PlayerInfo players[PLAYERS_COUNT];
+    struct UserState user_states[MAX_NET_USERS];
     struct Column columns_data[COLUMNS_COUNT];
     unsigned short slabset_num;
     struct SlabSet slabset[SLABSET_COUNT];
@@ -251,22 +256,7 @@ struct Game {
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
     ColumnIndex unrevealed_column_idx;
-    unsigned char packet_save_enable;
-    unsigned char packet_load_enable;
-    char packet_fname[150];
-    char packet_fopened;
-    TbFileHandle packet_save_fp;
-    unsigned int packet_file_pos;
-    struct PacketSaveHead packet_save_head;
-    uint32_t turns_stored;
-    uint32_t turns_fastforward;
-    unsigned char packet_loading_in_progress;
-    unsigned char packet_checksum_verify;
-    uint32_t log_things_start_turn;
-    uint32_t log_things_end_turn;
-    uint32_t turns_packetoff;
     PlayerNumber local_plyr_idx;
-    unsigned char packet_load_initialized; // something with packetload
     // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
@@ -276,7 +266,6 @@ struct Game {
     uint32_t ceiling_search_dist;
     uint32_t ceiling_step;
     short col_static_entries[18];
-    //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
     short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned char texture_id;
@@ -288,9 +277,11 @@ struct Game {
     /** Number of available thing indices stored in unsynced_free_things array. When count is 0, no free things available. */
     ThingIndex unsynced_free_things_count;
     GameTurn play_gameturn;
-    GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
     uint32_t action_random_seed;
+    int64_t timestamp; // posix time of most recent timestamp (host's), 0 if unknown. Allows peers and replays to agree about current time.
+    int32_t timestamp_tz; // seconds east of UTC (host)
+    GameTurn timestamp_turn; // the game turn the timestamp was taken on
     uint32_t ai_random_seed;
     uint32_t player_random_seed;
     /** Local (unsynced) random seed for visual effects that don't affect game state */
@@ -305,7 +296,7 @@ struct Game {
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
     int input_lag_turns;
-    char active_players_count;
+    char human_players_count;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
@@ -318,7 +309,7 @@ struct Game {
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
-    int32_t frame_skip;
+    int32_t fast_forward;
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress[PLAYERS_COUNT];
@@ -330,6 +321,7 @@ struct Game {
     int32_t flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
     char loaded_swipe_idx;
     unsigned char active_messages_count;
+    unsigned char active_script_var_count;
     int32_t bonus_time;
     struct Coord3d armageddon_mappos;
     GameTurn armageddon_cast_turn;
@@ -375,11 +367,7 @@ struct Game {
     unsigned char script_timer_id;
     uint32_t script_timer_limit;
     TbBool timer_real;
-    unsigned char script_value_type;
-    unsigned char script_value_id;
-    PlayerNumber script_variable_player;
-    int32_t script_variable_target;
-    unsigned char script_variable_target_type;
+    struct ScriptVariable script_variables[DISPLAY_VARIABLES_LIMIT];   
     TbBool heart_lost_display_message;
     TbBool heart_lost_quick_message;
     uint32_t heart_lost_message_id;
@@ -415,7 +403,14 @@ extern int32_t fps_limit_current;
 extern int32_t fps_limit_main;
 extern int32_t fps_limit_secondary;
 
+extern unsigned char local_system_flags;
+
+// True if this is an active multiplayer session.
+// Note that this is always false when watching a replay.
+// To determine canonical multiplayer game status in a way compatible with replay playback,
+// check game.game_kind instead.
 TbBool network_is_active(void);
+void take_game_timestamp(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

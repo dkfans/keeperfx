@@ -43,10 +43,10 @@
 #include "engine_render.h"
 #include "gui_topmsg.h"
 
-#include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
 #include "player_instances.h"
+#include "room_workshop.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -689,12 +689,8 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
             {
             case TrpAcT_HeadforTarget90:
             case TrpAcT_CreatureShot:
-            {
-                struct Camera* camera = get_player_active_camera(player);
-                if (camera != NULL)
-                    external_activate_trap_shot_at_angle(traptng, camera->rotation_angle_x, trgtng);
+                external_activate_trap_shot_at_angle(traptng, get_player_dungeon_yaw(player), trgtng);
                 break;
-            }
             default:
                 ERRORLOG("Illegal trap activation type %d (idx=%d)", (int)trapst->activation_type, traptng->index);
                 break;

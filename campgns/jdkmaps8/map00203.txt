@@ -89,18 +89,18 @@ CREATE_PARTY(MAGMATAISI)
     ADD_TO_PARTY(MAGMATAISI,DRAGON,10,800,ATTACK_DUNGEON_HEART,0)
     ADD_TO_PARTY(MAGMATAISI,DRAGON,10,800,ATTACK_DUNGEON_HEART,0)
 
-QUICK_OBJECTIVE(1,"You've been tricked out of money! Fortunately, there are many abandoned places in this land. Your first priority is to claim an unused Treasure Room located behind Portal.",PLAYER0)
+QUICK_OBJECTIVE(1,"You've been tricked out of money! Fortunately, there are many abandoned places in this land. Your first priority is to claim an unused Treasure Room located behind Portal.",ALL_PLAYERS)
 
 IF(PLAYER0,GAME_TURN > 200)
     QUICK_INFORMATION(7,",Guard your Imps! Without them, it will be hard to claim anything.")
 ENDIF
 
 IF(PLAYER0,TREASURE > 1)
-    QUICK_OBJECTIVE(2,"Now find and take other rooms located in the realm. The ancient maps are indicating lair is just behind your new Treasury, others are also nearby.",PLAYER0)
+    QUICK_OBJECTIVE(2,"Now find and take other rooms located in the realm. The ancient maps are indicating lair is just behind your new Treasury, others are also nearby.",ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TRAINING > 1)
-    QUICK_OBJECTIVE(3,"The inhabitants of this kingdom are not quite happy about losing control of their underground shelter, so they might be planning to get rid of you before you'll grow too powerful. Expect them to attack until you'll prove your dominance by destroying enemy keeper on the east.",PLAYER0)
+    QUICK_OBJECTIVE(3,"The inhabitants of this kingdom are not quite happy about losing control of their underground shelter, so they might be planning to get rid of you before you'll grow too powerful. Expect them to attack until you'll prove your dominance by destroying enemy keeper on the east.",PLAYER1)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ORC,-1,4,3,400)
     SET_TIMER(PLAYER0,TIMER0)
 ENDIF
@@ -146,7 +146,7 @@ IF_ACTION_POINT(1,PLAYER0)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
-    QUICK_OBJECTIVE(4,"One of the enemies is defeated. This should also make heroes more careful - spies say they are going to prepare an ambush near their fortress on the south.",PLAYER0)
+    QUICK_OBJECTIVE(4,"One of the enemies is defeated. This should also make heroes more careful - spies say they are going to prepare an ambush near their fortress on the south.",-3)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,SAMURAI,-2,5,7,800)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ORC,-3,5,7,800)
 ENDIF
@@ -178,7 +178,7 @@ ENDIF
 
 REM Fortress on the south, bridge to green keeper
 IF_ACTION_POINT(7,PLAYER0)
-    QUICK_OBJECTIVE(8,"One enemy remains. Go and take everything from him!",PLAYER0)
+    QUICK_OBJECTIVE(8,"One enemy remains. Go and take everything from him!",PLAYER2)
     QUICK_INFORMATION(9,"The magic which prevented you from building bridges has ended with the defeat of heroes.")
     ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
 ENDIF

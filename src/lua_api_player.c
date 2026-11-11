@@ -228,12 +228,14 @@ static int player_get_field(lua_State *L) {
             lua_pushstring(L, "Roaming");
         } else if (player_is_neutral(plyr_idx)) {
             lua_pushstring(L, "Neutral");
+        } else if (!player_exists(player)) {
+            lua_pushstring(L, "Inactive");
+        } else if (player_is_placeholder(player)) {
+            lua_pushstring(L, "Placeholder");
         } else if (player->allocflags & PlaF_CompCtrl) {
             lua_pushstring(L, "Computer");
-        } else if (player->is_active) {
-            lua_pushstring(L, "Human");
         } else {
-            lua_pushstring(L, "Inactive");
+            lua_pushstring(L, "Human");
         }
     } else if (strcmp(key, "max_creatures") == 0) {
         if (dungeon_invalid(dungeon)) {

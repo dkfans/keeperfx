@@ -62,6 +62,7 @@ TbBool bonus_timer_enabled(void);
 void draw_timer(void);
 void draw_frametime(void);
 void draw_gameturn_timer(void);
+void draw_watched_player_name(void);
 void draw_consolelog(void);
 void draw_network_stats(void);
 extern int debug_display_network_stats;
@@ -72,6 +73,7 @@ TbBool script_timer_enabled(void);
 TbBool gameturn_timer_enabled(void);
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real);
 TbBool display_variable_enabled(void);
+void draw_script_variable_list(void);
 void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype);
 
 extern unsigned long TimerTurns;

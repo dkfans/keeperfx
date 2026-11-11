@@ -34,8 +34,9 @@ extern const struct NamedCommand dk1_variable_desc[];
 extern const struct NamedCommand is_free_desc[];
 extern const struct NamedCommand orientation_desc[];
 
-
+struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
+const char* get_condition_label(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 void process_conditions(void);
 long pop_condition(void);
 

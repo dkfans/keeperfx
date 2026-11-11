@@ -299,6 +299,9 @@ struct CreatureModelConfig {
     short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
     short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
     short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
+    unsigned char fall_acceleration;
+    short inertia_floor;
+    short inertia_air;
     unsigned short walking_anim_speed;
     TbBool flying;
     TbBool fixed_anim_speed;
@@ -347,7 +350,7 @@ struct CreatureModelConfig {
     unsigned short jobs_anger;
     short annoy_others_leaving;
     unsigned char slaps_to_kill;
-    ThingModel lair_enemy[LAIR_ENEMY_MAX];
+    ThingModel lair_enemy[CREATURE_TYPES_MAX];
     unsigned char rebirth;
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;

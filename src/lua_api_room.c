@@ -46,6 +46,15 @@ static int room_set_field(lua_State *L) {
     else if (strcmp(key, "health") == 0) {
         room->health = luaL_checkinteger(L, 3);
     }
+    else if (strcmp(key, "max_capacity") == 0) {
+        room->total_capacity = luaL_checkIntMinMax(L, 3, 0, USHRT_MAX);
+    }
+    else if (strcmp(key, "used_capacity") == 0) {
+        room->used_capacity = luaL_checkIntMinMax(L, 3, 0, USHRT_MAX);
+    }
+    else if (strcmp(key, "capacity_used_for_storage") == 0) {
+        room->capacity_used_for_storage = luaL_checkIntMinMax(L, 3, 0, USHRT_MAX);
+    }
     else
     {
         luaL_error(L, "attempt to assign unassignable field '%s'", key);
@@ -118,6 +127,8 @@ static int room_get_field(lua_State *L) {
         lua_pushPlayer(L, room->owner);
     } else if (strcmp(key, "slabs") == 0) {
         push_room_slabs(L, room);
+    } else if (strcmp(key, "slabs_count") == 0) {
+        lua_pushinteger(L, room->slabs_count);
     } else if (strcmp(key, "workers") == 0) {
         push_room_workers(L, room);
     } else if (strcmp(key, "health") == 0) {
@@ -128,6 +139,8 @@ static int room_get_field(lua_State *L) {
         lua_pushinteger(L, room->used_capacity);
     } else if (strcmp(key, "max_capacity") == 0) {
         lua_pushinteger(L, room->total_capacity);
+    } else if (strcmp(key, "capacity_used_for_storage") == 0) {
+        lua_pushinteger(L, room->capacity_used_for_storage);
     } else if (strcmp(key, "efficiency") == 0) {
         lua_pushinteger(L, room->efficiency);
     } else if (strcmp(key, "centerpos") == 0) {

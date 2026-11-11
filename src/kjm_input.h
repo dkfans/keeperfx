@@ -79,8 +79,8 @@ extern TbBool wheel_scrolled_down;
 
 TbBool poll_inputs(void);
 
-long GetMouseX(void);
-long GetMouseY(void);
+int32_t GetMouseX(void);
+int32_t GetMouseY(void);
 short is_mouse_pressed_lrbutton(void);
 void clear_mouse_pressed_lrbutton(void);
 void update_mouse(void);

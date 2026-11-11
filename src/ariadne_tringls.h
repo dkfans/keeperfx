@@ -45,8 +45,9 @@ struct Triangle {
 
 /******************************************************************************/
 extern struct Triangle Triangles[TRIANLGLES_COUNT];
-extern long count_Triangles;
-extern long ix_Triangles;
+extern int32_t count_Triangles;
+extern int32_t ix_Triangles;
+extern int32_t free_Triangles;
 
 #pragma pack()
 /******************************************************************************/

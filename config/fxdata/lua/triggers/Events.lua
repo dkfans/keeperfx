@@ -114,6 +114,16 @@ function RegisterCreatureRebirthEvent(action, unit)
     return trigger
 end
 
+function RegisterCreatureFellIntoAbyssEvent(action, unit)
+    local trigData = {unit = unit}
+
+    local trigger = CreateTrigger("CreatureFellIntoAbyss",action,trigData)
+    if unit then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.unit == triggerData.unit end)
+    end
+    return trigger
+end
+
 ---Triggers when an object is destroyed
 ---@param action function|string the function to call when the event happens
 ---@param object? Object the object that triggers the event
@@ -194,10 +204,10 @@ function RegisterSlapEvent(action, thing, player)
     
     local trigger = CreateTrigger("Slap",action,trigData)
     if thing then
-        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Thing == triggerData.Thing end)
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.thing == triggerData.Thing end)
     end
     if player then
-        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Player == triggerData.Player end)
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.Player end)
     end
     return trigger
 end
@@ -212,10 +222,10 @@ function RegisterPickUpEvent(action, thing, player)
     
     local trigger = CreateTrigger("PickUp",action,trigData)
     if thing then
-        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Thing == triggerData.Thing end)
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.thing == triggerData.Thing end)
     end
     if player then
-        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Player == triggerData.Player end)
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.Player end)
     end
     return trigger
 end

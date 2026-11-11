@@ -36,6 +36,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
 #include "highscores.h"
+#include "custom_sprites.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -46,6 +47,20 @@ extern "C" {
 /******************************************************************************/
 const char keeper_campaign_file[]="keeporig.cfg";
 const char deeper_mappack_file[]="deepdngn.cfg";
+
+const enum TbFileGroups cmpgn_fgroup[CampgnT_COUNT] = {
+  FGrp_None,
+  FGrp_Campgn,
+  FGrp_VarLevels,
+  FGrp_MpLevels
+};
+
+const char* cmpgn_prefix[CampgnT_COUNT] = {
+  NULL,
+  "campgns/",
+  "levels/",
+  "multiplayer/"
+};
 
 const struct NamedCommand cmpgn_common_commands[] = {
   {"NAME",                1},
@@ -69,6 +84,8 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"NAME_TEXT_ID",       20},
   {"ASSIGN_CPU_KEEPERS", 21},
   {"SOUNDTRACK",         22},
+  {"SHOW_DESCRIPTION",   23},
+  {"DESCRIPTION_GEO",    24},
   {NULL,                  0},
   };
 
@@ -88,6 +105,8 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"DATE",               12},
   {"MAPSIZE",            13},
   {"MAP_FORMAT_VERSION", 14},
+  {"INTRO_DESC_ID",     15},
+  {"DESCRIPTION_GEO",    16},  
   {NULL,                  0},
   };
 
@@ -145,8 +164,11 @@ static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,unsigned lo
  */
 TbBool free_campaign(struct GameCampaign *campgn)
 {
+  campgn->fgroup = FGrp_None;
   KfxFree(campgn->lvinfos);
-  KfxFree(campgn->hiscore_table);
+  KfxFree(campgn->hiscore_table);  
+  KfxFree(campgn->level_description_geo);
+  
   for (int i=0; i<campgn->strings_data_count; i++)
   {
     KfxFree(campgn->strings_data_list[i]);
@@ -175,7 +197,9 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
   lvinfo->mapsize_x = DEFAULT_MAP_SIZE;
-  lvinfo->mapsize_y = DEFAULT_MAP_SIZE;
+  lvinfo->mapsize_y = DEFAULT_MAP_SIZE;  
+  KfxFree(lvinfo->level_description_geo);
+  lvinfo->level_description_geo = NULL;
 }
 
 /**
@@ -235,6 +259,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = 0;
+  campgn->level_description_geo = NULL;
   memset(campgn->credits_fname,0,DISKPATH_SIZE);
   campgn->credits_data = NULL;
   reset_credits(campgn->credits);
@@ -411,6 +436,9 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
   campgn->human_player = 0;
+  
+  KfxFree(campgn->level_description_geo);
+  campgn->level_description_geo = NULL;
   // Find the block
   const char * block_name = "common";
   int32_t pos = 0;
@@ -684,6 +712,56 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                 COMMAND_TEXT(cmd_num), campgn->name, config_textname);
           }
           break;
+      case 23: // SHOW_DESCRIPTION
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);          
+            campgn->show_level_description = k == 1;
+          }
+          break;
+      case 24: // DESCRIPTION_GEO
+          campgn->level_description_geo = malloc(sizeof(struct LevelDescriptionGeo));
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->level_description_geo->pos_x = k;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->level_description_geo->pos_y = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->level_description_geo->width = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->level_description_geo->height = k;
+              n++;
+            }
+          }
+          if (n > 4)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of '%s' file.",
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -946,9 +1024,16 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                     lvinfo->ensign_type = k;
                 }
                 else
-                {
-                    CONFWRNLOG("Invalid value '%s' for \"%s\" in [%s] block of '%s' file.", word_buf,
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                {   
+                    k = get_ensign_id(word_buf);
+
+                    if (k >= 0)
+                    {
+                        lvinfo->ensign_type = CUSTOM_ENSIGN_BASE + k;
+                    } else {
+                        CONFWRNLOG("Invalid value '%s' for \"%s\" in [%s] block of '%s' file.", word_buf,
+                            COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
                 }
             }
             break;
@@ -1009,6 +1094,56 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             if (n < 2)
             {
               CONFWRNLOG("Couldn't recognize \"%s\" mapsize in [%s] block of '%s' file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;            
+        case 15: // INTRO_DESC_ID
+            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_id,LINEMSG_SIZE) <= 0)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 16: // DESCRIPTION_GEO
+            lvinfo->level_description_geo = malloc(sizeof(struct LevelDescriptionGeo));
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                lvinfo->level_description_geo->pos_x = k;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                lvinfo->level_description_geo->pos_y = k;
+                n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                lvinfo->level_description_geo->width = k;
+                n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                lvinfo->level_description_geo->height = k;
+                n++;
+                }
+            }
+            if (n > 4)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
@@ -1074,6 +1209,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 {
     // Preparing campaign file name and checking the file
     clear_campaign(campgn);
+    campgn->fgroup = fgroup;
     snprintf(campgn->fname, DISKPATH_SIZE, "%s", cmpgn_fname);
     snprintf(campgn->name, DISKPATH_SIZE, "%s", cmpgn_fname);
     SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
@@ -1102,7 +1238,12 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
           WARNMSG("Parsing campaign file \"%s\" common blocks failed.",cmpgn_fname);
     }
     if ((result) && ((flags & CnfLd_ListOnly) == 0)) // This block doesn't have anything we'd like to parse in list mode
-    {
+    {            
+        // Loading campaign sprites, we know config location after parse_campaign_common_blocks, need to be loaded before parse_campaign_map_blocks
+        char *dname = prepare_file_path(FGrp_CmpgConfig, NULL);
+        init_custom_campaign_sprites(dname, "Main CmpgConfig dir");  
+        // make sure that translation.toml is loaded
+        load_config(&keeper_translation_file_data, CnfLd_Standard);
         result = parse_campaign_strings_blocks(campgn, buf, len, fname);
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" strings block failed.",cmpgn_fname);
@@ -1137,16 +1278,20 @@ uint8_t prepare_campaign_file_name(const char *cmpgn_fname, char *cmpgn_file, in
     if (cmpgn_fname == NULL)
         return CampgnT_Default;
     uint8_t pack = CampgnT_Default;
-    if (strncasecmp(cmpgn_fname, "campgns/", 8) == 0) {
-        pack = CampgnT_Campaign;
-        cmpgn_fname += 8;
-    } else if (strncasecmp(cmpgn_fname, "levels/", 7) == 0) {
-        pack = CampgnT_Mappack;
-        cmpgn_fname += 7;
-    } else if (strncasecmp(cmpgn_fname, "multiplayer/", 12) == 0) {
-        pack = CampgnT_MultiplayerMappack;
-        cmpgn_fname += 12;
+    
+    for (size_t i = 0; i < CampgnT_COUNT; ++i)
+    {
+        const char* prefix = cmpgn_prefix[i];
+        if (!prefix) continue;
+        size_t prefix_len = strlen(prefix);
+        if (strncasecmp(cmpgn_fname, prefix, prefix_len) == 0)
+        {
+            pack = (enum CampaignTypes)i;
+            cmpgn_fname += prefix_len;
+            break;
+        }
     }
+
     snprintf(cmpgn_file, cmpgn_file_len, "%s", cmpgn_fname);
     int len = strlen(cmpgn_file);
     if ((len > 0) && ((len < 4) || (strcasecmp(cmpgn_file + len - 4, ".cfg") != 0)))
@@ -1156,7 +1301,6 @@ uint8_t prepare_campaign_file_name(const char *cmpgn_fname, char *cmpgn_file, in
 
 TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
 {
-    static short campaign_fgroup = FGrp_None;
     SYNCDBG(8,"Starting");
     char cmpgn_file[DISKPATH_SIZE];
     uint8_t prefix_pack = prepare_campaign_file_name(cmpgn_fname, cmpgn_file, sizeof(cmpgn_file));
@@ -1169,19 +1313,18 @@ TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
         fgroup = FGrp_VarLevels;
     else if (((pack == CampgnT_MultiplayerMappack) || (pack == CampgnT_Default)) && is_campaign_in_list(cmpgn_file, &mp_mappacks_list))
         fgroup = FGrp_MpLevels;
-    if ((fgroup != FGrp_None) && (campaign_fgroup == fgroup) && (strcasecmp(campaign.fname,cmpgn_file) == 0)) {
+    if ((fgroup != FGrp_None) && (campaign.fgroup == fgroup) && (strcasecmp(campaign.fname,cmpgn_file) == 0)) {
         return true;
     }
     free_campaign(&campaign);
-    campaign_fgroup = FGrp_None;
     TbBool result = (fgroup != FGrp_None) && load_campaign(cmpgn_file,&campaign,CnfLd_Standard, fgroup);
     if (!result) {
         WARNMSG("Loading campaign file \"%s\" failed falling back to default campaign.", cmpgn_file);
         fgroup = FGrp_Campgn;
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, fgroup);
     }
-    if (result) {
-        campaign_fgroup = fgroup;
+    if (!result) {
+        campaign.fgroup = FGrp_None;
     }
     if (fgroup != FGrp_Campgn) {
         find_and_load_lof_files();
@@ -1443,20 +1586,51 @@ void set_default_mp_mappack(void)
     change_campaign(CampgnT_MultiplayerMappack, mp_mappacks_list.items[0].fname);
 }
 
-TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
+struct GameCampaign *find_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
 {
     if (clist->items == NULL || clist->items_num < 1)
     {
-        return false;
+        return NULL;
     }
     for (unsigned long i = 0; i < clist->items_num; i++)
     {
         if (strcasecmp(clist->items[i].fname,cmpgn_fname) == 0)
         {
-            return true;
+            return &clist->items[i];
         }
     }
-    return false;
+    return NULL;
+}
+
+TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
+{
+    return (find_campaign_in_list(cmpgn_fname, clist) != NULL);
+}
+
+// pure [a-z0-9_]+ id for campaign
+void get_campaign_sanitized_id(const char *cmpgn_fname, char *out, size_t outlen)
+{
+    const char *base = cmpgn_fname;
+    for (const char *p = cmpgn_fname; *p != '\0'; p++)
+    {
+        if ((*p == '/') || (*p == '\\'))
+            base = p + 1;
+    }
+    const char *ext = strrchr(base, '.');
+    size_t n = 0;
+    for (const char *p = base; (*p != '\0') && (p != ext) && (n + 1 < outlen); p++)
+    {
+        char c = *p;
+        
+        // to lowercase, ignore if non-_alphanumeric
+        if ((c >= 'A') && (c <= 'Z'))
+            c = c - 'A' + 'a';
+        if (((c >= 'a') && (c <= 'z')) || ((c >= '0') && (c <= '9')) || (c == '_'))
+            out[n++] = c;
+    }
+    out[n] = '\0';
+    if (n == 0)
+        snprintf(out, outlen, "%s", "unknown");
 }
 
 static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,unsigned long * out_count)

@@ -14,28 +14,51 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_main.h"
+#include "net_lobby.h"
+#include "net_spectator.h"
+#include "bflib_datetm.h"
 
 #include "bflib_enet.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
-static struct TbNetworkPlayerInfo *local_player_info;
+static struct TbNetworkUserInfo *local_user_info;
 
 struct NetState netstate;
+enum NetConnectionRole net_join_role;
 
 TbBool IsUserActive(NetUserId id)
 {
-    return (netstate.users[id].progress == USER_LOGGEDIN);
+    return id >= 0 && id < MAX_NET_CONNECTIONS && netstate.users[id].progress == USER_LOGGEDIN;
+}
+
+int32_t GetRemoteUserCount(void)
+{
+    int32_t count = 0;
+    for (NetUserId id = 0; id < netstate.max_users; id += 1) {
+        if (id != netstate.my_id && IsUserActive(id)) {
+            count += 1;
+        }
+    }
+    return count;
 }
 
 void UpdateLocalPlayerInfo(NetUserId id)
 {
-    local_player_info[id].network_user_active = (netstate.users[id].progress != USER_UNUSED);
-    if (!local_player_info[id].network_user_active) {
-        memset(local_player_info[id].name, 0, sizeof(local_player_info[id].name));
+    net_lobby_refresh_metadata();
+    if (id < 0 || id >= MAX_NET_USERS) {
         return;
     }
-    strcpy(local_player_info[id].name, netstate.users[id].name);
+    TbBool active = netstate.users[id].progress != USER_UNUSED;
+    if (local_user_info[id].network_user_active && !active) {
+        local_user_info[id].connection_id++;
+    }
+    local_user_info[id].network_user_active = active;
+    if (!local_user_info[id].network_user_active) {
+        memset(local_user_info[id].name, 0, sizeof(local_user_info[id].name));
+        return;
+    }
+    strcpy(local_user_info[id].name, netstate.users[id].name);
 }
 
 char *begin_net_message(enum NetMessageType msg_type)
@@ -60,7 +83,7 @@ void send_remote_buffer(const char *end_ptr)
         }
         return;
     }
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+    for (NetUserId id = 0; id < MAX_NET_CONNECTIONS; id += 1) {
         if (id == netstate.my_id || !IsUserActive(id)) {
             continue;
         }
@@ -82,12 +105,12 @@ void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     send_message_buffer(dest, write_pos);
 }
 
-TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *)
+TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkUserInfo *locplayr, struct ServiceInitData *)
 {
-    local_player_info = locplayr;
+    local_user_info = locplayr;
     memset(&netstate, 0, sizeof(netstate));
-    netstate.max_players = maxplayrs;
-    for (NetUserId user_id = 0; user_id < (NetUserId)netstate.max_players; user_id += 1) {
+    netstate.max_users = maxplayrs;
+    for (NetUserId user_id = 0; user_id < MAX_NET_CONNECTIONS; user_id += 1) {
         netstate.users[user_id].id = user_id;
     }
     if (srvcindex == NS_ENET_UDP) {
@@ -102,27 +125,39 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkP
     return netstate.sp->init(OnDroppedUser);
 }
 
-TbBool OnNewUser(NetUserId *assigned_id)
+enum NetJoinRejection OnNewUser(NetUserId *assigned_id, enum NetConnectionRole role)
 {
-    if (netstate.locked) {
-        return false;
+    enum NetJoinRejection reason;
+    NetUserId first_id = 1;
+    NetUserId last_id = netstate.max_users;
+    if (role == NetRole_Spectator) {
+        reason = net_lobby_spectator_rejection(INVALID_USER_ID);
+        first_id = MAX_NET_USERS;
+        last_id = MAX_NET_CONNECTIONS;
+    } else {
+        reason = net_lobby_join_rejection();
     }
-    for (NetUserId id = 0; id < (NetUserId)netstate.max_players; id += 1) {
+    if (reason != NetJoin_Accepted) {
+        return reason;
+    }
+    for (NetUserId id = first_id; id < last_id; id += 1) {
         if (netstate.users[id].progress == USER_UNUSED) {
             *assigned_id = id;
             netstate.users[id].progress = USER_CONNECTED;
             netstate.users[id].ack = -1;
+            netstate.users[id].connected_at = LbTimerClock();
+            net_lobby_refresh_metadata();
             NETLOG("Assigning new user to ID %u", id);
-            return true;
+            return NetJoin_Accepted;
         }
     }
-    return false;
+    return NetJoin_Full;
 }
 
 void OnDroppedUser(NetUserId id, enum NetDropReason reason)
 {
     assert(id >= 0);
-    assert(id < (int)netstate.max_players);
+    assert(id < MAX_NET_CONNECTIONS);
     if (netstate.my_id == id) {
         NETMSG("Warning: Trying to drop local user. There's a bug in code somewhere, probably server trying to send message to itself.");
         return;
@@ -137,9 +172,10 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     }
     memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
     netstate.users[id].id = id;
+    network_spectator_update_roles();
     if (netstate.my_id == SERVER_ID && id != SERVER_ID) {
-        for (NetUserId user_id = 0; user_id < (NetUserId)netstate.max_players; user_id += 1) {
-            if (user_id == netstate.my_id) {
+        for (NetUserId user_id = 0; user_id < MAX_NET_CONNECTIONS; user_id += 1) {
+            if (user_id == netstate.my_id || !IsUserActive(user_id) || (id >= MAX_NET_USERS && user_id < MAX_NET_USERS)) {
                 continue;
             }
             SendUserUpdate(user_id, id);

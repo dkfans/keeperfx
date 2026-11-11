@@ -2761,12 +2761,8 @@ msgstr ""
 #: guitext:328
 #, fuzzy
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr ""
-"水: 水の中ではクリーチャーの動きは遅くなる。水上に新しい陸地を作るために橋を"
-"建てる。 [14.1]"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "水：クリーチャーは水中を自由に移動できる。橋を建てて離れた領地とつなげよう。"
 
 #: guitext:329
 #, fuzzy
@@ -2898,9 +2894,10 @@ msgid "Speed"
 msgstr "速度"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COMポート"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "深淵: 底なしの穴。手下クリーチャーは避けた方がよい。"
 
 #: guitext:354
 msgctxt "Menu interface item"
@@ -5818,22 +5815,22 @@ msgstr "遭遇戦"
 #: guitext:877
 msgctxt "World direction"
 msgid "N"
-msgstr "北"
+msgstr "N"
 
 #: guitext:878
 msgctxt "World direction"
 msgid "E"
-msgstr "東"
+msgstr "E"
 
 #: guitext:879
 msgctxt "World direction"
 msgid "S"
-msgstr "南"
+msgstr "S"
 
 #: guitext:880
 msgctxt "World direction"
 msgid "W"
-msgstr "西"
+msgstr "W"
 
 #: guitext:881
 msgctxt "Menu interface item"
@@ -6367,15 +6364,16 @@ msgstr "敵が秘密のドアを見つけた"
 #: guitext:941
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "自由遊びのレベル"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "キャンペーン選択"
 
 #: guitext:943
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Campaigns"
 msgstr "マップ名"
@@ -6812,7 +6810,7 @@ msgstr "KDKレベル"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
+msgid "The Good Guys"
 msgstr "勇者キャンペーン"
 
 #: guitext:1025
@@ -7301,3 +7299,177 @@ msgstr "/fxdata/%.39s は読み込まれませんでした。"
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "MODとして /mods/ に入れてください。"
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "サーバーへの接続が失われました。"
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "マルチプレイが同期していません。"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "キャンペーン"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "キャンペーンを続ける"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Network game interface"
+msgid "State"
+msgstr "状態"
+
+#: guitext:1127
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Version"
+msgstr "版"
+
+#: guitext:1128
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Unknown"
+msgstr "不明"
+
+#: guitext:1129
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby"
+msgstr "ロビー"
+
+#: guitext:1130
+#, fuzzy
+msgctxt "Network game interface"
+msgid "In-game"
+msgstr "プレイ中"
+
+#: guitext:1131
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Map"
+msgstr "マップ"
+
+#: guitext:1132
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Player list unavailable"
+msgstr "プレイヤー一覧を取得できません"
+
+#: guitext:1133
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Maximum players"
+msgstr "最大人数"
+
+#: guitext:1134
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow observers"
+msgstr "観戦を許可"
+
+#: guitext:1135
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Settings"
+msgstr "設定"
+
+#: guitext:1136
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Confirm"
+msgstr "決定"
+
+#: guitext:1137
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Game has already started."
+msgstr "ゲームはすでに始まっています。"
+
+#: guitext:1138
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Joining is temporarily locked."
+msgstr "参加は一時的に制限されています。"
+
+#: guitext:1139
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby is full."
+msgstr "ロビーは満員です。"
+
+#: guitext:1140
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host is using a different game version."
+msgstr "ホストのゲームバージョンが異なります。"
+
+#: guitext:1141
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby Name"
+msgstr "ロビー名"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "早送り %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "通常"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "読み込み中"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "観戦者のチャットを表示"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "観戦者は進行中のゲームにのみ参加できます。"
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "ホストが観戦者の参加を無効にしています。"
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "観戦者用の接続がすべて使用中です。"
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "プレイヤーには観戦者のチャットは表示されません。"
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "観戦中です"

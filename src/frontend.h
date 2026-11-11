@@ -31,8 +31,9 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        100
+#define DOUBLE_CLICK_MS 250
 #define MENU_LIST_ITEMS_COUNT       52
-#define FRONTEND_BUTTON_INFO_COUNT 115
+#define FRONTEND_BUTTON_INFO_COUNT 118
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -233,6 +234,7 @@ enum IngameButtonDesignationIDs {
 struct GuiMenu;
 struct GuiButton;
 struct TbLoadFiles;
+struct TextScrollWindow;
 
 struct DemoItem { //sizeof = 5
     uint8_t kind;
@@ -242,8 +244,9 @@ struct DemoItem { //sizeof = 5
     };
 };
 
-struct NetMessage { // sizeof = 0x41
+struct NetMessage { // sizeof = 0x45
   unsigned char plyr_idx;
+  uint32_t connection_id;
   char text[NET_MESSAGE_LEN];
 };
 
@@ -259,7 +262,7 @@ extern long net_service_scroll_offset;
 extern long net_number_of_services;
 extern long net_number_of_players;
 extern long net_number_of_enum_players;
-extern long net_level_hilighted;
+extern long net_level_highlighted;
 extern struct NetMessage net_message[NET_MESSAGES_COUNT];
 extern long net_number_of_messages;
 extern long net_message_scroll_offset;
@@ -307,7 +310,6 @@ extern struct GuiMenu frontend_statistics_menu;
 extern struct GuiMenu frontend_high_score_table_menu;
 extern struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT];
 extern char gui_message_text[];
-extern TbClockMSec gui_message_timeout;
 
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
@@ -329,6 +331,7 @@ void create_error_box(TextStringId msg_idx);
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
+void finish_button_area_input(void);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);
 int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx);
 void maintain_loadsave(struct GuiButton *gbtn);
@@ -345,7 +348,7 @@ void gui_quit_game(struct GuiButton *gbtn);
 void gui_area_slider(struct GuiButton *gbtn);
 void frontend_draw_icon(struct GuiButton *gbtn);
 void frontend_draw_error_text_box(struct GuiButton *gbtn);
-void frontend_maintain_error_text_box(struct GuiButton *gbtn);
+void frontend_close_error_box(struct GuiButton *gbtn);
 short is_toggleable_menu(short mnu_idx);
 
 void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id);
@@ -367,6 +370,7 @@ void frontend_draw_computer_players(struct GuiButton *gbtn);
 void frontend_draw_mp_mappack(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
+void draw_scrolling_text_at(long pos_x, long pos_y, long width, long height, struct TextScrollWindow *scrollwnd, const char *text);
 void gui_go_to_event(struct GuiButton *gbtn);
 void maintain_zoom_to_event(struct GuiButton *gbtn);
 void gui_close_objective(struct GuiButton *gbtn);
@@ -378,6 +382,9 @@ void gui_scroll_text_down(struct GuiButton *gbtn);
 void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
 void frontend_netservice_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
+void frontend_draw_campaign_menu_button(struct GuiButton *gbtn);
+TbBool frontend_register_click(void);
+void frontend_campaign_menu_button_maintain(struct GuiButton *gbtn);
 void frontend_load_mappacks(struct GuiButton *gbtn);
 void frontend_load_mp_mappacks(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);
@@ -412,7 +419,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
 void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
-void create_frontend_error_box(long showTime, const char * text);
+void create_frontend_error_box(const char *text);
 void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
 
 short menu_is_active(short idx);
@@ -422,12 +429,14 @@ void set_gui_visible(TbBool visible);
 void toggle_gui(void);
 void add_message(long plyr_idx, char *msg);
 unsigned long toggle_status_menu(short visib);
+void set_map_ui_hidden(TbBool status_menu, TbBool tooltips);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);
 
 void update_player_objectives(PlayerNumber plyr_idx);
 void set_level_objective(PlayerNumber plyr_idx, const char *msg_text);
 void display_objectives(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y);
+void display_objectives_with_icon(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y, short icon_idx);
 
 short toggle_main_cheat_menu(void);
 TbBool close_main_cheat_menu(void);

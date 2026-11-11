@@ -61,6 +61,7 @@ pkg/campgns/lqizgood/text_chi.dat \
 pkg/campgns/lqizgood/text_fre.dat \
 pkg/campgns/lqizgood/text_pol.dat \
 pkg/campgns/lqizgood/text_por.dat \
+pkg/campgns/lqizgood/text_spa.dat \
 pkg/campgns/lqizgood/text_ukr.dat \
 pkg/campgns/origplus/text_eng.dat \
 pkg/campgns/origplus/text_chi.dat \

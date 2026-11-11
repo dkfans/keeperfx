@@ -292,7 +292,10 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets);
     
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, PlayerNumber owner);    
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, PlayerNumber owner);
+
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx);
+void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, short ef_or_efel_model);
 /******************************************************************************/
 #ifdef __cplusplus
 }

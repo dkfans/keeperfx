@@ -33,6 +33,7 @@
 #include "config_effects.h"
 #include "config_crtrstates.h"
 #include "config_keeperfx.h"
+#include "net_game.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_objects.h"
@@ -83,6 +84,7 @@
 #include "creature_states_barck.h"
 
 #include "keeperfx.hpp"
+#include "kfx/ai/TargetSearchProbe.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -517,6 +519,7 @@ const struct NamedCommand move_check_func_commands[] = {
     {"move_check_attack_any_door",        12},
     {"move_check_can_damage_wall",        13},
     {"move_check_persuade",               14},
+    {NULL,                                 0},
 };
 
 const CreatureStateCheck move_check_func_list[] = {
@@ -551,21 +554,21 @@ long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
 /******************************************************************************/
 struct CreatureStateConfig *get_thing_active_state_info(struct Thing *thing)
 {
-  if (thing->active_state >= CREATURE_STATES_COUNT)
+  if (thing->active_state >= game.conf.crtr_conf.states_count)
     return &game.conf.crtr_conf.states[0];
   return &game.conf.crtr_conf.states[thing->active_state];
 }
 
 struct CreatureStateConfig *get_thing_continue_state_info(struct Thing *thing)
 {
-    if (thing->continue_state >= CREATURE_STATES_COUNT)
+    if (thing->continue_state >= game.conf.crtr_conf.states_count)
         return &game.conf.crtr_conf.states[0];
     return &game.conf.crtr_conf.states[thing->continue_state];
 }
 
 struct CreatureStateConfig *get_thing_state_info_num(CrtrStateId state_id)
 {
-    if (state_id >= CREATURE_STATES_COUNT)
+    if (state_id >= game.conf.crtr_conf.states_count)
         return &game.conf.crtr_conf.states[0];
     return &game.conf.crtr_conf.states[state_id];
 }
@@ -611,7 +614,7 @@ TbBool state_info_invalid(struct CreatureStateConfig *stati)
 TbBool creature_model_bleeds(unsigned long crmodel)
 {
     struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
-    if (censorship_enabled())
+    if (game_censorship_enabled())
     {
         // If censorship is on, only evil creatures can have blood
         if (!crconf->bleeds)
@@ -630,7 +633,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
   long state_type;
   unsigned long state = thing->active_state;
-  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
+  if ( (state > 0) && (state < game.conf.crtr_conf.states_count) )
   {
       state_type = game.conf.crtr_conf.states[state].state_type;
   } else
@@ -642,7 +645,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
   if (state_type == CrStTyp_Move)
   {
       state = thing->continue_state;
-      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
+      if ( (state > 0) && (state < game.conf.crtr_conf.states_count) )
       {
           state_type = game.conf.crtr_conf.states[state].state_type;
       } else
@@ -3210,6 +3213,7 @@ void make_creature_unconscious(struct Thing *creatng)
         update_dead_creatures_list_for_owner(creatng);
     }
     creatng->active_state = CrSt_CreatureUnconscious;
+    clear_flag(creatng->movement_flags, TMvF_Flying);
     cctrl->creature_control_flags |= CCFlg_PreventDamage;
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
     cctrl->conscious_back_turns = game.conf.rules[creatng->owner].creature.game_turns_unconscious;
@@ -3223,6 +3227,7 @@ void make_creature_conscious_without_changing_state(struct Thing *creatng)
     cctrl->creature_control_flags &= ~CCFlg_PreventDamage;
     cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
     cctrl->conscious_back_turns = 0;
+    restore_creature_flight_flag(creatng);
     if ((creatng->state_flags & TF1_IsDragged1) != 0)
     {
         struct Thing* sectng = thing_get(cctrl->dragtng_idx);
@@ -3954,7 +3959,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
     {
         struct PlayerInfo* player = get_player(i);
         struct Dungeon* dgn = get_dungeon(i);
-        if (!player_exists(player) || (player->is_active != 1) || players_are_mutual_allies(i,creatng->owner))
+        if (!is_active_keeper(player) || players_are_mutual_allies(i,creatng->owner))
             continue;
 
         if (!dgn->dnheart_idx)
@@ -4320,16 +4325,53 @@ TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, con
     return creature_has_disarming_weapon(fightng);
 }
 
+// Cleared per scan; hostile_towards is never written during a scan
+static int32_t hostility_memo_depth = 0;
+static uint8_t hostility_memo[CREATURE_TYPES_MAX]; // 0 = unknown, 1 = all slots empty, 2 = has entries
+
+void creature_hostility_memo_begin_scan(void)
+{
+    if (hostility_memo_depth++ == 0)
+        memset(hostility_memo, 0, sizeof(hostility_memo));
+}
+
+void creature_hostility_memo_end_scan(void)
+{
+    hostility_memo_depth--;
+}
+
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
+    TSP_INC(TSP_HostileTowards_Calls);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fightng);
+    if (hostility_memo_depth > 0)
+    {
+        long conf_idx = crconf - game.conf.crtr_conf.model;
+        if (hostility_memo[conf_idx] == 0)
+        {
+            hostility_memo[conf_idx] = 1;
+            for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+            {
+                if (crconf->hostile_towards[i] != 0)
+                {
+                    hostility_memo[conf_idx] = 2;
+                    break;
+                }
+            }
+        }
+        // all slots 0: the loop can only match model 0
+        if (hostility_memo[conf_idx] == 1)
+            return (enmtng->model == 0);
+    }
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
         if ((crconf->hostile_towards[i] == enmtng->model) || (crconf->hostile_towards[i] == CREATURE_ANY))
         {
+            TSP_ADD(TSP_HostileTowards_Iterations, i + 1);
             return true;
         }
     }
+    TSP_ADD(TSP_HostileTowards_Iterations, CREATURE_TYPES_MAX);
     return false;
 }
 
@@ -4343,17 +4385,26 @@ TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thi
 TbBool creature_is_hostile_to_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
     // Creatures cannot be hostile towards allies if influenced by CTA.
-    if (creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng))
+    TSP_ZONE_BEGIN(z_cta, "TS/Hostile: CallToArms");
+    TbBool called_to_arms = creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng);
+    TSP_ZONE_END(z_cta);
+    if (called_to_arms)
     {
         return false;
     }
     // Creatures cannot be hostile towards allies if they are part of a group.
-    if (creature_is_group_member(fightng) || creature_is_group_member(enmtng))
+    TSP_ZONE_BEGIN(z_grp, "TS/Hostile: GroupMember");
+    TbBool in_group = creature_is_group_member(fightng) || creature_is_group_member(enmtng);
+    TSP_ZONE_END(z_grp);
+    if (in_group)
     {
         return false;
     }
     // Lastly, check if neither creature has hostility set towards the other.
-    if (!creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng))
+    TSP_ZONE_BEGIN(z_ht, "TS/Hostile: HostileTowardsLoop");
+    TbBool neither_hostile = !creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng);
+    TSP_ZONE_END(z_ht);
+    if (neither_hostile)
     {
         return false;
     }
@@ -4370,33 +4421,46 @@ TbBool creature_is_hostile_to_creature(const struct Thing *fightng, const struct
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
+    TSP_ZONE_BEGIN(z_state, "TS/WillAttack: StateChecks");
+    TbBool bad_state = creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)
+        || creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)
+        || thing_is_picked_up(fightng) || thing_is_picked_up(enmtng);
+    TSP_ZONE_END(z_state);
+    if (bad_state)
     {
-        return false;
-    }
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
-    {
-        return false;
-    }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng))
-    {
+        TSP_INC(TSP_Rej_WillAttack_State);
         return false;
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner) && !creature_is_hostile_to_creature(fightng, enmtng))
+
+    TSP_ZONE_BEGIN(z_tol, "TS/WillAttack: Tolerate");
+    TbBool tolerate = players_creatures_tolerate_each_other(fightng->owner, enmtng->owner);
+    TSP_ZONE_END(z_tol);
+    TbBool hostile = false;
+    if (tolerate)
     {
-        if ((!creature_under_spell_effect(fightng, CSAfF_MadKilling))
-        && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
+        TSP_ZONE_BEGIN(z_hostile, "TS/WillAttack: HostileToCreature");
+        hostile = creature_is_hostile_to_creature(fightng, enmtng);
+        TSP_ZONE_END(z_hostile);
+    }
+    if (tolerate && !hostile)
+    {
+        TSP_ZONE_BEGIN(z_mad, "TS/WillAttack: MadKilling");
+        TbBool mad_killing = creature_under_spell_effect(fightng, CSAfF_MadKilling) || creature_under_spell_effect(enmtng, CSAfF_MadKilling);
+        TSP_ZONE_END(z_mad);
+        if (!mad_killing)
         {
             if (fighctrl->combat_flags == 0)
             {
+                TSP_INC(TSP_Rej_WillAttack_AllyIdle);
                 return false;
             }
             struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
             if (tmptng->index != enmtng->index)
             {
+                TSP_INC(TSP_Rej_WillAttack_AllyOtherTarget);
                 return false;
             }
         }
@@ -4404,27 +4468,35 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
     // No self fight.
     if (enmtng->index == fightng->index)
     {
+        TSP_INC(TSP_Rej_WillAttack_Self);
         return false;
     }
     // No fight when creature in custody.
-    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-    || creature_is_kept_in_custody_by_player(enmtng, fightng->owner))
+    TSP_ZONE_BEGIN(z_custody, "TS/WillAttack: Custody");
+    TbBool in_custody = creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
+        || creature_is_kept_in_custody_by_player(enmtng, fightng->owner);
+    TSP_ZONE_END(z_custody);
+    if (in_custody)
     {
+        TSP_INC(TSP_Rej_WillAttack_Custody);
         return false;
     }
     // No fight while dropping.
     if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng))
     {
+        TSP_INC(TSP_Rej_WillAttack_Dropping);
         return false;
     }
     // Final check - if creature is in control and can see the enemy - fight.
-    if ((creature_control_exists(enmctrl)) && ((enmctrl->creature_control_flags & CCFlg_NoCompControl) == 0))
+    TSP_ZONE_BEGIN(z_vis, "TS/WillAttack: ControlAndVisibility");
+    TbBool can_fight = creature_control_exists(enmctrl) && ((enmctrl->creature_control_flags & CCFlg_NoCompControl) == 0)
+        && (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng));
+    TSP_ZONE_END(z_vis);
+    if (can_fight)
     {
-        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng))
-        {
-            return true;
-        }
+        return true;
     }
+    TSP_INC(TSP_Rej_WillAttack_NoControlOrUnseen);
     return false;
 }
 
@@ -4630,6 +4702,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         return 0;
 
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
+    nav_thing_is_flying = flag_is_set(creatng->movement_flags, TMvF_Flying);
     if (resetOwnerPlayerNavigating)
         owner_player_navigating = -1;
     else
@@ -4646,6 +4719,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         pos->y.val,
         -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_is_flying = 0;
 
     int distance = 0;
     if (!path.waypoints_num)
@@ -5162,7 +5236,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureM
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
-      return 0;
+        return 0;
     }
     if (creature_is_taking_salary_activity(creatng)) {
         return 1;
@@ -5170,6 +5244,17 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureM
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureWantsSalary)) {
         return 0;
     }
+
+    // Fixed an issue where advances taken during non-salary states (e.g., sleeping) after payday would not take effect immediately.
+    if (cctrl->paydays_owed > 0 && cctrl->paydays_advanced > 0) {
+        int pay_days = min(cctrl->paydays_owed, cctrl->paydays_advanced);
+        cctrl->paydays_owed -= pay_days;
+        cctrl->paydays_advanced -= pay_days;
+    }
+    if (cctrl->paydays_owed == 0) {
+        return 0;
+    }
+
     cctrl->collided_door_subtile = 0;
     struct Room* room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
     if (!room_is_invalid(room))

@@ -27,6 +27,7 @@
 #include "creature_battle.h"
 #include "map_data.h"
 #include "game_legacy.h"
+#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -234,7 +235,7 @@ static TbBool find_nearest_landview_flag_in_direction(long mouse_x, long mouse_y
     dx /= mag;
     dy /= mag;
 
-    long screen_max_x = map_info.screen_shift_x + lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview;
+    long screen_max_x = map_info.screen_shift_x + RendererPhysicalWidth() * 16 / units_per_pixel_landview;
     long screen_max_y = map_info.screen_shift_y + lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview;
 
     TbBool flag_found = false;

@@ -6,6 +6,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "game_legacy.h"
 #include "config_sounds.h"
 #include "map_data.h"
@@ -88,9 +89,9 @@ static TbBool prevent_local_dig_prediction(const struct Packet *pckt)
     return false;
 }
 
-TbBool local_dig_prediction_is_enabled(void)
+static TbBool local_dig_prediction_is_enabled(void)
 {
-    return network_is_active() && !game.packet_load_enable && (game.input_lag_turns > 0);
+    return network_is_active() && !replay.load_enable && get_my_player() != &local_observer_player && (game.input_lag_turns > 0);
 }
 
 struct RoomSpace *get_local_dig_prediction_render_roomspace(struct RoomSpace *roomspace)
@@ -107,30 +108,34 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
         return false;
     }
     *predicted_player = *get_my_player();
+    struct UserState *ustate = get_user_state(get_local_user());
+    struct UserState saved_ustate = *ustate;
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     TbBool cursor_is_locked = local_dig_tag_prediction.cursor_button_down && ((pckt->control_flags & PCtr_LBtnClick) == 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
-    if (!cursor_is_locked && (((pckt->control_flags & PCtr_LBtnAnyAction) == 0) || ((pckt->control_flags & PCtr_LBtnClick) != 0))) {
-        predicted_player->swap_to_untag_mode = 0;
-    }
     if ((cursor_context != CSt_PickAxe) && !cursor_is_locked) {
-        if ((cursor_context != CSt_PowerHand) || (local_thing_under_hand != 0) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
+        if ((cursor_context != CSt_PowerHand) || (local_state.local_thing_under_hand != 0) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
             return false;
         }
     }
+    if (!cursor_is_locked && (((pckt->control_flags & PCtr_LBtnAnyAction) == 0) || ((pckt->control_flags & PCtr_LBtnClick) != 0))) {
+        ustate->swap_to_untag_mode = 0;
+    }
     if (local_dig_roomspace_prediction.action != PckA_None) {
         predicted_player->roomspace_highlight_mode = local_dig_roomspace_prediction.actn_par1;
-        set_player_roomspace_size(predicted_player, local_dig_roomspace_prediction.actn_par2);
+        predicted_player->roomspace_width = local_dig_roomspace_prediction.actn_par2;
+        predicted_player->roomspace_height = local_dig_roomspace_prediction.actn_par2;
     }
-    predicted_player->one_click_lock_cursor = cursor_is_locked;
+    ustate->one_click_lock_cursor = cursor_is_locked;
     predicted_player->render_roomspace.drag_mode = cursor_is_locked;
     if (cursor_is_locked) {
         predicted_player->render_roomspace.drag_start_x = local_dig_tag_prediction.drag_start_slb_x;
         predicted_player->render_roomspace.drag_start_y = local_dig_tag_prediction.drag_start_slb_y;
         predicted_player->render_roomspace.untag_mode = local_dig_tag_prediction.untag_mode;
     }
-    get_dungeon_highlight_user_roomspace(roomspace, predicted_player, pckt, stl_x, stl_y, local_dig_tag_prediction.slab_tag_modes);
+    get_dungeon_highlight_user_roomspace(roomspace, predicted_player, get_local_user(), pckt, stl_x, stl_y, local_dig_tag_prediction.slab_tag_modes);
+    *ustate = saved_ustate;
     return true;
 }
 
@@ -143,27 +148,30 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
     if ((player->work_state != PSt_BuildRoom) && (player->work_state != PSt_Sell)) {
         return false;
     }
-    struct Packet *direct_packet = get_packet_direct(player->packet_num);
+    struct Packet *direct_packet = get_local_packet();
+    struct UserState *ustate = get_user_state(get_local_user());
     struct PlayerInfo saved_player = *player;
+    struct UserState saved_ustate = *ustate;
     struct Packet saved_packet = *direct_packet;
     *direct_packet = *pckt;
-    apply_roomspace_packet_action(player, pckt);
+    apply_roomspace_packet_action(player, get_local_user(), pckt);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     if (player->work_state == PSt_BuildRoom) {
-        update_dungeon_build_roomspace_preview(plyr_idx, stl_x, stl_y);
+        update_dungeon_build_roomspace_preview(get_local_user(), stl_x, stl_y);
     } else {
-        update_dungeon_sell_roomspace_preview(plyr_idx, stl_x, stl_y);
+        update_dungeon_sell_roomspace_preview(get_local_user(), stl_x, stl_y);
     }
     *roomspace = player->render_roomspace;
     *player = saved_player;
+    *ustate = saved_ustate;
     *direct_packet = saved_packet;
     return true;
 }
 
 void update_local_dig_tag_prediction(void)
 {
-    struct Packet *pckt = get_packet(my_player_number);
+    struct Packet *pckt = get_local_packet();
     if (!local_dig_prediction_is_enabled()) {
         local_dig_render_roomspace_active = false;
         memset(&local_dig_tag_prediction, 0, sizeof(local_dig_tag_prediction));
@@ -252,8 +260,9 @@ unsigned char get_local_dig_prediction_render_flags(MapSubtlCoord stl_x, MapSubt
 void update_local_dig_prediction_cursor_preview(void)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Packet *pckt = get_history_packet(player->packet_num, get_gameturn());
-    const struct Packet *direct_packet = get_packet_direct(player->packet_num);
+    struct UserState *ustate = get_user_state(get_local_user());
+    const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
+    const struct Packet *direct_packet = get_local_packet();
     if ((local_dig_roomspace_prediction.action != PckA_None) && ((GameTurnDelta)(direct_packet->turn - local_dig_roomspace_prediction.turn) >= 0)) {
         memset(&local_dig_roomspace_prediction, 0, sizeof(local_dig_roomspace_prediction));
     }
@@ -275,10 +284,10 @@ void update_local_dig_prediction_cursor_preview(void)
             return;
         }
         TbBool dig_cursor = false;
-        if (player->primary_cursor_state == CSt_PickAxe) {
+        if (ustate->primary_cursor_state == CSt_PickAxe) {
             dig_cursor = true;
-        } else if (player->primary_cursor_state == CSt_PowerHand) {
-            dig_cursor = (player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0;
+        } else if (ustate->primary_cursor_state == CSt_PowerHand) {
+            dig_cursor = (ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0;
         }
         if ((pckt != NULL) && (player->work_state == PSt_CtrlDungeon) && dig_cursor) {
             map_volume_box.visible = 0;
@@ -291,7 +300,7 @@ void update_local_dig_prediction_cursor_preview(void)
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     local_dig_render_roomspace = roomspace;
     local_dig_render_roomspace_active = true;
-    tag_cursor_blocks_dig(&predicted_player, pckt, &local_dig_render_roomspace, stl_x, stl_y, true);
+    tag_cursor_blocks_dig(&predicted_player, get_local_user(), pckt, &local_dig_render_roomspace, stl_x, stl_y, true);
     box_lag_compensation_x = 0;
     box_lag_compensation_y = 0;
 }

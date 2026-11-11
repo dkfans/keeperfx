@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_simple.h"
 
 #include <math.h>
@@ -120,79 +121,6 @@ unsigned char palette_buf[PALETTE_SIZE];
 #endif
 /******************************************************************************/
 
-/** Copies the given RAW image at given point of screen buffer.
- *
- * @param dst_buf Destination screen buffer.
- * @param scanline Amount of bytes making up one line in screen buffer.
- * @param nlines Amount of lines in screen buffer.
- * @param dst_width Destination image width.
- * @param dst_height Destination image height.
- * @param spw Starting position in screen buffer.
- * @param sph Starting position in screen buffer.
- * @param src_buf Source image buffer.
- * @param src_width Source image width.
- * @param src_height Source image height.
- *     Factor of 2 would mean every pixel is repeated in both dimensions and drawn 2*2 times.
- * @return Gives true on success.
- */
-TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int dst_width,const int dst_height,
-    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height)
-{
-    unsigned char* dst;
-    SYNCDBG(18, "Starting; screen buf %d,%d screen size %d,%d dst pos %d,%d src %d,%d", (int)scanline, (int)nlines, (int)dst_width, (int)dst_height, (int)spw, (int)sph, (int)src_width, (int)src_height);
-    // Source pixel coords
-    int sw = 0;
-    int sh = 0;
-    // Clearing top of the canvas
-    for (sh = 0; sh < sph; sh++)
-    {
-        dst = dst_buf + (sh)*scanline;
-        memset(dst, 0, scanline);
-  }
-  // Clearing bottom of the canvas
-  // (Note: it must be done before drawing, to make sure we won't overwrite last line)
-  for (sh=sph+dst_height; sh<nlines; sh++)
-  {
-      dst = dst_buf + (sh)*scanline;
-      memset(dst, 0, scanline);
-  }
-  // Now drawing
-  int dhstart = sph;
-  for (sh=0; sh<src_height; sh++)
-  {
-      int dhend = sph + (dst_height * (sh + 1) / src_height);
-      const unsigned char* src = src_buf + sh * src_width;
-      // make for(k=0;k<dhend-dhstart;k++) but restrict k to draw area
-      int mhmin = max(0, -dhstart);
-      int mhmax = min(dhend - dhstart, nlines - dhstart);
-      for (int k = mhmin; k < mhmax; k++)
-      {
-          dst = dst_buf + (dhstart+k)*scanline;
-          int dwstart = spw;
-          if (dwstart > 0) {
-              memset(dst, 0, dwstart);
-          }
-          for (sw=0; sw<src_width; sw++)
-          {
-              int dwend = spw + (dst_width * (sw + 1) / src_width);
-              // make for(i=0;i<dwend-dwstart;i++) but restrict i to draw area
-              int mwmin = max(0, -dwstart);
-              int mwmax = min(dwend - dwstart, scanline - dwstart);
-              for (int i = mwmin; i < mwmax; i++)
-              {
-                  dst[dwstart+i] = src[sw];
-              }
-              dwstart = dwend;
-          }
-          if (dwstart < scanline) {
-              memset(dst+dwstart, 0, scanline-dwstart);
-          }
-      }
-      dhstart = dhend;
-  }
-  return true;
-}
-
 /**
  * Copies the given RAW image to the center of the screen buffer and swaps video
  * buffers to make the image visible.
@@ -212,8 +140,8 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
         return false;
 
     // Get screen dimensions
-    int screen_width = LbScreenWidth();
-    int screen_height = LbScreenHeight();
+    int screen_width = RendererPhysicalWidth();
+    int screen_height = RendererPhysicalHeight();
 
     // Get the scaling ratios
     float width_ratio = (float)screen_width / (float)img_width;
@@ -236,29 +164,32 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
         (int)scaled_width,  (int)scaled_height,
         (int)coord_x,  (int)coord_y);
 
-    // Lock the screen
-    if (LbScreenLock() != Lb_SUCCESS)
+    // Open the frame
+    if (!RendererBeginFrame())
         return false;
 
-    // Copy image buffer to screen buffer
-    copy_raw8_image_buffer(lbDisplay.WScreen, LbGraphicsScreenWidth(), LbGraphicsScreenHeight(),
-                           scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height);
+    struct RendererPresentImageDesc desc = {0};
+    desc.dst_x = coord_x;       desc.dst_y = coord_y;
+    desc.dst_w = scaled_width;  desc.dst_h = scaled_height;
+    desc.src = buf;             desc.src_pitch = img_width;
+    desc.src_w = img_width;     desc.src_h = img_height;
+    RendererPresentImage(&desc);
 
     // Perform any screen capturing
     perform_any_screen_capturing();
 
-    // Unlock the screen
-    LbScreenUnlock();
+    // Close the frame
+    RendererEndFrame();
 
     // Swap video buffers to make the image visible
-    LbScreenSwap();
+    RendererPresentFrame();
 
     return true;
 }
 
 TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
 {
-    LbPaletteSet(pal);
+    RendererPaletteSet(pal);
     TbClockMSec end_time = LbTimerClock() + tmdelay;
     TbClockMSec tmdelta = tmdelay / 100;
     if (tmdelta > 100)
@@ -315,9 +246,9 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   struct RawBitmap *rbmp;
 
   // Decide best image to show based on the width of the screen
-  if (LbGraphicsScreenWidth() >= 1280)
+  if (RendererScreenWidth() >= 1280)
     rbmp = &bitmaps_1280[stype];
-  else if (LbGraphicsScreenWidth() >= 640)
+  else if (RendererScreenWidth() >= 640)
     rbmp = &bitmaps_640[stype];
   else
     rbmp = &bitmaps_320[stype];
@@ -362,7 +293,7 @@ TbBool draw_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
     if (actv_bmp->pal_data == NULL)
       return false;
-    LbPaletteSet(actv_bmp->pal_data);
+    RendererPaletteSet(actv_bmp->pal_data);
     if (actv_bmp->raw_data == NULL)
       return false;
     copy_raw8_image_to_screen_center(actv_bmp->raw_data,actv_bmp->width,actv_bmp->height);
@@ -403,9 +334,9 @@ short show_bitmap_screen(struct ActiveBitmap *actv_bmp,TbClockMSec tmdelay)
 TbBool draw_clear_screen(void)
 {
     LbPaletteDataFillBlack(palette_buf);
-    LbPaletteSet(palette_buf);
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererPaletteSet(palette_buf);
+    RendererClearScreen(0);
+    RendererPresentFrame();
     return true;
 }
 
@@ -460,12 +391,12 @@ TbBool display_loading_screen(void)
 TbBool wait_for_installation_files(void)
 {
   char ffullpath[2048];
-  short was_locked = LbScreenIsLocked();
+  TbBool was_locked = RendererIsFrameOpen();
   prepare_file_path_buf(ffullpath, sizeof(ffullpath), FGrp_StdData, "bluepal.dat");
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
-    LbScreenUnlock();
+    RendererEndFrame();
   SYNCMSG("Installation file not found, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
@@ -510,7 +441,7 @@ TbBool wait_for_installation_files(void)
   SYNCMSG("Finished waiting for installation after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
-    LbScreenLock();
+    RendererBeginFrame();
   return (!exit_keeper);
 }
 

@@ -95,6 +95,8 @@ struct ObjectConfigStats {
     TbBool tooltip_optional;
     HitPoints health;
     char fall_acceleration;
+    short inertia_floor;
+    short inertia_air;
     char light_unaffected;
     char immobile;
     struct InitLight ilght;

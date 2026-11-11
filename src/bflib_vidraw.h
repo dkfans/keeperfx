@@ -31,9 +31,11 @@ extern "C" {
 #define NUM_DRAWITEMS 238
 #define SPRITE_SCALING_XSTEPS max(MAX_SUPPORTED_SPRITE_DIM,MAX_SUPPORTED_SCREEN_WIDTH)
 #define SPRITE_SCALING_YSTEPS max(MAX_SUPPORTED_SPRITE_DIM,MAX_SUPPORTED_SCREEN_HEIGHT)
+
 /******************************************************************************/
 #pragma pack(1)
 
+// TODO : I've moved bflib_vidraw.c to kfx/renderer/software, clean this up and split to files elsewhere.
 struct TiledSprite;
 struct TbSprite;
 struct TbHugeSprite;
@@ -175,6 +177,7 @@ extern int32_t ysteps_array[2*SPRITE_SCALING_YSTEPS];
 
 /******************************************************************************/
 TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour);
+TbResult LbDrawBoxImmediate(long x, long y, unsigned long width, unsigned long height, TbPixel colour);
 void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 
 void LbDrawPixel(long x, long y, TbPixel colour);
@@ -200,6 +203,16 @@ TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const
 TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height);
 TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour);
 int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap);
+/* The draws themselves. The entry points above route through the renderer first;
+ * these are what it calls when it is time to put pixels down. */
+TbResult LbSpriteDrawImmediate(long x, long y, const struct TbSprite *spr);
+TbResult LbSpriteDrawOneColourImmediate(long x, long y, const struct TbSprite *spr, const TbPixel colour);
+TbResult LbSpriteDrawScaledImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height);
+TbResult LbSpriteDrawScaledOneColourImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour);
+int LbSpriteDrawScaledRemapImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap);
+#define LbSpriteDrawResizedImmediate(xpos, ypos, un_per_px, sprite) LbSpriteDrawScaledImmediate(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16)
+#define LbSpriteDrawResizedOneColourImmediate(xpos, ypos, un_per_px, sprite, colour) LbSpriteDrawScaledOneColourImmediate(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, colour)
+#define LbSpriteDrawResizedRemapImmediate(xpos, ypos, un_per_px, sprite, cmap) LbSpriteDrawScaledRemapImmediate(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, cmap)
 #define LbSpriteDrawResized(xpos, ypos, un_per_px, sprite) LbSpriteDrawScaled(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16)
 #define LbSpriteDrawResizedOneColour(xpos, ypos, un_per_px, sprite, colour) LbSpriteDrawScaledOneColour(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, colour)
 #define LbSpriteDrawResizedRemap(xpos, ypos, un_per_px, sprite, cmap) LbSpriteDrawScaledRemap(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, cmap)

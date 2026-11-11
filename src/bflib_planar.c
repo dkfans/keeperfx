@@ -71,6 +71,11 @@ long get_angle_sign(long angle_a, long angle_b)
     return diff / abs(diff);
 }
 
+int32_t get_angle_signed_difference(int32_t angle_from, int32_t angle_to)
+{
+    return ((angle_to - angle_from + DEGREES_180) & ANGLE_MASK) - DEGREES_180;
+}
+
 /**
  * Gives X coordinate of a planar position shift by given distance into given direction.
  * @param distance Specifies the distance to move.

@@ -58,6 +58,9 @@
 #include "gui_frontbtns.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "timer.h"
+#include "packets.h"
+#include "net_game.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -85,9 +88,53 @@ TbBool player_cannot_win(PlayerNumber plyr_idx)
     if (player->victory_state == VicS_LostLevel)
         return true;
     struct Thing* heartng = get_player_soul_container(player->id_number);
-    if (!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed))
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    if ((!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed)) && (dungeon->backup_heart_idx <= 0))
         return true;
     return false;
+}
+
+// lost, and not still in the middle of the heart exploding
+TbBool player_defeat_settled(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->victory_state != VicS_LostLevel)
+        return false;
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    return !(thing_exists(heartng) && (heartng->active_state == ObSt_BeingDestroyed));
+}
+
+// player dropped and is computer-controlled
+TbBool player_is_placeholder(const struct PlayerInfo *player)
+{
+    return flag_is_set(player->allocflags, PlaF_Placeholder);
+}
+
+static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
+{
+    // is an undefeated human 
+    return is_active_keeper(player)
+        && player->id_number != game.neutral_player_num
+        && (player->victory_state != VicS_LostLevel)
+        && !flag_is_set(player->allocflags, PlaF_CompCtrl);
+}
+
+// check if all undefeated human players form a "kernel"
+// of complete and fully-connected mutual alliances.
+// (On non-network games this is necessarily always true.)
+TbBool human_victory_kernel_exists(void)
+{
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
+        if (!player_belongs_in_victory_kernel(get_player(i))) {
+            continue;
+        }
+        for (PlayerNumber j = i + 1; j < PLAYERS_COUNT; j++) {
+            if (player_belongs_in_victory_kernel(get_player(j)) && !players_are_mutual_allies(i, j)) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 void set_player_as_won_level(struct PlayerInfo *player)
@@ -114,10 +161,11 @@ void set_player_as_won_level(struct PlayerInfo *player)
         {
             show_real_time_taken();
         }
-        struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, turns_per_second);
+        struct GameTime GT;
+        get_game_time(&GT, dungeon->lvstats.hopes_dashed, turns_per_second);
         SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
             game.loaded_level_number, dungeon->lvstats.hopes_dashed,
-            GameT.Hours, GameT.Minutes, GameT.Seconds, turns_per_second,
+            GT.Hours, GT.Minutes, GT.Seconds, turns_per_second,
             Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
       }
   }
@@ -125,14 +173,14 @@ void set_player_as_won_level(struct PlayerInfo *player)
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
-  if (!network_is_active())
+  if (game.game_kind != GKind_MultiGame)
     player->display_objective_turn = get_gameturn() + 300;
   if (my_player)
   {
     if (lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        player->additional_flags |= PlaAF_UnlockedLordTorture;
+        get_user_state(player->user_id)->additional_flags |= UsrAF_UnlockedLordTorture;
     }
     output_message(SMsg_LevelWon, 0);
   }
@@ -143,7 +191,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     if (player->victory_state != VicS_Undecided)
     {
         // Suppress redundant warnings
-        if ((game.system_flags & GSF_RunAfterVictory) == 0)
+        if (!game.run_after_victory)
         {
             WARNLOG("Victory state already set to %d",(int)player->victory_state);
         }
@@ -180,12 +228,12 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    if (player->view_type == PVT_CreatureContrl)
+    if (get_player_view_type(player) == PVT_CreatureContrl)
     {
         struct Thing *thing = thing_get(player->controlled_thing_idx);
         leave_creature_as_controller(player, thing);
     }
-    else if (player->view_type == PVT_CreaturePasngr)
+    else if (get_player_view_type(player) == PVT_CreaturePasngr)
     {
         struct Thing *thing = thing_get(player->controlled_thing_idx);
         leave_creature_as_passenger(player, thing);
@@ -198,9 +246,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         }
     }
     set_player_state(player, PSt_CtrlDungeon, 0);
-    if (!network_is_active())
+    if (game.game_kind != GKind_MultiGame)
         player->display_objective_turn = get_gameturn() + 300;
-    if (network_is_active())
+    if (game.game_kind == GKind_MultiGame)
         reveal_whole_map(player);
     if ((dungeon->computer_enabled & 0x01) != 0)
         toggle_computer_player(player->id_number);
@@ -209,7 +257,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
 long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)
 {
     long i;
-    if (network_is_active()
+    if ((game.game_kind == GKind_MultiGame)
       || !is_singleplayer_level(game.loaded_level_number)) {
         i = 2 * gameplay_score;
     } else {
@@ -432,7 +480,7 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active))
+        if (is_active_keeper(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->total_score > max_manage_score)
@@ -756,8 +804,28 @@ void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
     do_to_players_all_creatures_of_model(player->id_number, CREATURE_ANY, check_map_explored_at_current_pos);
 }
 
-void init_player_as_single_keeper(struct PlayerInfo *player)
+void turn_user_cursor_light(NetUserId user, TbBool turn_on)
 {
+    const int idx = get_user_state(user)->cursor_light_idx;
+    if (idx == 0)
+        return;
+    if (turn_on)
+        light_turn_light_on(idx);
+    else
+        light_turn_light_off(idx);
+}
+
+void init_user_state(NetUserId user)
+{
+    struct UserState* ustate = get_user_state(user);
+    if (user_state_invalid(ustate))
+    {
+        ERRORLOG("Cannot init state of user %d", (int)user);
+        return;
+    }
+    memset(ustate, 0, sizeof(*ustate));
+    ustate->teleport_destination = 19;
+    ustate->battleid = 1;
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     ilght.radius = 2560;
@@ -765,36 +833,43 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     ilght.flags = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
-    player->cursor_light_idx = idx;
+    ustate->cursor_light_idx = idx;
     if (idx != 0) {
         light_set_light_never_cache(idx);
     } else {
-        WARNLOG("Cannot allocate light to player %d.",(int)player->id_number);
+        WARNLOG("Cannot allocate cursor light to user %d.",(int)user);
     }
+}
+
+void init_local_player_state(void)
+{
+    local_state.minimap_pos_x = 11;
+    local_state.minimap_pos_y = 11;
+    local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
 }
 
 void init_player(struct PlayerInfo *player, short no_explore)
 {
     SYNCDBG(5,"Starting");
-    player->minimap_pos_x = 11;
-    player->minimap_pos_y = 11;
-    player->minimap_zoom = settings.minimap_zoom;
-    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+    if (is_my_player(player)) {
+        init_local_player_state();
+        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+        local_state.main_palette = engine_palette;
+    }
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
-    player->main_palette = engine_palette;
-    player->minimap_zoom = settings.minimap_zoom;
-    player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
-    player->frontview_zoom_level = settings.frontview_zoom_level;
-    player->isometric_tilt = settings.isometric_tilt;
+    struct UserState *ustate = get_player_user_state(player);
+    if (!user_state_invalid(ustate))
+    {
+        player->roomspace_highlight_mode = ustate->prefs[UPref_StartingHighlightMode];
+        player->roomspace_mode = ustate->prefs[UPref_StartingHighlightMode];
+    }
     if (is_my_player(player))
     {
         if (default_tag_mode != 3)
         {
             settings.highlight_mode = default_tag_mode - 1;
         }
-        player->roomspace_highlight_mode = settings.highlight_mode;
-        player->roomspace_mode = settings.highlight_mode;
         set_flag(game.operation_flags, GOF_ShowPanel);
         set_gui_visible(true);
         init_gui();
@@ -804,11 +879,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->roomspace_width = 1;
     player->roomspace_height = 1;
     player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-    player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
     switch (game.game_kind)
     {
     case GKind_LocalGame:
-        init_player_as_single_keeper(player);
         init_player_start(player, false);
         reset_player_mode(player, PVT_DungeonTop);
         if ( !no_explore ) {
@@ -817,22 +890,11 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         break;
     case GKind_MultiGame:
-        //workaround until settings are synced through multiplayer
-        player->minimap_zoom = 256;
-        if (game.packet_save_head.isometric_view_zoom_level == 0)
-        {
-            player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
-        }
-        if (game.packet_save_head.frontview_zoom_level == 0)
-        {
-            player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
-        }
-        if (player->is_active != 1)
+        if (!is_active_keeper(player))
         {
           ERRORLOG("Non Keeper in Keeper game");
           break;
         }
-        init_player_as_single_keeper(player);
         init_player_start(player, false);
         reset_player_mode(player, PVT_DungeonTop);
         init_keeper_map_exploration_by_terrain(player);
@@ -857,27 +919,68 @@ void init_player(struct PlayerInfo *player, short no_explore)
     }
 }
 
+// What the user can (canonically) see
+int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y)
+{
+    const int32_t default_radius = 24 * COORD_PER_STL;
+    struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+    const struct UserState *ustate = get_user_state(user);
+    if (!player_exists(player) || user_state_invalid(ustate))
+        return -1;
+    // TODO: interpolate during an instance?
+    const struct DungeonCamera dcam = ustate->dungeon_camera;
+    *x = dcam.x;
+    *y = dcam.y;
+    switch (get_player_view_type(player))
+    {
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        if (thing_exists(thing))
+        {
+            *x = thing->mappos.x.val;
+            *y = thing->mappos.y.val;
+        }
+        return default_radius;
+    }
+    case PVT_MapScreen:
+    case PVT_MapFadeOut:
+    {
+        const struct Packet *pckt = get_packet(user);
+        if (packet_camera_context(pckt) == CamIV_Parchment)
+        {
+            *x = pckt->pos_x;
+            *y = pckt->pos_y;
+        }
+        return default_radius;
+    }
+    default:
+        if (ustate->prefs[UPref_FrontView] != 0)
+            return SHRT_MAX - (clamp(dcam.zoom[true], FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX) / 3);
+        return SHRT_MAX - (2 * clamp(dcam.zoom[false], CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX));
+    }
+}
+
 void init_players(void)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (flag_is_set(game.packet_save_head.players_exist, to_flag(i)))
+        if (flag_is_set(replay.head.players_exist, to_flag(i)))
             player->allocflags |= PlaF_Allocated;
         else
             player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            if (flag_is_set(game.packet_save_head.players_comp, to_flag(i)))
+            if (flag_is_set(replay.head.players_comp, to_flag(i)))
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
-              game.active_players_count++;
-              player->is_active = 1;
-              game.game_kind = GKind_MultiGame;
+              game.human_players_count++;
               init_player(player, 0);
             }
         }
@@ -1099,11 +1202,19 @@ void post_init_players(void)
     }
 }
 
+TbBool get_starting_highlight_mode(void)
+{
+    if (default_tag_mode != 3)
+        return (default_tag_mode - 1) != 0;
+    return settings.highlight_mode;
+}
+
 void init_players_local_game(void)
 {
     SYNCDBG(4,"Starting");
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
+    player->user_id = SOLO_HUMAN_ID;
     player->allocflags |= PlaF_Allocated;
 
     if( player->id_number == PLAYER_GOOD)
@@ -1112,17 +1223,12 @@ void init_players_local_game(void)
         player->player_type = PT_Keeper;
     }
 
-    switch (settings.video_rotate_mode) {
-        case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
-        case 1: player->view_mode_restore = PVM_IsoStraightView; break;
-        case 2: player->view_mode_restore = PVM_FrontView; break;
-        default: player->view_mode_restore = PVM_IsoWibbleView; break;
-    }
+    init_user_state(player->user_id);
+    UserPreferences prefs;
+    build_local_user_preferences(prefs);
+    apply_user_preferences(player->user_id, prefs, UPF_NewGame);
     init_player(player, 0);
-    set_creature_tendencies(player, CrTend_Imprison, IMPRISON_BUTTON_DEFAULT);
-    set_creature_tendencies(player, CrTend_Flee, FLEE_BUTTON_DEFAULT);
-    game.creatures_tend_imprison = IMPRISON_BUTTON_DEFAULT;
-    game.creatures_tend_flee = FLEE_BUTTON_DEFAULT;
+    apply_user_start_tendencies(player);
 }
 
 void process_player_states(void)
@@ -1136,10 +1242,9 @@ void process_player_states(void)
             if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
             {
                 struct Thing* thing = thing_get(player->controlled_thing_idx);
-                struct Camera* cam = get_player_active_camera(player);
-                if ((cam != NULL) && thing_exists(thing)) {
-                    cam->mappos.x.val = thing->mappos.x.val;
-                    cam->mappos.y.val = thing->mappos.y.val;
+                if (thing_exists(thing)) {
+                    get_player_user_state(player)->dungeon_camera.x = thing->mappos.x.val;
+                    get_player_user_state(player)->dungeon_camera.y = thing->mappos.y.val;
                     set_local_camera_destination(player);
                 }
             }
@@ -1156,7 +1261,7 @@ void process_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && (player->is_active == 1))
+        if (is_active_keeper(player))
         {
             SYNCDBG(6,"Doing updates for player %d",i);
             wander_point_update(&player->wandr_within);
@@ -1168,7 +1273,7 @@ void process_players(void)
     SYNCDBG(17,"Finished");
 }
 
-TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool whole_slab)
 {
     struct Thing *thing;
     struct Coord3d pos;
@@ -1176,8 +1281,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSlabCoord slb_y = subtile_slab(stl_y);
     int32_t sell_value = 0;
     unsigned long traps_sold;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player->full_slab_cursor == false)
+    if (!whole_slab)
     {
         thing = get_trap_for_position(stl_x, stl_y);
         if (!thing_is_sellable_trap(thing))
@@ -1326,27 +1430,11 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
                     break;
                 }
             }
-            // Refresh GUI panel button sprites for local player. Workaround for multiplayer.
             if (plyr_idx == my_player_number) {
-                for (int btn_idx = 0; btn_idx < ACTIVE_BUTTONS_COUNT; btn_idx++) {
-                    struct GuiButton *gbtn = &active_buttons[btn_idx];
-                    if ((gbtn->flags & LbBtnF_Active) == 0) {continue;}
-                    struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
-                    if (gmnu == NULL) {continue;}
-                    struct GuiButtonInit *gbinit = get_gui_button_init(gmnu, gbtn->id_num);
-                    if (gbinit != NULL && gbinit->sprite_idx != 0) {
-                        gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx, my_player_number);
-                    }
-                }
+                update_gui_button_player_colors();
             }
         }
     }
-}
-
-void set_player_roomspace_size(struct PlayerInfo *player, long size) {
-    player->user_defined_roomspace_width = size;
-    player->roomspace_width = size;
-    player->roomspace_height = size;
 }
 
 /******************************************************************************/

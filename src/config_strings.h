@@ -474,6 +474,35 @@ enum GUIStrings {
     GUIStr_NetHostConnectionLost,
     GUIStr_FxdataZipNotLoaded,
     GUIStr_FxdataZipInstallAsMod,
+    GUIStr_NetLobbyConnectionLost,
+    GUIStr_NetOutOfSync,
+    GUIStr_MnuCampaign,
+    GUIStr_MnuContinueCampaign,
+    GUIStr_NetState,
+    GUIStr_NetVersion,
+    GUIStr_NetUnknown,
+    GUIStr_NetInLobby,
+    GUIStr_NetInGame,
+    GUIStr_NetInLandview,
+    GUIStr_NetPlayerListUnavailable,
+    GUIStr_NetMaximumPlayers,
+    GUIStr_NetOpenToSpectators,
+    GUIStr_NetSettings,
+    GUIStr_NetConfirm,
+    GUIStr_NetGameStarted,
+    GUIStr_NetJoiningLocked,
+    GUIStr_NetLobbyFull,
+    GUIStr_NetDifferentVersion,
+    GUIStr_NetLobbyName,
+    GUIStr_FastForward,
+    GUIStr_FastForwardNormal,
+    GUIStr_NetLoading,
+    GUIStr_NetShowSpectatorChat,
+    GUIStr_NetSpectatorGameNotRunning,
+    GUIStr_NetSpectatorsDisabled,
+    GUIStr_NetSpectatorsFull,
+    GUIStr_NetSpectatorChatDisabled,
+    GUIStr_NetYouAreSpectating,
     GuiStrEnd
 };
 
@@ -540,6 +569,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 TbBool fill_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
 unsigned long count_strings(char *strings, int size);
 const char * cmpgn_string(unsigned int index);
+TbBool string_idx_is_empty(TextStringId stridx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

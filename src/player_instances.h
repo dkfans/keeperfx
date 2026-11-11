@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+struct DungeonCamera;
+
 enum PlayerNames {
     PLAYER0          =  0,//red
     PLAYER1          =  1,//blue
@@ -90,6 +92,7 @@ struct PlayerInstanceInfo { // sizeof = 44
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
 void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
+TbBool player_instance_controls_camera(unsigned char inum);
 void process_player_instance(struct PlayerInfo *player);
 void process_player_instances(void);
 
@@ -109,11 +112,12 @@ TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, Player
 
 void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos);
 
-struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind);
+struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind, int slabs_left);
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);
 TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool free);
 TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);
 TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool free);
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -325,7 +325,7 @@ struct ShotConfigStats {
     FuncIdx hit_thing_lua_func_idx;
 };
 
-typedef unsigned char (*Expand_Check_Func)(void);
+struct PlayerInfo;
 
 /**
  * Configuration parameters for powers.
@@ -435,7 +435,7 @@ extern const struct NamedCommand powermodel_properties_commands[];
 extern const struct LongNamedCommand powermodel_castability_commands[];
 extern const struct NamedCommand powermodel_expand_check_func_type[];
 extern const struct NamedCommand magic_power_commands[];
-extern const Expand_Check_Func powermodel_expand_check_func_list[];
+extern unsigned char (*const powermodel_expand_check_func_list[])(const struct PlayerInfo *player);
 extern const struct NamedCommand magic_use_func_commands[];
 extern const struct NamedCommand magic_cost_formula_commands[];
 /******************************************************************************/

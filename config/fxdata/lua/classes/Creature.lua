@@ -13,11 +13,15 @@
 ---@field continue_state creature_state
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
 ---@field flee_pos Pos3d The position the creature will flee too. For keeper creatures this is their lair
+---@field lair Thing|nil the lair totem of the creature, if it has one
 ---@field max_speed integer the movement speed of the creature after spell modifications
 ---@field gold_held integer gold carried by the creature
 ---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee
 ---@field opponents_melee_count integer number of creatures it is in melee battle with
 ---@field opponents_ranged_count integer number of creatures it is in ranged battle
+---@field battle_enemy Thing|nil ***read-only*** the thing this creature is fighting, nil when not in combat. Can be a creature, object, door or trap.
+---@field combat_type string|nil ***read-only*** kind of combat: "MELEE", "RANGED", "WAITING", "OBJECT", "DOOR", or nil when not fighting. "WAITING" means all attacker slots on the enemy are taken, the creature stays nearby until one frees up.
+---@field battle_id integer ***read-only*** id of the battle the creature takes part in, 0 when not fighting. Creatures sharing an id fight in the same battle.
 ---@field hunger_level integer hunger points of creature, increases by one each turn until hunger is started
 ---@field hunger_amount integer amount of chickens it will grab to eat
 ---@field hunger_loss integer amount of chickens it won't eat but would have wanted to
@@ -32,6 +36,8 @@
 ---@field party_target_player integer The player the hero party is targetting
 ---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
 ---@field patrol_countdown integer When this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
+---@field instance string|table The instance the creature is currently performing, `"NULL"` when there is none. Assigning starts it and really does cast or fire, `"NULL"` stops it. A table `{instance, target}` aims it at a thing. Reading always gives a string.
+---@field countdown integer Generic timer whose meaning depends on the current state. Changing state does not reset it, so a state that counts it down needs it set explicitly: `cr.state = "CreatureBeHappy"` plus `cr.countdown = 50` gives 50 turns of celebrating.
 ---@field conscious_back_turns integer Turns until the creature wakes up from stun.
 ---@field unsummon_duration integer Turns until the creature will unsummon. It's set on temporary creatures/familiars.
 ---@field familiars Creature[] list of familiars of the creature.
@@ -57,6 +63,10 @@ function Creature:kill(killer) end
 ---@param turns? integer Sets conscious_back_turns; the duration of the stun.
 function Creature:stun(turns) end
 
+---Temporarily removes the creature from play.
+---@param turns integer
+function Creature:remove_from_play(turns) end
+
 ---increases creatures level by a given amount
 ---@param levels integer
 function Creature:level_up(levels) end
@@ -67,6 +77,7 @@ function Creature:transfer() end
 ---Transforms the creature into another model
 ---@param creaturemodel creature_type type of creature to transform into
 ---@param level integer xp level the creature gets. Use 0 for random
+---@return Creature|nil newcreature the newly created creature, nil if failed
 function Creature:transform(creaturemodel,level) end
 
 ---Checks if the creature is under enemy custody (e.g. in prison or torture chamber)
@@ -80,6 +91,12 @@ function Creature:in_enemy_custody() end
 ---@param stl_x integer
 ---@param stl_y integer
 function Creature:walk_to(stl_x,stl_y) end
+
+---resets a creature to its appropriate idle state 
+---(e.g. GoodDoingNothing, TunnellerDoingNothing, CreatureDoingNothing or ImpDoingNothing, with special cases for creatures under spell effects). 
+---It also clears remaining traces of previous states, such as battle_slots or room_slots.
+---@return string state The state the creature ended up in.
+function Creature:set_start_state() end
 
 ---Returns the annoyance value for a specific reason
 ---@param reason anger_reason The reason to query

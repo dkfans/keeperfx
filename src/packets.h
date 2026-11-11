@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "globals.h"
+#include "net_main.h"
 #include "player_data.h"
 #include <stdint.h>
 
@@ -60,11 +61,11 @@ enum TbPacketAction {
         PckA_SwitchScrnRes,
         PckA_TogglePause,
         PckA_UnusedSlot023,
-        PckA_SetCluedo,
+        PckA_SetUserPref,
         PckA_ChangeWindowSize,//25
         PckA_BookmarkLoad,
         PckA_SetGammaLevel,
-        PckA_SetMinimapConf,
+        PckA_UnusedSlot028,
         PckA_SetMapRotation,
         PckA_UnusedSlot030,//30
         PckA_UnusedSlot031,
@@ -194,19 +195,19 @@ enum TbPacketAction {
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
         PckA_ApplyRoomspaceDigTag,
-		PckA_CheatWinLevel,
-		PckA_CheatLoseLevel,
-		PckA_CheatLevelUp,
-		PckA_CheatLevelDown,
-		PckA_CheatApplySpell,
-		PckA_CheatKillCreature,
+        PckA_CheatWinLevel,
+        PckA_CheatLoseLevel,
+        PckA_CheatLevelUp,
+        PckA_CheatLevelDown,
+        PckA_CheatApplySpell,
+        PckA_CheatKillCreature,
+        PckA_SetTimestamp,
 };
 
-/** Packet flags for non-action player operation. */
+/** Packet flags for non-action player operation. **/
 enum TbPacketControl {
         PCtr_None           = 0x0000,
-        PCtr_ViewRotateCW   = 0x0001,
-        PCtr_ViewRotateCCW  = 0x0002,
+        PCtr_CameraContext  = 0x0003, //!< how to interpret packet's pos_x/pos_y
         PCtr_MoveUp         = 0x0004,
         PCtr_MoveDown       = 0x0008,
         PCtr_MoveLeft       = 0x0010,
@@ -227,7 +228,6 @@ enum TbPacketControl {
         PCtr_Ascend         = 0x80000,
         PCtr_Descend        = 0x100000,
         PCtr_ViewZoomPos    = 0x200000,
-        PCtr_ViewRotatePos  = 0x400000
 };
 
 /**
@@ -235,7 +235,7 @@ enum TbPacketControl {
  */
 enum TbPacketAddValues {
     PCAdV_None              = 0x00, //!< Dummy flag
-    PCAdV_SpeedupPressed    = 0x01, //!< The keyboard modified used for speeding up camera movement is pressed.
+    PCAdV_AlternatePressed  = 0x01, //!< The alternate modifier (speed-up key) is pressed. 
     PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-bit integer; stores context of map coordinates. The context is used to set the Cursor State.
     PCAdV_CrtrContrlPressed = 0x20, //!< The keyboard modified used for creature control is pressed.
     PCAdV_CrtrQueryPressed  = 0x40, //!< The keyboard modified used for querying creatures is pressed.
@@ -269,47 +269,39 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 
-extern unsigned long initial_replay_seed;
 extern TbBool unpausing_in_progress;
 
-extern float camera_movement_x;
-extern float camera_movement_y;
+
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
+ * Version number is only used for replay files; increment it if the packet layout changes.
  */
+#define PACKET_VER 0
 struct Packet {
     GameTurn turn;
     TbBigChecksum checksum; //! Checksum of the entire game state of the previous turn, used solely for desync detection
     int8_t input_lag_turns;
     uint8_t action; //! Action kind performed by the player which owns this packet
-    int32_t actn_par1; //! Players action parameter #1
-    int32_t actn_par2; //! Players action parameter #2
-    int32_t pos_x; //! Mouse Cursor Position X
-    int32_t pos_y; //! Mouse Cursor Position Y
+    int32_t actn_par1; //! action parameter #1
+    int32_t actn_par2; //! action parameter #2
+    int32_t pos_x; //! Map cursor X / Possession yaw (based on PCtr_CameraContext)
+    int32_t pos_y; //! Map cursor Y / Possession pitch (based on PCtr_CameraContext)
     uint32_t control_flags;
     uint8_t additional_packet_values; // uses the flags and values from TbPacketAddValues
-    int16_t actn_par3; //! Players action parameter #3
-    int16_t actn_par4; //! Players action parameter #4
-};
-
-struct PacketSaveHead {
-    unsigned short game_ver_major;
-    unsigned short game_ver_minor;
-    unsigned short game_ver_release;
-    unsigned short game_ver_build;
-    uint32_t level_num;
-    PlayerBitFlags players_exist;
-    PlayerBitFlags players_comp;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
-    int isometric_tilt;
-    unsigned char video_rotate_mode;
-    TbBool chksum_available; // if needed, this can be replaced with flags
-    uint32_t action_seed;
-    TbBool default_imprison_tendency;
-    TbBool default_flee_tendency;
-    TbBool skip_heart_zoom;
-    TbBool highlight_mode;
+    
+    // union on packet_action_has_camera_position()
+    union
+    {
+        uint16_t cam_x;
+        int16_t actn_par3; //! action parameter #3
+    };
+    
+    // union on packet_action_has_camera_position()
+    union
+    {
+        uint16_t cam_y;
+        int16_t actn_par4; //! action parameter #4
+    };
 };
 
 struct PacketEx
@@ -321,11 +313,14 @@ struct PacketEx
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-struct Packet *get_packet_direct(long pckt_idx);
-struct Packet *get_packet(long plyr_idx);
+struct Packet *get_local_packet(void);
+NetUserId get_local_user(void);
+struct Packet *get_packet(NetUserId user);
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
 TbBool is_packet_empty(const struct Packet *pckt);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
+void request_timestamp_packet(void);
+void set_pending_timestamp_packet_action(struct Packet *pckt);
 void set_packet_control(struct Packet *pckt, unsigned long flag);
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 unsigned char get_players_packet_action(struct PlayerInfo *player);
@@ -333,36 +328,42 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
-void force_application_close(void);
 struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y);
-TbBool process_dungeon_control_packet_clicks(long idx);
-TbBool process_players_dungeon_control_packet_action(long idx);
-void process_players_creature_control_packet_control(long idx);
-void process_players_creature_passenger_packet_action(long idx);
-void process_players_creature_control_packet_action(long idx);
-void process_map_packet_clicks(long idx);
+TbBool process_dungeon_control_packet_clicks(NetUserId user);
+TbBool process_user_dungeon_control_packet_action(NetUserId user);
+void process_user_creature_control_packet_control(NetUserId user);
+void process_user_creature_passenger_packet_action(NetUserId user);
+void process_user_creature_control_packet_action(NetUserId user);
+void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
-void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera);
-void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
+TbBool process_user_global_packet_action(NetUserId user);
+void clear_users_button_state(void);
+void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
+TbBool packet_action_has_camera_position(enum TbPacketAction action);
+unsigned char packet_camera_context(const struct Packet *pckt);
+void packet_set_camera_context(struct Packet *pckt, unsigned char cam_idx);
+void packet_set_camera_position(struct Packet *pckt, MapCoord x, MapCoord y);
+void packet_clear_camera_position(struct Packet *pckt);
+TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoord *y);
+int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* player, TbBool speedup);
+void process_camera_action(struct Camera cams[], const struct Packet* pckt);
+void process_first_person_look(struct Thing *thing, int32_t turn_x, int32_t turn_y, int32_t current_horizontal, int32_t current_vertical, int32_t *out_horizontal, int32_t *out_vertical, int32_t *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);
-void exchange_packets(void);
+enum PacketExchangeResult {
+    PExR_Advance,
+    PExR_Wait,
+};
+
+enum PacketExchangeResult exchange_packets(void);
 void process_packets(void);
+TbBool is_desync_warning_active(void);
 void set_local_packet_turn(void);
 void clear_packets(void);
-TbBigChecksum compute_replay_integrity(void);
 void post_init_packets(void);
-
-TbBool open_new_packet_file_for_save(void);
-void load_packets_for_turn(GameTurn nturn);
-TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
-short save_packets(void);
-void close_packet_file(void);
-TbBool reinit_packets_after_load(void);
-struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
+struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
-TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
+TbBool packets_process_cheats(NetUserId user, PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void disable_packet_mode(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

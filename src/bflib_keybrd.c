@@ -36,6 +36,8 @@ static unsigned char lbIInkeyFlags;
 static unsigned char lbIInkey;
 static unsigned char lbExtendedKeyPress;
 unsigned char lbKeyOn[KC_LIST_END];
+unsigned char lbKeyPressed[KC_LIST_END];
+TbBool lbBufferKeyPresses;
 TbKeyCode lbInkey;
 
 /******************************************************************************/
@@ -110,6 +112,9 @@ void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, i
         lbInkeyFlags |= KMod_ALT;
     if (lbKeyOn[code] != 0)
         lbKeyOn[code] |= lbInkeyFlags;
+    if (lbBufferKeyPresses && action == KActn_KEYDOWN) {
+        lbKeyPressed[code] = 1 | lbInkeyFlags;
+    }
     if (lbInkey < 0x80)
     {
         if (lbIInkey == 0)

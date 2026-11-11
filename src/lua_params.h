@@ -53,7 +53,7 @@ MapSlabCoord luaL_checkslb_y(lua_State *L, int index);
 ActionPointId luaL_checkActionPoint(lua_State *L, int index);
 unsigned char luaL_checkCrtLevel(lua_State *L, int index);
 unsigned char luaL_checkParty(lua_State *L, int index);
-void luaL_checkMessageIcon(lua_State *L, int index, char* type, char* id);
+void luaL_checkMessageIcon(lua_State *L, int index, char* type, short* id);
 long luaL_checkIntMinMax(lua_State *L, int index,long min, long max);
 EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index);
 long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index);
@@ -74,6 +74,7 @@ void lua_pushPos(lua_State *L, struct Coord3d* pos);
 void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void lua_pushPartyTable(lua_State *L, struct Thing* thing);
 void lua_pushFamiliarTable(lua_State* L, struct Thing* thing);
+void lua_pushParent(lua_State *L, const struct Thing *thing);
 void lua_pushRoom(lua_State *L, struct Room* room);
 void lua_pushCamera(lua_State *L, PlayerNumber plr_idx);
 

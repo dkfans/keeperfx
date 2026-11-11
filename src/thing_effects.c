@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 
 #include "thing_effects.h"
 
@@ -75,6 +76,25 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
     if (tngmodel >= EFFECTSELLEMENTS_TYPES_MAX)
         return &game.conf.effects_conf.effectelement_cfgstats[0];
     return &game.conf.effects_conf.effectelement_cfgstats[tngmodel];
+}
+
+static TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
+{
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct PlayerInfo *player = get_player(plyr_idx);
+        if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
+            MapCoord x = 0;
+            MapCoord y = 0;
+            const int32_t radius = user_get_visibility_bounds(player->user_id, &x, &y);
+            if (chessboard_distance(x, y, (MapCoord)pos->x.val, (MapCoord)pos->y.val) <= radius)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmodel, PlayerNumber owner)
@@ -275,6 +295,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->tint_colour = thing->tint_colour;
             effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
+            effeltng->movement_flags = thing->movement_flags;
         }
     }
     // Effect elements related to Teleport.
@@ -390,9 +411,10 @@ TngUpdateRet move_effect_element(struct Thing *thing)
         {
             move_effect_blocked(thing, &thing->mappos, &pos);
         } else
-        if (thing_in_wall_at(thing, &pos) && thing_in_wall_at(thing,&thing->mappos))
+        if (thing_in_wall_at(thing, &pos) || thing_in_wall_at(thing,&thing->mappos))
         {
             move_effect_blocked(thing, &thing->mappos, &pos);
+            return TUFRet_Modified;
         }
     }
     thing->move_angle_xy = get_angle_xy_to(&thing->mappos, &pos);
@@ -765,7 +787,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         if (thing->health == i)
         {
           LbPaletteStopOpenFade();
-          LbPaletteSet(temp_pal);
+          RendererPaletteSet(temp_pal);
         } else
         if (thing->health > 0)
         {
@@ -773,7 +795,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         } else
         {
             player = get_my_player();
-            PaletteSetPlayerPalette(player, engine_palette);
+            PaletteSetUserPalette(player->user_id, engine_palette);
             LbPaletteStopOpenFade();
         }
         break;
@@ -1100,6 +1122,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
+                    tngdst->pushed_by_player = owner;
+                    tngdst->last_turn_pushed = get_gameturn();
                 }
             }
         }
@@ -1752,6 +1776,227 @@ void create_effects_line(TbMapLocation from, TbMapLocation to, char curvature, u
       fx_line->total_steps = 1;
     }
     fx_line->partial_steps = FX_LINE_TIME_PARTS;
+}
+
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx)
+{
+  MapCoordDelta dist_x;
+  MapCoordDelta dist_y;
+  MapCoordDelta dist_z;
+  dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
+  dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
+  dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
+  int delta_x;
+  int delta_y;
+  int delta_z;
+  if (delta_step <= 0)
+      delta_step = 1;
+  if (dist_x >= 0)
+  {
+      delta_x = delta_step;
+    } else {
+        dist_x = -dist_x;
+        delta_x = -delta_step;
+    }
+    if (dist_y >= 0) {
+        delta_y = delta_step;
+    } else {
+        dist_y = -dist_y;
+        delta_y = -delta_step;
+    }
+    if (dist_z >= 0) {
+        delta_z = delta_step;
+    } else {
+        dist_z = -dist_z;
+        delta_z = -delta_step;
+    }
+    // Now our dist_x,dist_y,dist_z is always non-negative,
+    // and sign is stored in delta_x,delta_y,delta_z.
+    if ((dist_x != 0) || (dist_y != 0) || (dist_z != 0))
+    {
+        int nsteps;
+        // Find max dimension, and scale deltas to it
+        if ((dist_z > dist_x) && (dist_z > dist_y))
+        {
+            nsteps = dist_z / delta_step;
+            delta_y = dist_y * delta_y / dist_z;
+            delta_x = dist_x * delta_x / dist_z;
+        } else
+        if ((dist_x > dist_y) && (dist_x > dist_z))
+        {
+            nsteps = dist_x / delta_step;
+            delta_y = dist_y * delta_y / dist_x;
+            delta_z = dist_z * delta_z / dist_x;
+        } else
+        if ((dist_y > dist_x) && (dist_y > dist_z))
+        {
+            nsteps = dist_y / delta_step;
+            delta_x = dist_x * delta_x / dist_y;
+            delta_z = dist_z * delta_z / dist_y;
+        } else
+        { // No dominate direction
+            nsteps = (dist_x + dist_y + dist_z) / delta_step;
+            delta_x = dist_x * delta_x / (dist_x + dist_y + dist_z);
+            delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
+            delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
+        }
+
+        int sprsize = 0;
+        int delta_size = 0;
+
+        struct EffectElementConfigStats *eestat;
+        if (ef_or_efel_model < 0)
+        {
+            eestat = get_effect_element_model_stats(ef_or_efel_model * -1);
+            delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
+            sprsize = (eestat->sprite_size_min << 8);
+        }
+
+        int deviat;
+        deviat = 1;
+        struct Coord3d curpos;
+        curpos.x.val = pos1->x.val;
+        curpos.y.val = pos1->y.val;
+        curpos.z.val = pos1->z.val;
+        int i;
+        for (i=nsteps+1; i > 0; i--)
+        {
+            int devrange;
+            devrange = 2 * deviat;
+            int k;
+            for (k = num_per_step; k > 0; k--)
+            {
+                struct Coord3d tngpos;
+                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange);
+                tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
+                tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
+                if ((tngpos.x.val < subtile_coord(game.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(game.map_subtiles_y,0)))
+                {
+                    struct Thing *eelemtng;
+
+                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, parent_idx);
+                    if (!thing_is_invalid(eelemtng)) {
+                        eelemtng->sprite_size = sprsize >> 8;
+                    }
+                }
+            }
+            curpos.x.val += delta_x;
+            curpos.y.val += delta_y;
+            curpos.z.val += delta_z;
+            deviat += 16;
+            sprsize += delta_size;
+        }
+    }
+}
+
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, EffectOrEffElModel ef_or_efel_model)
+{
+    MapCoordDelta dist_x = pos2->x.val - pos1->x.val;
+    MapCoordDelta dist_y = pos2->y.val - pos1->y.val;
+    MapCoordDelta dist_z = pos2->z.val - pos1->z.val;
+    int delta_x;
+    int delta_y;
+    int delta_z;
+    if (eeinterspace <= 0)
+        eeinterspace = 1;
+    if (dist_x >= 0) {
+        delta_x = eeinterspace;
+    } else {
+        dist_x = -dist_x;
+        delta_x = -eeinterspace;
+    }
+    if (dist_y >= 0) {
+        delta_y = eeinterspace;
+    } else {
+        dist_y = -dist_y;
+        delta_y = -eeinterspace;
+    }
+    if (dist_z >= 0) {
+        delta_z = eeinterspace;
+    } else {
+        dist_z = -dist_z;
+        delta_z = -eeinterspace;
+    }
+    if ((dist_x != 0) || (dist_y != 0) || (dist_z != 0))
+    {
+        int nsteps;
+        if ((dist_z >= dist_x) && (dist_z >= dist_y))
+        {
+            nsteps = dist_z / eeinterspace;
+            delta_y = delta_y * dist_y / dist_z;
+            delta_x = dist_x * delta_x / dist_z;
+        } else
+        if ((dist_x >= dist_y) && (dist_x >= dist_z))
+        {
+            nsteps = dist_x / eeinterspace;
+            delta_y = delta_y * dist_y / dist_x;
+            delta_z = delta_z * dist_z / dist_x;
+        } else
+        {
+            nsteps = dist_y / eeinterspace;
+            delta_x = dist_x * delta_x / dist_y;
+            delta_z = delta_z * dist_z / dist_y;
+        }
+        int deviat_x = 0;
+        int deviat_y = 0;
+        int deviat_z = 0;
+        struct Coord3d curpos;
+        curpos.x.val = pos1->x.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.y.val = pos1->y.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.z.val = pos1->z.val + UNSYNC_RANDOM(eeinterspace/4);
+        for (int i=nsteps+1; i > 0; i--)
+        {
+            struct Coord3d tngpos;
+            tngpos.x.val = curpos.x.val + deviat_x;
+            tngpos.y.val = curpos.y.val + deviat_y;
+            tngpos.z.val = curpos.z.val + deviat_z;
+            if ((tngpos.x.val < subtile_coord(game.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(game.map_subtiles_y,0)))
+            {
+                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, 0);
+            }
+            if (UNSYNC_RANDOM(6) >= 3) {
+                deviat_x -= 32;
+            } else {
+                deviat_x += 32;
+            }
+            if (UNSYNC_RANDOM(6) >= 3) {
+                deviat_y -= 32;
+            } else {
+                deviat_y += 32;
+            }
+            if (UNSYNC_RANDOM(6) >= 3) {
+                deviat_z -= 32;
+            } else {
+                deviat_z += 32;
+            }
+            MapCoordDelta dist = get_chessboard_3d_distance(&curpos, pos2);
+            int deviat_limit = 128;
+            if (dist < 1024)
+              deviat_limit = (dist * 128) / 1024;
+            // Limit deviations
+            if (deviat_x < -deviat_limit) {
+                deviat_x = -deviat_limit;
+            } else
+            if (deviat_x > deviat_limit) {
+                deviat_x = deviat_limit;
+            }
+            if (deviat_y < -deviat_limit) {
+                deviat_y = -deviat_limit;
+            } else
+            if (deviat_y > deviat_limit) {
+                deviat_y = deviat_limit;
+            }
+            if (deviat_z < -deviat_limit) {
+                deviat_z = -deviat_limit;
+            } else
+            if (deviat_z > deviat_limit) {
+                deviat_z = deviat_limit;
+            }
+            curpos.x.val += delta_x;
+            curpos.y.val += delta_y;
+            curpos.z.val += delta_z;
+        }
+    }
 }
 
 /******************************************************************************/

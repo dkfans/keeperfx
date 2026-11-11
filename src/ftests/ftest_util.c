@@ -15,6 +15,7 @@
 #include "../frontend.h"
 #include "../bflib_mouse.h"
 #include "../bflib_planar.h"
+#include "../local_camera.h"
 
 #include "../post_inc.h"
 
@@ -194,15 +195,9 @@ TbBool ftest_util_move_camera(long x, long y, PlayerNumber plyr_idx)
         return false;
     }
 
-    struct Camera* camera = &player->cameras[CamIV_Isometric];
-    if(camera == NULL)
-    {
-        LbErrorLog("Could not find camera %d", CamIV_Isometric);
-        return false;
-    }
-
-    camera->mappos.x.val = x;
-    camera->mappos.y.val = y;
+    get_player_user_state(player)->dungeon_camera.x = x;
+    get_player_user_state(player)->dungeon_camera.y = y;
+    sync_local_camera(player);
 
     return true;
 }
@@ -310,12 +305,8 @@ void ftest_util_center_cursor_over_dungeon_view()
     }
 
     struct TbPoint point;
-    point.x = player->engine_window_width/2;
-    point.y = player->engine_window_height/2;
-    if ((game.operation_flags & GOF_ShowGui) != 0)
-    {
-        point.x += status_panel_width;
-    }
+    point.x = local_state.engine_window_x + local_state.engine_window_width/2;
+    point.y = local_state.engine_window_y + local_state.engine_window_height/2;
 
     LbMouseSetPosition(point.x, point.y);
 }

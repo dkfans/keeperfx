@@ -25,7 +25,10 @@
 #include "bflib_planar.h"
 
 #include "engine_render.h"
+#include "local_camera.h"
 #include "player_data.h"
+#include "player_instances.h"
+#include "local_camera.h"
 #include "map_data.h"
 
 #include "thing_stats.h"
@@ -1759,7 +1762,7 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
                 }
                 MapSubtlCoord stl_y = lighting_table->delta_y + lgt->mappos.y.stl.num;
                 MapSubtlCoord stl_x = lighting_table->delta_x + lgt->mappos.x.stl.num;
-                if (lighting_table->delta_x + lgt->mappos.x.stl.num < game.map_subtiles_x && stl_y < game.map_subtiles_y)
+                if (subtile_has_slab(stl_x, stl_y))
                 {
                     unsigned int coord_y = stl_y << 8; // must be unsigned
                     unsigned int coord_x = stl_x << 8; // must be unsigned
@@ -2087,18 +2090,20 @@ static char light_render_light(struct Light* lgt)
           y_end = ((game.map_subtiles_y + 1) * COORD_PER_STL - 1);
         MapSubtlCoord stl_x = coord_subtile(x_start);
         MapSubtlCoord stl_y = coord_subtile(y_start);
+        int cache_x = stl_x + lighting_tables_idx - lgt->mappos.x.stl.num;
+        int cache_y = stl_y + lighting_tables_idx - lgt->mappos.y.stl.num;
         int row_offset = stl_x - coord_subtile(x_end) + game.map_subtiles_x;
         unsigned short* lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y)];
         struct ShadowCache *shdc = &game.lish.shadow_cache[lgt->shadow_index];
-        lighting_tables_idx = *shdc->lighting_bitmask;
+        lighting_tables_idx = shdc->lighting_bitmask[cache_y];
         if ( y_end >= y_start )
         {
-          uint32_t * shadow_cache_pointer = shdc->lighting_bitmask;
+          uint32_t * shadow_cache_pointer = &shdc->lighting_bitmask[cache_y];
           MapCoord y = y_start;
           do
           {
             MapCoord x = x_start;
-            for ( size_t i = 0; x <= x_end; i++ )
+            for (int i = cache_x; x <= x_end; i++)
             {
               if ( (light_bitmask[i] & lighting_tables_idx) != 0 )
               {
@@ -2274,28 +2279,17 @@ void update_light_render_area(void)
     int starty;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    if (
-        player->view_mode == PVM_CreatureView ||
-        player->view_mode == PVM_IsoWibbleView ||
-        player->view_mode == PVM_FrontView ||
-        player->view_mode == PVM_IsoStraightView
-    ) {
+    const unsigned char view_type = get_local_view_type(player);
+    if ((view_type == PVT_DungeonTop || view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr) && (is_observer_camera_active() || player->instance_num != PI_MapFadeFrom)) {
         game.something_light_y = LIGHT_MAX_RANGE;
         game.something_light_x = LIGHT_MAX_RANGE;
     }
     int delta_x = abs(game.something_light_x);
     int delta_y = abs(game.something_light_y);
-    struct Camera *camera = get_player_active_camera(player);
     // Prepare the area constraints
-    if (camera != NULL)
-    {
-      subtile_y = camera->mappos.y.stl.num;
-      subtile_x = camera->mappos.x.stl.num;
-    } else
-    {
-      subtile_y = 0;
-      subtile_x = 0;
-    }
+    struct Camera *camera = get_local_active_camera(player);
+    subtile_y = camera->mappos.y.stl.num;
+    subtile_x = camera->mappos.x.stl.num;
 //SYNCMSG("LghtRng %d,%d CamTil %d,%d",game.something_light_x,game.something_light_y,tile_x,tile_y);
     if (subtile_y > delta_y)
     {

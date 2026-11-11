@@ -37,6 +37,7 @@ extern long tree_val[TREEVALS_COUNT];
 
 #pragma pack()
 /******************************************************************************/
+void navitree_reset(void);
 void tags_init(void);
 long update_border_tags(long tag_id, int32_t *border_pt, long border_len);
 long border_tags_to_current(int32_t *border_pt, long border_len);

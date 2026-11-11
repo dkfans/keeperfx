@@ -22,6 +22,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,6 +67,35 @@ struct TiledSprite {
     unsigned short spr_idx[10][10];
 };
 #pragma pack()
+
+/** Decode RLE sprite data into dst (dst_stride bytes/row). */
+static inline void LbSpriteDecode(unsigned char *dst, int dst_stride,
+                                   const unsigned char *data, int w, int h)
+{
+    int y;
+    for (y = 0; y < h; ++y)
+        memset(dst + y * dst_stride, 0, (size_t)w);
+
+    for (y = 0; y < h; ++y) {
+        unsigned char *row = dst + y * dst_stride;
+        int x = 0;
+        for (;;) {
+            signed char cmd = (signed char)(*data++);
+            if (cmd == 0) break;
+            if (cmd < 0) {
+                x += (int)(-cmd);
+            } else {
+                int count = (int)cmd;
+                int i;
+                for (i = 0; i < count; ++i) {
+                    if (x < w) row[x] = *data ? *data : 1;
+                    ++data;
+                    ++x;
+                }
+            }
+        }
+    }
+}
 
 struct TbSpriteSheet * create_spritesheet(void);
 struct TbSpriteSheet * load_spritesheet(const char * data_fname, const char * index_fname);

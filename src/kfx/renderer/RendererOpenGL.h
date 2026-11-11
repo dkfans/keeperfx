@@ -1,0 +1,87 @@
+#ifndef RENDERER_RENDEREROPENGL_H
+#define RENDERER_RENDEREROPENGL_H
+
+#include "kfx/renderer/IRenderer.h"
+#include "kfx/renderer/IFrameGraphExecutor.h"
+#include <memory>
+
+class IGLContext;
+
+class RendererOpenGL : public IRenderer, public IFrameGraphExecutor {
+public:
+    RendererOpenGL();
+    ~RendererOpenGL() override;
+
+    bool Init() override;
+    void Shutdown() override;
+    const char* GetName() const override { return "OpenGL"; }
+
+    void SetDisplayPalette(const unsigned char* rgb8) override;
+    void ClearScreen(unsigned char colour) override;
+    void PresentFrame() override;
+
+    BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 1 }; }
+    bool CanDraw() const override
+    {
+        return true;
+    }
+    bool CanPresent() const override;
+    bool BeginFrame() override;
+    void EndFrame() override;
+    bool PresentImage(const struct RendererPresentImageDesc* desc) override;
+    void PresentHugeSprite(const struct TbHugeSprite* spr, int32_t sp_len,
+                           int32_t x_shift, int32_t y_shift, int32_t units_per_px) override;
+
+    void SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
+                            int dst_x, int dst_y, int tile_w, int tile_h) override;
+
+    // Landview zoom-in/out transition (frontzoom_to_point()).
+    bool SubmitLandviewZoom(const unsigned char* src_buf, int src_w, int src_h,
+                            float center_map_x, float center_map_y,
+                            float screen_cx,    float screen_cy,
+                            float scale) override;
+
+    class ITextRenderer*        GetTextRenderer() override;
+    class IUIRenderer*          GetUIRenderer() override;
+    class ICursorLayer*         GetCursorLayer() override;
+    class IWorldViewRenderer*   GetWorldViewRenderer() override;
+
+    // Parchment transition. See GLMapFadePass.h for the design.
+    void SubmitMapFadeStep(int tick_step, float display_step, float warp_scale, bool fading_in,
+                           const unsigned char* ghost_table) override;
+    bool MapFadeSupportsNativeResolution() const override;
+    void BeginOverlayCapture(OverlayCaptureKind kind) override;
+    void EndOverlayCapture(OverlayCaptureKind kind) override;
+
+    void FGClearFrame() override;
+    void FGBeginWorldCapture() override;
+    void FGExecuteWorld() override;
+    void FGFlushSwipeOverlay() override;
+    void FGResolveWorldCapture() override;
+    void FGCaptureMapFadeWorld() override;
+    void FGDrawWorldSpriteLayer() override;
+    void FGDrawWorldOverlayFlatLayer() override;
+    void FGExecuteImagePresents() override;
+    void FGDrawZoomBoxes() override;
+    void FGDrawGameUI() override;
+    void FGDrawFrontOverlay() override;
+    void FGResolveMapFade() override;
+    void FGExecuteImagePresentOverlay() override;
+    void FGExecuteCursor() override;
+
+    bool ScheduleScreenshot(const char* path, int fmt) override;
+    void FGCaptureScreenshot() override;
+
+private:
+    struct Impl;
+    Impl* m_impl = nullptr;
+
+    std::unique_ptr<IGLContext> m_gl_context;
+
+    void render_thread_init();
+    void render_thread_work();
+    void render_thread_present();
+    void render_thread_cleanup();
+};
+
+#endif // RENDERER_RENDEREROPENGL_H

@@ -23,9 +23,6 @@
 #include "globals.h"
 #include "config.h"
 
-/** Count of creature states, originally 147. */
-#define CREATURE_STATES_COUNT CrSt_ListEnd
-
 #define FIGHT_FEAR_DELAY 160
 #define STATE_TYPES_COUNT CrStTyp_ListEnd
 
@@ -118,7 +115,7 @@ enum CreatureStates {
     CrSt_ImpBirth,
     CrSt_AtTemple,
     CrSt_PrayingInTemple,
-    CrSt_Null84,
+    CrSt_CreatureOutOfPlay,
     CrSt_CreatureFollowLeader,
     CrSt_CreatureDoorCombat,
     CrSt_CreatureCombatFlee,
@@ -386,6 +383,8 @@ TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNu
 short player_keeping_creature_in_custody(const struct Thing* thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool creature_is_hostile_towards(const struct Thing *tng1, const struct Thing *tng2);
+void creature_hostility_memo_begin_scan(void);
+void creature_hostility_memo_end_scan(void);
 TbBool creature_is_hostile_to_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, const struct Thing* enmtng); //todo move

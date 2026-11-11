@@ -1000,7 +1000,7 @@ void setup_mesh_randomizers(void)
     }
 }
 
-void fill_floor_heights_table(void)
+static void fill_floor_heights_table(void)
 {
     long top_height;
     long btm_height;
@@ -1047,7 +1047,7 @@ void fill_floor_heights_table(void)
 /**
  * Modification of LB_RANDOM() which allows generating Wibble values same to original game.
  */
-unsigned short wibble_random(unsigned short range, unsigned short *seed)
+static unsigned short wibble_random(unsigned short range, unsigned short *seed)
 {
     if (range == 0)
         return 0;
@@ -1057,7 +1057,7 @@ unsigned short wibble_random(unsigned short range, unsigned short *seed)
     return i;
 }
 
-void generate_wibble_table(void)
+static void generate_wibble_table(void)
 {
     struct WibbleTable *wibl;
     struct WibbleTable *empty_wibl;
@@ -1099,7 +1099,7 @@ void generate_wibble_table(void)
     }
 }
 
-TbBool load_ceiling_table(void)
+static TbBool load_ceiling_table(void)
 {
     char *fname;
     TbFileHandle fh;
@@ -1148,4 +1148,11 @@ TbBool load_ceiling_table(void)
     return true;
 }
 
+
+void engine_init(void)
+{
+    fill_floor_heights_table();
+    generate_wibble_table();
+    load_ceiling_table();
+}
 /******************************************************************************/

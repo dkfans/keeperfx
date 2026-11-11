@@ -16,6 +16,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "ariadne.h"
+#include "ariadne_update.h"
 #include "ariadne_tringls.h"
 #include "ariadne_findcache.h"
 #include "ariadne_points.h"
@@ -24,6 +25,7 @@
 #include "ariadne_navitree.h"
 
 #include "game_legacy.h"
+#include "kfx/profiling/KfxProfilingC.h"
 
 
 #include "post_inc.h"
@@ -1500,6 +1502,8 @@ static void border_unlock(long start_x, long start_y, long end_x, long end_y)
 
 static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_triangulate_area, "triangulate_area", KFX_COLOR_PATHFINDING);
+    KFX_C_ZONE_VALUE(ctx_triangulate_area, (long)(end_x - start_x) * (long)(end_y - start_y));
     TbBool one_tile;
     TbBool not_whole_map;
     NavColour colour;
@@ -1512,7 +1516,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
     long i;
     triangulation_successful = true;
     LastTriangulatedMap = imap;
-    NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04ld triangles",start_x,start_y,end_x,end_y,count_Triangles);
+    NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04d triangles",start_x,start_y,end_x,end_y,count_Triangles);
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)
     {
@@ -1529,6 +1533,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
     if ((start_x == -1) || (start_y == -1) || (end_x == start_x) || (end_y == start_y))
     {
         NAVIDBG(9,"Invalid area bounds");
+        KFX_C_ZONE_END(ctx_triangulate_area);
         return false;
     }
     // Prepare some basic logic information
@@ -1544,9 +1549,8 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
         start_y = 0;
         end_y = game.map_subtiles_y + 1;
     }
-    triangulation_init();
-    if ( not_whole_map )
-    {
+    if (not_whole_map) {
+        triangulation_init();
         triangulation_successful &= border_clip_horizontal(imap, start_x, end_x, start_y, 0);
         triangulation_successful &= border_clip_horizontal(imap, start_x, end_x, end_y, -1);
         triangulation_successful &= border_clip_vertical(imap, start_x, -1, start_y, end_y);
@@ -1555,8 +1559,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
         if ( !one_tile ) {
             border_internal_points_delete(start_x, start_y, end_x, end_y);
         }
-    } else
-    {
+    } else {
         triangulation_initxy(-(game.map_subtiles_x + 1), -(game.map_subtiles_y + 1), (game.map_subtiles_x + 1) * 2, (game.map_subtiles_y + 1) * 2);
         tri_set_rectangle(start_x, start_y, end_x, end_y, 0);
     }
@@ -1599,6 +1602,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
         border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();
     NAVIDBG(9,"Done");
+    KFX_C_ZONE_END(ctx_triangulate_area);
     return triangulation_successful;
 }
 
@@ -1634,6 +1638,8 @@ static NavColour get_navigation_colour_for_cube(long stl_x, long stl_y)
       i = NAVMAP_FLOORHEIGHT_MAX;
     if (subtile_is_unsafe(stl_x, stl_y))
       i |= NAVMAP_UNSAFE_SURFACE;
+    if (subtile_has_abyss_on_top(stl_x, stl_y))
+      i |= NAVMAP_ABYSS;
     return i;
 }
 
@@ -1667,25 +1673,59 @@ static void init_navigation_map(void)
     nav_map_initialised = 1;
 }
 
-static void triangulate_map(NavColour *imap)
+void rebuild_navigation(void)
 {
-    triangulate_area(imap, 0, 0, game.navigation_map_size_x, game.navigation_map_size_y);
+    ix_Border = 0;
+    navitree_reset();
+    triangulate_area(game.navigation_map, 0, 0, game.navigation_map_size_x, game.navigation_map_size_y);
+    nav_map_initialised = 1;
+    set_nav_rule_default();
+    game.map_changed_for_navigation = 1;
 }
 
-long init_navigation(void)
+size_t transfer_navigation_state(void *buffer, enum NavigationStateOperation operation)
 {
-    
-    NavColour *IanMap = (NavColour *)&game.navigation_map;
+    struct NavigationStateField {
+        void *data;
+        size_t size;
+    };
+    const struct NavigationStateField fields[] = {
+        {ari_Points, sizeof(struct Point) * POINTS_COUNT},
+        {&count_Points, sizeof(count_Points)},
+        {&ix_Points, sizeof(ix_Points)},
+        {&free_Points, sizeof(free_Points)},
+        {Triangles, sizeof(Triangles)},
+        {&count_Triangles, sizeof(count_Triangles)},
+        {&ix_Triangles, sizeof(ix_Triangles)},
+        {&free_Triangles, sizeof(free_Triangles)},
+        {Regions, sizeof(Regions)},
+        {find_cache, sizeof(find_cache)},
+    };
+    size_t offset = 0;
+    for (size_t i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
+        if (buffer != NULL) {
+            char *position = (char *)buffer + offset;
+            if (operation == NavigationState_Restore) {
+                memcpy(fields[i].data, position, fields[i].size);
+            } else {
+                memcpy(position, fields[i].data, fields[i].size);
+            }
+        }
+        offset += fields[i].size;
+    }
+    return offset;
+}
+
+int32_t init_navigation(void)
+{
     init_navigation_map();
-    triangulate_map(IanMap);
-    set_nav_rule_default();
-    
-    game.map_changed_for_navigation = 1;
+    rebuild_navigation();
     return 1;
 }
 
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_update_nav, "update_navigation_triangulation", KFX_COLOR_PATHFINDING);
     long sx;
     long sy;
     long ex;
@@ -1728,7 +1768,8 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
         game.map_changed_for_navigation = 1;
         triangulate_area(game.navigation_map, sx, sy, ex, ey);
     }
-    
+
+    KFX_C_ZONE_END(ctx_update_nav);
     return true;
 }
 

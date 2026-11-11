@@ -22,7 +22,9 @@
 #endif
 
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_crash.h"
+#include "replay.h"
 #include <signal.h>
 #include <stdarg.h>
 #if !defined(_WIN32)
@@ -33,7 +35,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <excpt.h>
-#include <imagehlp.h>
 #include <dbghelp.h>
 #include <psapi.h>
 #endif
@@ -104,6 +105,18 @@ static const char* sigstr(int s)
   return "unknown signal";
 }
 
+static void log_replay_crashlog(void)
+{
+    const uint8_t state = replay_crashlog_state;
+    if (state == 0)
+        return;
+    const char *playback = (state == 2) ? "true" : "false";
+    if (replay_crashlog_fname[0] == '\0')
+        LbErrorLog("packetfile:{\"turn\":%u, \"playback\":%s}\n", (unsigned)replay_crashlog_turn, playback);
+    else
+        LbErrorLog("packetfile:{\"turn\":%u, \"playback\":%s, \"path\":\"%s\"}\n", (unsigned)replay_crashlog_turn, playback, replay_crashlog_fname);
+}
+
 void exit_handler(void)
 {
     LbErrorLog("Application exit called.\n");
@@ -113,7 +126,8 @@ void ctrl_handler(int sig_id)
 {
     signal(sig_id, SIG_DFL);
     LbErrorLog("Failure signal: %s.\n",sigstr(sig_id));
-    LbScreenReset(true);
+    log_replay_crashlog();
+    RendererResetScreen(true);
     LbErrorLogClose();
     raise(sig_id);
 }
@@ -336,6 +350,7 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
         LbErrorLog("Failure code %lx received.\n",info->ExceptionRecord->ExceptionCode);
         break;
     }
+    log_replay_crashlog();
     if (!SymInitialize(GetCurrentProcess(), 0, TRUE)) {
         LbErrorLog("Failed to init symbol context\n");
     }
@@ -343,7 +358,7 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
             _backtrace(16 , info->ContextRecord);
             SymCleanup(GetCurrentProcess());
     }
-    LbScreenReset(true);
+    RendererResetScreen(true);
     LbErrorLogClose();
     return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -526,10 +541,11 @@ static void ctrl_handler_posix(int sig_id, siginfo_t *info, void *context)
         LbErrorLog("Signal code: %d (%s).\n", info->si_code, posix_sigcode_str(sig_id, info->si_code));
     }
     LbErrorLog("Fault address: %p.\n", fault_addr);
+    log_replay_crashlog();
     log_posix_context(context);
     _backtrace_posix(16);
 
-    LbScreenReset(true);
+    RendererResetScreen(true);
     LbErrorLogClose();
 
     signal(sig_id, SIG_DFL);
