@@ -1020,7 +1020,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_thing_height_at(droptng, &pos);
+    pos.z.val = get_thing_height_at_xy(droptng, &pos);
     if (thing_in_wall_at(droptng, &pos)) {
         return 0;
     }
@@ -1722,7 +1722,7 @@ short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dng
     }
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_thing_height_at(thing, &pos);
+    pos.z.val = get_thing_height_at_xy(thing, &pos);
     return !thing_in_wall_at(thing, &pos);
 }
 
