@@ -33,6 +33,7 @@
 #include "net_lobby.h"
 #include "net_main.h"
 #include "net_spectator.h"
+#include "net_resync.h"
 #include "player_data.h"
 #include "net_game.h"
 #include "packets.h"
@@ -377,6 +378,7 @@ void initialize_packet_history(void)
     network_spectator_reset();
     input_lag_reset();
     reset_dig_prediction();
+    net_resync_forget_delta_state();
 }
 
 static TbBool user_has_required_turn_packets(NetUserId user)

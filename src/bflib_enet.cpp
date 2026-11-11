@@ -70,6 +70,11 @@ namespace
     int peer_punch_reported = 0;
     int punch_phase_active = 0;
 
+    bool is_resync_message(unsigned char message_type)
+    {
+        return message_type == NETMSG_RESYNC_DATA || message_type == NETMSG_RESYNC_DELTA;
+    }
+
     void log_peer_connection(const ENetPeer *peer, NetUserId user_id, const char *status)
     {
         enet_uint32 connection_id = peer->connectID;
@@ -767,7 +772,7 @@ namespace
                     continue;
                 }
                 bool spectator_command = spectator_peer && command->packet->data[0] == NETMSG_SPECTATOR_TURN;
-                bool resync_command = resync_saved_window[peer_index] != 0 && command->packet->dataLength > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && command->packet->data[0] == NETMSG_RESYNC_DATA;
+                bool resync_command = resync_saved_window[peer_index] != 0 && command->packet->dataLength > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && is_resync_message(command->packet->data[0]);
                 if (!spectator_command && !resync_command) {
                     continue;
                 }
@@ -901,7 +906,7 @@ namespace
                 ERRORLOG("Failed to queue reliable network packet for user %d", destination);
                 break;
             }
-            if (size > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && buffer[0] == NETMSG_RESYNC_DATA && peer->windowSize < RESYNC_WINDOW_SIZE) {
+            if (size > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && is_resync_message(buffer[0]) && peer->windowSize < RESYNC_WINDOW_SIZE) {
                 if (resync_saved_window[peer_index] == 0) {
                     resync_saved_window[peer_index] = peer->windowSize;
                 }
@@ -1197,7 +1202,7 @@ int32_t GetResyncProgress(void)
         if (command->fragmentCount == 0 || command->fragments == nullptr || (command->fragments[0] & 1) == 0) {
             continue;
         }
-        if (command->packet->dataLength > 0 && command->packet->data[0] == NETMSG_RESYNC_DATA) {
+        if (command->packet->dataLength > 0 && is_resync_message(command->packet->data[0])) {
             return static_cast<int32_t>((uint64_t)(command->fragmentCount - command->fragmentsRemaining) * 100 / command->fragmentCount);
         }
     }
