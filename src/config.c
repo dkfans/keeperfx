@@ -45,6 +45,7 @@
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1270,184 +1271,240 @@ char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *f
     return prepare_file_path_buf_mod(dst, dst_size, NULL, fgroup, fname);
 }
 
-/*
- * @mod_dir insert before fgroup related sdir, set NULL if no mod.
- * @fname insert after fgroup related sdir.
- */
 /**
- * Internal helper: Resolve a file path with bounds checking to prevent buffer overflow.
- * Returns NULL if the constructed path would exceed dst_size.
+ * The folder of a file group: the root it is in (the game folder, or INSTALL_PATH for the level and campaign
+ * groups) and its sub folder there. Sets *root to NULL for a campaign group the campaign doesn't have.
  */
-static char *_resolve_file_path_internal(char *dst, size_t dst_size, 
-                                          const char *mod_dir, short fgroup, 
-                                          const char *fname)
+static void get_file_group_folder(short fgroup, const char **root, const char **sdir)
 {
-  const char *mdir = NULL;
-  const char *sdir = NULL;
+  const char *inst_root = install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
+  *root = keeper_runtime_directory;
+  *sdir = NULL;
   switch (fgroup)
   {
   case FGrp_StdData:
-      mdir=keeper_runtime_directory;
-      sdir="data";
-      break;
   case FGrp_LrgData:
-      mdir=keeper_runtime_directory;
-      sdir="data";
+      *sdir = "data";
       break;
   case FGrp_FxData:
-      mdir=keeper_runtime_directory;
-      sdir="fxdata";
+      *sdir = "fxdata";
       break;
   case FGrp_LoData:
-      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
-      sdir="ldata";
+      *root = inst_root;
+      *sdir = "ldata";
       break;
   case FGrp_HiData:
-      mdir=keeper_runtime_directory;
-      sdir="hdata";
+      *sdir = "hdata";
       break;
   case FGrp_Music:
-      mdir=keeper_runtime_directory;
-      sdir="music";
+      *sdir = "music";
       break;
   case FGrp_VarLevels:
-      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
-      sdir="levels";
+      *root = inst_root;
+      *sdir = "levels";
       break;
   case FGrp_Save:
-      mdir=keeper_runtime_directory;
-      sdir="save";
+      *sdir = "save";
       break;
   case FGrp_SShots:
-      mdir=keeper_runtime_directory;
-      sdir="scrshots";
+      *sdir = "scrshots";
       break;
   case FGrp_StdSound:
-      mdir=keeper_runtime_directory;
-      sdir="sound";
-      break;
   case FGrp_LrgSound:
-      mdir=keeper_runtime_directory;
-      sdir="sound";
+      *sdir = "sound";
       break;
   case FGrp_AtlSound:
-      if (campaign.speech_location[0] == '\0') {
-          mdir=NULL; sdir=NULL;
-          break;
-      }
-      mdir=keeper_runtime_directory;
-      sdir=campaign.speech_location;
-      break;
-  case FGrp_Main:
-      mdir=keeper_runtime_directory;
-      sdir=NULL;
+      *sdir = campaign.speech_location;
       break;
   case FGrp_Campgn:
-      mdir=keeper_runtime_directory;
-      sdir="campgns";
+      *sdir = "campgns";
       break;
   case FGrp_CmpgLvls:
-      if (campaign.levels_location[0] == '\0') {
-          mdir=NULL; sdir=NULL;
-          break;
-      }
-      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
-      sdir=campaign.levels_location;
+      *root = inst_root;
+      *sdir = campaign.levels_location;
       break;
   case FGrp_CmpgCrtrs:
-      if (campaign.creatures_location[0] == '\0') {
-          mdir=NULL; sdir=NULL;
-          break;
-      }
-      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
-      sdir=campaign.creatures_location;
+      *root = inst_root;
+      *sdir = campaign.creatures_location;
       break;
   case FGrp_CmpgConfig:
-      if (campaign.configs_location[0] == '\0') {
-          mdir=NULL; sdir=NULL;
-          break;
-      }
-      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
-      sdir=campaign.configs_location;
+      *root = inst_root;
+      *sdir = campaign.configs_location;
       break;
   case FGrp_CmpgMedia:
-      if (campaign.media_location[0] == '\0') {
-          mdir=NULL; sdir=NULL;
-          break;
-      }
-      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
-      sdir=campaign.media_location;
+      *root = inst_root;
+      *sdir = campaign.media_location;
       break;
   case FGrp_LandView:
-      if (campaign.land_location[0] == '\0') {
-          mdir=NULL; sdir=NULL;
-          break;
-      }
-      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
-      sdir=campaign.land_location;
+      *root = inst_root;
+      *sdir = campaign.land_location;
       break;
   case FGrp_CrtrData:
-      mdir=keeper_runtime_directory;
-      sdir="creatrs";
+      *sdir = "creatrs";
       break;
   case FGrp_MpLevels:
-      mdir=keeper_runtime_directory;
-      sdir="multiplayer";
+      *sdir = "multiplayer";
       break;
   case FGrp_Replays:
-      mdir=keeper_runtime_directory;
-      sdir="replays";
+      *sdir = "replays";
+      break;
+  case FGrp_Main:
+  default:
+      break;
+  }
+  switch (fgroup)
+  {
+  case FGrp_AtlSound:
+  case FGrp_CmpgLvls:
+  case FGrp_CmpgCrtrs:
+  case FGrp_CmpgConfig:
+  case FGrp_CmpgMedia:
+  case FGrp_LandView:
+      if (*sdir == NULL || (*sdir)[0] == '\0')
+          *root = NULL; // the campaign has no such folder
       break;
   default:
-      mdir=keeper_runtime_directory;
-      sdir=NULL;
       break;
   }
-  
+}
+
+/** True for the groups of files the game writes: they are in the user's data folder only. */
+static TbBool file_group_is_users(short fgroup)
+{
+  return (fgroup == FGrp_Save) || (fgroup == FGrp_SShots) || (fgroup == FGrp_Replays);
+}
+
+/**
+ * Writes root/mod_dir/sdir/fname into dst, leaving out the empty parts.
+ * Returns dst, which is empty if the path doesn't fit.
+ */
+static char *build_file_path(char *dst, size_t dst_size, const char *mdir, const char *mod_dir, const char *sdir, const char *fname)
+{
   if (mdir == NULL) {
       dst[0] = '\0';
-  } else {
-      if (mod_dir == NULL)
-          mod_dir = "";
-      if (sdir == NULL)
-          sdir = "";
-      if (fname == NULL)
-          fname = "";
+      return dst;
+  }
+  if (mod_dir == NULL)
+      mod_dir = "";
+  if (sdir == NULL)
+      sdir = "";
+  if (fname == NULL)
+      fname = "";
 
-      int len_mdir = (int)strlen(mdir);
-      int len_mod_dir = (int)strlen(mod_dir);
-      int len_sdir = (int)strlen(sdir);
-      int len_fname = (int)strlen(fname);
-      
-      int total_len = len_mdir + len_mod_dir + len_sdir + len_fname + 3; /* +3 for separators */
-      
-      if (total_len >= (int)dst_size) {
-          ERRORMSG("Path construction would overflow: total_len=%d, buffer_size=%lu. Components: mdir=%d, mod_dir=%d, sdir=%d, fname=%d",
-                   total_len, (unsigned long)dst_size, 
-                   len_mdir, len_mod_dir, 
-                   len_sdir, len_fname);
-          dst[0] = '\0';
-          return dst;
-      }
+  int len_mdir = (int)strlen(mdir);
+  int len_mod_dir = (int)strlen(mod_dir);
+  int len_sdir = (int)strlen(sdir);
+  int len_fname = (int)strlen(fname);
 
-      const char *mod_sep = mod_dir[0] == 0 ? "" : "/";
-      const char *dir_sep = sdir[0] == 0 ? "" : "/";
-      const char *file_sep = fname[0] == 0 ? "" : "/";
-      
-      /* OVERFLOW CHECK: snprintf returns number of chars that would have been written.
-         If >= dst_size, the buffer was overflowed. Return NULL to signal error. */
-      int written = snprintf(dst, dst_size, "%s%s%s%s%s%s%s", 
-                             mdir, mod_sep, mod_dir, dir_sep, sdir, file_sep, fname);
-      if (written < 0 || (size_t)written >= dst_size) {
-          ERRORMSG("Path construction overflow: len=%d, buffer_size=%lu. Components: mdir=%lu, mod_dir=%lu, sdir=%lu, fname=%lu",
-                   written, (unsigned long)dst_size, 
-                   (unsigned long)len_mdir, (unsigned long)len_mod_dir, 
-                   (unsigned long)len_sdir, (unsigned long)len_fname);
-          dst[0] = '\0';
-          return dst;
-      }
+  int total_len = len_mdir + len_mod_dir + len_sdir + len_fname + 3; /* +3 for separators */
+
+  if (total_len >= (int)dst_size) {
+      ERRORMSG("Path construction would overflow: total_len=%d, buffer_size=%lu. Components: mdir=%d, mod_dir=%d, sdir=%d, fname=%d",
+               total_len, (unsigned long)dst_size,
+               len_mdir, len_mod_dir,
+               len_sdir, len_fname);
+      dst[0] = '\0';
+      return dst;
+  }
+
+  const char *mod_sep = mod_dir[0] == 0 ? "" : "/";
+  const char *dir_sep = sdir[0] == 0 ? "" : "/";
+  const char *file_sep = fname[0] == 0 ? "" : "/";
+
+  /* OVERFLOW CHECK: snprintf returns number of chars that would have been written.
+     If >= dst_size, the buffer was overflowed. */
+  int written = snprintf(dst, dst_size, "%s%s%s%s%s%s%s",
+                         mdir, mod_sep, mod_dir, dir_sep, sdir, file_sep, fname);
+  if (written < 0 || (size_t)written >= dst_size) {
+      ERRORMSG("Path construction overflow: len=%d, buffer_size=%lu. Components: mdir=%lu, mod_dir=%lu, sdir=%lu, fname=%lu",
+               written, (unsigned long)dst_size,
+               (unsigned long)len_mdir, (unsigned long)len_mod_dir,
+               (unsigned long)len_sdir, (unsigned long)len_fname);
+      dst[0] = '\0';
+      return dst;
   }
   return dst;
+}
+
+/**
+ * Internal helper: Resolve a file path with bounds checking to prevent buffer overflow.
+ * The files the game writes (saves, screenshots, replays) are in the user's data folder. Other files are looked
+ * for there first, when it isn't the game folder, and then in the game folder; see FileLayer.
+ * Returns an empty dst if the constructed path would exceed dst_size.
+ */
+static char *_resolve_file_path_internal(char *dst, size_t dst_size, enum FileLayer layer,
+                                          const char *mod_dir, short fgroup,
+                                          const char *fname)
+{
+  const char *game_root;
+  const char *sdir;
+  get_file_group_folder(fgroup, &game_root, &sdir);
+  if (game_root == NULL) {
+      dst[0] = '\0';
+      return dst;
+  }
+  if (file_group_is_users(fgroup))
+      return build_file_path(dst, dst_size, userdirs_get(UsrDir_Data), mod_dir, sdir, fname);
+  if (!userdirs_has_user_layer() || (layer == FLayer_Game))
+      return build_file_path(dst, dst_size, game_root, mod_dir, sdir, fname);
+  if (layer == FLayer_User)
+      return build_file_path(dst, dst_size, userdirs_get(UsrDir_Data), mod_dir, sdir, fname);
+  // FLayer_Any. A pattern names no one file: it is in the game folder.
+  if ((fname != NULL) && (strpbrk(fname, "*?") != NULL))
+      return build_file_path(dst, dst_size, game_root, mod_dir, sdir, fname);
+  char user_path[FULLPATH_SIZE];
+  build_file_path(user_path, sizeof(user_path), userdirs_get(UsrDir_Data), mod_dir, sdir, fname);
+  build_file_path(dst, dst_size, game_root, mod_dir, sdir, fname);
+  if ((user_path[0] == '\0') || !LbFileExists(user_path))
+      return dst;
+  // A folder that is in both places is named by its game path, which the existing callers expect to hold the
+  // game's files; only a folder that the user alone has (a campaign or mod they added) is named by its user path.
+  if (((fname == NULL) || (fname[0] == '\0')) && (dst[0] != '\0') && LbFileExists(dst))
+      return dst;
+  if (strlen(user_path) >= dst_size) {
+      ERRORMSG("Path construction would overflow: %s", user_path);
+      dst[0] = '\0';
+      return dst;
+  }
+  strcpy(dst, user_path);
+  return dst;
+}
+
+char *prepare_file_path_buf_in(char *dst, int dst_size, enum FileLayer layer, const char *mod_dir, short fgroup, const char *fname)
+{
+  return _resolve_file_path_internal(dst, dst_size, layer, mod_dir, fgroup, fname);
+}
+
+TbBool load_cached_file(short fgroup, const char *fname, void *buffer, unsigned long len)
+{
+  char path[FULLPATH_SIZE];
+  prepare_file_path_buf(path, sizeof(path), fgroup, fname);
+  if ((path[0] != '\0') && (LbFileLengthRnc(path) == (long)len))
+      return (LbFileLoadAt(path, buffer) == (long)len);
+  prepare_cache_file_path(path, sizeof(path), fgroup, fname);
+  if ((path[0] != '\0') && (LbFileLengthRnc(path) == (long)len))
+      return (LbFileLoadAt(path, buffer) == (long)len);
+  return false;
+}
+
+void save_cached_file(short fgroup, const char *fname, const void *buffer, unsigned long len)
+{
+  char path[FULLPATH_SIZE];
+  prepare_cache_file_path(path, sizeof(path), fgroup, fname);
+  if ((path[0] == '\0') || !LbFileSaveReplacing(path, buffer, len))
+      WARNMSG("Can't save \"%s\"; it will be made again next time.", path);
+}
+
+char *prepare_cache_file_path(char *dst, int dst_size, short fgroup, const char *fname)
+{
+  const char *root;
+  const char *sdir;
+  get_file_group_folder(fgroup, &root, &sdir);
+  if (root == NULL) {
+      dst[0] = '\0';
+      return dst;
+  }
+  return build_file_path(dst, dst_size, userdirs_get(UsrDir_Cache), NULL, sdir, fname);
 }
 
 /**
@@ -1457,18 +1514,18 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
 char *get_game_file_path(short fgroup, const char *fname)
 {
   static char ffullpath[FULLPATH_SIZE];
-  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), FLayer_Any, NULL, fgroup, fname);
 }
 
 /**
  * Public API: Get path for a mod-overlaid file.
  * Returns pointer to internal static buffer, or NULL if path construction failed.
- * mod_dir: the mod subdirectory within keeper_runtime_directory, or NULL for no overlay.
+ * mod_dir: the mod subdirectory within the game or user data folder, or NULL for no overlay.
  */
 char *get_mod_file_path(const char *mod_dir, short fgroup, const char *fname)
 {
   static char ffullpath[FULLPATH_SIZE];
-  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), FLayer_Any, mod_dir, fgroup, fname);
 }
 
 /**
@@ -1484,13 +1541,13 @@ char *get_game_file_path_fmt(short fgroup, const char *fmt_str, ...)
   va_end(val);
   
   static char ffullpath[FULLPATH_SIZE];
-  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), FLayer_Any, NULL, fgroup, fname);
 }
 
 /**
  * Public API: Get path for a mod-overlaid file with formatted filename.
  * Returns pointer to internal static buffer, or NULL if path/format construction failed.
- * mod_dir: the mod subdirectory within keeper_runtime_directory, or NULL for no overlay.
+ * mod_dir: the mod subdirectory within the game or user data folder, or NULL for no overlay.
  */
 char *get_mod_file_path_fmt(const char *mod_dir, short fgroup, const char *fmt_str, ...)
 {
@@ -1501,7 +1558,7 @@ char *get_mod_file_path_fmt(const char *mod_dir, short fgroup, const char *fmt_s
   va_end(val);
   
   static char ffullpath[FULLPATH_SIZE];
-  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), FLayer_Any, mod_dir, fgroup, fname);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -1510,7 +1567,7 @@ char *get_mod_file_path_fmt(const char *mod_dir, short fgroup, const char *fmt_s
 
 char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
 {
-  return _resolve_file_path_internal(dst, dst_size, mod_dir, fgroup, fname);
+  return _resolve_file_path_internal(dst, dst_size, FLayer_Any, mod_dir, fgroup, fname);
 }
 
 char *prepare_file_path_mod(const char *mod_dir, short fgroup, const char *fname)

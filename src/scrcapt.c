@@ -66,7 +66,7 @@ TbBool take_screenshot(char *fname)
 
 TbBool cumulative_screen_shot(void)
 {
-    char fname[255] = "";
+    char fname[FULLPATH_SIZE] = "";
     const char *fext;
     switch (screenshot_format)
     {
@@ -83,12 +83,17 @@ TbBool cumulative_screen_shot(void)
     unsigned long i;
     for (i = 0; i < 10000; i++)
     {
-        snprintf(fname, sizeof(fname), "scrshots/scr%05lu.%s", i, fext);
-        if (!LbFileExists(fname)) break;
+        snprintf(fname, sizeof(fname), "%s", prepare_file_fmtpath(FGrp_SShots, "scr%05lu.%s", i, fext));
+        if ((fname[0] == '\0') || !LbFileExists(fname)) break;
     }
     if (i >= 10000)
     {
         show_onscreen_msg(turns_per_second, "No free filename for screenshot.");
+        return false;
+    }
+    if ((fname[0] == '\0') || !create_directory_for_file(fname))
+    {
+        show_onscreen_msg(turns_per_second, "Cannot create the screenshot folder.");
         return false;
     }
     TbBool ret = take_screenshot(fname);

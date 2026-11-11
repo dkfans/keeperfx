@@ -6,6 +6,7 @@
 #include "pre_inc.h"
 #include "kfx/platform/FileSystemLb.h"
 #include "bflib_fileio.h"
+#include "bflib_dernc.h"
 #include "post_inc.h"
 
 #include <cstdio>
@@ -110,6 +111,12 @@ std::unique_ptr<IFileReader> FileSystemLb::OpenReader(const char* path)
         return nullptr;
     }
     return std::make_unique<LbFileReader>(fh, (uint32_t)size);
+}
+
+extern "C" int LbFileSaveReplacing(const char* fname, const void* buffer, unsigned long len)
+{
+    FileSystemLb fs;
+    return fs.WriteAll(fname, buffer, len) == FsStatus::Ok;
 }
 
 std::vector<std::string> FileSystemLb::Find(const char* filespec)

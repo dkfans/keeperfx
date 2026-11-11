@@ -26,6 +26,7 @@
 #include "bflib_datetm.h"
 #include "front_landview.h"
 #include "game_legacy.h"
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -203,9 +204,17 @@ void post_init_packets(void)
     clear_packets();
 }
 
+/** Writes a debug dump in the state folder, beside the log. */
 void dump_memory_to_file(const char * fname, const char * buf, size_t len)
 {
-    FILE* file = fopen(fname, "w");
+    char path[FULLPATH_SIZE];
+    userdirs_path(path, sizeof(path), UsrDir_State, fname);
+    FILE* file = (path[0] != '\0') ? fopen(path, "wb") : NULL;
+    if (file == NULL)
+    {
+        ERRORLOG("Can't write \"%s\"", path);
+        return;
+    }
     fwrite(buf, 1, len, file);
     fflush(file);
     fclose(file);

@@ -45,6 +45,7 @@
 #include "moonphase.h"
 #include "keeperfx.hpp"
 #include "net_matchmaking.h"
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1258,6 +1259,7 @@ short load_configuration(void)
   // Config file variables
   const char* sname; // Filename
   const char* fname; // Filepath
+  char game_fname[FULLPATH_SIZE];
 
   if (start_params.ignore_mods == false)
   {
@@ -1284,17 +1286,29 @@ short load_configuration(void)
         fname = start_params.config_file; // Absolute path
     } else {
         sname = start_params.config_file;
-        fname = prepare_file_path(FGrp_Main, sname);
+        fname = prepare_file_path_buf_in(game_fname, sizeof(game_fname), FLayer_Game, NULL, FGrp_Main, sname);
     }
   }
   else
   {
     sname = keeper_config_file;
-    fname = prepare_file_path(FGrp_Main, sname);
+    // The game's own file, never one in the user's data folder: that one would replace it, while the user's
+    // changes are a separate file read below.
+    fname = prepare_file_path_buf_in(game_fname, sizeof(game_fname), FLayer_Game, NULL, FGrp_Main, sname);
   }
 
   const char *config_textname = "Base config";
   load_file_configuration(fname, sname, config_textname, 0);
+
+  // The user's changes: keeperfx.cfg in the config folder, holding only the options they change. In a portable
+  // install that is the file read above. A game started with -config uses that file alone.
+  if (!start_params.overrides[Clo_ConfigFile])
+  {
+    char user_fname[FULLPATH_SIZE];
+    userdirs_path(user_fname, sizeof(user_fname), UsrDir_Config, keeper_config_file);
+    if ((user_fname[0] != '\0') && (strcmp(user_fname, game_fname) != 0))
+      load_file_configuration(user_fname, user_fname, "User config", CnfLd_IgnoreErrors);
+  }
 
   load_configuration_for_mod_all();
 

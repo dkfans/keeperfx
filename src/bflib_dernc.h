@@ -56,6 +56,9 @@ extern "C" {
 long LbFileLengthRnc(const char *fname);
 long LbFileLoadAt(const char *fname, void *buffer);
 long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len);
+/** Writes a whole file beside fname and renames it over fname, so a failed write leaves the old file as it was.
+ *  Returns 1 when it worked, 0 when it did not. */
+int LbFileSaveReplacing(const char *fname, const void *buffer, unsigned long len);
 long UnpackM1(void *buffer, unsigned long bufsize);
 /******************************************************************************/
 #ifndef COMPRESSOR

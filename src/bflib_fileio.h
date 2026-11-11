@@ -62,6 +62,8 @@ void LbFileFindEnd(struct TbFileFind * ffind);
 int LbFileDelete(const char *filename);
 int LbFileRename(const char *oldname, const char *newname);
 short LbFileFlush(TbFileHandle handle);
+/** Creates the missing folders of a file's path. Returns 1 when they exist. */
+int create_directory_for_file(const char * fname);
 int LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len);
 

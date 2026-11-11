@@ -53,6 +53,7 @@
 #include <inttypes.h>
 #include "bflib_basics.h"
 #include "bflib_video.h"
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -139,11 +140,13 @@ _backtrace(int depth , LPCONTEXT context)
     int64_t keeperFxBaseAddr = 0x00000000;
     char mapFileLine[512];
 
+    char mapFileName[FULLPATH_SIZE];
     #if (BFDEBUG_LEVEL > 7)
-        FILE *mapFile = fopen("keeperfx_hvlog.map", "r");
+        userdirs_path(mapFileName, sizeof(mapFileName), UsrDir_Game, "keeperfx_hvlog.map");
     #else
-        FILE *mapFile = fopen("keeperfx.map", "r");
+        userdirs_path(mapFileName, sizeof(mapFileName), UsrDir_Game, "keeperfx.map");
     #endif
+        FILE *mapFile = fopen(mapFileName, "r");
 
     if (mapFile)
     {
@@ -323,19 +326,16 @@ _backtrace(int depth , LPCONTEXT context)
     }
 }
 
-/** Writes keeperfx_crash_<timestamp>.dmp next to the exe, for post-mortem
- *  inspection in WinDbg or Visual Studio. Returns FALSE if no dump was written. */
+/** Writes keeperfx_crash_<timestamp>.dmp in the state folder, beside the log (the game folder of a portable
+ *  install), for post-mortem inspection in WinDbg or Visual Studio. Returns FALSE if no dump was written. */
 static BOOL write_minidump(LPEXCEPTION_POINTERS info, char *path, DWORD path_len)
 {
-    DWORD dir_len = GetModuleFileNameA(NULL, path, path_len);
-    if (dir_len == 0 || dir_len >= path_len)
-        dir_len = 0;
-    while (dir_len > 0 && path[dir_len - 1] != '\\' && path[dir_len - 1] != '/')
-        dir_len--;
     SYSTEMTIME st;
     GetLocalTime(&st);
-    snprintf(path + dir_len, path_len - dir_len, "keeperfx_crash_%04u%02u%02u_%02u%02u%02u.dmp",
+    int len = snprintf(path, path_len, "%s\\keeperfx_crash_%04u%02u%02u_%02u%02u%02u.dmp", userdirs_get(UsrDir_State),
              st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+    if (len < 0 || (DWORD)len >= path_len)
+        return FALSE;
     HANDLE file = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                               FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE)

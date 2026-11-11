@@ -24,6 +24,7 @@
 #include "config_trapdoor.h"
 #include "config_crtrstates.h"
 
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -585,10 +586,12 @@ TbBool lua_set_serialised_data(const char *data, size_t len)
 
 void generate_lua_types_file()
 {
-    const char *filename = "native_types.lua";
-    FILE *out = fopen(filename, "w");
+    // For map makers, so it goes beside their maps: in the user's data folder.
+    char filename[FULLPATH_SIZE];
+    userdirs_path(filename, sizeof(filename), UsrDir_Data, "native_types.lua");
+    FILE *out = (filename[0] != '\0') ? fopen(filename, "w") : NULL;
     if (!out) {
-        perror("Failed to open output file");
+        ERRORLOG("Can't write \"%s\"", filename);
         return;
     }
     fprintf(out, "---@meta native_types\n");

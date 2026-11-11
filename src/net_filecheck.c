@@ -25,6 +25,7 @@
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "net_game.h"
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -115,7 +116,8 @@ static void normalise_path(const char *path, char *out, size_t out_size)
 static void make_loaded_file_name(const char *fname, char *out, size_t out_size)
 {
     normalise_path(fname, out, out_size);
-    const char *base_directories[] = {keeper_runtime_directory, install_info.inst_path};
+    // A file the player added to their data folder is compared by the same name as the game's copy it replaces.
+    const char *base_directories[] = {keeper_runtime_directory, install_info.inst_path, userdirs_get(UsrDir_Data)};
     for (int i = 0; i < sizeof(base_directories) / sizeof(base_directories[0]); i++) {
         char base[FULLPATH_SIZE];
         normalise_path(base_directories[i], base, sizeof(base));
