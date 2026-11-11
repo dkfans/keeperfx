@@ -78,6 +78,9 @@ void play_player_sample(PlayerNumber plyr_idx, SoundSmplTblID smptbl_idx);
 void play_user_sample(int user, SoundSmplTblID smptbl_idx);
 TbBool is_local_action(PlayerNumber plyr_idx, int user);
 void play_action_sample(PlayerNumber plyr_idx, int user, SoundSmplTblID smptbl_idx);
+/** Like play_action_sample(), but a co-user (another user on our keeper) hears it as a 3D sound at pos. */
+void play_action_sample_at(PlayerNumber plyr_idx, int user, const struct Coord3d *pos, SoundSmplTblID smptbl_idx);
+void play_3d_sample_at(const struct Coord3d *pos, SoundSmplTblID smptbl_idx, SoundVolume loudness);
 void play_sound_if_close_to_receiver(struct Coord3d*, SoundSmplTblID);
 void stop_thing_playing_sample(struct Thing *, SoundSmplTblID smpl_idx);
 void play_creature_footstep(struct Thing *thing, SoundVolume loudness);

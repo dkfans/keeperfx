@@ -109,6 +109,9 @@ extern struct stripey_line colored_stripey_lines[];
 extern unsigned char poly_pool[POLY_POOL_SIZE];
 extern unsigned char *poly_pool_end;
 extern long cells_away;
+/** hide ceiling while being carried (possession) */
+extern TbBool engine_hide_ceiling;
+extern TbBool engine_view_above_walls;
 extern float hud_scale;
 extern int creature_status_size;
 extern int line_box_size;

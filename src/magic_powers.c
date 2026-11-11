@@ -1207,7 +1207,7 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
 
 static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
-    if (power_hand_is_full(user) || thing_is_possessed(thing))
+    if (power_hand_is_full(user) || (thing_is_possessed(thing) && !thing_pickable_while_possessed(user, thing)))
         return Lb_FAIL;
     // The refusal sound is played by magic_use_available_power_on_thing(); the script may also remove the thing
     if (((mod_flags & PwMod_PickUpEvent) != 0) && (!lua_on_pick_up(thing, plyr_idx) || !thing_exists(thing)))

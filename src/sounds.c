@@ -33,6 +33,7 @@
 #include "local_possession.h"
 #include "gui_soundmsgs.h"
 #include "player_data.h"
+#include "net_game.h"
 #include "gui_topmsg.h"
 #include "front_landview.h"
 #include "frontmenu_ingame_evnt.h"
@@ -71,6 +72,11 @@ char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
 int sdl_flags = 0;
+
+/** Emitters for samples played at a map position rather than on a thing (see play_3d_sample_at()). */
+#define POSITIONAL_EMITTERS_COUNT 4
+static SoundEmitterID positional_emitters[POSITIONAL_EMITTERS_COUNT];
+static int next_positional_emitter;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char repeats, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
 {
@@ -143,6 +149,70 @@ void play_action_sample(PlayerNumber plyr_idx, int user, SoundSmplTblID smptbl_i
     if (is_local_action(plyr_idx, user)) {
         play_non_3d_sample(smptbl_idx);
     }
+}
+
+/** A co-user is another user controlling the same keeper as us (archon mode). */
+static TbBool is_co_user_action(PlayerNumber plyr_idx, int user)
+{
+    if ((user == NO_USER) || is_local_user(user) || !is_my_player_number(plyr_idx)) {
+        return false;
+    }
+    return get_net_user_player_number(user) == plyr_idx;
+}
+
+void play_action_sample_at(PlayerNumber plyr_idx, int user, const struct Coord3d *pos, SoundSmplTblID smptbl_idx)
+{
+    if (is_local_action(plyr_idx, user)) {
+        play_non_3d_sample(smptbl_idx);
+    } else if (is_co_user_action(plyr_idx, user)) {
+        play_3d_sample_at(pos, smptbl_idx, FULL_LOUDNESS);
+    }
+}
+
+static void forget_positional_emitters(void)
+{
+    for (int i = 0; i < POSITIONAL_EMITTERS_COUNT; i++) {
+        positional_emitters[i] = 0;
+    }
+    next_positional_emitter = 0;
+}
+
+void play_3d_sample_at(const struct Coord3d *pos, SoundSmplTblID smptbl_idx, SoundVolume loudness)
+{
+    if (SoundDisabled)
+        return;
+    if (GetCurrentSoundMasterVolume() <= 0)
+        return;
+    struct Coord3d rcpos;
+    rcpos.x.val = Receiver.pos.val_x;
+    rcpos.y.val = Receiver.pos.val_y;
+    rcpos.z.val = Receiver.pos.val_z;
+    if (get_chessboard_3d_distance(&rcpos, pos) >= MaxSoundDistance)
+        return;
+    SoundVolume volume_scale = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
+    SoundVolume adjusted_loudness = (loudness * volume_scale) / FULL_LOUDNESS;
+    // Same raw->unified sample ID conversion as thing_play_sample()
+    SoundSmplTblID sample_id = smptbl_idx;
+    if (smptbl_idx < 0) {
+        sample_id = get_custom_offset() + (-smptbl_idx) - 1;
+    }
+    // Prefer an idle emitter, so a sample still playing elsewhere isn't cut short
+    int slot = next_positional_emitter;
+    for (int i = 0; i < POSITIONAL_EMITTERS_COUNT; i++)
+    {
+        int n = (next_positional_emitter + i) % POSITIONAL_EMITTERS_COUNT;
+        SoundEmitterID eidx = positional_emitters[n];
+        if ((eidx == 0) || !S3DEmitterIsAllocated(eidx) || !S3DEmitterIsPlayingAnySample(eidx)) {
+            slot = n;
+            break;
+        }
+    }
+    next_positional_emitter = (slot + 1) % POSITIONAL_EMITTERS_COUNT;
+    if ((positional_emitters[slot] != 0) && S3DEmitterIsAllocated(positional_emitters[slot])) {
+        S3DDestroySoundEmitterAndSamples(positional_emitters[slot]);
+    }
+    positional_emitters[slot] = S3DCreateSoundEmitterPri(pos->x.val, pos->y.val, pos->z.val,
+        sample_id, NORMAL_PITCH, adjusted_loudness, 0, 0x01, 3);
 }
 
 void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID smptbl_idx)
@@ -467,6 +537,7 @@ TbBool init_sound(void)
       return false;
     }
     S3DInit();
+    forget_positional_emitters();
     S3DSetNumberOfSounds(snd_settng->max_number_of_samples);
     S3DSetMaximumSoundDistance(5120);
     return true;
@@ -539,6 +610,13 @@ void sound_reinit_after_load(void)
         S3DDestroySoundEmitterAndSamples(Non3DEmitter);
         Non3DEmitter = 0;
     }
+    for (int i = 0; i < POSITIONAL_EMITTERS_COUNT; i++)
+    {
+        if ((positional_emitters[i] != 0) && S3DEmitterIsAllocated(positional_emitters[i])) {
+            S3DDestroySoundEmitterAndSamples(positional_emitters[i]);
+        }
+    }
+    forget_positional_emitters();
     ambient_sound_stop();
     stop_streamed_samples();
     clear_messages();

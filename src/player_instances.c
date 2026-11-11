@@ -929,7 +929,10 @@ void leave_creature_as_controller(NetUserId user, struct Thing *thing)
     sync_local_camera(user);
     if (thing->class_id == TCls_Creature)
     {
-        set_start_state(thing);
+        // A creature carried by a co-user stays in their hand
+        if (!thing_is_picked_up(thing)) {
+            set_start_state(thing);
+        }
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         if ((cctrl->creature_state_flags & TF2_Spectator) != 0) {
           delete_thing_structure(thing, 0);
@@ -1155,13 +1158,13 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
             }
             dungeon->lvstats.bridges_built++;
         }
-      if (is_local_action(plyr_idx, user)) {
-          play_non_3d_sample(snd_tile_place);
-          if (slabs_left > 2) // more slabs follow this one
-          {
-              play_non_3d_sample(snd_larg_tile_down);
-              play_non_3d_sample(snd_larg_tile_up);
-          }
+      struct Coord3d pos;
+      set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
+      play_action_sample_at(plyr_idx, user, &pos, snd_tile_place);
+      if (slabs_left > 2) // more slabs follow this one
+      {
+          play_action_sample_at(plyr_idx, user, &pos, snd_larg_tile_down);
+          play_action_sample_at(plyr_idx, user, &pos, snd_larg_tile_up);
       }
     }
     return room;

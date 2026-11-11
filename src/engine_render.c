@@ -72,6 +72,7 @@
 #include "vidfade.h"
 #include "vidmode.h"
 
+#include <math.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -189,6 +190,8 @@ struct BasicQ *buckets[BUCKETS_COUNT];
 long cells_away;
 long max_i_can_see;
 const int MAX_I_CAN_SEE_OVERHEAD = (MINMAX_LENGTH/2)-2;
+TbBool engine_hide_ceiling = false;
+TbBool engine_view_above_walls = false;
 struct EngineCol ecs1[MINMAX_LENGTH-1];
 struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
@@ -1591,6 +1594,22 @@ static void find_gamut(void)
     int scr_h2;
     long screen_dist;
     screen_dist = (RendererPhysicalWidth() << 7) / lens;
+    if (engine_view_above_walls) {
+        int32_t pitch_down = map_tilt & ANGLE_MASK;
+        if (pitch_down > DEGREES_180) {
+            pitch_down -= DEGREES_360;
+        }
+        if (pitch_down > 0) {
+            const float tan_half_w = screen_dist / 256.0f;
+            const float tan_half_h = tan_half_w * local_state.engine_window_height / max(local_state.engine_window_width, 1);
+            const float pitch = (float)pitch_down * (float)M_PI / DEGREES_180;
+            const float denom = cosf(pitch) - tan_half_h * sinf(pitch);
+            if (denom <= 0.05f) {
+                return;
+            }
+            screen_dist = lroundf(screen_dist / denom);
+        }
+    }
     scr_w1 = cells_w + ((screen_dist * angle_cos - (angle_sin << 8)) >> 16);
     scr_h1 = cells_h + (((angle_cos << 8) + screen_dist * angle_sin) >> 16);
     scr_w2 = cells_w + ((-screen_dist * angle_cos - (angle_sin << 8)) >> 16);
@@ -2225,8 +2244,10 @@ static void fiddle_gamut(long pos_x, long pos_y)
     const unsigned char view_type = get_local_view_type();
     if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
     {
-        fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
-        fiddle_half_gamut(pos_x, pos_y, -1, cells_away + 2);
+        if (!engine_view_above_walls) {
+            fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
+            fiddle_half_gamut(pos_x, pos_y, -1, cells_away + 2);
+        }
         return;
     }
     switch (camera->view_mode)
@@ -4181,7 +4202,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         }
         // Draw the universal ceiling on top of the columns
         TbBool edge_abyss = abyss && ((center_x == 1) || (center_x == game.map_subtiles_x - 1) || (stl_y == 1) || (stl_y == game.map_subtiles_y - 1));
-        if (!edge_abyss) {
+        if (!edge_abyss && !engine_hide_ceiling) {
             ecpos = ENGINE_COL_CEILING_CORNER;
             textr_idx = floor_to_ceiling_map[colmn->floor_texture * !abyss];
             textr_idx = engine_remap_texture_blocks(center_x, stl_y, textr_idx);
@@ -6784,7 +6805,9 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     getpoly = poly_pool;
     memset(buckets, 0, sizeof(buckets));
-    const int co_user_boxes = count_visible_co_user_cursor_boxes();
+    // only visible in dungeon view
+    const TbBool show_cursor_boxes = (lens_mode == 0);
+    const int co_user_boxes = show_cursor_boxes ? count_visible_co_user_cursor_boxes() : 0;
     poly_pool_end_reserve(4 + (map_volume_box.visible ? 10 : 0) + 10 * co_user_boxes);
     i = lens_mode;
     if ((i < 0) || (i >= PERS_ROUTINES_COUNT))
@@ -6830,7 +6853,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
-    if ((map_volume_box.visible && should_draw_cursor_box(get_displayed_user())) || co_user_boxes > 0) {
+    if (show_cursor_boxes && ((map_volume_box.visible && should_draw_cursor_box(get_displayed_user())) || co_user_boxes > 0)) {
         poly_pool_end_reserve(0);
         process_isometric_map_volume_boxes(x, y, z);
     }

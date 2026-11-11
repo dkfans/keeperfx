@@ -783,7 +783,8 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                     set_user_instance(user, PI_UnqueryCrtr, 0);
                     unset_packet_control(pckt, PCtr_RBtnRelease);
                 } else
-                if (creature_is_dying(thing) || (thing->creation_turn != ustate->influenced_thing_creation))
+                if (creature_is_dying(thing) || (thing->creation_turn != ustate->influenced_thing_creation)
+                 || thing_held_by_other_user(user, thing)) // e.g. a co-user picked it up
                 {
                     set_user_instance(user, PI_UnqueryCrtr, 0);
                     if (is_local_user(user))

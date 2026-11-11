@@ -36,6 +36,37 @@ struct Dungeon;
 
 #define HAND_RULE_SLOTS_COUNT 8
 
+/* constants relating to being picked up in first-person mode. */
+#define FP_HAND_SQUISH_PITCH  (-DEGREES_45)
+#define FP_HAND_PITCH_MIN     (-DEGREES_45 * 10 / 9) /* -50 */
+#define FP_HAND_PITCH_MAX     (-DEGREES_45 * 4 / 9) /* -20 */
+
+#define FP_HAND_HEIGHT (FILLED_COLUMN_HEIGHT * 3 / 2)
+#define FP_HAND_MAX_LERP_PERCENT 60
+#define FP_HAND_PARCHMENT_LERP_PERCENT 15
+#define FP_HAND_LERP_DELAY_TURNS 10
+#define FP_HAND_LERP_RAMP_TURNS  30
+#define FP_HAND_TALL_RANGE_SLABS 6
+
+#define FP_HAND_SQUISH_TURNS 4
+#define FP_HAND_LIFT_TURNS 12
+#define FP_HAND_OSC_AMPLITUDE (FILLED_COLUMN_HEIGHT / 5)
+#define FP_HAND_OSC_PERIOD    60
+#define FP_HAND_DROP_DIP_TURNS     4
+#define FP_HAND_DROP_RISE_TURNS    10
+#define FP_HAND_DROP_SETTLE_TURNS  (FP_HAND_DROP_DIP_TURNS + FP_HAND_DROP_RISE_TURNS)
+#define FP_HAND_DROP_PITCH_TURNS   10
+#define FP_HAND_DROP_CONTROL_TURNS 6
+#define FP_HAND_DROP_TURNS         max(FP_HAND_DROP_SETTLE_TURNS, FP_HAND_DROP_PITCH_TURNS)
+
+enum FirstPersonHandPhase {
+    FPHand_None = 0,
+    FPHand_Squish, // pre-empt pickup
+    FPHand_Lift, // rise to hand
+    FPHand_Held, // held in hand
+    FPHand_Drop, // dropping
+};
+
 #pragma pack()
 /******************************************************************************/
 void add_creature_to_sacrifice_list(PlayerNumber owner, long model, CrtrExpLevel exp_level);
@@ -72,6 +103,17 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
 TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing);
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+NetUserId get_user_holding_thing(const struct Thing *thing);
+TbBool thing_held_by_other_user(NetUserId user, const struct Thing *thing);
+TbBool thing_pickable_while_possessed(NetUserId user, const struct Thing *thing);
+enum FirstPersonHandPhase get_fp_hand_phase(NetUserId possessor, const struct Thing *thing, int32_t *phase_turn);
+int32_t clamp_fp_hand_pitch(int32_t pitch);
+MapCoord get_fp_hand_base_height(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
+MapCoord get_fp_hand_view_height(NetUserId possessor, const struct Thing *thing, int32_t *lift_ease);
+struct Packet;
+void process_fp_hand_carrier_packet(NetUserId carrier, const struct Packet *pckt);
+void process_fp_hand_drop_views(void);
+TbBool fp_hand_blocks_creature_commands(const struct Thing *thing);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx);

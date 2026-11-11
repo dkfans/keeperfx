@@ -4163,6 +4163,10 @@ TbBool possession_instance_can_start(struct Thing *thing, const struct CreatureC
     if ((inst_id == CrInst_NULL) || (cctrl->instance_id != CrInst_NULL) || (thing->active_state == CrSt_CreatureSlapCowers)) {
         return false;
     }
+    // Carried in a hand, or just dropped from one
+    if (fp_hand_blocks_creature_commands(thing)) {
+        return false;
+    }
     if (!cctrl->instance_available[inst_id]) {
         return allow_unavailable;
     }

@@ -315,11 +315,11 @@ TbBool player_sell_room_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSub
         dungeon->camera_deviate_jump = 192;
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
-    play_action_sample(plyr_idx, user, snd_tile_sell);
+    struct Coord3d pos;
+    set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
+    play_action_sample_at(plyr_idx, user, &pos, snd_tile_sell);
     if (revenue != 0)
     {
-        struct Coord3d pos;
-        set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
         create_price_effect(&pos, plyr_idx, revenue);
         player_add_offmap_gold(plyr_idx, revenue);
     }
@@ -1219,6 +1219,7 @@ void process_user_packet(NetUserId user)
           default:
             break;
       }
+      process_fp_hand_carrier_packet(user, pckt);
   }
   SYNCDBG(8,"Finished");
 }
@@ -1290,12 +1291,36 @@ static int32_t clamp_first_person_pitch(int32_t pitch)
     return pitch;
 }
 
+// pitch limits depend on if creature is being held in hand or not (archon)
+static int32_t clamp_thing_first_person_pitch(const struct Thing *thing, int32_t pitch)
+{
+    const NetUserId possessor = get_user_controlling_thing(thing, UCT_Direct);
+    int32_t turn;
+    switch (get_fp_hand_phase(possessor, thing, &turn))
+    {
+    case FPHand_Squish:
+        return FP_HAND_SQUISH_PITCH & ANGLE_MASK;
+    case FPHand_Drop:
+        // briefly locked during view dip before hand
+        if (turn < FP_HAND_DROP_DIP_TURNS) {
+            return 0;
+        }
+        return clamp_first_person_pitch(pitch);
+    case FPHand_Lift:
+    case FPHand_Held:
+        return clamp_fp_hand_pitch(pitch);
+    case FPHand_None:
+    default:
+        return clamp_first_person_pitch(pitch);
+    }
+}
+
 void process_first_person_look(struct Thing *thing, int32_t turn_x, int32_t turn_y, int32_t current_horizontal, int32_t current_vertical, int32_t *out_horizontal, int32_t *out_vertical, int32_t *out_roll)
 {
     const int32_t max_turn = first_person_max_turn(thing);
     turn_x = clamp(turn_x, -max_turn, max_turn);
     turn_y = clamp(turn_y, -max_turn, max_turn);
-    *out_vertical = clamp_first_person_pitch(current_vertical + turn_y);
+    *out_vertical = clamp_thing_first_person_pitch(thing, current_vertical + turn_y);
     *out_horizontal = (current_horizontal + turn_x) & ANGLE_MASK;
     *out_roll = 170 * turn_x / max_turn;
 }
@@ -1306,9 +1331,9 @@ static void apply_first_person_look(struct Thing *thing, struct CreatureControl 
 {
     const int32_t max_turn = first_person_max_turn(thing);
     const int32_t turn_x = clamp(get_angle_signed_difference(thing->move_angle_xy, pckt->pos_x & ANGLE_MASK), -max_turn, max_turn);
-    const int32_t turn_y = clamp(get_angle_signed_difference(thing->move_angle_z, clamp_first_person_pitch(pckt->pos_y)), -max_turn, max_turn);
+    const int32_t turn_y = clamp(get_angle_signed_difference(thing->move_angle_z, clamp_thing_first_person_pitch(thing, pckt->pos_y)), -max_turn, max_turn);
     thing->move_angle_xy = (thing->move_angle_xy + turn_x) & ANGLE_MASK;
-    thing->move_angle_z = clamp_first_person_pitch(thing->move_angle_z + turn_y);
+    thing->move_angle_z = clamp_thing_first_person_pitch(thing, thing->move_angle_z + turn_y);
     cctrl->roll = 170 * turn_x / max_turn;
 }
 
@@ -1345,6 +1370,14 @@ static void apply_creature_vertical_control(struct Thing *thing, struct Creature
     }
 }
 
+static void apply_creature_look_controls(struct Thing *thing, struct CreatureControl *cctrl, const struct Packet *pckt)
+{
+    // Discard inputs for frozen creature
+    if ((packet_camera_context(pckt) == CamIV_FirstPerson) && !flag_is_set(game.operation_flags, GOF_Paused)) {
+        apply_first_person_look(thing, cctrl, pckt);
+    }
+}
+
 void apply_creature_movement_controls(struct Thing *thing, struct CreatureControl *cctrl, const struct Packet *pckt)
 {
     if (!can_process_creature_input(thing)) {
@@ -1375,10 +1408,7 @@ void apply_creature_movement_controls(struct Thing *thing, struct CreatureContro
             apply_creature_vertical_control(thing, cctrl, speed_limit, CREATURE_DESCEND_ANGLE);
         }
     }
-    // Discard inputs for frozen creature
-    if ((packet_camera_context(pckt) == CamIV_FirstPerson) && !flag_is_set(game.operation_flags, GOF_Paused)) {
-        apply_first_person_look(thing, cctrl, pckt);
-    }
+    apply_creature_look_controls(thing, cctrl, pckt);
 }
 
 CrInstance get_packet_triggered_instance(const struct Thing *thing, const struct CreatureControl *cctrl, const struct Packet *pckt)
@@ -1418,6 +1448,13 @@ void process_user_creature_control_packet_control(NetUserId user)
     if (!thing_is_creature(cctng) || creature_control_invalid(ccctrl)) {
         return;
     }
+    // hand held (archon): possessor can look around only, no other actions.
+    if (fp_hand_blocks_creature_commands(cctng)) {
+        if (can_process_creature_input(cctng)) {
+            apply_creature_look_controls(cctng, ccctrl, pckt);
+        }
+        return;
+    }
     apply_creature_movement_controls(cctng, ccctrl, pckt);
     const CrInstance inst_id = get_packet_triggered_instance(cctng, ccctrl, pckt);
     if (possession_instance_can_start(cctng, ccctrl, inst_id, get_gameturn(), pckt, true)) {
@@ -1434,6 +1471,20 @@ void process_user_creature_control_packet_action(NetUserId user)
   struct UserState* ustate = get_user_state(user);
   pckt = get_packet(user);
   SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
+  // Carried in a co-user's hand.
+  // Can't act except to leave.
+  thing = thing_get(ustate->controlled_thing_idx);
+  if (thing_exists(thing) && fp_hand_blocks_creature_commands(thing)) {
+      switch (pckt->action)
+      {
+      case PckA_CtrlCrtrSetInstnc:
+      case PckA_CheatCtrlCrtrSetInstnc:
+      case PckA_DirectCtrlDragDrop:
+          return;
+      default:
+          break;
+      }
+  }
   switch (pckt->action)
   {
   case PckA_DirectCtrlExit:

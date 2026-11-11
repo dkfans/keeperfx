@@ -3038,6 +3038,7 @@ static short get_inputs(void)
             set_players_packet_position(get_local_packet(), thing->move_angle_xy, thing->move_angle_z, 0);
         else
             set_players_packet_position(get_local_packet(), 0, 0 , 0);
+        unset_packet_control(get_local_packet(), PCtr_MapCoordsValid);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
             if (is_game_key_pressed(Gkey_PauseMenu, true, false) || is_game_key_pressed(Gkey_TogglePause, true, false) || get_paused_message_inputs())

@@ -222,6 +222,14 @@ struct UserState {
     int8_t swap_to_untag_mode;
     /** First person (possession) controls. */
     TbBool first_person_dig_claim_mode;
+    
+    /** State related to first-person animation for being picked up / dropped by an archon co-user */
+    GameTurn fp_hand_pickup_tur
+    MapCoord fp_hand_x;
+    MapCoord fp_hand_y;
+    GameTurn fp_hand_drop_turn;
+    MapCoord fp_hand_drop_z;
+    
     unsigned short selected_fp_thing_pickup;
     unsigned char teleport_destination;
     TbBool nearest_teleport;
@@ -302,6 +310,16 @@ struct LocalCameraState {
     int32_t first_person_look_pitch;
     int32_t first_person_look_roll;
     int32_t possession_start_zoom;
+    TbBool fp_hand_active;
+    GameTurn fp_hand_pickup_turn;
+    int32_t fp_hand_start_pitch;
+    GameTurn fp_hand_drop_turn;
+    int32_t fp_hand_drop_start_pitch;
+    int32_t fp_hand_drift_yaw_applied;
+    float fp_hand_drift_pitch_residual;
+    TbBool fp_hand_track_valid;
+    MapCoord fp_hand_track_x;
+    MapCoord fp_hand_track_y;
 };
 
 /* Miscellaneous state relating to this device and
