@@ -12,9 +12,9 @@
 // Waiting this long for a packet each turn is tolerated, in exchange for lower input lag.
 #define INPUT_LAG_TOLERATED_WAIT_MS 35
 // Added to the network delay the round trip times explain before the input lag is capped there
-// (input_lag_network_cap), for the delay they don't show: a packet waits up to a frame at the
-// host before it is relayed and up to a frame at the receiver before the game reads it (two
-// frames at 30 frames per second), and the players' turns are only roughly aligned.
+// (input_lag_network_cap), for the delay they don't show: a packet waits a little at the host
+// before it is relayed and up to a frame at the receiver before the game reads it, and the
+// players' turns are only roughly aligned. The value was found by measuring, not derived.
 #define INPUT_LAG_NETWORK_CAP_SLACK_MS 60
 // Extra headroom required before a decrease, so the input lag can't oscillate between two values.
 #define INPUT_LAG_DECREASE_MARGIN_MS 10
