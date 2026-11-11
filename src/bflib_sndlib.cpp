@@ -805,14 +805,9 @@ static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
 	}
 	const int wanted = track - 2; // 0-based position within the chosen format's files
 
-	char filespec[2048];
-	prepare_file_path_buf(filespec, sizeof(filespec), FGrp_Music, "*");
-	if (filespec[0] == '\0') {
-		return false;
-	}
-
+	// The music folders of the user's data folder and of the game, as one.
 	struct TbFileEntry fe;
-	struct TbFileFind *ff = LbFileFindFirst(filespec, &fe);
+	struct TbFileFind *ff = find_first_file_in_group(NULL, FGrp_Music, "*", &fe);
 	if (ff == NULL) {
 		return false;
 	}
@@ -834,6 +829,10 @@ static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
 	if (best_priority < 0) {
 		return false;
 	}
+	// Each folder's list is sorted, the two together may not be.
+	std::stable_sort(files.begin(), files.end(), [](const std::pair<int, std::string> &a, const std::pair<int, std::string> &b) {
+		return strcasecmp(a.second.c_str(), b.second.c_str()) < 0;
+	});
 
 	// Map the track within the winning format's files only, keeping sorted order
 	int index = 0;

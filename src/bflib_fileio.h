@@ -57,6 +57,9 @@ long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long le
 long LbFileLength(const char *fname);
 long LbFileLengthHandle(TbFileHandle handle);
 struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry);
+/** Lists the files matching any of the specs, each name once: a name that more than one spec matches is listed
+ *  where the first of them found it. Names are in the order of the specs. */
+struct TbFileFind * LbFileFindFirstInAll(const char * const * filespecs, int count, struct TbFileEntry * fentry);
 int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry);
 void LbFileFindEnd(struct TbFileFind * ffind);
 int LbFileDelete(const char *filename);

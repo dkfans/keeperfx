@@ -1449,7 +1449,7 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size, enum FileLa
       return build_file_path(dst, dst_size, game_root, mod_dir, sdir, fname);
   if (layer == FLayer_User)
       return build_file_path(dst, dst_size, userdirs_get(UsrDir_Data), mod_dir, sdir, fname);
-  // FLayer_Any. A pattern names no one file: it is in the game folder.
+  // FLayer_Any. A pattern names no one file: callers that list files use find_first_file_in_group().
   if ((fname != NULL) && (strpbrk(fname, "*?") != NULL))
       return build_file_path(dst, dst_size, game_root, mod_dir, sdir, fname);
   char user_path[FULLPATH_SIZE];
@@ -1473,6 +1473,28 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size, enum FileLa
 char *prepare_file_path_buf_in(char *dst, int dst_size, enum FileLayer layer, const char *mod_dir, short fgroup, const char *fname)
 {
   return _resolve_file_path_internal(dst, dst_size, layer, mod_dir, fgroup, fname);
+}
+
+struct TbFileFind *find_first_file_in_group(const char *mod_dir, short fgroup, const char *pattern, struct TbFileEntry *fentry)
+{
+  char user_spec[FULLPATH_SIZE];
+  char game_spec[FULLPATH_SIZE];
+  // For the groups the game writes, this is the user's folder.
+  _resolve_file_path_internal(game_spec, sizeof(game_spec), FLayer_Game, mod_dir, fgroup, pattern);
+  if (!userdirs_has_user_layer() || file_group_is_users(fgroup))
+  {
+      if (game_spec[0] == '\0')
+          return NULL;
+      return LbFileFindFirst(game_spec, fentry);
+  }
+  _resolve_file_path_internal(user_spec, sizeof(user_spec), FLayer_User, mod_dir, fgroup, pattern);
+  const char *specs[2];
+  int count = 0;
+  if (user_spec[0] != '\0')
+      specs[count++] = user_spec;
+  if (game_spec[0] != '\0')
+      specs[count++] = game_spec;
+  return LbFileFindFirstInAll(specs, count, fentry);
 }
 
 TbBool load_cached_file(short fgroup, const char *fname, void *buffer, unsigned long len)

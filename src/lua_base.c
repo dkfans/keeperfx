@@ -80,14 +80,100 @@ static void lua_whitelist(lua_State *L, const char *libname, const char *keep)
     lua_pop(L, 1);
 }
 
+static TbBool lua_path_is_absolute(const char *path)
+{
+    return (path[0] == '/') || (path[0] == '\\') || ((path[0] != '\0') && (path[1] == ':'));
+}
+
+/**
+ * Where a script's file is. Relative paths used to be relative to the working folder, which was the game folder.
+ * Now a file the script writes goes to the user's data folder, which is the game folder of a portable install,
+ * and a file it reads is the user's copy when there is one, else the game's. Absolute paths stay as they are.
+ */
+static const char *lua_file_path(const char *path, TbBool writing, char *buf, size_t buf_size)
+{
+    if ((path[0] == '\0') || lua_path_is_absolute(path))
+        return path;
+    if (writing)
+    {
+        userdirs_path(buf, buf_size, UsrDir_Data, path);
+        if (buf[0] != '\0')
+            create_directory_for_file(buf);
+        return (buf[0] != '\0') ? buf : path;
+    }
+    if (userdirs_has_user_layer())
+    {
+        userdirs_path(buf, buf_size, UsrDir_Data, path);
+        if ((buf[0] != '\0') && LbFileExists(buf))
+            return buf;
+    }
+    userdirs_path(buf, buf_size, UsrDir_Game, path);
+    return (buf[0] != '\0') ? buf : path;
+}
+
+/** io.open, with the path given to lua_file_path(). The original io.open is the upvalue. */
+static int lua_io_open_in_user_folders(lua_State *L)
+{
+    const char *path = luaL_checkstring(L, 1);
+    const char *mode = luaL_optstring(L, 2, "r");
+    // Every mode but "r" and "rb" may write.
+    TbBool writing = (mode[0] != 'r') || (strchr(mode, '+') != NULL);
+    char buf[FULLPATH_SIZE];
+    const char *resolved = lua_file_path(path, writing, buf, sizeof(buf));
+    int base = lua_gettop(L);
+    lua_pushvalue(L, lua_upvalueindex(1));
+    lua_pushstring(L, resolved);
+    lua_pushstring(L, mode);
+    lua_call(L, 2, LUA_MULTRET);
+    return lua_gettop(L) - base;
+}
+
+/** os.remove, for files in the user's data folder only: a script never deletes the game's files. */
+static int lua_os_remove_in_user_folders(lua_State *L)
+{
+    const char *path = luaL_checkstring(L, 1);
+    char buf[FULLPATH_SIZE];
+    const char *resolved = path;
+    if (!lua_path_is_absolute(path))
+    {
+        userdirs_path(buf, sizeof(buf), UsrDir_Data, path);
+        resolved = buf;
+    }
+    int base = lua_gettop(L);
+    lua_pushvalue(L, lua_upvalueindex(1));
+    lua_pushstring(L, resolved);
+    lua_call(L, 1, LUA_MULTRET);
+    return lua_gettop(L) - base;
+}
+
+/** Replaces lib.name with fn, which gets the original as its upvalue. */
+static void lua_wrap_function(lua_State *L, const char *libname, const char *name, lua_CFunction fn)
+{
+    lua_getglobal(L, libname);
+    if (!lua_istable(L, -1)) {
+        lua_pop(L, 1);
+        return;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isfunction(L, -1)) {
+        lua_pushcclosure(L, fn, 1);
+        lua_setfield(L, -2, name);
+    } else {
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+}
+
 // Remove Lua functions which can break the sandbox/determinism
 static void disable_lua_functions(lua_State *L)
 {
     // TODO - remove/replace these
     lua_whitelist(L, "io", "open");
+    lua_wrap_function(L, "io", "open", lua_io_open_in_user_folders);
 
     // TODO - remove/replace these
     lua_whitelist(L, "os", "remove");
+    lua_wrap_function(L, "os", "remove", lua_os_remove_in_user_folders);
 
     lua_blacklist(L, "package", "loadlib");
 
@@ -138,22 +224,35 @@ void close_lua_script()
 }
 
 
+/** Adds the "?" pattern of a group's folder to a package.path; the user's folder first, when it has one. */
+static void add_lua_search_path(char *path, size_t path_size, short fgroup, const char *pattern)
+{
+    char dir[FULLPATH_SIZE];
+    for (int layer = FLayer_User; layer <= FLayer_Game; layer++)
+    {
+        if ((layer == FLayer_User) && !userdirs_has_user_layer())
+            continue;
+        prepare_file_path_buf_in(dir, sizeof(dir), (enum FileLayer)layer, NULL, fgroup, pattern);
+        if (dir[0] == '\0')
+            continue;
+        size_t len = strlen(path);
+        snprintf(path + len, path_size - len, "%s;", dir);
+    }
+}
+
 int setLuaPath( lua_State* L)
 {
     #define PATH_LENGTH 4096
-    char fx_data_path[PATH_LENGTH];
-    prepare_file_path_buf(fx_data_path, sizeof(fx_data_path), FGrp_FxData, "lua/?.lua");
-    char campaignpath[PATH_LENGTH];
-    prepare_file_path_buf(campaignpath, sizeof(campaignpath), FGrp_CmpgConfig, "lua/?.lua");
-    char levelpath[PATH_LENGTH];
-    prepare_file_path_buf(levelpath, sizeof(levelpath), FGrp_CmpgLvls, "?.lua");
-
+    char search_path[3 * 2 * FULLPATH_SIZE] = "";
+    add_lua_search_path(search_path, sizeof(search_path), FGrp_CmpgLvls, "?.lua");
+    add_lua_search_path(search_path, sizeof(search_path), FGrp_CmpgConfig, "lua/?.lua");
+    add_lua_search_path(search_path, sizeof(search_path), FGrp_FxData, "lua/?.lua");
 
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "path"); // get field "path" from table at top of stack (-1)
     const char *cur_path = lua_tostring(L, -1); // grab path string from top of stack
-    char new_path[PATH_LENGTH];
-    snprintf(new_path, sizeof(new_path), "%s;%s;%s;%s", levelpath,campaignpath,fx_data_path,cur_path);
+    char new_path[sizeof(search_path) + PATH_LENGTH];
+    snprintf(new_path, sizeof(new_path), "%s%s", search_path, cur_path);
     lua_pop(L, 1); // get rid of the string on the stack we just pushed on line 5
     lua_pushstring(L, new_path); // push the new one
     lua_setfield(L, -2, "path"); // set the field "path" in table at -2 with value at top of stack
@@ -188,6 +287,10 @@ static int load_checksummed_lua_module(lua_State *L)
 static int call_checksummed_file_function(lua_State *L)
 {
     if (lua_type(L, 1) == LUA_TSTRING) {
+        char buf[FULLPATH_SIZE];
+        const char *fname = lua_file_path(lua_tostring(L, 1), false, buf, sizeof(buf));
+        lua_pushstring(L, fname);
+        lua_replace(L, 1);
         add_loaded_file_checksum(lua_tostring(L, 1));
     }
     lua_pushvalue(L, lua_upvalueindex(1));

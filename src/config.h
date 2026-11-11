@@ -279,6 +279,14 @@ char *prepare_file_path(short fgroup, const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 /** Like prepare_file_path_buf_mod(), in the given layer. Groups the game writes are always in the user's data folder. */
 char *prepare_file_path_buf_in(char *dst, int dst_size, enum FileLayer layer, const char *mod_dir, short fgroup, const char *fname);
+struct TbFileFind;
+struct TbFileEntry;
+/**
+ * Lists the files matching pattern (such as "*.cfg") in a group's folder, in the user's data folder first and
+ * then in the game folder; a name in both is listed once. Use with LbFileFindNext() and LbFileFindEnd();
+ * prepare_file_path_mod(mod_dir, fgroup, name) gives the path of the copy that is listed.
+ */
+struct TbFileFind *find_first_file_in_group(const char *mod_dir, short fgroup, const char *pattern, struct TbFileEntry *fentry);
 /* New API - self-documenting game vs. mod distinction */
 char *get_game_file_path(short fgroup, const char *fname);
 char *get_mod_file_path(const char *mod_dir, short fgroup, const char *fname);

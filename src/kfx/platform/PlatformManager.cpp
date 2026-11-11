@@ -18,6 +18,8 @@
 #include "bflib_fileio.h"
 #include "cdrom.h"
 #include "steam_api.hpp"
+#include <memory>
+#include <unordered_set>
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -54,6 +56,31 @@ extern "C" size_t       PlatformManager_GetScratchSize(void) { return GetPlatfor
 extern "C" struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry)
 {
     return GetPlatform()->FileFindFirst(filespec, fentry);
+}
+
+extern "C" struct TbFileFind * LbFileFindFirstInAll(const char * const * filespecs, int count, struct TbFileEntry * fentry)
+{
+    auto all = std::make_unique<TbFileFind>();
+    std::unordered_set<std::string> seen;
+    for (int i = 0; i < count; i++) {
+        TbFileEntry entry;
+        TbFileFind *ff = GetPlatform()->FileFindFirst(filespecs[i], &entry);
+        if (!ff) {
+            continue;
+        }
+        for (auto &name : ff->names) {
+            // The key is the lower case name, so this matches the game's case insensitive lookups.
+            if (seen.insert(name.first).second) {
+                all->names.push_back(std::move(name));
+            }
+        }
+        delete ff;
+    }
+    if (all->names.empty()) {
+        return nullptr;
+    }
+    fentry->Filename = all->names[0].second.c_str();
+    return all.release();
 }
 
 extern "C" int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry)

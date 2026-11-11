@@ -314,9 +314,9 @@ TbBool find_and_load_lif_files(void)
         return false;
   }
   short result = false;
-  char* fname = prepare_file_path(FGrp_CmpgLvls, "*.lif");
+  char* fname;
   struct TbFileEntry fe;
-  struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+  struct TbFileFind * ff = find_first_file_in_group(NULL, FGrp_CmpgLvls, "*.lif", &fe);
   if (ff) {
     do {
       fname = prepare_file_path(FGrp_CmpgLvls, fe.Filename);
@@ -639,9 +639,9 @@ TbBool find_and_load_lof_files(void)
       return false;
     }
     short result = false;
-    char* fname = prepare_file_path(FGrp_CmpgLvls, "*.lof");
+    char* fname;
     struct TbFileEntry fe;
-    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+    struct TbFileFind * ff = find_first_file_in_group(NULL, FGrp_CmpgLvls, "*.lof", &fe);
     if (ff) {
         do {
             fname = prepare_file_path(FGrp_CmpgLvls, fe.Filename);

@@ -1237,8 +1237,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     if ((result) && ((flags & CnfLd_ListOnly) == 0)) // This block doesn't have anything we'd like to parse in list mode
     {            
         // Loading campaign sprites, we know config location after parse_campaign_common_blocks, need to be loaded before parse_campaign_map_blocks
-        char *dname = prepare_file_path(FGrp_CmpgConfig, NULL);
-        init_custom_campaign_sprites(dname, "Main CmpgConfig dir");  
+        init_custom_campaign_sprites("Main CmpgConfig dir");
         // make sure that translation.toml is loaded
         load_config(&keeper_translation_file_data, CnfLd_Standard);
         result = parse_campaign_strings_blocks(campgn, buf, len, fname);
@@ -1547,9 +1546,9 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char* list_name, const char* order_fname)
 {
     init_campaigns_list_entries(clist, CAMPAIGNS_LIST_GROW_DELTA);
-    char* fname = prepare_file_path(fgroup, "*.cfg"); // add campaigns
+    // add campaigns: those in the user's data folder and those of the game
     struct TbFileEntry fe;
-    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+    struct TbFileFind * ff = find_first_file_in_group(NULL, fgroup, "*.cfg", &fe);
 #if (BFDEBUG_LEVEL > 0)
     long cnum_all = 0;
     long cnum_ok = 0;
