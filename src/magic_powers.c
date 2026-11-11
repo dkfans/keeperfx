@@ -35,6 +35,7 @@
 #include "game_merge.h"
 #include "power_specials.h"
 #include "power_hand.h"
+#include "power_hand_fp.h"
 #include "thing_creature.h"
 #include "thing_objects.h"
 #include "thing_effects.h"

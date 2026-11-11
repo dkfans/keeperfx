@@ -80,6 +80,7 @@
 #include "player_utils.h"
 #include "config_players.h"
 #include "power_hand.h"
+#include "power_hand_fp.h"
 #include "power_process.h"
 #include "room_data.h"
 #include "room_graveyard.h"

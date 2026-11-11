@@ -81,6 +81,7 @@
 #include "tasks_list.h"
 #include "power_specials.h"
 #include "power_hand.h"
+#include "power_hand_fp.h"
 #include "room_util.h"
 #include "roomspace_input.h"
 #include "room_workshop.h"
