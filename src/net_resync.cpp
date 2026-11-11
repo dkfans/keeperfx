@@ -600,7 +600,7 @@ static TbBool apply_resync_game_message(const char * message_buffer, size_t mess
 // packets. A client then keeps the resync data of its own state at that point, where the host
 // builds its own (the end of process_packets), and sends the host a hash of each chunk of it.
 // When the host resyncs, such a client gets only the chunks of the host's data that it lacks,
-// and references to the ones it has; the result is checked against the CRC of the host's data.
+// and references to the ones it has; the result is checked against a hash of the host's data.
 // The state is ~23 MB, ~320 KB compressed; a delta is usually a small fraction of that. A client
 // that cannot use a delta answers NETMSG_RESYNC_FULL_REQUEST and the host sends it the full state,
 // once. Players in one game always run the same build, so every client and host takes part;
@@ -610,11 +610,19 @@ static TbBool apply_resync_game_message(const char * message_buffer, size_t mess
 // one changed thing can shift everything after it. Chunks therefore end where the content says
 // (a rolling hash of the last 64 bytes), not at fixed offsets: a shift only changes the chunks
 // around it.
+//
+// A chunk is known by a 64-bit hash that also covers its length. With about a thousand chunks on
+// each side, a chunk the client lacks is taken for one it has with a chance of about 10^6 / 2^64,
+// below 10^-13 per resync. The rebuilt data is then checked against a hash of the host's data with
+// another seed, which does not follow from the chunk hashes (as a CRC of the whole would, CRC being
+// linear), so even such a collision makes the client ask for the full state rather than use a wrong one.
 
 #define DELTA_TARGET_CHUNKS 4096
 #define DELTA_MIN_CHUNK_BITS 12
 #define DELTA_MAX_CHUNK_BITS 20
-#define DELTA_MAX_CHUNKS ((NET_MSG_BUFFER_SIZE - 64) / sizeof(uint32_t))
+#define DELTA_MAX_CHUNKS ((NET_MSG_BUFFER_SIZE - 64) / sizeof(uint64_t))
+#define DELTA_CHUNK_SEED 0
+#define DELTA_STATE_SEED 0x6B66785F72657379ULL
 #define DELTA_COPY_FLAG 0x80000000u
 // Clients send their hashes on the turn they see the desync, so the host normally stops waiting as
 // soon as they arrive; the limit covers building them (~100 ms) and sending them on a slow link.
@@ -635,7 +643,7 @@ struct ResyncDeltaHeader {
     uint32_t compressed_length;
     uint32_t payload_length;
     uint32_t full_length;
-    uint32_t full_checksum;
+    uint64_t full_hash;     // delta_hash of the host's data, DELTA_STATE_SEED
     uint32_t gameplay_generation;
     uint32_t base_id;
 };
@@ -643,17 +651,17 @@ struct ResyncDeltaHeader {
 
 struct DeltaChunks {
     uint32_t *ends;     // end offset of each chunk
-    uint32_t *hashes;
+    uint64_t *hashes;
     uint32_t count;
 };
 
 struct DeltaHashes {
-    uint32_t *hashes;
+    uint64_t *hashes;
     struct ResyncHashesHeader header;
 };
 
 struct DeltaHashIndex {
-    uint32_t hash;
+    uint64_t hash;
     uint32_t chunk;
 };
 
@@ -688,6 +696,71 @@ static void init_delta_gear(void)
     }
 }
 
+static inline uint64_t delta_rotl(uint64_t x, int r)
+{
+    return (x << r) | (x >> (64 - r));
+}
+
+static inline uint64_t delta_read64(const unsigned char *p)
+{
+    uint64_t v;
+    memcpy(&v, p, sizeof(v)); // little-endian on every platform the game runs on
+    return v;
+}
+
+#define DELTA_P1 0x9E3779B185EBCA87ULL
+#define DELTA_P2 0xC2B2AE3D27D4EB4FULL
+#define DELTA_P3 0x165667B19E3779F9ULL
+#define DELTA_P4 0x85EBCA77C2B2AE63ULL
+#define DELTA_P5 0x27D4EB2F165667C5ULL
+
+static inline uint64_t delta_round(uint64_t acc, uint64_t input)
+{
+    return delta_rotl(acc + input * DELTA_P2, 31) * DELTA_P1;
+}
+
+/** XXH64: a fast 64-bit hash; the length is part of it. */
+static uint64_t delta_hash(const void *data, size_t len, uint64_t seed)
+{
+    const unsigned char *p = (const unsigned char *)data;
+    const unsigned char *end = p + len;
+    uint64_t h;
+    if (len >= 32) {
+        uint64_t v[4] = { seed + DELTA_P1 + DELTA_P2, seed + DELTA_P2, seed, seed - DELTA_P1 };
+        do {
+            for (int i = 0; i < 4; i++) {
+                v[i] = delta_round(v[i], delta_read64(p + 8 * i));
+            }
+            p += 32;
+        } while (end - p >= 32);
+        h = delta_rotl(v[0], 1) + delta_rotl(v[1], 7) + delta_rotl(v[2], 12) + delta_rotl(v[3], 18);
+        for (int i = 0; i < 4; i++) {
+            h = (h ^ delta_round(0, v[i])) * DELTA_P1 + DELTA_P4;
+        }
+    } else {
+        h = seed + DELTA_P5;
+    }
+    h += len;
+    for (; end - p >= 8; p += 8) {
+        h = delta_rotl(h ^ delta_round(0, delta_read64(p)), 27) * DELTA_P1 + DELTA_P4;
+    }
+    if (end - p >= 4) {
+        uint32_t w;
+        memcpy(&w, p, sizeof(w));
+        h = delta_rotl(h ^ (w * DELTA_P1), 23) * DELTA_P2 + DELTA_P3;
+        p += 4;
+    }
+    for (; p < end; p++) {
+        h = delta_rotl(h ^ (*p * DELTA_P5), 11) * DELTA_P1;
+    }
+    h ^= h >> 33;
+    h *= DELTA_P2;
+    h ^= h >> 29;
+    h *= DELTA_P3;
+    h ^= h >> 32;
+    return h;
+}
+
 static uint32_t delta_chunk_bits(size_t total)
 {
     uint32_t bits = DELTA_MIN_CHUNK_BITS;
@@ -710,7 +783,7 @@ static TbBool split_delta_chunks(const char *data, size_t len, uint32_t bits, st
     init_delta_gear();
     memset(chunks, 0, sizeof(*chunks));
     chunks->ends = (uint32_t *)malloc(DELTA_MAX_CHUNKS * sizeof(uint32_t));
-    chunks->hashes = (uint32_t *)malloc(DELTA_MAX_CHUNKS * sizeof(uint32_t));
+    chunks->hashes = (uint64_t *)malloc(DELTA_MAX_CHUNKS * sizeof(uint64_t));
     if (chunks->ends == NULL || chunks->hashes == NULL) {
         free_delta_chunks(chunks);
         return false;
@@ -740,7 +813,7 @@ static TbBool split_delta_chunks(const char *data, size_t len, uint32_t bits, st
             }
         }
         chunks->ends[chunks->count] = (uint32_t)pos;
-        chunks->hashes[chunks->count] = (uint32_t)crc32(0L, bytes + start, (uInt)(pos - start));
+        chunks->hashes[chunks->count] = delta_hash(bytes + start, pos - start, DELTA_CHUNK_SEED);
         chunks->count++;
         start = pos;
     }
@@ -780,7 +853,7 @@ void net_resync_note_client_desync(void)
     struct DeltaChunks chunks;
     char *write_pos = begin_net_message(NETMSG_RESYNC_HASHES);
     if (!split_delta_chunks(data, len, bits, &chunks)
-        || (size_t)(write_pos - netstate.msg_buffer) + sizeof(struct ResyncHashesHeader) + chunks.count * sizeof(uint32_t) > sizeof(netstate.msg_buffer)) {
+        || (size_t)(write_pos - netstate.msg_buffer) + sizeof(struct ResyncHashesHeader) + chunks.count * sizeof(uint64_t) > sizeof(netstate.msg_buffer)) {
         free_delta_chunks(&chunks);
         free(data);
         return;
@@ -792,8 +865,8 @@ void net_resync_note_client_desync(void)
     struct ResyncHashesHeader header = { netstate.gameplay_generation, delta_base_id, (uint32_t)len, bits, chunks.count };
     memcpy(write_pos, &header, sizeof(header));
     write_pos += sizeof(header);
-    memcpy(write_pos, chunks.hashes, chunks.count * sizeof(uint32_t));
-    write_pos += chunks.count * sizeof(uint32_t);
+    memcpy(write_pos, chunks.hashes, chunks.count * sizeof(uint64_t));
+    write_pos += chunks.count * sizeof(uint64_t);
     send_message_buffer(SERVER_ID, write_pos);
     NETLOG("Desync: kept own state (%u bytes) and sent the host %u chunk hashes in %u ms",
         (unsigned)len, (unsigned)chunks.count, (unsigned)(LbTimerClock() - start_time));
@@ -809,16 +882,16 @@ TbError process_resync_hashes_message(NetUserId source, const char *buffer, size
     memcpy(&header, buffer, sizeof(header));
     if (header.chunk_bits < DELTA_MIN_CHUNK_BITS || header.chunk_bits > DELTA_MAX_CHUNK_BITS
         || header.chunk_count == 0 || header.chunk_count > DELTA_MAX_CHUNKS
-        || buffer_size != sizeof(header) + (size_t)header.chunk_count * sizeof(uint32_t)) {
+        || buffer_size != sizeof(header) + (size_t)header.chunk_count * sizeof(uint64_t)) {
         WARNLOG("Invalid resync chunk hashes from user %d", (int)source);
         return Lb_OK;
     }
     forget_user_hashes(source);
-    user_hashes[source].hashes = (uint32_t *)malloc(header.chunk_count * sizeof(uint32_t));
+    user_hashes[source].hashes = (uint64_t *)malloc(header.chunk_count * sizeof(uint64_t));
     if (user_hashes[source].hashes == NULL) {
         return Lb_OK;
     }
-    memcpy(user_hashes[source].hashes, buffer + sizeof(header), header.chunk_count * sizeof(uint32_t));
+    memcpy(user_hashes[source].hashes, buffer + sizeof(header), header.chunk_count * sizeof(uint64_t));
     user_hashes[source].header = header;
     MULTIPLAYER_LOG("Host: user %d sent %u resync chunk hashes", (int)source, (unsigned)header.chunk_count);
     return Lb_OK;
@@ -909,7 +982,7 @@ static void append_delta_u32(char *payload, size_t *payload_len, uint32_t value)
 }
 
 /** Host: the host's data as references to the client's chunks and the bytes it lacks, or NULL if a delta would not pay. */
-static char *encode_resync_delta(const char *data, size_t len, uint32_t full_checksum, const struct DeltaChunks *host_chunks,
+static char *encode_resync_delta(const char *data, size_t len, uint64_t full_hash, const struct DeltaChunks *host_chunks,
     const struct DeltaHashes *client, size_t full_message_size, size_t *message_size)
 {
     const uint32_t client_count = client->header.chunk_count;
@@ -992,7 +1065,7 @@ static char *encode_resync_delta(const char *data, size_t len, uint32_t full_che
     header.compressed_length = (uint32_t)compressed_size;
     header.payload_length = (uint32_t)payload_len;
     header.full_length = (uint32_t)len;
-    header.full_checksum = full_checksum;
+    header.full_hash = full_hash;
     header.gameplay_generation = netstate.gameplay_generation;
     header.base_id = client->header.base_id;
     memcpy(message, &header, sizeof(header));
@@ -1068,8 +1141,8 @@ static TbBool decode_resync_delta(const char *message, size_t message_size, char
     if (ok && written != header.full_length) {
         ok = false;
     }
-    if (ok && (uint32_t)crc32(crc32(0L, Z_NULL, 0), (const Bytef *)full, header.full_length) != header.full_checksum) {
-        WARNLOG("Resync delta rebuilt a state with the wrong checksum");
+    if (ok && delta_hash(full, header.full_length, DELTA_STATE_SEED) != header.full_hash) {
+        WARNLOG("Resync delta rebuilt a state with the wrong hash");
         ok = false;
     }
     if (!ok) {
@@ -1114,7 +1187,8 @@ TbBool send_resync_game(void)
         return false;
     }
     wait_for_delta_hashes(previous_generation);
-    const uint32_t full_checksum = (uint32_t)crc32(crc32(0L, Z_NULL, 0), (const Bytef *)full_data, (uInt)full_len);
+    uint64_t full_hash = 0;
+    TbBool have_full_hash = false;
     NETLOG("Host: Sending resync data to all clients");
     struct DeltaChunks host_chunks;
     memset(&host_chunks, 0, sizeof(host_chunks));
@@ -1129,6 +1203,10 @@ TbBool send_resync_game(void)
             // user_wants_delta() keeps spectators (user_index >= MAX_NET_USERS) out of user_hashes
             const struct DeltaHashes *client = &user_hashes[user_index];
             // The host's chunks of the size this client used, the same for all clients in practice.
+            if (!have_full_hash) {
+                full_hash = delta_hash(full_data, full_len, DELTA_STATE_SEED);
+                have_full_hash = true;
+            }
             if (host_chunk_bits != client->header.chunk_bits) {
                 free_delta_chunks(&host_chunks);
                 host_chunk_bits = 0;
@@ -1137,7 +1215,7 @@ TbBool send_resync_game(void)
                 }
             }
             if (host_chunk_bits != 0) {
-                delta = encode_resync_delta(full_data, full_len, full_checksum, &host_chunks, client, message_size, &delta_size);
+                delta = encode_resync_delta(full_data, full_len, full_hash, &host_chunks, client, message_size, &delta_size);
             }
         }
         if (delta != NULL) {
