@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererManager.h"
 #include "power_hand.h"
+#include "power_hand_fp.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -406,6 +407,30 @@ static int find_held_thing(PlayerNumber plyr_idx, ThingIndex tng_idx, ThingIndex
     return -1;
 }
 
+// returns -1 if no user holding
+NetUserId get_user_holding_thing(const struct Thing *thing)
+{
+    if (!thing_exists(thing) || !flag_is_set(thing->alloc_flags, TAlF_IsInLimbo)) {
+        return -1;
+    }
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        const struct UserState *ustate = get_user_state(user);
+        if (user_state_invalid(ustate)) {
+            continue;
+        }
+        if (find_in_list(ustate->things_in_hand, ustate->num_things_in_hand, thing->index) >= 0) {
+            return user;
+        }
+    }
+    return -1;
+}
+
+TbBool thing_held_by_other_user(NetUserId user, const struct Thing *thing)
+{
+    const NetUserId holder = get_user_holding_thing(thing);
+    return (holder >= 0) && (holder != user);
+}
+
 static void remove_held_thing_at(ThingIndex *things, uint8_t *count, int idx)
 {
     for (int i = idx; i < *count - 1; i++) {
@@ -497,8 +522,11 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     {
         powerst = get_power_model_stats(PwrK_PICKUPCRTR);
         thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (is_my_player_number(plyr_idx)) {
+        if (is_local_action(plyr_idx, user)) {
             play_creature_sound(thing, CrSnd_Hang, 3, 1);
+        } else if (thing_possessed_by_local_user(thing)) {
+            // A co-user picked up the creature this user is inside
+            play_creature_sound_non_3d(thing, CrSnd_Hang);
         }
     }
     thing->holding_player = plyr_idx;
@@ -744,7 +772,7 @@ TbBool object_is_slappable(const struct Thing* thing)
 
 TbBool object_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    if (thing->owner == plyr_idx) 
+    if (thing->owner == plyr_idx)
     {
         return object_is_slappable(thing);
     }
@@ -947,8 +975,9 @@ long gold_being_dropped_on_creature(long plyr_idx, NetUserId user, struct Thing 
  * @param droptng
  * @param dstpos
  */
-void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, const struct Coord3d *dstpos)
+void drop_held_thing_on_ground(struct Dungeon *dungeon, NetUserId user, struct Thing *droptng, const struct Coord3d *dstpos)
 {
+    begin_fp_hand_drop(droptng);
     droptng->mappos.x.val = dstpos->x.val;
     droptng->mappos.y.val = dstpos->y.val;
     long ceiling_height = get_ceiling_height_at(&droptng->mappos);
@@ -972,10 +1001,19 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         if (game.conf.rules[droptng->owner].creature.instance_delay_on_drop > 0) {
             delay_instances_on_drop(droptng);
         }
-        initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
+        if (flag_is_set(droptng->alloc_flags, TAlF_IsControlled)) {
+            // Still possessed: straight back to manual control
+            set_start_state(droptng);
+            restore_possessed_thing_from_hand(droptng);
+        } else {
+            initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
+        }
         stop_creature_sound(droptng, 5);
-        if (is_my_player_number(dungeon->owner)) {
+        if (is_local_action(dungeon->owner, user)) {
             play_creature_sound(droptng, CrSnd_Drop, 3, 0);
+        } else if (thing_possessed_by_local_user(droptng)) {
+            // A co-user dropped the creature this user is inside
+            play_creature_sound_non_3d(droptng, CrSnd_Drop);
         }
         dungeon->last_creature_dropped_gameturn = get_gameturn();
         struct CreatureModelConfig* crconf = creature_stats_get(droptng->model);
@@ -1014,7 +1052,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     struct Thing *droptng = thing_get(ustate->things_in_hand[0]);
     if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, is_creature_droppable_on_path(droptng))) {
         // Make a rejection sound
-        play_user_sample(user, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
         return 0;
     }
     // Check if object will fit into that position
@@ -1027,7 +1065,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
     }
     if (!lua_on_creature_drop(droptng, plyr_idx, &pos)) {
         // Make a rejection sound
-        play_user_sample(user, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
         return 0;
     }
     if (!thing_exists(droptng) || (ustate->num_things_in_hand < 1) || (ustate->things_in_hand[0] != droptng->index)) {
@@ -1042,7 +1080,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
         } else
         {
             drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx, user);
-            play_player_sample(plyr_idx, snd_coin_drop);
+            play_action_sample(plyr_idx, user, snd_coin_drop);
         }
         destroy_object(droptng);
     } else
@@ -1053,11 +1091,11 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, NetUserId user, MapSub
             food_eaten_by_creature(droptng, overtng);
         } else
         {
-            drop_held_thing_on_ground(dungeon, droptng, &pos);
+            drop_held_thing_on_ground(dungeon, user, droptng, &pos);
         }
     } else
     {
-        drop_held_thing_on_ground(dungeon, droptng, &pos);
+        drop_held_thing_on_ground(dungeon, user, droptng, &pos);
     }
     if (ustate->num_things_in_hand == 1) {
         set_user_instance(user, PI_Drop, 0);
@@ -1083,7 +1121,7 @@ void dump_thing_held_by_any_player(struct Thing *thing)
             }
             const struct Coord3d *pos;
             pos = &dungeon->essential_pos;
-            drop_held_thing_on_ground(dungeon, thing, pos);
+            drop_held_thing_on_ground(dungeon, NO_USER, thing, pos);
             if (remove_thing_from_power_hand_list(thing, dungeon->owner)) {
                 holding_plyr_idx = dungeon->owner;
             }
@@ -1102,7 +1140,7 @@ void queue_held_thing_drop(PlayerNumber plyr_idx, struct Thing *thing)
     if (dungeon->num_things_in_hand < game.conf.rules[plyr_idx].gameplay.max_things_in_hand) {
         dungeon->things_in_hand[dungeon->num_things_in_hand++] = thing->index;
     } else {
-        drop_held_thing_on_ground(dungeon, thing, dungeon_get_essential_pos(plyr_idx));
+        drop_held_thing_on_ground(dungeon, NO_USER, thing, dungeon_get_essential_pos(plyr_idx));
     }
 }
 
@@ -1129,7 +1167,7 @@ static TbBool drop_first_queued_thing(PlayerNumber plyr_idx)
     struct Thing *thing = thing_get(dungeon->things_in_hand[0]);
     remove_held_thing_at(dungeon->things_in_hand, &dungeon->num_things_in_hand, 0);
     if (thing_exists(thing)) {
-        drop_held_thing_on_ground(dungeon, thing, dungeon_get_essential_pos(plyr_idx));
+        drop_held_thing_on_ground(dungeon, NO_USER, thing, dungeon_get_essential_pos(plyr_idx));
         lua_on_creature_drop(thing, plyr_idx, &thing->mappos);
     }
     return true;
@@ -1239,6 +1277,7 @@ void process_things_in_dungeon_hand(void)
             process_creatures_in_held_list(dungeon, dungeon->things_in_hand, &dungeon->num_things_in_hand);
         }
     }
+    process_fp_hand_drop_views();
 }
 
 static int mini_things_in_hand_columns(PlayerNumber plyr_idx)
@@ -1573,6 +1612,8 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, Net
             i = objst->sprite_anim_idx;
         set_thing_draw(thing, i, objst->anim_speed, -1, -1, 0, ODC_Default);
     }
+    // A co-user's possessed creature: its view squishes down, so the possessor's pitch is set now
+    begin_fp_hand_pickup(thing);
     insert_thing_into_power_hand_list(thing, plyr_idx, user);
     clear_thing_velocity(thing);
     place_thing_in_limbo(thing);
@@ -1584,12 +1625,14 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     if (!thing_is_in_power_hand_list(thing, plyr_idx)) {
         return false;
     }
+    begin_fp_hand_drop(thing);
     if (thing_is_creature(thing))
     {
         set_start_state(thing);
     }
     remove_thing_from_limbo(thing);
-    return remove_thing_from_power_hand_list(thing, plyr_idx);;
+    restore_possessed_thing_from_hand(thing);
+    return remove_thing_from_power_hand_list(thing, plyr_idx);
 }
 
 /**
@@ -1599,7 +1642,7 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 static TbBool script_allows_pick_up(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
 {
     if (!lua_on_pick_up(thing, plyr_idx)) {
-        play_user_sample(user, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
         return false;
     }
     // The handler may have removed the thing; then there is nothing left to pick up
@@ -1629,7 +1672,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl
         if (under_hand > 0)
             thing = thing_get(under_hand);
     }
-    if (!thing_exists(thing) || thing_is_possessed(thing)) {
+    if (!thing_exists(thing) || (thing_is_possessed(thing) && !thing_pickable_while_possessed(user, thing))) {
         return Lb_FAIL;
     }
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))

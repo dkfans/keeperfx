@@ -31,6 +31,10 @@ extern "C" {
 /** Amount of fractional bits in resulting values of trigonometric operations. */
 #define LbFPMath_TrigmBits 16
 
+#ifndef M_TAU
+#define M_TAU 6.28318530717958647692
+#endif
+
 #define CEILING_POS(X) ((X-(int)(X)) > 0 ? (int)(X+1) : (int)(X))
 #define CEILING_NEG(X) ((X-(int)(X)) < 0 ? (int)(X-1) : (int)(X))
 #define CEILING(X) ( ((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X) )

@@ -1938,8 +1938,9 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     spr_idx = gbtn->sprite_idx;
     // Show disabled icon if instance is on cooldown or creature is frozen.
     TbBool disabled;
-    if (!has_reset)
+    if (!has_reset || thing_is_picked_up(ctrltng))
     {
+        // a co-user's hand holding the creature counts too
         disabled = true;
     }
     else if (creature_under_spell_effect(ctrltng, CSAfF_Freeze))

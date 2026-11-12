@@ -72,6 +72,8 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
 TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing);
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+NetUserId get_user_holding_thing(const struct Thing *thing);
+TbBool thing_held_by_other_user(NetUserId user, const struct Thing *thing);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
@@ -84,7 +86,7 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
 
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
-void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, const struct Coord3d *dstpos);
+void drop_held_thing_on_ground(struct Dungeon *dungeon, NetUserId user, struct Thing *droptng, const struct Coord3d *dstpos);
 void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx, NetUserId user);
 TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);

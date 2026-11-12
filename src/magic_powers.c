@@ -35,6 +35,7 @@
 #include "game_merge.h"
 #include "power_specials.h"
 #include "power_hand.h"
+#include "power_hand_fp.h"
 #include "thing_creature.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
@@ -1063,7 +1064,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
     game.armageddon_over_turn = game.conf.rules[plyr_idx].magic.armageddon_duration + enemy_time_gap;
-    if (plyr_idx == my_player_number)
+    if (is_local_action(plyr_idx, user))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
         play_non_3d_sample(powerst->select_sound_idx);
@@ -1089,7 +1090,7 @@ static TbResult magic_use_power_obey(PowerKind power_kind, PlayerNumber plyr_idx
         dungeon->must_obey_turn = 0;
     } else {
         dungeon->must_obey_turn = get_gameturn();
-        if (plyr_idx == my_player_number)
+        if (is_local_action(plyr_idx, user))
         {
             struct PowerConfigStats *powerst = get_power_model_stats(PwrK_OBEY);
             play_non_3d_sample(powerst->select_sound_idx);
@@ -1196,7 +1197,7 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
             break;
         }
     }
-    if (plyr_idx == my_player_number)
+    if (is_local_action(plyr_idx, user))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(PwrK_HOLDAUDNC);
         play_non_3d_sample(powerst->select_sound_idx);
@@ -1207,7 +1208,7 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
 
 static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx, NetUserId user, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
-    if (power_hand_is_full(user) || thing_is_possessed(thing))
+    if (power_hand_is_full(user) || (thing_is_possessed(thing) && !thing_pickable_while_possessed(user, thing)))
         return Lb_FAIL;
     // The refusal sound is played by magic_use_available_power_on_thing(); the script may also remove the thing
     if (((mod_flags & PwMod_PickUpEvent) != 0) && (!lua_on_pick_up(thing, plyr_idx) || !thing_exists(thing)))
@@ -1274,7 +1275,7 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
             }
         }
     }
-    play_player_sample(plyr_idx, get_power_model_stats(power_kind)->select_sound_idx);
+    play_action_sample(plyr_idx, user, get_power_model_stats(power_kind)->select_sound_idx);
     return Lb_SUCCESS;
 }
 
@@ -2070,7 +2071,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, NetUserId use
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
-        play_user_sample(user, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
     }
     return ret;
 }
@@ -2176,7 +2177,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, NetUserId u
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
-        play_user_sample(user, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
     }
     return ret;
 }

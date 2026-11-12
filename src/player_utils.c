@@ -1303,7 +1303,7 @@ void process_players(void)
     SYNCDBG(17,"Finished");
 }
 
-TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool whole_slab)
+TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool whole_slab)
 {
     struct Thing *thing;
     struct Coord3d pos;
@@ -1336,7 +1336,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     dungeon->traps_sold += traps_sold;
     dungeon->manufacture_gold += sell_value;
 
-    play_player_sample(plyr_idx, snd_tile_sell);
+    play_action_sample(plyr_idx, user, snd_tile_sell);
     dungeon->camera_deviate_jump = 192;
     if (sell_value != 0)
     {
@@ -1355,7 +1355,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return true;
 }
 
-TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     MapSubtlCoord cstl_x = stl_slab_center_subtile(stl_x);
     MapSubtlCoord cstl_y = stl_slab_center_subtile(stl_y);
@@ -1371,7 +1371,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     dungeon->doors_sold++;
     dungeon->manufacture_gold += sell_value;
     destroy_door(thing);
-    play_player_sample(plyr_idx, snd_tile_sell);
+    play_action_sample(plyr_idx, user, snd_tile_sell);
     struct Coord3d pos;
     set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     if (sell_value != 0)

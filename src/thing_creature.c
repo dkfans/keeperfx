@@ -80,6 +80,7 @@
 #include "player_utils.h"
 #include "config_players.h"
 #include "power_hand.h"
+#include "power_hand_fp.h"
 #include "power_process.h"
 #include "room_data.h"
 #include "room_graveyard.h"
@@ -4135,8 +4136,9 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
         {
             // If cannot find a valid target, do not use it and don't consider it used.
 
-            // Make a rejection sound
-            play_non_3d_sample(snd_refusal);
+            if (user_controls_thing(get_local_user(), thing, UCT_Direct | UCT_Other)) {
+                play_non_3d_sample(snd_refusal);
+            }
             return 0;
         }
     }
@@ -4164,6 +4166,10 @@ TbBool creature_instance_has_reset_at(const struct Thing *thing, const struct Cr
 TbBool possession_instance_can_start(struct Thing *thing, const struct CreatureControl *cctrl, CrInstance inst_id, GameTurn turn, const struct Packet *pckt, TbBool allow_unavailable)
 {
     if ((inst_id == CrInst_NULL) || (cctrl->instance_id != CrInst_NULL) || (thing->active_state == CrSt_CreatureSlapCowers)) {
+        return false;
+    }
+    // Carried in a hand, or just dropped from one
+    if (fp_hand_blocks_creature_commands(thing)) {
         return false;
     }
     if (!cctrl->instance_available[inst_id]) {
@@ -5248,7 +5254,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
         && (thing->class_id == param->class_id)
         && ((thing_matches_model(thing,param->model_id)))
         && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
-        && !thing_is_picked_up(thing) && !thing_is_possessed(thing)
+        && !thing_is_picked_up(thing)
         && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
         if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
@@ -5331,7 +5337,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
       && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
-      && !thing_is_picked_up(thing) && !thing_is_possessed(thing)
+      && !thing_is_picked_up(thing)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
@@ -5407,7 +5413,7 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
-      && !thing_is_picked_up(thing) && !thing_is_possessed(thing)
+      && !thing_is_picked_up(thing)
       && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
       && (thing->active_state != CrSt_CreatureUnconscious) )
     {

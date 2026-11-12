@@ -929,7 +929,10 @@ void leave_creature_as_controller(NetUserId user, struct Thing *thing)
     sync_local_camera(user);
     if (thing->class_id == TCls_Creature)
     {
-        set_start_state(thing);
+        // A creature carried by a co-user stays in their hand
+        if (!thing_is_picked_up(thing)) {
+            set_start_state(thing);
+        }
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         if ((cctrl->creature_state_flags & TF2_Spectator) != 0) {
           delete_thing_structure(thing, 0);
@@ -1098,7 +1101,7 @@ TbBool clear_selected_thing(struct UserState *ustate)
  * @param rkind Kind of the room.
  * @return Returns room struct, or invalid room on error.
  */
-struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind, int slabs_left)
+struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, RoomKind rkind, int slabs_left)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
@@ -1107,14 +1110,14 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     if (!is_room_available(plyr_idx, rkind)) {
         // It shouldn't be possible to select unavailable room
         WARNLOG("Player %d tried to build %s which is unavailable at (%d,%d)",(int)plyr_idx,room_code_name(rkind),(int)stl_x,(int)stl_y);
-        play_player_sample(player->id_number, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
         return INVALID_ROOM;
     }
     if (!can_build_room_at_slab(plyr_idx, rkind, subtile_slab(stl_x), subtile_slab(stl_y))) {
         // It shouldn't be possible to select unavailable room
         WARNLOG("Player %d tried to build %s on a forbidden subtile (%d,%d)",(int)plyr_idx,
             room_code_name(rkind),(int)stl_x,(int)stl_y);
-        if (is_my_player_number(player->id_number)) {
+        if (is_local_action(plyr_idx, user)) {
             if (!get_local_user_state()->roomspace.is_active)
             {
                 play_non_3d_sample(snd_refusal);
@@ -1125,7 +1128,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     // Check if there's a place for new room
     if (!i_can_allocate_free_room_structure())
     {
-      play_player_sample(player->id_number, snd_refusal);
+      play_action_sample(plyr_idx, user, snd_refusal);
       return INVALID_ROOM;
     }
     if (slabs_left < 1)
@@ -1155,7 +1158,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
             }
             dungeon->lvstats.bridges_built++;
         }
-      if (is_my_player_number(player->id_number)) {
+      if (is_local_action(plyr_idx, user)) {
           play_non_3d_sample(snd_tile_place);
           if (slabs_left > 2) // more slabs follow this one
           {
@@ -1167,7 +1170,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     return room;
 }
 
-TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool free)
+TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel, TbBool free)
 {
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);
     struct Coord3d pos;
@@ -1215,23 +1218,23 @@ TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl
     }
     if (!dungeon_invalid(dungeon))
         dungeon->camera_deviate_jump = 192;
-    play_player_sample(plyr_idx, trap_cfg->place_sound_idx);
+    play_action_sample(plyr_idx, user, trap_cfg->place_sound_idx);
 
     lua_on_trap_placed(traptng);
     return true;
 }
 
-TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel)
 {
     if (!is_trap_placeable(plyr_idx, tngmodel))
     {
         SYNCDBG(7,"Player %d tried to build %s but has none to place", (int)plyr_idx, trap_code_name(tngmodel));
         return false;
     }
-    return player_place_trap_without_check_at(stl_x, stl_y, plyr_idx, tngmodel,false);
+    return player_place_trap_without_check_at(stl_x, stl_y, plyr_idx, user, tngmodel, false);
 }
 
-TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel,TbBool free)
+TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel, TbBool free)
 {
     unsigned char orient = find_door_angle(stl_x, stl_y, plyr_idx);
     struct Coord3d pos;
@@ -1266,26 +1269,26 @@ TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl
     }
     if (!dungeon_invalid(dungeon))
         dungeon->camera_deviate_jump = 192;
-    play_player_sample(plyr_idx, get_door_model_stats(tngmodel)->place_sound_idx);
+    play_action_sample(plyr_idx, user, get_door_model_stats(tngmodel)->place_sound_idx);
     return true;
 }
 
-TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel)
 {
     if (!is_door_placeable(plyr_idx, tngmodel)) {
         SYNCDBG(7,"Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
         return false;
     }
-    return player_place_door_without_check_at(stl_x, stl_y, plyr_idx, tngmodel,0);
+    return player_place_door_without_check_at(stl_x, stl_y, plyr_idx, user, tngmodel, false);
 }
 
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel, TbBool allowed)
 {
     if (!allowed) {
-        play_player_sample(plyr_idx, snd_refusal);
+        play_action_sample(plyr_idx, user, snd_refusal);
         return 0;
     }
-    if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
+    if (!player_place_door_at(stl_x, stl_y, plyr_idx, user, tngmodel)) {
         return 0;
     }
     MapSlabCoord slb_x = subtile_slab(stl_x);

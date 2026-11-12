@@ -894,6 +894,10 @@ void draw_archon_co_users(void)
             const struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
             const struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id);
             spr_idx = 0;
+            if (thing_is_picked_up(thing)) {
+                // Held in a co-user's hand
+                spr_idx = get_power_model_stats(PwrK_HAND)->medsym_sprite_idx;
+            } else
             if (!creature_instance_info_invalid(inst_inf) && (inst_inf->symbol_spridx > 0)) {
                 spr_idx = inst_inf->symbol_spridx;
                 if (cctrl->instance_id != cctrl->active_instance_id)
