@@ -75,6 +75,7 @@
 #include "room_data.h"
 #include "map_blocks.h"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "local_possession.h"
 #include "packets.h"
 #include "vidmode.h"
@@ -107,7 +108,6 @@ struct GuiLayer gui_layer = {GuiLayer_Default};
 static TbBool first_person_see_item_desc = false;
 
 static TbBool move_camera_this_turn;
-static GameTurn hand_pick_pending_turn;
 static unsigned char left_click_modifier_values;
 
 static int32_t my_mouse_x;
@@ -2067,11 +2067,19 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
 {
     struct PlayerInfo* player = get_my_player();
     const struct UserState* ustate = get_local_user_state_prediction();
-    if ((get_local_view_type() != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_state.local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
+    if ((get_local_view_type() != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (pckt->action != PckA_None)) {
         return;
     }
     int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
-    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(get_local_user()) &&!local_cursor_is_locked() && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
+    TbBool hand_released = right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && !local_cursor_is_locked();
+    if (hand_released && (ustate->num_things_in_hand > 0)) {
+        set_packet_action(pckt, PckA_SetHandDropTarget, local_state.local_thing_under_hand, 0, 0, 0);
+        return;
+    }
+    if (local_state.local_thing_under_hand <= 0) {
+        return;
+    }
+    if (hand_released && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
         set_packet_power_on_thing(pckt, PwrK_SLAP, local_state.local_thing_under_hand);
         return;
     }
@@ -2084,7 +2092,6 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
                 set_packet_power_on_thing(pckt, PwrK_POSSESS, local_state.local_thing_under_hand);
             } else if (((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) == 0) && (cursor_state == CSt_PowerHand)) {
                 set_packet_action(pckt, PckA_UsePwrHandPick, local_state.local_thing_under_hand, 0, 0, 0);
-                hand_pick_pending_turn = get_gameturn();
             }
             break;
         case PSt_Slap:
@@ -2450,7 +2457,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
   TbBool cursor_locked = local_cursor_is_locked();
-  TbBool hand_is_empty = power_hand_is_empty(get_local_user());
+  TbBool hand_is_empty = (get_local_user_state_prediction()->num_things_in_hand == 0);
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= local_state.engine_window_width/pixel_size)
    || (pointer_y >= local_state.engine_window_height/pixel_size))
@@ -2505,7 +2512,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   }
   if ((*context == CSt_PowerHand) && (!cursor_locked))
   {
-    struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
+    struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val, true);
     if (!thing_is_invalid(thing)) {
       local_state.local_thing_under_hand = thing->index;
     } else
@@ -2532,9 +2539,7 @@ static void get_dungeon_control_nonaction_inputs(void)
   my_mouse_y = GetMouseY();
   struct Camera* camera = get_local_active_camera();
   struct Packet* pckt = get_local_packet();
-  if (get_gameturn() - hand_pick_pending_turn > game.input_lag_turns) {
-    local_state.local_thing_under_hand = 0;
-  }
+  local_state.local_thing_under_hand = 0;
   unset_packet_control(pckt, PCtr_MapCoordsValid);
   if (ustate->work_state == PSt_CtrlDungeon)
   {
@@ -2976,8 +2981,7 @@ static void get_player_gui_clicks(void)
       }
       if (right_button_released)
       {
-        if ((predicted_ustate->work_state != PSt_HoldInHand) || power_hand_is_empty(get_local_user()))
-        {
+        if ((predicted_ustate->work_state != PSt_HoldInHand) || (predicted_ustate->num_things_in_hand == 0)) {
           if ( !turn_off_all_window_menus() )
           {
             if (predicted_ustate->work_state == PSt_CreatrQuery)

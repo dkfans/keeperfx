@@ -35,6 +35,7 @@
 #include "thing_creature.h"
 #include "packets.h"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "net_game.h"
 #include "post_inc.h"
 
@@ -180,7 +181,7 @@ void tag_cursor_blocks_thing_in_hand(NetUserId user, MapSubtlCoord stl_x, MapSub
     struct MapVolumeBox *box = get_user_cursor_box(user);
     if (box != NULL) {
         TbBool full_slab = (ustate->roomspace_mode != single_subtile_mode);
-        TbBool allow_unclaimed_path = is_creature_droppable_on_path(get_first_thing_in_power_hand(user));
+        TbBool allow_unclaimed_path = is_creature_droppable_on_path(get_first_held_thing(ustate));
         box->visible = true;
         box->color = can_drop_thing_here(stl_x, stl_y, plyr_idx, allow_unclaimed_path);
         if (full_slab) {

@@ -95,6 +95,14 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
         && (thing->mappos.z.val <= floor_height + 19*NORMAL_FLYING_ALTITUDE/17);
 }
 
+TbBool thing_has_landed(const struct Thing *thing)
+{
+    if (thing_touching_floor(thing)) {
+        return true;
+    }
+    return flag_is_set(thing->movement_flags, TMvF_Flying) && thing_touching_flight_altitude(thing);
+}
+
 TbBool thing_above_flight_altitude(const struct Thing* thing)
 {
     int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
