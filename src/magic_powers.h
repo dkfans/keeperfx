@@ -87,6 +87,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, NetUserId user, Power
 TbResult magic_use_power_on_level(PlayerNumber plyr_idx, NetUserId user, PowerKind spl_idx, KeepPwrLevel power_level, unsigned long mod_flags);
 
 HitPoints calculate_slap_damage(const struct Thing *thing);
+TbBool slap_is_blocked(const struct UserState *ustate, const struct PlayerInfo *player, GameTurn last_creature_dropped_turn, GameTurn turn);
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);
 TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, const struct Coord3d *cta_pos);

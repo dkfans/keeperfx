@@ -81,6 +81,7 @@ struct DroppedView {
     struct CreatureControl cctrl;
     GameTurn packet_turn;
     GameTurn turn;
+    TbBool lands_on_ground;
     TbBool landed;
 };
 
@@ -213,8 +214,7 @@ static void grab_predicted_thing(struct HandPrediction *pred, ThingIndex tng_idx
 static void slap_predicted_thing(struct HandPrediction *pred, const struct Thing *thing)
 {
     struct UserState *ustate = &pred->ustate;
-    TbBool blocked_by_drop = ((GameTurnDelta)(pred->turn - pred->creature_dropped_turn) <= SLAP_BLOCKED_TURNS_AFTER_DROP);
-    if (!thing_exists(thing) || (ustate->instance_num == PI_Whip) || blocked_by_drop) {
+    if (!thing_exists(thing) || slap_is_blocked(ustate, get_player(ustate->player_id), pred->creature_dropped_turn, pred->turn)) {
         return;
     }
     if (!can_cast_spell(ustate->player_id, get_local_user(), PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
@@ -389,7 +389,7 @@ static void predict_hand(struct HandPrediction *pred)
         pred->hand = *handtng;
     }
     pred->drop_count = 0;
-    pred->turn = get_gameturn() + 1;
+    pred->turn = get_gameturn();
     pred->creature_dropped_turn = get_dungeon(ustate->player_id)->last_creature_dropped_gameturn;
     for (GameTurn turn = input_lag_first_pending_turn(); (GameTurnDelta)(get_gameturn() - turn) > 0; turn++) {
         const struct Packet *pckt = get_history_packet(user, turn);
@@ -448,6 +448,7 @@ static void create_dropped_view(const struct HandDrop *drop)
     view->thing = *thing;
     view->packet_turn = drop->turn;
     view->turn = drop->turn;
+    view->lands_on_ground = drop->lands_on_ground;
     view->landed = false;
     struct Thing *viewtng = &view->thing;
     struct Coord3d pos;
@@ -513,7 +514,7 @@ static TbBool dropped_view_is_pending(const struct DroppedView *view)
 static TbBool dropped_view_is_falling(const struct DroppedView *view)
 {
     const struct Thing *thing = thing_get(view->thing.index);
-    if (!thing_exists(thing) || (thing->creation_turn != view->thing.creation_turn) || thing_is_picked_up(thing)) {
+    if (!view->lands_on_ground || !thing_exists(thing) || (thing->creation_turn != view->thing.creation_turn) || thing_is_picked_up(thing)) {
         return false;
     }
     TbBool still_descending = (thing->previous_mappos.z.val != thing->mappos.z.val);
@@ -610,7 +611,11 @@ void apply_local_hand_prediction(struct UserState *ustate)
     memcpy(ustate->things_in_hand, predicted->things_in_hand, sizeof(ustate->things_in_hand));
     ustate->num_things_in_hand = predicted->num_things_in_hand;
     ustate->hand_animationId = predicted->hand_animationId;
-    ustate->hand_animation_until_turn = predicted->hand_animation_until_turn;
+    const GameTurnDelta animation_turns_left = (GameTurnDelta)(predicted->hand_animation_until_turn - prediction.turn);
+    ustate->hand_animation_until_turn = 0;
+    if (animation_turns_left >= 0) {
+        ustate->hand_animation_until_turn = get_gameturn() + animation_turns_left;
+    }
     ustate->instance_num = predicted->instance_num;
     ustate->instance_remain_turns = predicted->instance_remain_turns;
 }
@@ -664,7 +669,7 @@ TbBool local_hand_hides_thing(const struct Thing *thing)
     if (local_hand_holds_thing(thing)) {
         return true;
     }
-    return local_hand_predicted_drop(thing);
+    return (find_dropped_view(thing) != NULL);
 }
 
 struct Thing *find_local_dropped_view(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *view_idx)
@@ -732,15 +737,16 @@ void local_hand_hide_damage_flash(const struct Thing *thing)
     }
 }
 
-TbBool local_hand_predicted_drop(const struct Thing *thing)
-{
-    return (find_dropped_view(thing) != NULL);
-}
-
-TbBool local_hand_showed_landing(const struct Thing *thing)
+enum LocalHandDropView get_local_hand_drop_view(const struct Thing *thing)
 {
     const struct DroppedView *view = find_dropped_view(thing);
-    return (view != NULL) && view->landed;
+    if (view == NULL) {
+        return LocalHandDropView_None;
+    }
+    if (view->landed) {
+        return LocalHandDropView_Landed;
+    }
+    return LocalHandDropView_Falling;
 }
 /******************************************************************************/
 #ifdef __cplusplus

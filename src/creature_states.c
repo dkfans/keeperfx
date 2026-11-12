@@ -1552,7 +1552,7 @@ static short process_creature_being_dropped(struct Thing *creatng)
         if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
         {
             struct Dungeon* dungeon = get_dungeon(creatng->owner);
-            if (!dungeon_invalid(dungeon) && !local_hand_showed_landing(creatng)) {
+            if (!dungeon_invalid(dungeon) && (get_local_hand_drop_view(creatng) != LocalHandDropView_Landed)) {
                 dungeon->camera_deviate_jump = TREMBLING_LANDING_CAMERA_DEVIATE_JUMP;
             }
         }

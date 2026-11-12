@@ -42,6 +42,12 @@ enum LocalHandFlash {
     LocalHandFlash_Damage,
 };
 
+enum LocalHandDropView {
+    LocalHandDropView_None,
+    LocalHandDropView_Falling,
+    LocalHandDropView_Landed,
+};
+
 /******************************************************************************/
 void reset_local_hand(void);
 void update_local_hand(void);
@@ -55,8 +61,7 @@ struct Thing *find_local_dropped_view(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
 void apply_local_hand_to_activity_counts(ThingModel crmodel, int32_t *gui_job_counts);
 TbBool local_hand_shows_flash(const struct Thing *thing, enum LocalHandFlash flash);
 void local_hand_hide_damage_flash(const struct Thing *thing);
-TbBool local_hand_predicted_drop(const struct Thing *thing);
-TbBool local_hand_showed_landing(const struct Thing *thing);
+enum LocalHandDropView get_local_hand_drop_view(const struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

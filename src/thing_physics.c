@@ -97,7 +97,10 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
 
 TbBool thing_has_landed(const struct Thing *thing)
 {
-    return thing_touching_floor(thing) || (flag_is_set(thing->movement_flags, TMvF_Flying) && thing_touching_flight_altitude(thing));
+    if (thing_touching_floor(thing)) {
+        return true;
+    }
+    return flag_is_set(thing->movement_flags, TMvF_Flying) && thing_touching_flight_altitude(thing);
 }
 
 TbBool thing_above_flight_altitude(const struct Thing* thing)

@@ -277,7 +277,7 @@ int32_t pinstfs_hand_drop(NetUserId user, int32_t *n)
 {
     struct UserState* ustate = get_user_state(user);
     ustate->influenced_thing_idx = ustate->things_in_hand[0];
-    ustate->influenced_thing_creation = thing_get(ustate->hand_thing_idx)->creation_turn;
+    ustate->influenced_thing_creation = thing_get(ustate->things_in_hand[0])->creation_turn;
     return pinstfs_hand_animation(user, n);
 }
 

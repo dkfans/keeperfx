@@ -5409,8 +5409,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         h_add += (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
     }
 
-    if (local_hand_shows_flash(thing, LocalHandFlash_HealthFlower) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
-    {
+    if (local_hand_shows_flash(thing, LocalHandFlash_HealthFlower) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
         int flash_color = get_player_color_idx(thing->owner);
         if (flash_color == PLAYER_NEUTRAL)
         {
