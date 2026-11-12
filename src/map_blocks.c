@@ -2457,15 +2457,12 @@ long element_top_face_texture(struct Map *mapblk)
             cubed = get_cube_model_stats(col->cubes[COLUMN_STACK_HEIGHT-get_column_ceiling_filled_subtiles(col)-1]);
             return cubed->texture_id[4];
         }
-        else if ((col->bitfields & CLF_FLOOR_MASK) != 0)
-        {
-            cubed = get_cube_model_stats(col->cubes[get_column_floor_filled_subtiles(col) - 1]);
-            return cubed->texture_id[4];
+        for (int i = COLUMN_STACK_HEIGHT - 1; i >= 0; i--) {
+            if (col->cubes[i] != 0) {
+                return get_cube_model_stats(col->cubes[i])->texture_id[4];
+            }
         }
-        else
-        {
-            return col->floor_texture;
-        }
+        return col->floor_texture;
     }
     return result;
 }
