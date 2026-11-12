@@ -84,8 +84,6 @@
 #include "creature_states_tresr.h"
 #include "creature_states_barck.h"
 
-#include "engine_camera.h"
-#include "local_hand.h"
 #include "keeperfx.hpp"
 #include "kfx/ai/TargetSearchProbe.h"
 #include "post_inc.h"
@@ -1524,7 +1522,8 @@ static short process_creature_being_dropped(struct Thing *creatng)
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     // If dropping still in progress, do nothing
-    if (!thing_has_landed(creatng)) {
+    if ( !(thing_touching_floor(creatng) || (((creatng->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(creatng))))
+    {
         // Note that the creature should have no self control while dropping - after all, it was in hand moments ago
         SYNCDBG(17,"The %s index %d owner %d dropped at (%d,%d) isn't touching ground yet",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
         return CrStRet_Modified;
@@ -1552,8 +1551,8 @@ static short process_creature_being_dropped(struct Thing *creatng)
         if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
         {
             struct Dungeon* dungeon = get_dungeon(creatng->owner);
-            if (!dungeon_invalid(dungeon) && (get_local_hand_drop_view(creatng) != LocalHandDropView_Landed)) {
-                dungeon->camera_deviate_jump = TREMBLING_LANDING_CAMERA_DEVIATE_JUMP;
+            if (!dungeon_invalid(dungeon)) {
+                dungeon->camera_deviate_jump = 96;
             }
         }
         // Make sure computer control flag is set (almost) accordingly to job, so that we won't start a fight when in captivity
@@ -4295,7 +4294,7 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints 
 {
     if ((thing->health >= 0) && (delta > 0))
     {
-        thing->creature.health_bar_turns = HEALTH_BAR_FLASH_TURNS;
+        thing->creature.health_bar_turns = 8;
         thing->health -= delta;
     }
 }

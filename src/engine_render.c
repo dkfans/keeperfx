@@ -54,7 +54,6 @@
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "local_camera.h"
-#include "local_hand.h"
 #include "local_possession.h"
 #include "map_utils.h"
 #include "front_simple.h"
@@ -278,7 +277,7 @@ static const char splittypes[64] = {
 }
 #endif
 /******************************************************************************/
-static void draw_things_on_map_block(struct Map *mapblk, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Camera *frontview_cam);
+static void do_map_who(short tnglist_idx);
 static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
 static int render_sprite_debug_level = 0;
 static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf);
@@ -4052,6 +4051,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     struct CubeConfigStats *texturing;
     unsigned short *cubenum_ptr;
     long i;
+    long n;
     if ((stl_y <= 0) || (stl_y >= game.map_subtiles_y))
         return;
     clip_start = plane_start;
@@ -4073,7 +4073,9 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         colmn = blank_colmn;
         if (map_block_revealed(mapblk, my_player_number))
         {
-            draw_things_on_map_block(mapblk, center_x, stl_y, NULL);
+            n = get_mapwho_thing_index(mapblk);
+            if (n != 0)
+                do_map_who(n);
             colmn = get_map_column(mapblk);
         }
         // Retrieve solidmasks for surrounding area
@@ -4490,7 +4492,11 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         cur_colmn = unrev_colmn;
         if (map_block_revealed(cur_mapblk, my_player_number))
         {
-            draw_things_on_map_block(cur_mapblk, stl_x + xaval + xidx, stl_y, NULL);
+            long i;
+            i = get_mapwho_thing_index(cur_mapblk);
+            if (i > 0) {
+              do_map_who(i);
+            }
             cur_colmn = get_map_column(cur_mapblk);
             solidmsk_cur_raw = cur_colmn->solidmask;
             solidmsk_cur = solidmsk_cur_raw;
@@ -4680,7 +4686,11 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         cur_colmn = unrev_colmn;
         if (map_block_revealed(cur_mapblk, my_player_number))
         {
-            draw_things_on_map_block(cur_mapblk, stl_x + xaval + xidx, stl_y, NULL);
+            long i;
+            i = get_mapwho_thing_index(cur_mapblk);
+            if (i > 0) {
+              do_map_who(i);
+            }
             cur_colmn = get_map_column(cur_mapblk);
         }
         // Get solidmasks of sibling columns
@@ -5003,12 +5013,15 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
         || (thing->class_id == TCls_DeadCreature)
         || (ustate->work_state == PSt_QueryAll))
     {
-        if (local_hand_shows_flash(thing, LocalHandFlash_Damage)) {
-            RendererAddDrawFlags(Lb_SPRITE_REMAP);
-            lbSpriteReMapPtr = red_pal;
-        } else if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
+        if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
             RendererAddDrawFlags(Lb_SPRITE_REMAP);
             lbSpriteReMapPtr = white_pal;
+        } else {
+            if (thing->last_turn_damaged == get_gameturn())
+            {
+                RendererAddDrawFlags(Lb_SPRITE_REMAP);
+                lbSpriteReMapPtr = red_pal;
+            }
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;
@@ -5387,7 +5400,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         h_add += (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
     }
 
-    if (local_hand_shows_flash(thing, LocalHandFlash_HealthFlower) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
+    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
+    {
         int flash_color = get_player_color_idx(thing->owner);
         if (flash_color == PLAYER_NEUTRAL)
         {
@@ -8070,10 +8084,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 
     if (!thing_is_invalid(thing))
     {
-        if (local_hand_shows_flash(thing, LocalHandFlash_Damage)) {
-            RendererAddDrawFlags(Lb_SPRITE_REMAP);
-            lbSpriteReMapPtr = red_pal;
-        } else if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
+        if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
           struct Camera *active_cam = get_local_active_camera();
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
@@ -8106,6 +8117,12 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   }
               }
           }
+        } else {
+            if (thing->last_turn_damaged == get_gameturn())
+            {
+                RendererAddDrawFlags(Lb_SPRITE_REMAP);
+                lbSpriteReMapPtr = red_pal;
+            }
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;
@@ -8847,7 +8864,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.y = (render_floorpos - map_z_pos); // For shadows
 
         // Shadows
-        if ((thing->class_id == TCls_Creature) && ((thing->movement_flags & TMvF_BeingSacrificed) == 0))
+        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_BeingSacrificed) == 0))
         {
             int count;
             int i;
@@ -8958,6 +8975,40 @@ static void do_map_who_for_thing(struct Thing *thing)
     thing->last_turn_drawn = get_gameturn();
 }
 
+static void do_map_who(short tnglist_idx)
+{
+    long i;
+    unsigned long k;
+    k = 0;
+    i = tnglist_idx;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if ((thing->rendering_flags & TRF_Invisible) == 0)
+        {
+            do_map_who_for_thing(thing);
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+}
+
 static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struct Camera *cam)
 {
     // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
@@ -9037,43 +9088,31 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     thing->last_turn_drawn = get_gameturn();
 }
 
-static void draw_thing_on_map_block(struct Thing *thing, struct Map *mapblk, struct Camera *frontview_cam)
+static void draw_frontview_things_on_element(struct Map *mapblk, struct Camera *cam)
 {
-    if (frontview_cam != NULL) {
-        draw_frontview_thing_on_element(thing, mapblk, frontview_cam);
-        return;
-    }
-    if ((thing->rendering_flags & TRF_Invisible) == 0) {
-        do_map_who_for_thing(thing);
-    }
-}
-
-static void draw_things_on_map_block(struct Map *mapblk, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Camera *frontview_cam)
-{
-    int32_t i = get_mapwho_thing_index(mapblk);
-    uint32_t k = 0;
-    while (i != 0) {
-        struct Thing *thing = thing_get(i);
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
         TRACE_THING(thing);
-        if (thing_is_invalid(thing)) {
+        if (thing_is_invalid(thing))
+        {
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
         i = thing->next_on_mapblk;
-        if (!local_hand_hides_thing(thing)) {
-            draw_thing_on_map_block(thing, mapblk, frontview_cam);
-        }
+        draw_frontview_thing_on_element(thing, mapblk, cam);
         k++;
-        if (k > THINGS_COUNT) {
+        if (k > THINGS_COUNT)
+        {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break_mapwho_infinite_chain(mapblk);
             break;
         }
-    }
-    int32_t view_idx = 0;
-    struct Thing *viewtng;
-    while ((viewtng = find_local_dropped_view(stl_x, stl_y, &view_idx)) != NULL) {
-        draw_thing_on_map_block(viewtng, mapblk, frontview_cam);
     }
 }
 
@@ -9205,7 +9244,7 @@ void draw_frontview_engine(struct Camera *cam)
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {
-                    draw_things_on_map_block(mapblk, stl_x, stl_y, cam);
+                    draw_frontview_things_on_element(mapblk, cam);
                 }
             }
             stl_x -= x_step1[qdrant];

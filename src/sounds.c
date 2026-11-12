@@ -78,9 +78,8 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
-    if ((thing == NULL) || (thing == INVALID_THING)) {
+    if (thing_is_invalid(thing))
         return;
-    }
 
     // Apply sound volume setting to current sound's loudness level
     SoundVolume volume_scale = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]

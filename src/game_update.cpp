@@ -33,7 +33,6 @@
 #include "player_computer.h"
 #include "engine_camera.h"
 #include "local_camera.h"
-#include "local_hand.h"
 #include "local_possession.h"
 #include "engine_textures.h"
 #include "thing_stats.h"
@@ -534,7 +533,6 @@ void update(void)
             exit_keeper = 1;
     }
     update_local_possession();
-    update_local_hand();
     update_local_first_person_view();
 
     message_update();
