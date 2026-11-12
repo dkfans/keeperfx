@@ -35,7 +35,9 @@
 #include "frontend.h"
 #include "config_players.h"
 #include "magic_powers.h"
+#include "net_input_lag.h"
 #include "player_utils.h"
+#include "thing_creature.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
 #include "room_util.h"
@@ -51,7 +53,7 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
-#define HAND_DROP_TARGET_MAX_SUBTILES 3
+#define HAND_DROP_TARGET_BASE_SUBTILES 3
 
 extern void update_double_click_detection(NetUserId user);
 
@@ -205,9 +207,10 @@ static void apply_packet_hand_drop_target(struct UserState *ustate, const struct
     if (!thing_exists(thing) || !thing_is_ready_for_hand_or_slap(thing, ustate->player_id)) {
         return;
     }
+    int32_t max_distance = HAND_DROP_TARGET_BASE_SUBTILES + coord_subtile(get_creature_speed(thing) * MAXIMUM_INPUT_LAG_TURNS);
     int32_t distance_x = abs((MapSubtlCoord)thing->mappos.x.stl.num - coord_subtile(pckt->pos_x));
     int32_t distance_y = abs((MapSubtlCoord)thing->mappos.y.stl.num - coord_subtile(pckt->pos_y));
-    if (max(distance_x, distance_y) <= HAND_DROP_TARGET_MAX_SUBTILES) {
+    if (max(distance_x, distance_y) <= max_distance) {
         ustate->thing_under_hand = thing->index;
     }
 }

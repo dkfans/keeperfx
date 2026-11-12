@@ -2981,8 +2981,7 @@ static void get_player_gui_clicks(void)
       }
       if (right_button_released)
       {
-        if ((predicted_ustate->work_state != PSt_HoldInHand) || (predicted_ustate->num_things_in_hand == 0))
-        {
+        if ((predicted_ustate->work_state != PSt_HoldInHand) || (predicted_ustate->num_things_in_hand == 0)) {
           if ( !turn_off_all_window_menus() )
           {
             if (predicted_ustate->work_state == PSt_CreatrQuery)

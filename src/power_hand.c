@@ -495,7 +495,7 @@ void play_power_hand_pickup_sounds(struct Thing *thing, PlayerNumber plyr_idx)
     thing_play_sample(thing, get_power_model_stats(PwrK_HAND)->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     PowerKind pwkind = PwrK_None;
     int32_t sound_variant = 0;
-    if (object_is_gold_pile(thing)) {
+    if (object_is_gold(thing)) {
         pwkind = PwrK_PICKUPGOLD;
     } else if (thing_is_mature_food(thing)) {
         pwkind = PwrK_PICKUPFOOD;
@@ -511,12 +511,6 @@ void play_power_hand_pickup_sounds(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-/** Puts a thing into player's power hand list without any further processing.
- * Originally was named dump_thing_in_power_hand().
- * @param thing
- * @param plyr_idx
- * @return
- */
 TbBool insert_thing_into_hand_list(struct UserState *ustate, PlayerNumber plyr_idx, ThingIndex tng_idx)
 {
     int32_t max_things = game.conf.rules[plyr_idx].gameplay.max_things_in_hand;
@@ -532,9 +526,15 @@ TbBool insert_thing_into_hand_list(struct UserState *ustate, PlayerNumber plyr_i
     return true;
 }
 
+/** Puts a thing into player's power hand list without any further processing.
+ * Originally was named dump_thing_in_power_hand().
+ * @param thing
+ * @param plyr_idx
+ * @return
+ */
 TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user)
 {
-    if (power_hand_is_full(user) || !insert_thing_into_hand_list(get_user_state(user), plyr_idx, thing->index)) {
+    if (!insert_thing_into_hand_list(get_user_state(user), plyr_idx, thing->index)) {
         return false;
     }
     if (thing->class_id == TCls_Creature) {
@@ -625,8 +625,7 @@ void draw_power_hand(void)
 
             draw_gui_panel_sprite_centered(cursor_x+scale_ui_value(24*global_hand_scale), cursor_y+scale_ui_value(32*global_hand_scale), ps_units_per_px, roomst->medsym_sprite_idx, 0);
         }
-        if ((ustate->num_things_in_hand > 0) && (game.small_map_state == 1))
-        {
+        if ((ustate->num_things_in_hand > 0) && (game.small_map_state == 1)) {
             draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
         }
         return;
@@ -666,8 +665,7 @@ void draw_power_hand(void)
       }
       if ((ustate->work_state != PSt_CtrlDungeon) || !draw_hand)
       {
-        if (get_hand_instance_animation(ustate->instance_num) == HndA_None)
-        {
+        if (get_hand_instance_animation(ustate->instance_num) == HndA_None) {
           if (ustate->work_state == PSt_Slap)
           {
             RendererSubmitKeeperHandSprite(cursor_x + scale_ui_value(70*global_hand_scale), cursor_y + scale_ui_value(46*global_hand_scale),
@@ -687,8 +685,7 @@ void draw_power_hand(void)
     int32_t inputpos_x;
     int32_t inputpos_y;
     picktng = get_held_thing_view(get_displayed_user());
-    if ((picktng != NULL) && ((picktng->rendering_flags & TRF_Invisible) == 0))
-    {
+    if ((picktng != NULL) && ((picktng->rendering_flags & TRF_Invisible) == 0)) {
         SYNCDBG(7,"Holding %s",thing_model_name(picktng));
         switch (picktng->class_id)
         {
@@ -989,13 +986,6 @@ long gold_being_dropped_on_creature(long plyr_idx, NetUserId user, struct Thing 
     return 1;
 }
 
-/**
- * Low level function which unconditionally drops creature held in hand.
- *
- * @param dungeon
- * @param droptng
- * @param dstpos
- */
 void set_dropped_thing_position(struct Thing *droptng, const struct Coord3d *dstpos)
 {
     droptng->mappos.x.val = dstpos->x.val;
@@ -1036,6 +1026,13 @@ enum HeldThingDropOutcome get_held_thing_drop_outcome(const struct Thing *droptn
     return HTDrop_Ground;
 }
 
+/**
+ * Low level function which unconditionally drops creature held in hand.
+ *
+ * @param dungeon
+ * @param droptng
+ * @param dstpos
+ */
 void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, const struct Coord3d *dstpos)
 {
     set_dropped_thing_position(droptng, dstpos);
@@ -1047,7 +1044,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         }
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
         stop_creature_sound(droptng, 5);
-        if (is_my_player_number(dungeon->owner) && !local_hand_predicted_drop(droptng)) {
+        if (is_my_player_number(dungeon->owner) && (get_local_hand_drop_view(droptng) == LocalHandDropView_None)) {
             play_creature_sound(droptng, CrSnd_Drop, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = get_gameturn();
@@ -1635,7 +1632,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, Net
     }
     set_held_thing_draw(picktng);
     if (insert_thing_into_power_hand_list(picktng, plyr_idx, user) && !local_hand_takes_over_action(user, LocalHandAction_PickUp)) {
-        play_power_hand_pickup_sounds(thing, plyr_idx);
+        play_power_hand_pickup_sounds(picktng, plyr_idx);
     }
     clear_thing_velocity(picktng);
     place_thing_in_limbo(picktng);
@@ -1694,9 +1691,6 @@ TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl
     struct PlayerInfo *player;
     struct Thing *thing;
     player = get_player(plyr_idx);
-    if (power_hand_is_full(user)) {
-        return Lb_FAIL;
-    }
     thing = get_thing_for_power_hand(plyr_idx, get_user_state(user), tng_idx);
     if (thing_is_invalid(thing)) {
         return Lb_FAIL;
