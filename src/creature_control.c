@@ -319,6 +319,18 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
     }
 }
 
+/** Plays one of a creature's sounds without positioning it, as heard from inside the creature. */
+void play_creature_sound_non_3d(struct Thing *thing, long snd_idx)
+{
+    struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
+    if (crsound->index == 0) {
+        SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
+        return;
+    }
+    long i = SOUND_RANDOM(crsound->count);
+    play_non_3d_sample((SoundSmplTblID)(crsound->index < 0 ? crsound->index - i : crsound->index + i));
+}
+
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long sound_priority)
 {
     if (playing_creature_sound(thing, snd_idx)) {

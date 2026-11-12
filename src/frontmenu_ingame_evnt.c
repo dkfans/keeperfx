@@ -50,7 +50,6 @@
 #include "game_legacy.h"
 #include "map_events.h"
 #include "local_camera.h"
-#include "local_hand.h"
 #include "sprites.h"
 #include "timer.h"
 #include "replay_rewind.h"
@@ -255,7 +254,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
-    if (local_hand_shows_flash(thing, LocalHandFlash_HealthFlower) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
+    if ((thing->creature.health_bar_turns) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
         LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[get_player_color_idx(thing->owner)]);
     } else {
         LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
@@ -895,6 +894,10 @@ void draw_archon_co_users(void)
             const struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
             const struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id);
             spr_idx = 0;
+            if (thing_is_picked_up(thing)) {
+                // Held in a co-user's hand
+                spr_idx = get_power_model_stats(PwrK_HAND)->medsym_sprite_idx;
+            } else
             if (!creature_instance_info_invalid(inst_inf) && (inst_inf->symbol_spridx > 0)) {
                 spr_idx = inst_inf->symbol_spridx;
                 if (cctrl->instance_id != cctrl->active_instance_id)

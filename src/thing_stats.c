@@ -963,7 +963,7 @@ TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount)
 void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount)
 {
     if (apply_health_to_thing(thing, amount)) {
-        thing->creature.health_bar_turns = HEALTH_BAR_FLASH_TURNS;
+        thing->creature.health_bar_turns = 8;
     }
 }
 

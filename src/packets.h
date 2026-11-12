@@ -204,7 +204,6 @@ enum TbPacketAction {
         PckA_CheatApplySpell,
         PckA_CheatKillCreature,
         PckA_SetTimestamp,
-        PckA_SetHandDropTarget,
 };
 
 /** Packet flags for non-action player operation. **/
@@ -333,28 +332,7 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
-enum RightReleaseHandUse {
-    RRelease_Unused,
-    RRelease_Ignored,
-    RRelease_DropHeldThing,
-    RRelease_Slap,
-};
-
-enum HandCursorUse {
-    HandCursor_Remove,
-    HandCursor_Grabbing,
-    HandCursor_Idle,
-    HandCursor_Show,
-};
-
 struct Thing *get_thing_under_hand(NetUserId user, MapCoord x, MapCoord y);
-enum HandCursorUse begin_dungeon_control_input(struct UserState *ustate, const struct Packet *pckt, TbBool local_prediction);
-TbBool highlight_cursor_roomspace(struct UserState *ustate, struct PlayerInfo *player, const struct Packet *pckt);
-void press_cursor_buttons(struct UserState *ustate, const struct Packet *pckt);
-TbBool begin_left_release(struct UserState *ustate, struct Packet *pckt);
-void finish_left_release(struct UserState *ustate, struct Packet *pckt);
-enum RightReleaseHandUse begin_right_release(struct UserState *ustate, const struct Packet *pckt);
-void finish_cursor_release(struct UserState *ustate, struct Packet *pckt, enum RightReleaseHandUse release_use, TbBool dropped);
 TbBool process_dungeon_control_packet_clicks(NetUserId user);
 TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user, const struct Packet *pckt);
 TbBool process_user_dungeon_control_packet_action(NetUserId user);
@@ -396,7 +374,7 @@ void set_local_packet_turn(void);
 void clear_packets(void);
 void post_init_packets(void);
 struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_idx,long rkind);
-TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
+TbBool player_sell_room_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool packets_process_cheats(NetUserId user, PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
 /******************************************************************************/

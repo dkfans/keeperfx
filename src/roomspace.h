@@ -116,7 +116,6 @@ struct RoomSpace {
     unsigned char drag_direction;
 };
 struct PlayerInfo;
-struct UserState;
 struct Packet;
 /******************************************************************************/
 /******************************************************************************/
@@ -146,7 +145,7 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
                                                MapSlabCoord cursor_x, 
                                                MapSlabCoord cursor_y);
 
-void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, struct UserState *ustate, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct DigTagPrediction *prediction);
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, NetUserId user, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct DigTagPrediction *prediction);
 
 void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 

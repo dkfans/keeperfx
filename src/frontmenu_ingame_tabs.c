@@ -70,7 +70,6 @@
 #include "front_input.h"
 #include "game_legacy.h"
 #include "local_camera.h"
-#include "local_hand.h"
 #include "local_possession.h"
 #include "net_game.h"
 #include "net_spectator.h"
@@ -1939,8 +1938,9 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     spr_idx = gbtn->sprite_idx;
     // Show disabled icon if instance is on cooldown or creature is frozen.
     TbBool disabled;
-    if (!has_reset)
+    if (!has_reset || thing_is_picked_up(ctrltng))
     {
+        // a co-user's hand holding the creature counts too
         disabled = true;
     }
     else if (creature_under_spell_effect(ctrltng, CSAfF_Freeze))
@@ -2039,7 +2039,6 @@ void gui_activity_background(struct GuiMenu *gmnu)
                 break;
             }
         }
-        apply_local_hand_to_activity_counts(crmodel, &activity_list[4*i]);
     }
     RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
     LbDrawBox(gmnu->pos_x + scale_ui_value(2),gmnu->pos_y + scale_ui_value(218),scale_ui_value(134),scale_ui_value(24),colours[0][0][0]);

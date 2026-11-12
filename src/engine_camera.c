@@ -520,7 +520,7 @@ static void update_player_camera_shake(struct PlayerInfo *player)
         dungeon->camera_deviate_quake--;
     }
     if (dungeon->camera_deviate_jump > 0) {
-        dungeon->camera_deviate_jump -= CAMERA_DEVIATE_JUMP_DECAY;
+        dungeon->camera_deviate_jump -= 32;
     }
 }
 

@@ -33,16 +33,8 @@ extern "C" {
 struct Thing;
 struct PlayerInfo;
 struct Dungeon;
-struct UserState;
 
 #define HAND_RULE_SLOTS_COUNT 8
-#define HAND_GOLD_DROP_ANIMATION_TURNS 16
-
-enum HeldThingDropOutcome {
-    HTDrop_Ground,
-    HTDrop_Gold,
-    HTDrop_Eaten,
-};
 
 #pragma pack()
 /******************************************************************************/
@@ -55,15 +47,10 @@ TbBool object_is_pickable_by_hand_to_hold(const struct Thing* thing);
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 void set_power_hand_graphic(NetUserId user, long HandAnimationID);
-void set_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, int32_t hand_animation, GameTurn turn);
-TbBool set_idle_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, const struct Thing *heldtng, GameTurn turn);
-void set_new_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, const struct Thing *heldtng, GameTurn turn);
-void set_gold_dropped_hand_graphic(struct UserState *ustate, struct Thing *handtng, const struct PlayerInfo *player, GameTurn turn);
-int32_t find_thing_in_list(const ThingIndex *things, uint8_t count, ThingIndex tng_idx);
-void remove_held_thing_at(ThingIndex *things, uint8_t *count, int idx);
+TbBool power_hand_is_empty(NetUserId user);
 TbBool power_hand_is_hovering(NetUserId user);
 TbBool power_hand_is_full(NetUserId user);
-struct Thing *get_first_held_thing(const struct UserState *ustate);
+struct Thing *get_first_thing_in_power_hand(NetUserId user);
 void draw_power_hand(void);
 void draw_user_mini_things_in_hand(NetUserId user, long x, long y);
 long get_mini_things_in_hand_width(NetUserId user);
@@ -71,14 +58,9 @@ long get_mini_things_in_hand_height(void);
 void clear_things_in_hand(struct PlayerInfo *player);
 void queue_held_thing_drop(PlayerNumber plyr_idx, struct Thing *thing);
 void queue_user_held_things_drop(NetUserId user);
-TbBool power_hand_can_take_thing(PlayerNumber plyr_idx, const struct UserState *ustate, const struct Thing *thing);
-struct Thing *get_thing_for_power_hand(PlayerNumber plyr_idx, const struct UserState *ustate, ThingIndex tng_idx);
 TbResult use_power_hand(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx);
-TbBool thing_is_ready_for_hand_or_slap(const struct Thing *thing, PlayerNumber plyr_idx);
-struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y, TbBool local_prediction);
+struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
-void play_power_hand_pickup_sounds(struct Thing *thing, PlayerNumber plyr_idx);
-TbBool insert_thing_into_hand_list(struct UserState *ustate, PlayerNumber plyr_idx, ThingIndex tng_idx);
 TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool replace_thing_in_power_hand_list(const struct Thing *oldtng, const struct Thing *newtng, PlayerNumber plyr_idx);
@@ -90,6 +72,8 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
 TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing);
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+NetUserId get_user_holding_thing(const struct Thing *thing);
+TbBool thing_held_by_other_user(NetUserId user, const struct Thing *thing);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
@@ -100,14 +84,9 @@ struct Thing *create_power_hand(NetUserId user);
 void delete_power_hand(NetUserId user);
 void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y);
 
-void set_held_thing_draw(struct Thing *thing);
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx, NetUserId user);
 TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
-void set_dropped_thing_position(struct Thing *droptng, const struct Coord3d *dstpos);
-TbBool get_held_thing_drop_position(const struct Thing *droptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Coord3d *pos);
-void set_dropped_object_draw(struct Thing *thing);
-enum HeldThingDropOutcome get_held_thing_drop_outcome(const struct Thing *droptng, const struct Thing *overtng);
-void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, const struct Coord3d *dstpos);
+void drop_held_thing_on_ground(struct Dungeon *dungeon, NetUserId user, struct Thing *droptng, const struct Coord3d *dstpos);
 void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx, NetUserId user);
 TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);

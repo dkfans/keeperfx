@@ -49,6 +49,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "room_treasure.h"
 #include "net_game.h"
+#include "power_hand.h"
 #include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
@@ -585,7 +586,7 @@ TbBool packets_process_cheats(
                     set_user_instance(user, PI_UnqueryCrtr, 0);
                     unset_packet_control(pckt, PCtr_RBtnRelease);
                 } else
-                if (creature_is_dying(thing))
+                if (creature_is_dying(thing) || thing_held_by_other_user(user, thing)) // e.g. a co-user picked it up
                 {
                     set_user_instance(user, PI_UnqueryCrtr, 0);
                     if (is_local_user(user))

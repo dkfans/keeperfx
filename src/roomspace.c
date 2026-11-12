@@ -546,8 +546,9 @@ void reset_dungeon_build_room_ui_variables(NetUserId user)
     ustate->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
 }
 
-void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, struct UserState *ustate, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct DigTagPrediction *prediction)
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, NetUserId user, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct DigTagPrediction *prediction)
 {
+    struct UserState* ustate = get_user_state(user);
     PlayerNumber plyr_idx = player->id_number;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -985,15 +986,15 @@ static void sell_at_point(struct RoomSpace *roomspace)
     struct SlabMap *slb = get_slabmap_block(roomspace->buildx, roomspace->buildy);
     if (slabmap_owner(slb) == roomspace->plyr_idx)
     {
-        if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy),
+        if (player_sell_trap_at_subtile(roomspace->plyr_idx, roomspace->user, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy),
                 get_user_state(roomspace->user)->full_slab_cursor != 0) ||
-            player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0)) ) // Trying to sell trap
+            player_sell_door_at_subtile(roomspace->plyr_idx, roomspace->user, slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0)) ) // Trying to sell trap
         {
             // Nothing to do here - trap already sold
         } else
         if (subtile_is_sellable_room(roomspace->plyr_idx,slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0)))// Trying to sell room
         {
-            player_sell_room_at_subtile(roomspace->plyr_idx,slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0));
+            player_sell_room_at_subtile(roomspace->plyr_idx, roomspace->user, slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0));
         }
     }
 }

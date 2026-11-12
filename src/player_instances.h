@@ -104,10 +104,6 @@ struct PlayerInstanceInfo { // sizeof = 44
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
 void set_user_instance(NetUserId user, int32_t ninum, TbBool force);
-TbBool begin_user_instance(struct UserState *ustate, int32_t ninum, TbBool force);
-int32_t get_hand_instance_animation(unsigned char inum);
-int32_t get_hand_instance_end_animation(unsigned char inum);
-void show_power_slap_feedback(struct Thing *thing);
 TbBool slap_thing(struct PlayerInfo *player, NetUserId user, struct Thing *thing);
 TbBool player_instance_controls_camera(unsigned char inum);
 void process_user_instance(NetUserId user);
@@ -129,12 +125,12 @@ NetUserId get_user_controlling_thing(const struct Thing *thing, uint32_t uct_fla
 
 void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos);
 
-struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind, int slabs_left);
-TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);
-TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool free);
-TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);
-TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool free);
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed);
+struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, RoomKind rkind, int slabs_left);
+TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel);
+TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel, TbBool free);
+TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel);
+TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel, TbBool free);
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, NetUserId user, ThingModel tngmodel, TbBool allowed);
 /******************************************************************************/
 #ifdef __cplusplus
 }
