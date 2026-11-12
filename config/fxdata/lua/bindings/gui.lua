@@ -138,9 +138,10 @@ function DisplayCountdown(player,timer,target,clocktime) end
 ---@param icon? string|Player|Creature The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message.  Optional, leaving it out means no icon.
 function DisplayMessage(msg_id,icon) end
 
----Sets the custom buff icons drawn in the first-person buff row. Pass one icon, a list, or nothing to clear the row.
----@param icon? string|integer|{string|integer} A name from an icons.json file, a panel sprite number, or a list of those.
-function SetCustomBuffIcons(icon) end
+---Sets the custom buff icons drawn in the first-person buff row. Pass one icon, a list, or nothing to clear that slot. A list entry may be `{icon = id, y = n}`.
+---@param name string
+---@param icon? string|integer|{string|integer|{icon: string|integer, y?: integer}} A name from an icons.json file, a panel sprite number, or a list of those.
+function SetCustomBuffIcons(name, icon) end
 
 ---Works like Display_message, but instead of using a string from translations, allows to type it directly.
 ---@param msg string The chat message as a string

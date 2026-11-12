@@ -2679,25 +2679,30 @@ static long custom_buff_icon_arg(lua_State *L, int index)
 
 static int lua_set_custom_buff_icons(lua_State *L)
 {
-    clear_custom_buff_icons();
-    if ((lua_gettop(L) == 0) || lua_isnil(L, 1))
-        return 0;
-    if (lua_istable(L, 1))
+    const char *name = luaL_checkstring(L, 1);
+    long icons[32];
+    short dy[32] = {0};
+    int count = 0;
+    if (lua_istable(L, 2))
     {
-        int n = (int)lua_objlen(L, 1);
-        for (int i = 1; i <= n; i++)
+        for (int i = 1; (i <= (int)lua_objlen(L, 2)) && (count < 32); i++)
         {
-            lua_rawgeti(L, 1, i);
-            if (!add_custom_buff_icon(custom_buff_icon_arg(L, -1)))
+            lua_rawgeti(L, 2, i);
+            int fields = lua_istable(L, -1);
+            if (fields)
             {
+                lua_getfield(L, -1, "icon");
+                lua_getfield(L, -2, "y");
+                dy[count] = (short)lua_tointeger(L, -1);
                 lua_pop(L, 1);
-                return 0;
             }
-            lua_pop(L, 1);
+            icons[count++] = custom_buff_icon_arg(L, -1);
+            lua_pop(L, fields + 1);
         }
-        return 0;
     }
-    add_custom_buff_icon(custom_buff_icon_arg(L, 1));
+    else if (!lua_isnoneornil(L, 2))
+        icons[count++] = custom_buff_icon_arg(L, 2);
+    set_custom_buff_icon_slot(name, icons, dy, count);
     return 0;
 }
 
