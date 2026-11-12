@@ -174,7 +174,7 @@ static void apply_fp_hand_look_drift(const struct Thing *ctrltng)
    after being displaced a distance *d* due to hand movement, consider the point *p* 2 slabs away where the user is looking. Change the user's yaw to look at the point p-d.
    (if d exceeds 1.5 in magnitude, normalize to 1.5.)
  */
-#define FP_HAND_STARE_DISTANCE_SLABS 2
+#define FP_HAND_STARE_DISTANCE_SLABS 2.5
 #define FP_HAND_STARE_MAX_SHIFT_SLABS 1.5f
 
 static void apply_fp_hand_look_follow(const struct Thing *ctrltng)
