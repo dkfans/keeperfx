@@ -2079,6 +2079,10 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
 
 void teleport_familiar_to_summoner(struct Thing *famlrtng, struct Thing* creatng)
 {
+    // A familiar held in a hand is off the map; moving it would put it back on the
+    // map while still held, and dropping it later would break the map's thing lists
+    if (thing_is_picked_up(famlrtng))
+        return;
     create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
     move_thing_in_map(famlrtng, &creatng->mappos);
     cleanup_current_thing_state(famlrtng);
