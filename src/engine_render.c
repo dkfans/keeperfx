@@ -192,6 +192,7 @@ long max_i_can_see;
 const int MAX_I_CAN_SEE_OVERHEAD = (MINMAX_LENGTH/2)-2;
 TbBool engine_hide_ceiling = false;
 TbBool engine_view_above_walls = false;
+uint32_t engine_view_distance_limit = 0;
 struct EngineCol ecs1[MINMAX_LENGTH-1];
 struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
@@ -6832,6 +6833,9 @@ void draw_view(struct Camera *cam, unsigned char a2)
     if (lens_mode != 0)
     { // 1st person
         cells_away = max_i_can_see;
+        if ((engine_view_distance_limit > 0) && (cells_away > (long)engine_view_distance_limit)) {
+            cells_away = engine_view_distance_limit;
+        }
         update_fade_limits(cells_away);
         fade_range = (fade_max - fade_min) >> 8;
         setup_rotate_stuff(x, y, z, fade_max, fade_min, lens, cam_map_angle, map_roll);

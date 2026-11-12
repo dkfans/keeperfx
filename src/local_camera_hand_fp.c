@@ -231,11 +231,12 @@ void update_local_fp_hand_camera(struct Camera *cam, const struct Thing *ctrltng
     if (phase != FPHand_None) {
         animate_local_hand_camera(cam, ctrltng, phase, phase_turn);
     }
-    // ceiling visible iff not being held in hand
-    engine_view_above_walls = (phase == FPHand_Lift) || (phase == FPHand_Held)
+    // ceiling visible iff not being held in hand; the view distance is capped over the same turns
+    const TbBool overhead = (phase == FPHand_Lift) || (phase == FPHand_Held)
         || ((phase == FPHand_Drop) && (phase_turn < FP_HAND_DROP_DIP_TURNS));
-    engine_hide_ceiling = (phase == FPHand_Lift) || (phase == FPHand_Held)
-        || ((phase == FPHand_Drop) && (phase_turn < FP_HAND_DROP_DIP_TURNS));
+    engine_view_above_walls = overhead;
+    engine_hide_ceiling = overhead;
+    engine_view_distance_limit = overhead ? FP_HAND_VIEW_DISTANCE_SUBTILES : 0;
 }
 
 /** Drift and look-follow applied to the local look while carried. */

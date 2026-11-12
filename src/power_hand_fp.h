@@ -49,6 +49,8 @@ struct Packet;
 #define FP_HAND_DROP_PITCH_TURNS   10
 #define FP_HAND_DROP_CONTROL_TURNS 6
 #define FP_HAND_DROP_TURNS         max(FP_HAND_DROP_SETTLE_TURNS, FP_HAND_DROP_PITCH_TURNS)
+/* View distance cap (subtiles) while the ceiling is hidden */
+#define FP_HAND_VIEW_DISTANCE_SUBTILES (24 * 3) /* 24 slabs */
 
 enum FirstPersonHandPhase {
     FPHand_None = 0,

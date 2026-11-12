@@ -112,6 +112,7 @@ extern long cells_away;
 /** hide ceiling while being carried (possession) */
 extern TbBool engine_hide_ceiling;
 extern TbBool engine_view_above_walls;
+extern uint32_t engine_view_distance_limit;
 extern float hud_scale;
 extern int creature_status_size;
 extern int line_box_size;

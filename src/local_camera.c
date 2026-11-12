@@ -567,6 +567,7 @@ void update_local_first_person_view(void)
     struct Thing *ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     engine_hide_ceiling = false;
     engine_view_above_walls = false;
+    engine_view_distance_limit = 0;
     if (!local_state.camera.ready || is_observer_camera_active() || (player == &local_observer_player)
      || (get_local_active_camera_index() != CamIV_FirstPerson) || !thing_exists(ctrltng)) {
         local_state.camera.fp_hand_active = false;
