@@ -2762,7 +2762,7 @@ static const luaL_Reg global_methods[] = {
    {"QuickPlayerInformation"                ,lua_Quick_player_information               },
    {"QuickPlayerInformationWithPos"         ,lua_Quick_player_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
-   {"SetCustomBuffIcons"                   ,lua_set_custom_buff_icons           },
+   {"SetCustomBuffIcons"                    ,lua_set_custom_buff_icons           },
    {"QuickMessage"                          ,lua_Quick_message                   },
    {"GetGameTimestamp"                      ,lua_get_game_timestamp              },
    {"ClearMessage"                          ,lua_Clear_message                   },

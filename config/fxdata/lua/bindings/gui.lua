@@ -140,7 +140,7 @@ function DisplayMessage(msg_id,icon) end
 
 ---Sets the custom buff icons drawn in the first-person buff row. Pass one icon, a list, or nothing to clear that slot. A list entry may be `{icon = id, y = n}`.
 ---@param name string
----@param icon? string|integer|{string|integer|{icon: string|integer, y?: integer}} A name from an icons.json file, a panel sprite number, or a list of those.
+---@param icon? string|integer|{string|integer|{icon: string|integer, y?: integer}} A name from an icons.json file, a panel sprite number, can pass as list
 function SetCustomBuffIcons(name, icon) end
 
 ---Works like Display_message, but instead of using a string from translations, allows to type it directly.
