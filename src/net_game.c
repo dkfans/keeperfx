@@ -341,7 +341,7 @@ static TbBool verify_loaded_file_checksums(const struct TbNetworkUserInfo users[
 static TbBool spectator_startup_accepted(void)
 {
     char differing_files[TEXT_BUFFER_LENGTH];
-    const char *my_name = network_user_name(netstate.my_id);
+    const char *my_name = netstate.users[netstate.my_id].name;
     if (list_files_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, my_name, differing_files, sizeof(differing_files))) {
         return reject_differing_files(my_name, differing_files);
     }
