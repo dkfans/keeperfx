@@ -119,7 +119,7 @@ short update_animating_texture_maps(void)
 }
 
 
-char *load_letter_one_file(char letter, unsigned long tmapidx, unsigned char *dst)
+TbBool load_letter_one_file(char letter, unsigned long tmapidx, unsigned char *dst)
 {
     SYNCDBG(9,"Starting");
     

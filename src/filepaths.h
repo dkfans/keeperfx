@@ -47,7 +47,7 @@ char *prepare_file_path_prio(short fgroup, const char *fname);
  * campaign config directory to be checked first.
  * Returns a pointer to an internal static buffer.
  */
-char *prepare_file_fmtpath_prio(short fgroup, int flags, const char *fmt_str, ...);
+char *prepare_file_fmtpath_prio(short fgroup, short fgroup_cmp, TbBool check_level, const char *fmt_str, ...);
 
 #ifdef __cplusplus
 }

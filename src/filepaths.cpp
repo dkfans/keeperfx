@@ -194,8 +194,6 @@ char *prepare_file_fmtpath_prio(short fgroup, short fgroup_cmp, TbBool check_lev
     vsnprintf(fname, sizeof(fname), fmt_str, arg);
     va_end(arg);
 
-
-
     return prepare_file_path_prio(fgroup, fgroup_cmp, check_level, fname);
 }
 
