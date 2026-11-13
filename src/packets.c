@@ -1083,9 +1083,8 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 0;
   case PckA_DumpHeldThingToOldPos:
       dungeon = get_players_num_dungeon(plyr_idx);
-      if (!power_hand_is_empty(user))
-      {
-          thing = get_first_thing_in_power_hand(user);
+      thing = get_first_held_thing(ustate);
+      if (thing != NULL) {
           dump_first_held_thing_on_map(plyr_idx, user, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return false;
@@ -1264,6 +1263,8 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
         if (computer_assistant_allowed()) {
             toggle_computer_player(plyr_idx);
         }
+        break;
+    case PckA_SetHandDropTarget:
         break;
     default:
         return process_user_dungeon_control_cheats_packet_action(user, pckt);

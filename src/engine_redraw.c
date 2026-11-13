@@ -47,6 +47,7 @@
 #include "engine_lenses.h"
 #include "kfx/ui/GameUI.h"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "local_possession.h"
 #include "front_simple.h"
 #include "front_easter.h"
@@ -729,10 +730,9 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(user) || (!power_hand_is_empty(user) && (i != CSt_DoorKey))) {
+        if ((get_hand_instance_animation(ustate->instance_num) != HndA_None) || power_hand_is_hovering(user) || ((ustate->num_things_in_hand > 0) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
-        } else
-        if ((i == CSt_PowerHand) && power_hand_is_empty(user)) {
+        } else if ((i == CSt_PowerHand) && (ustate->num_things_in_hand == 0)) {
             i = CSt_DefaultArrow;
         }
         switch (i) {

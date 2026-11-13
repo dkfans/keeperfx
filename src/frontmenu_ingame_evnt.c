@@ -50,6 +50,7 @@
 #include "game_legacy.h"
 #include "map_events.h"
 #include "local_camera.h"
+#include "local_hand.h"
 #include "sprites.h"
 #include "timer.h"
 #include "replay_rewind.h"
@@ -254,7 +255,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
-    if ((thing->creature.health_bar_turns) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
+    if (local_hand_shows_flash(thing, LocalHandFlash_HealthFlower) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
         LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[get_player_color_idx(thing->owner)]);
     } else {
         LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);

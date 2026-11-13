@@ -546,9 +546,8 @@ void reset_dungeon_build_room_ui_variables(NetUserId user)
     ustate->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
 }
 
-void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, NetUserId user, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct DigTagPrediction *prediction)
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, struct UserState *ustate, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct DigTagPrediction *prediction)
 {
-    struct UserState* ustate = get_user_state(user);
     PlayerNumber plyr_idx = player->id_number;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);

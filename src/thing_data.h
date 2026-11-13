@@ -24,6 +24,7 @@
 
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       1024
+#define HEALTH_BAR_FLASH_TURNS 8
 
 
 #ifdef __cplusplus
