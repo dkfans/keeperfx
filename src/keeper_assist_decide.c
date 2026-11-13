@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file keeper_assist_decide.c
- *     The combat assistant's decision (keeper_assist.h), with no world access but through its callbacks: the fork's keeper_assist.c, its "the decision" section, as Daimon's port tools copy it (scripts/daimon_port/sync.py in the fork). The world side is the port's own.
+ *     The combat assistant's decision (keeper_assist.h), with no world access but through its callbacks, and the two checks of whether a power takes on a creature and how far an area power reaches: the fork's keeper_assist.c, its "the decision" section and those two functions, as Daimon's port tools copy it (scripts/daimon_port/sync.py in the fork). The rest of the world side is the port's own.
  */
 /******************************************************************************/
 #include "pre_inc.h"
@@ -11,6 +11,10 @@
 #include "bflib_basics.h"
 #include "config_magic.h"
 #include "keeper_assist_state.h"
+#include "magic_powers.h"
+#include "thing_creature.h"
+#include "creature_states.h"
+#include "net_main.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -217,6 +221,42 @@ void keeper_assist_note_cast(struct KeeperAssistState *st, int slot, DaiThingInd
 TbBool keeper_assist_conds_hold(const struct KeeperAssistRule *rule, const int64_t *dungeon_facts, const struct KeeperAssistCandidate *cand)
 {
     return conds_hold(rule, dungeon_facts, cand, 0);
+}
+
+TbBool keeper_assist_power_takes(PlayerNumber plyr_idx, DaiPowerKind power, const struct Thing *thing)
+{
+    if (thing_is_invalid(thing) || !thing_is_creature(thing) || creature_is_dying(thing)) return false;
+    const DaiSubtlCoord x = thing->mappos.x.stl.num, y = thing->mappos.y.stl.num;
+    if (!can_cast_spell(plyr_idx, NO_USER, power, x, y, thing, CastChk_Default)) return false;
+    // Lightning passes over a creature under Armour (electricity_affecting_area).
+    if (lightning_like(power) && creature_under_spell_effect(thing, CSAfF_Armour)) return false;
+    const struct PowerConfigStats *powerst = get_power_model_stats(power);
+    if (powerst->spell_idx > 0) {
+        const uint64_t flags = get_spell_config(powerst->spell_idx)->spell_flags;
+        if ((flags != 0) && (creature_under_spell_effect(thing, flags) || creature_is_immune_to_spell_effect(thing, flags))) {
+            return false; // already has it, or it would not take
+        }
+    }
+    return true;
+}
+
+int64_t keeper_assist_area_range(DaiPowerKind power, int64_t level, TbBool *own_too, TbBool *skip_armoured)
+{
+    *own_too = false;
+    *skip_armoured = false;
+    if (!area_power(power)) return 0;
+    const struct PowerConfigStats *powerst = get_power_model_stats(power);
+    if (level < 0) level = 0;
+    if (level >= MAGIC_OVERCHARGE_LEVELS) level = MAGIC_OVERCHARGE_LEVELS - 1;
+    if (lightning_like(power)) {
+        // magic_use_power_lightning: range (strength << 8) / 2; the caster's own creatures are immune, an ally's are not.
+        *skip_armoured = true;
+        return ((int64_t)powerst->strength[level] << 8) / 2;
+    }
+    // A cave-in hurts every creature it falls on, the caster's too, and spreads up to strength slabs from where it was
+    // cast (update_cave_in); counted generously, a slab further.
+    *own_too = true;
+    return ((int64_t)powerst->strength[level] + 1) * DAI_COORD_PER_STL * DAI_STL_PER_SLB;
 }
 
 #ifdef __cplusplus

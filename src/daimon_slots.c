@@ -27,6 +27,7 @@ extern "C" {
 
 static uint16_t pending_slots_mask;
 static DaimonSlotWriter slot_writer;
+static int64_t prev_models[PLAYERS_COUNT];
 static GameTurn last_written_turn = (GameTurn)-1;
 
 NetUserId daimon_slot_of(PlayerNumber plyr_idx)
@@ -56,7 +57,7 @@ static NetUserId free_slot(void)
     return -1;
 }
 
-NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int32_t *prev_model)
+NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int64_t *prev_model)
 {
     if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT)) {
         return -1;
@@ -72,8 +73,9 @@ NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int32_t *prev_model)
         return -1;
     }
     const struct Computer2 *comp = get_computer_player(plyr_idx);
+    prev_models[plyr_idx] = (int64_t)comp->model;
     if (prev_model != NULL) {
-        *prev_model = (int32_t)comp->model;
+        *prev_model = prev_models[plyr_idx];
     }
     // As seat_network_user() takes a keeper from the computer, for a slot instead of a network user.
     player->allocflags &= ~PlaF_CompCtrl;
@@ -103,7 +105,17 @@ static void free_slot_of(PlayerNumber plyr_idx)
     clear_flag(get_player(plyr_idx)->allocflags, PlaF_Daimon);
 }
 
-TbBool daimon_release_slot(PlayerNumber plyr_idx, int32_t computer_model)
+NetUserId daimon_adopt_slot(PlayerNumber plyr_idx)
+{
+    return daimon_assign_slot(plyr_idx, NULL);
+}
+
+int64_t daimon_slot_prev_model(PlayerNumber plyr_idx)
+{
+    return ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT)) ? prev_models[plyr_idx] : 0;
+}
+
+TbBool daimon_release_slot(PlayerNumber plyr_idx, int64_t computer_model)
 {
     if (daimon_slot_of(plyr_idx) < 0) {
         return false;

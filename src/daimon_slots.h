@@ -27,9 +27,13 @@ typedef void (*DaimonSlotWriter)(NetUserId slot, PlayerNumber plyr_idx, struct P
 /** The slot a keeper is played from, or -1. */
 NetUserId daimon_slot_of(PlayerNumber plyr_idx);
 /** Moves a computer keeper to a free slot, Computer2 parked; its previous model in *prev_model. -1 if it can't. */
-NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int32_t *prev_model);
+NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int64_t *prev_model);
+/** The same, for a keeper every machine of a network game gives Daimon at once (a script command). */
+NetUserId daimon_adopt_slot(PlayerNumber plyr_idx);
+/** The Computer2 model a keeper had before Daimon took it (0 if unknown). */
+int64_t daimon_slot_prev_model(PlayerNumber plyr_idx);
 /** Hands a Daimon keeper back to Computer2 with the given model and frees its slot. */
-TbBool daimon_release_slot(PlayerNumber plyr_idx, int32_t computer_model);
+TbBool daimon_release_slot(PlayerNumber plyr_idx, int64_t computer_model);
 /** Frees a keeper's slot when something else takes the keeper over (a script, a human), leaving its flags to it. */
 void daimon_forget_slot(PlayerNumber plyr_idx);
 
