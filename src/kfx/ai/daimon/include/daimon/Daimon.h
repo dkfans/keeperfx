@@ -194,6 +194,12 @@ void DaimonStageLoad(const char *data, size_t len, int64_t version);
  *  were saved. A save without one gives every PlaF_Daimon player a new keeper (default personality); a damaged one, or
  *  one of another major, hands them all to the built-in AI with a warning -- the save itself still loads. */
 void DaimonAfterLoad(void);
+/** After a network game's resync set the game up again: the state is the host's own, the game Daimon was playing. On
+ *  the host each keeper goes on where its seat still is -- a Daimon keeper on its slot, an assistant on its keeper's
+ *  co-seat -- only its gesture in progress dropped; one whose seat is gone stops. A client plays none (as at a level
+ *  start). (A resync used to run DaimonAfterLoad: every keeper was forgotten, the assistants stayed off with their
+ *  co-seats on, and the Daimon keepers started again without their memory or their level-start personality.) */
+void DaimonAfterResync(void);
 /** Hands a computer keeper to Daimon now (or, in a local game, the local human's own seat: daimon_assign_slot), in
  *  opponent mode -- the assistant and the lieutenant start through their own entries (DaimonAssistStart,
  *  DaimonLieutenantSet) -- local games only. A take during play is not in the replay's header: use it from the

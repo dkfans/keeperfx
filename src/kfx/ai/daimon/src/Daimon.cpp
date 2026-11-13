@@ -510,6 +510,52 @@ void DaimonLevelEnd(void)
     s_staged = StagedSave{};
 }
 
+namespace {
+/** DaimonAfterResync's work on the machine that plays the keepers (see Daimon.h). */
+void keep_after_resync()
+{
+    for (PlayerNumber p = 0; p < PLAYERS_COUNT; p++) {
+        if (!s_keepers[p]) continue;
+        const NetUserId slot = s_keepers[p]->GetSlot();
+        const DaimonMode mode = s_keepers[p]->GetMode().GetMode();
+        const bool fits = (mode == DaimonMode::Opponent) && (daimon_slot_of(p) == slot);
+        if (!fits) {
+            DaiLog::Warn(p, "after the resync the %s's seat is not on slot %" PRId64 "; it stops", s_keepers[p]->GetMode().GetName(),
+                (int64_t)slot);
+            drop_keeper(p);
+            continue;
+        }
+        // its gesture in progress goes: the resync emptied the packet history its next steps were in
+        DaiActorKeeperCtl::ResetSlot(slot);
+        s_actor.Attach(slot, s_keepers[p]->CtlWorld());
+        DaiLog::Info(p, "the %s goes on after the resync (slot %" PRId64 ")", s_keepers[p]->GetMode().GetName(), (int64_t)slot);
+    }
+    adopt_flagged(DaimonTakeReason::Load); // a Daimon keeper of the host's state that Daimon did not play yet
+    start_workers();
+    s_replicate_now = true;
+}
+}
+
+void DaimonAfterResync(void)
+{
+    settle_all();
+    s_level_started = true;
+    s_staged = StagedSave{};
+    if (replay.load_enable || !authors_keepers()) {
+        forget_all();   // a client plays none (as at a level start), a playback none
+        return;
+    }
+    try {
+        keep_after_resync();
+    } catch (const std::exception &e) {
+        ERRORLOG("DAI: keeping the keepers after a resync failed (%s)", e.what());
+        for (PlayerNumber p = 0; p < PLAYERS_COUNT; p++) if (s_keepers[p]) fail_keeper(p, "resync", e.what());
+    } catch (...) {
+        ERRORLOG("DAI: keeping the keepers after a resync failed");
+        for (PlayerNumber p = 0; p < PLAYERS_COUNT; p++) if (s_keepers[p]) fail_keeper(p, "resync", "unknown");
+    }
+}
+
 void DaimonAfterLoad(void)
 {
     settle_all();
