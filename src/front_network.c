@@ -293,7 +293,7 @@ void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS])
     PlayerNumber seats_left = 0;
     for (PlayerNumber colour = 0; colour < MAX_NET_USERS; colour++) {
         PlayerNumber plyr_idx = net_seat_players[colour];
-        seat_available[colour] = colour < level_seats || (player_is_keeper(plyr_idx) && thing_exists(find_players_dungeon_heart(plyr_idx)));
+        seat_available[colour] = colour < level_seats || thing_exists(find_players_dungeon_heart(plyr_idx));
         seats_left += seat_available[colour];
     }
     memset(player_colours, -1, MAX_NET_USERS);
