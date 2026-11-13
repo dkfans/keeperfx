@@ -1,5 +1,6 @@
 #include "pre_inc.h"
 #include "AudioCallback.h"
+#include "StreamPool.h"
 #include "bflib_basics.h"
 #include "AudioLog.h"
 #include "StreamConfig.h"

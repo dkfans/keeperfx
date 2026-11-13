@@ -1,4 +1,5 @@
 #include "StreamPool.h"
+#include <cstring>
 #include <algorithm>
 
 namespace kfx::audio {
@@ -7,6 +8,7 @@ namespace {
 constexpr size_t kMixChunkFrames = 256;
 constexpr uint32_t kIndexBits = 8;
 constexpr uint32_t kIndexMask = (1u << kIndexBits) - 1;
+static_assert(kStreamSlots <= (1u << kIndexBits), "stream handles use 8 index bits");
 
 size_t sample_bytes(StreamSampleType type) {
     return type == StreamSampleType::Int16 ? sizeof(int16_t) : sizeof(float);
@@ -37,7 +39,7 @@ StreamHandle StreamPool::open(const StreamFormat & format) {
         slot.volume.store(1.0f, std::memory_order_relaxed);
         slot.consumed.store(0, std::memory_order_relaxed);
         slot.underrun_count.store(0, std::memory_order_relaxed);
-        ++slot.generation;
+        slot.generation = (slot.generation + 1) & 0xFFFFFF;
         if (slot.generation == 0) {
             slot.generation = 1;
         }
@@ -65,7 +67,7 @@ const StreamPool::Slot * StreamPool::find(StreamHandle handle) const {
 
 uint32_t StreamPool::write(StreamHandle handle, const void * frames, uint32_t frame_count) {
     Slot * slot = find(handle);
-    if (!slot || slot->finish_requested.load(std::memory_order_relaxed)) {
+    if (!slot || frame_count == 0 || slot->finish_requested.load(std::memory_order_relaxed)) {
         return 0;
     }
     const size_t room = slot->ring.writable() / slot->frame_bytes;
@@ -130,28 +132,40 @@ void StreamPool::reset_all() {
 }
 
 size_t StreamPool::mix_slot(Slot & slot, float * out, size_t frame_count) {
-    // Read the finish flag first: the producer wrote its last data before setting it.
+    // read finish first: the producer's last write precedes it
     const bool finishing = slot.finish_requested.load(std::memory_order_acquire);
     const float volume = slot.volume.load(std::memory_order_relaxed);
-    alignas(4) uint8_t chunk[kMixChunkFrames * 2 * sizeof(float)];
+    uint8_t chunk[kMixChunkFrames * 2 * sizeof(float)];
     size_t done = 0;
     while (done < frame_count) {
         const size_t want = std::min(kMixChunkFrames, frame_count - done);
         const size_t got = slot.ring.read(chunk, want * slot.frame_bytes) / slot.frame_bytes;
         float * dst = out + done * 2;
         if (slot.format.type == StreamSampleType::Int16) {
-            const int16_t * src = reinterpret_cast<const int16_t *>(chunk);
             for (size_t i = 0; i < got; ++i) {
-                const float left = float(src[i * slot.format.channels]) * (1.0f / 32768.0f) * volume;
-                const float right = slot.format.channels == 2 ? float(src[i * 2 + 1]) * (1.0f / 32768.0f) * volume : left;
+                int16_t l16, r16;
+                std::memcpy(&l16, chunk + i * slot.frame_bytes, sizeof(int16_t));
+                if (slot.format.channels == 2) {
+                    std::memcpy(&r16, chunk + i * slot.frame_bytes + sizeof(int16_t), sizeof(int16_t));
+                } else {
+                    r16 = l16;
+                }
+                const float left = float(l16) * (1.0f / 32768.0f) * volume;
+                const float right = float(r16) * (1.0f / 32768.0f) * volume;
                 dst[i * 2] += left;
                 dst[i * 2 + 1] += right;
             }
         } else {
-            const float * src = reinterpret_cast<const float *>(chunk);
             for (size_t i = 0; i < got; ++i) {
-                const float left = src[i * slot.format.channels] * volume;
-                const float right = slot.format.channels == 2 ? src[i * 2 + 1] * volume : left;
+                float l32, r32;
+                std::memcpy(&l32, chunk + i * slot.frame_bytes, sizeof(float));
+                if (slot.format.channels == 2) {
+                    std::memcpy(&r32, chunk + i * slot.frame_bytes + sizeof(float), sizeof(float));
+                } else {
+                    r32 = l32;
+                }
+                const float left = l32 * volume;
+                const float right = r32 * volume;
                 dst[i * 2] += left;
                 dst[i * 2 + 1] += right;
             }

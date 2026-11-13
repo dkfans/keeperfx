@@ -9,9 +9,10 @@
 #include <SDL3/SDL.h>
 #include "SpscRing.h"
 #include "Commands.h"
-#include "StreamPool.h"
 
 namespace kfx::audio {
+
+class StreamPool;
 
 // Audio-thread voice renderer; shares only the two rings (and flush()) with the game thread.
 class AudioCallback {

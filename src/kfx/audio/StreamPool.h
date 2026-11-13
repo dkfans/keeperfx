@@ -18,8 +18,8 @@ struct StreamFormat {
 // Slot index in the low 8 bits, slot generation above; 0 is never valid.
 using StreamHandle = uint32_t;
 
-// Fixed pool of streaming sources. Game thread: open/set_volume/request_close/reclaim; the producer thread runs
-// write/start/finish and must be stopped before request_close. Audio thread: mix_into only. A slot's ring has one writer (the producer) and one reader (mix_into).
+// Game thread: open/close. Producer thread: write/start/finish; stop it before request_close.
+// Audio thread: mix_into only.
 class StreamPool {
 public:
     StreamHandle open(const StreamFormat & format);
@@ -46,6 +46,7 @@ private:
     enum SlotState : uint32_t { Free = 0, Claimed, Active, Closing };
 
     struct Slot {
+        static_assert(std::atomic<uint64_t>::is_always_lock_free, "stream slots need lock-free 64-bit atomics");
         std::atomic<uint32_t> state{Free};
         uint32_t generation = 0;           // game thread; bumped on every open
         StreamFormat format{};
