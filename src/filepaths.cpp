@@ -169,7 +169,7 @@ char *prepare_file_path_prio(short fgroup, short fgroup_cmp, TbBool check_level,
             LevelNumber lvnum = get_selected_level_number();
             if (lvnum != 0) {
                 char level_fname[255];
-                snprintf(level_fname, sizeof(level_fname), "map%05lu.%s", lvnum, fname);
+                snprintf(level_fname, sizeof(level_fname), "map%05lu.%s", (unsigned long) lvnum, fname);
                 fi = find_in_map(fgroup, to_lower_str(level_fname));
             }
         }
