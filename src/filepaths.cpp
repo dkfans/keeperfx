@@ -32,6 +32,7 @@
 #include "config_campaigns.h"
 #include "config_keeperfx.h"
 #include "config_mods.h"
+#include "game_merge.h"
 #include "post_inc.h"
 
 enum file_priority {
@@ -127,17 +128,16 @@ static void load_dirs(const char *base_dir_path, file_priority priority)
 
 void build_file_map(void)
 {
-    char dir[2048];
     const char *base = install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
 
     load_dirs(base, FP_Base);
 
     for (int i = 0; i < mods_conf.after_base_cnt; i++)
-        load_dirs(&mods_conf.after_base_item[i].name, FP_Mod_after_base);
+        load_dirs(mods_conf.after_base_item[i].name, FP_Mod_after_base);
     for (int i = 0; i < mods_conf.after_campaign_cnt; i++)
-        load_dirs(&mods_conf.after_campaign_item[i].name, FP_Mod_after_campaign, FP_Mod_after_campaign);
+        load_dirs(mods_conf.after_campaign_item[i].name, FP_Mod_after_campaign);
     for (int i = 0; i < mods_conf.after_map_cnt; i++)
-        load_dirs(&mods_conf.after_map_item[i].name, FP_Mod_after_map, FP_Mod_after_map);
+        load_dirs(mods_conf.after_map_item[i].name, FP_Mod_after_map);
 }
 
 static const FileInfo *find_in_map(short fgroup, const std::string &key)
@@ -198,4 +198,3 @@ char *prepare_file_fmtpath_prio(short fgroup, short fgroup_cmp, TbBool check_lev
 }
 
 /******************************************************************************/
-

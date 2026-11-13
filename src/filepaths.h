@@ -39,7 +39,7 @@ void build_campaign_file_map(void);
  * Falls back to prepare_file_path_buf() if the file is not in the map.
  * Returns a pointer to an internal static buffer.
  */
-char *prepare_file_path_prio(short fgroup, const char *fname);
+char *prepare_file_path_prio(short fgroup, short fgroup_cmp, TbBool check_level, const char *fname);
 
 /**
  * printf-style variant of prepare_file_path_m().
