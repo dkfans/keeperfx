@@ -20,6 +20,8 @@
 #include "player_computer.h"
 #include "player_data.h"
 #include "player_utils.h"
+#include "thing_list.h"
+#include "thing_data.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -27,6 +29,7 @@ extern "C" {
 #endif
 
 static uint16_t pending_slots_mask;
+static uint16_t adopt_mask;
 static int64_t prev_models[PLAYERS_COUNT];
 static GameTurn last_written_turn = (GameTurn)-1;
 
@@ -57,14 +60,26 @@ static NetUserId free_slot(void)
     return -1;
 }
 
-NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int64_t *prev_model)
+PlayerNumber get_daimon_slot_player(NetUserId slot)
 {
-    if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT)) {
+    if ((slot < MAX_NET_USERS) || (slot >= PACKETS_COUNT)) {
+        return PLAYER_NONE;
+    }
+    return get_net_user_player_number(slot);
+}
+
+/** `shared`: called where every machine of a network game does the same (the level start's claims, a packet, a
+ *  script), so a network game may assign too; the choice reads only the game's own state. */
+static NetUserId assign_slot(PlayerNumber plyr_idx, int64_t *prev_model, TbBool shared)
+{
+    if ((network_is_active() && !shared) || (plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT)) {
         return -1;
     }
     struct PlayerInfo *player = get_player(plyr_idx);
     if (!player_exists(player) || !flag_is_set(player->allocflags, PlaF_CompCtrl)
-        || flag_is_set(player->allocflags, PlaF_Daimon | PlaF_Placeholder)) {
+        || flag_is_set(player->allocflags, PlaF_Daimon)
+        // a departed human's keeper, held for their return: Daimon adopts it only with every machine (an adoption)
+        || (flag_is_set(player->allocflags, PlaF_Placeholder) && !shared)) {
         return -1;
     }
     const NetUserId slot = free_slot();
@@ -94,9 +109,17 @@ NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int64_t *prev_model)
     return slot;
 }
 
+NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int64_t *prev_model)
+{
+    return assign_slot(plyr_idx, prev_model, false);
+}
+
 NetUserId daimon_adopt_slot(PlayerNumber plyr_idx)
 {
-    return daimon_assign_slot(plyr_idx, NULL);
+    if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT) || (get_player(plyr_idx)->victory_state != VicS_Undecided)) {
+        return -1;
+    }
+    return assign_slot(plyr_idx, NULL, true);
 }
 
 int64_t daimon_slot_prev_model(PlayerNumber plyr_idx)
@@ -155,14 +178,31 @@ void daimon_pending_slots_set_mask(uint16_t mask)
     pending_slots_mask = mask;
 }
 
+void daimon_set_adopt_mask(uint16_t mask)
+{
+    adopt_mask = mask;
+}
+
 int32_t daimon_claim_pending_slots(void)
 {
+    // The keepers Daimon adopts if their human leaves: marked on every machine alike.
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        set_flag_value(get_player(plyr_idx)->allocflags, PlaF_DaimonAdopt, (adopt_mask & (1u << plyr_idx)) != 0);
+    }
+    adopt_mask = 0;
     int32_t claimed = 0;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         if ((pending_slots_mask & (1u << plyr_idx)) == 0) {
             continue;
         }
-        if (daimon_assign_slot(plyr_idx, NULL) >= 0) {
+        // A keeper chosen for Daimon is an AI keeper whatever the computer players setting says (a network game's is
+        // often off): one the level start left without a player becomes the built-in AI's first. The list is the same
+        // on every machine, so is this.
+        if (!player_exists(get_player(plyr_idx)) && !thing_is_invalid(find_players_dungeon_heart(plyr_idx))
+            && (plyr_idx != my_player_number)) {
+            script_support_setup_player_as_computer_keeper(plyr_idx, 0);
+        }
+        if (assign_slot(plyr_idx, NULL, true) >= 0) {
             claimed++;
         }
     }

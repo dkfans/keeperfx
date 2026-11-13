@@ -655,13 +655,22 @@ TbBool receive_resync_game(void)
     return true;
 }
 
+static TbBool s_resync_reinit = false;
+
+TbBool resync_reinit_active(void)
+{
+    return s_resync_reinit;
+}
+
 static void finish_resync(const struct Packet *saved_packets)
 {
     if (Lvl_script != NULL) {
         lua_set_random_seed(game.action_random_seed);
     }
     recall_localised_game_structure();
+    s_resync_reinit = true;
     reinit_level_after_load();
+    s_resync_reinit = false;
     light_import_system_state(&game.lightst);
     light_rebuild_after_load();
     network_spectator_finish_seat();

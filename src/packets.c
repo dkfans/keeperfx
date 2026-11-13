@@ -1149,7 +1149,7 @@ TbBool process_user_global_packet_action(NetUserId user)
     case PckA_DaiDigRect: case PckA_DaiBuildRect: case PckA_DaiSellRect: case PckA_DaiPlaceTrap:
     case PckA_DaiPlaceDoor: case PckA_DaiDropAt: case PckA_DaiCastAt: case PckA_DaiHandPick: case PckA_DaiCastOn:
     case PckA_FormGroup: case PckA_GroupAdd: case PckA_OrderGroup: case PckA_ReleaseGroup:
-    case PckA_DaimonCheats:
+    case PckA_DaimonCheats: case PckA_AdoptKeeper:
         return daimon_process_packet_action(user);
     case PckA_PlyrQueryCreature:
     {
@@ -1603,6 +1603,7 @@ enum PacketExchangeResult exchange_packets(void)
     }
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
+    track_daimon_slot_packets(); // before the host writes the slots' packets and anyone waits for them
     const NetUserId local_user = get_local_user();
     TbBool spectator = network_user_is_spectator(local_user);
     struct Packet *my_packet = get_local_packet();
@@ -1631,6 +1632,8 @@ enum PacketExchangeResult exchange_packets(void)
     if (!spectator) {
         store_packet_history(local_user, my_packet);
     }
+    // The host's Daimon keepers' packets, born with its own and sent before it waits for anyone (dai_net.h).
+    dai_net_host_author_slots();
     host_spoof_dropped_user_packets();
     TbBigChecksum packet_checksum = my_packet->checksum;
     if (network_is_active()) {

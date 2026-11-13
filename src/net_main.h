@@ -83,6 +83,7 @@ enum NetMessageType {
     NETMSG_SPECTATOR_CONVERSION,
     NETMSG_LOBBY_SETTINGS,
     NETMSG_SPECTATOR_SEAT,
+    NETMSG_DAIMON_STATE,        /**< host -> clients: a part of Daimon's state (dai_net.h) */
 };
 
 enum NetConnectionRole {

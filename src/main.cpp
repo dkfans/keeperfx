@@ -874,7 +874,10 @@ void reinit_level_after_load(void)
     reinit_tagged_blocks_for_player(player->id_number);
     restore_computer_player_after_load();
     daimon_restore_slots_after_load();
-    DaimonAfterLoad();
+    if (resync_reinit_active())
+        DaimonAfterResync();    // the game Daimon was playing: its keepers go on
+    else
+        DaimonAfterLoad();
     sound_reinit_after_load();
     rederive_local_state();
     update_panel_colors();

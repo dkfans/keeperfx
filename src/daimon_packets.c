@@ -31,6 +31,7 @@
 #include "thing_creature.h"
 #include "player_utils.h"
 #include "daimon_slots.h"
+#include "daimon/Daimon.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -77,6 +78,28 @@ static TbBool global_daimon_cheats(const struct GlobalAction *ctx)
     }
     JUSTLOG("p:%" PRId64 " Daimon's cheats applied (flags %" PRId64 ", gold %" PRId64 ", creatures +%" PRId64 "%%, pay -%" PRId64 "%%)",
         (int64_t)plyr_idx, flags, ((flags & 2) != 0) ? gold : 0, ((flags & 4) != 0) ? bonus : 0, ((flags & 4) != 0) ? discount : 0);
+    return 0;
+}
+
+static TbBool global_adopt_keeper(const struct GlobalAction *ctx)
+{
+    const struct Packet *pckt = ctx->pckt;
+    if (ctx->user != SERVER_ID) {
+        WARNLOG("Ignoring an adoption from user %" PRId64 "; only the host may adopt", (int64_t)ctx->user);
+        return 0;
+    }
+    const PlayerNumber plyr_idx = (PlayerNumber)pckt->actn_par1;
+    if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT)) {
+        WARNLOG("Ignoring an adoption of player %" PRId64, (int64_t)pckt->actn_par1);
+        return 0;
+    }
+    const NetUserId slot = daimon_adopt_slot(plyr_idx);
+    if (slot < 0) {
+        WARNLOG("Daimon: player %d could not be adopted; it stays the built-in AI's", (int)plyr_idx);
+        return 0;
+    }
+    JUSTLOG("p:%" PRId64 " Daimon took over (slot %" PRId64 ")", (int64_t)plyr_idx, (int64_t)slot);
+    DaimonOnDropIn(plyr_idx);      // kfx_game is above kfx_daimon: no port (14 S9)
     return 0;
 }
 
@@ -311,6 +334,8 @@ TbBool daimon_process_packet_action(NetUserId user)
     switch (ctx.pckt->action) {
     case PckA_DaimonCheats:
         return global_daimon_cheats(&ctx);
+    case PckA_AdoptKeeper:
+        return global_adopt_keeper(&ctx);
     case PckA_FormGroup: case PckA_GroupAdd: case PckA_OrderGroup: case PckA_ReleaseGroup:
         return global_keeper_group(&ctx);
     default:

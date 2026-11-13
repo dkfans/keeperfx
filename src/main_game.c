@@ -73,6 +73,7 @@
 
 #include "daimon_slots.h"
 #include "daimon/Daimon.h"
+#include "dai_net.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -174,6 +175,7 @@ static TbBool init_level(void)
     game.paused_at_gameturn = false;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
+    dai_net_reset(); // the previous game's copies of Daimon's state
     reset_heap_manager();
     // GL's keeper-sprite atlas caches by draw_idx, stable only within one
     // sprite-heap generation -- clear it in lockstep with the heap reset

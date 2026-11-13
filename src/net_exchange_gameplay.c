@@ -42,6 +42,7 @@
 #include "lua_triggers.h"
 #include "keeperfx.hpp"
 #include <zlib.h>
+#include "dai_net.h"
 #include "post_inc.h"
 
 extern void network_yield_waiting_gameplay_packets(void);
@@ -79,10 +80,21 @@ struct PacketHistoryHeader {
 };
 #pragma pack()
 
-static struct PacketHistory packet_history[MAX_NET_USERS];
+/** Every packet slot's: the network users' and, on every machine of a network game, the slots past them that the host
+ *  writes for Daimon's keepers. */
+static struct PacketHistory packet_history[PACKETS_COUNT];
 static TbClockMSec server_turn_received_at = 0;
 static int64_t server_turn_position_ns = 0;
-static TbClockMSec last_repair_history_send[MAX_NET_USERS];
+static TbClockMSec last_repair_history_send[PACKETS_COUNT];
+/** Each Daimon slot's first packet turn: the turn of the first exchange at which the slot was played, unbroken since.
+ *  A slot is seated while a turn's packets are processed (an adoption), so the host writes its first packet at the
+ *  next exchange, stamped with that turn: the turns before it have no packet to wait for. Every machine runs the same
+ *  exchanges on the same state, so each sees the same first turn (track_daimon_slot_packets). */
+struct DaimonSlotPackets {
+    TbBool played;
+    GameTurn first_turn;
+};
+static struct DaimonSlotPackets daimon_slot_packets[PACKETS_COUNT];
 static TbClockMSec last_turn_sync_send = 0;
 static NetUserId next_repair_history_user = 0;
 static TbClockMSec missing_packets_wait_start = 0;
@@ -269,14 +281,14 @@ TbError process_network_turn_sync_message(NetUserId source, const char *buffer, 
 
 void store_packet_history(NetUserId user, const struct Packet *packet)
 {
-    if (user < 0 || user >= MAX_NET_USERS || is_packet_empty(packet)) {
+    if (user < 0 || user >= PACKETS_COUNT || is_packet_empty(packet)) {
         return;
     }
     struct Packet *entry = &packet_history[user].entries[packet->turn % PACKET_HISTORY_SIZE];
     if (!is_packet_empty(entry) && (GameTurnDelta)(entry->turn - packet->turn) > 0) {
         return;
     }
-    if (user != netstate.my_id && network_user_active(user) && (is_packet_empty(entry) || entry->turn != packet->turn)) {
+    if (user < MAX_NET_USERS && user != netstate.my_id && network_user_active(user) && (is_packet_empty(entry) || entry->turn != packet->turn)) {
         input_lag_note_packet_arrival(packet->turn);
     }
     *entry = *packet;
@@ -284,7 +296,7 @@ void store_packet_history(NetUserId user, const struct Packet *packet)
 
 const struct Packet *get_history_packet(NetUserId user, GameTurn turn)
 {
-    if (user < 0 || user >= MAX_NET_USERS) {
+    if (user < 0 || user >= PACKETS_COUNT) {
         return NULL;
     }
     const struct Packet *packet = &packet_history[user].entries[turn % PACKET_HISTORY_SIZE];
@@ -319,7 +331,9 @@ TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t b
     if (header.gameplay_generation != netstate.gameplay_generation) {
         return false;
     }
-    if (header.user >= netstate.max_users) {
+    // A peer's own history, or a Daimon slot's, which only the host writes and sends.
+    const TbBool daimon_slot = (header.user >= MAX_NET_USERS) && (header.user < PACKETS_COUNT) && (source == SERVER_ID);
+    if ((header.user >= netstate.max_users) && !daimon_slot) {
         WARNLOG("Gameplay repair history from peer %i had invalid user %d", source, (int)header.user);
         return false;
     }
@@ -373,6 +387,7 @@ void initialize_packet_history(void)
     server_turn_position_ns = 0;
     multiplayer_speed_adjustment_ns = 0;
     memset(last_repair_history_send, 0, sizeof(last_repair_history_send));
+    memset(daimon_slot_packets, 0, sizeof(daimon_slot_packets));
     last_turn_sync_send = 0;
     next_repair_history_user = 0;
     network_spectator_reset();
@@ -381,23 +396,59 @@ void initialize_packet_history(void)
     reset_local_hand();
 }
 
-static TbBool user_has_required_turn_packets(NetUserId user)
+/** The user's packets this turn processes are here: those of its turns from `first_turn` on (earlier ones were never
+ *  written). */
+static TbBool user_has_required_turn_packets(NetUserId user, GameTurn first_turn)
 {
     GameTurn expected_turn = get_gameturn() - game.input_lag_turns;
-    if (get_history_packet(user, expected_turn) == NULL) {
+    if ((expected_turn >= first_turn) && (get_history_packet(user, expected_turn) == NULL)) {
         return false;
     }
     if (!input_lag_needs_lookahead()) {
         return true;
     }
-    return get_history_packet(user, expected_turn + 1) != NULL;
+    return (expected_turn + 1 < first_turn) || (get_history_packet(user, expected_turn + 1) != NULL);
+}
+
+void track_daimon_slot_packets(void)
+{
+    for (NetUserId slot = MAX_NET_USERS; slot < PACKETS_COUNT; slot += 1) {
+        struct DaimonSlotPackets *track = &daimon_slot_packets[slot];
+        const TbBool played = dai_net_slot_expected(slot);
+        if (played && !track->played) {
+            track->first_turn = get_gameturn();
+        }
+        track->played = played;
+    }
+}
+
+TbBool daimon_slot_first_packet_turn(NetUserId slot, GameTurn *first_turn)
+{
+    if ((slot < MAX_NET_USERS) || (slot >= PACKETS_COUNT) || !daimon_slot_packets[slot].played) {
+        return false;
+    }
+    if (first_turn != NULL) {
+        *first_turn = daimon_slot_packets[slot].first_turn;
+    }
+    return true;
 }
 
 static TbBool have_all_turn_packets(NetUserId local_user)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
-        if (user != local_user && user_present(user) && !user_has_required_turn_packets(user)) {
+        if (user != local_user && user_present(user) && !user_has_required_turn_packets(user, 0)) {
             return false;
+        }
+    }
+    // A client waits for the host's Daimon slots as for a peer: a turn processed without one would differ from the
+    // host's. (The host writes them itself.) A slot seated during the game has packets only from its first turn on.
+    if (local_user != SERVER_ID) {
+        for (NetUserId slot = MAX_NET_USERS; slot < PACKETS_COUNT; slot += 1) {
+            GameTurn first_turn = 0;
+            if (dai_net_slot_expected(slot) && daimon_slot_first_packet_turn(slot, &first_turn)
+             && !user_has_required_turn_packets(slot, first_turn)) {
+                return false;
+            }
         }
     }
     return true;
@@ -408,7 +459,7 @@ TbBool is_waiting_on_user_packets(NetUserId user)
     if (missing_packets_wait_start == 0 || LbTimerClock() - missing_packets_wait_start < PEER_WAIT_MESSAGE_DELAY_MS) {
         return false;
     }
-    return user != netstate.my_id && user_present(user) && !user_has_required_turn_packets(user);
+    return user != netstate.my_id && user_present(user) && !user_has_required_turn_packets(user, 0);
 }
 
 TbClockMSec get_peer_timeout_remaining(void)
@@ -428,7 +479,7 @@ static TbBool host_lost(GameTurn turn, const char *state)
 
 static TbBool user_has_relayable_history(NetUserId user)
 {
-    if (user < 0 || user >= MAX_NET_USERS) {
+    if (user < 0 || user >= PACKETS_COUNT) {
         return false;
     }
     const struct Packet *latest = get_latest_history_packet(user);
@@ -491,17 +542,22 @@ static void send_repair_history_if_due(int32_t resend_interval)
     TbClockMSec current_time = LbTimerClock();
     NetUserId user = netstate.my_id;
     if (user == SERVER_ID) {
-        PlayerNumber offset;
-        for (offset = 0; offset < netstate.max_users; offset += 1) {
-            user = (next_repair_history_user + offset) % netstate.max_users;
+        // The peers' histories and the host's Daimon slots', in turn.
+        const NetUserId candidates = PACKETS_COUNT;
+        NetUserId offset;
+        for (offset = 0; offset < candidates; offset += 1) {
+            user = (next_repair_history_user + offset) % candidates;
+            if ((user >= netstate.max_users) && ((user < MAX_NET_USERS) || !dai_net_slot_expected(user))) {
+                continue;
+            }
             if (user_has_relayable_history(user) && (last_repair_history_send[user] == 0 || current_time - last_repair_history_send[user] >= resend_interval)) {
                 break;
             }
         }
-        if (offset == netstate.max_users) {
+        if (offset == candidates) {
             return;
         }
-        next_repair_history_user = (user + 1) % netstate.max_users;
+        next_repair_history_user = (user + 1) % candidates;
     } else if (last_repair_history_send[user] != 0 && current_time - last_repair_history_send[user] < resend_interval) {
         return;
     }

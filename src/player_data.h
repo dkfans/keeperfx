@@ -52,6 +52,7 @@ enum PlayerInitFlags {
     PlaF_Seat                    = 0x04, /**< Playable by a human: includes humans (and placeholders), and lobby-assigned computers > */
     PlaF_Daimon                  = 0x08, /**< Played by Daimon, the keeper AI: its packets come from its own packet slot (4..8) > */
     PlaF_DaimonCheats            = 0x10, /**< A Daimon keeper's difficulty cheats are applied (once per keeper) > */
+    PlaF_DaimonAdopt             = 0x20, /**< A network game's human keeper Daimon adopts if the built-in AI takes it over > */
     PlaF_CompCtrl                = 0x40,
 };
 

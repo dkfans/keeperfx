@@ -53,6 +53,8 @@
 #include "net_spectator.h"
 #include "keeperfx.hpp"
 #include "daimon_slots.h"
+#include "dai_net.h"
+#include "daimon/Daimon.h"
 #include "post_inc.h"
 
 _Static_assert(FIRST_SPECTATOR_ID == PACKETS_COUNT, "spectator ids start after the packet slots");
@@ -73,6 +75,10 @@ struct StartupSyncPacket {
     uint32_t initial_action_seed;
     char frontend_alliances;
     int8_t player_slots[MAX_NET_USERS];
+    // The keepers the host hands to Daimon at the level start, and the human keepers Daimon adopts if their human
+    // leaves (1 << player). Only the host's are used.
+    uint16_t daimon_players;
+    uint16_t daimon_adopt;
     struct LoadedFileChecksums loaded_file_checksums;
 };
 #pragma pack()
@@ -468,6 +474,23 @@ static void build_local_startup_sync(void)
     net_resolve_player_colours(s_local_startup_sync.player_slots);
     apply_forced_user_players(s_local_startup_sync.player_slots);
     s_local_startup_sync.frontend_alliances = net_alliances_from_player_colours(s_local_startup_sync.player_slots);
+    if (network_is_host()) {
+        // The lobby's "Computer players: Daimon": every keeper but the humans' is Daimon's, and Daimon adopts a human's
+        // keeper when the built-in AI takes it over from a human who left.
+        const TbBool daimon = (fe_computer_players != 0) && net_config_info.computer_daimon;
+        dai_net_set_opponents(daimon, "");
+        dai_net_set_adoption(daimon);
+        uint16_t humans = 0;
+        for (NetUserId u = 0; u < MAX_NET_USERS; u++) {
+            const int8_t slot = s_local_startup_sync.player_slots[u];
+            if (net_user_info[u].network_user_active && (slot >= 0) && (slot < PLAYERS_COUNT))
+                humans |= (uint16_t)(1u << slot);
+        }
+        dai_net_queue_opponents(humans);
+        s_local_startup_sync.daimon_players = daimon_pending_slots_mask();
+        if (dai_net_adoption())
+            s_local_startup_sync.daimon_adopt = humans;
+    }
 }
 
 static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USERS])
@@ -525,6 +548,9 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         initial_replay_seed = host_sync->initial_action_seed;
     }
     frontend_alliances = host_sync->frontend_alliances;
+    // Daimon's keepers, the same on every machine (claimed at the level start, daimon_claim_pending_slots).
+    daimon_pending_slots_set_mask(host_sync->daimon_players);
+    daimon_set_adopt_mask(host_sync->daimon_adopt);
     net_store_lobby_empty_seats(host_sync->player_slots);
     if (!setup_network_player_numbers(host_sync->player_slots)) {
         return false;
@@ -661,6 +687,10 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
     toggle_computer_player(player->id_number);
     message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
     JUSTLOG("p:%d computer took over", player->id_number);
+    // The host hands it on to Daimon if the game was set up so: a packet of its own, applied everywhere (dai_net.h).
+    if (flag_is_set(player->allocflags, PlaF_DaimonAdopt) && network_is_active() && network_is_host() && !replay.load_enable) {
+        dai_net_request_adoption(player->id_number);
+    }
 }
 
 // used when ending a netplay game or recording.
@@ -728,8 +758,14 @@ static void stop_network_game_and_continue_locally(void)
 {
     struct PlayerInfo *survivor;
     if (network_is_active()) {
+        const TbBool was_host = network_is_host();
         stop_network_game_state();
         survivor = get_my_player();
+        // A client that goes on alone (the host lost or gone) takes Daimon's keepers over from the host's last copy of
+        // its state, or gives them to the built-in AI. A host's own go on.
+        if (!was_host) {
+            DaimonOnHostLost();
+        }
     } else {
         NetUserId survivor_user = replay.head.recording_user;
         PlayerNumber plyr_idx = get_net_user_player_number(survivor_user);
@@ -792,6 +828,7 @@ void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferen
     struct PlayerInfo *player = get_player(plyr_idx);
     JUSTLOG("p:%d user %d took over from the computer", (int)plyr_idx, (int)user);
     daimon_forget_slot(plyr_idx);
+    dai_net_cancel_adoption(plyr_idx); // its human took it back first
     player->allocflags &= ~(PlaF_CompCtrl | PlaF_Placeholder);
     if ((get_players_dungeon(player)->computer_enabled & 0x01) != 0) {
         toggle_computer_player(plyr_idx);

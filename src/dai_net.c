@@ -1,28 +1,66 @@
 /******************************************************************************/
-// Free implementation of Bullfrog's Dungeon Keeper strategy game.
-/******************************************************************************/
 /** @file dai_net.c
- *     Daimon in network games, the host's requests: a Daimon keeper's difficulty cheats and a dropped player's adoption, sent once in the host's own packet (dai_net.h). The fork's dai_net.c, its "Adoption" section, as Daimon's port tools copy it (scripts/daimon_port/sync.py in the fork).
+ *     Daimon in a network game.
+ * @par Purpose:
+ *     See dai_net.h.
  */
 /******************************************************************************/
 #include "pre_inc.h"
 #include "dai_net.h"
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <zlib.h>
+
 #include "bflib_basics.h"
 #include "daimon_slots.h"
-#include "net_main.h"
+#include "keeper_ctl.h"
+#include "game_legacy.h"
+#include "net_exchange_common.h"
+#include "net_exchange_gameplay.h"
 #include "net_game.h"
+#include "net_main.h"
 #include "packets.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "game_legacy.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+TbBool dai_net_slot_expected(NetUserId slot)
+{
+    if (!network_is_active() || (slot < MAX_NET_USERS) || (slot >= PACKETS_COUNT)) return false;
+    const PlayerNumber p = get_daimon_slot_player(slot);
+    return (p >= 0) && (daimon_slot_of(p) == slot);
+}
+
+void dai_net_host_author_slots(void)
+{
+    if (!network_is_active() || !network_is_host()) return;
+    const struct Packet *mine = get_local_packet();
+    // While the game takes no input (its first turns, a pause) a step written now would be dropped unprocessed and
+    // the gesture lost: the controller waits. The slot's packet still goes out every turn -- the clients wait for it.
+    const TbBool hold = (game.skip_initial_input_turns > 0) || flag_is_set(game.operation_flags, GOF_Paused);
+    for (NetUserId slot = MAX_NET_USERS; slot < PACKETS_COUNT; slot++) {
+        const PlayerNumber p = get_daimon_slot_player(slot);
+        if ((p < 0) || (daimon_slot_of(p) != slot)) continue;
+        struct Packet staging;
+        memset(&staging, 0, sizeof(staging));
+        if (!hold) {
+            kctl_sweep(slot);
+            kctl_tick(slot, p, &staging);
+        }
+        staging.turn = get_gameturn();
+        staging.checksum = mine->checksum; // the host's for this turn, as its own packet carries
+        store_packet_history(slot, &staging);
+        exchange_slot_frame(slot, &staging);
+    }
+}
+
+/******************************************************************************/
 /* Adoption */
 
 static TbBool s_adoption = false;
@@ -164,6 +202,172 @@ void dai_net_set_pending_host_action(struct Packet *pckt)
     }
 }
 
+/******************************************************************************/
+/* Replication */
+
+#pragma pack(1)
+struct DaiStatePartHeader {
+    uint64_t turn;
+    uint16_t part;
+    uint16_t parts;
+    uint32_t compressed;    /**< bytes of the whole compressed state */
+    uint32_t original;      /**< bytes once decompressed */
+};
+#pragma pack()
+
+static struct {
+    TbBool active;
+    DaiTurn turn;
+    uint16_t parts;
+    uint32_t compressed;
+    uint32_t original;
+    uint16_t received;
+    uint8_t got[DAI_NET_MAX_PARTS];
+    uint8_t *data;
+} s_pending;
+
+static struct {
+    uint8_t *data;
+    size_t len;
+    DaiTurn turn;
+} s_snap[DAI_NET_SNAPSHOTS];
+
+static void pending_clear(void)
+{
+    free(s_pending.data);
+    memset(&s_pending, 0, sizeof(s_pending));
+}
+
+void dai_net_reset(void)
+{
+    s_adopt_count = 0;
+    s_cheat_count = 0;
+    pending_clear();
+    for (int64_t i = 0; i < DAI_NET_SNAPSHOTS; i++) {
+        free(s_snap[i].data);
+        memset(&s_snap[i], 0, sizeof(s_snap[i]));
+    }
+}
+
+TbBool dai_net_snapshot(int64_t i, const uint8_t **data, size_t *len, DaiTurn *turn)
+{
+    if ((i < 0) || (i >= DAI_NET_SNAPSHOTS) || (s_snap[i].data == NULL)) return false;
+    *data = s_snap[i].data;
+    *len = s_snap[i].len;
+    *turn = s_snap[i].turn;
+    return true;
+}
+
+/** The whole state has arrived: decompressed, it becomes the newest snapshot. */
+static void pending_complete(void)
+{
+    uint8_t *state = (uint8_t *)malloc(s_pending.original);
+    uLongf size = s_pending.original;
+    if ((state == NULL) || (uncompress(state, &size, s_pending.data, s_pending.compressed) != Z_OK) || (size != s_pending.original)) {
+        WARNLOG("Daimon: the host's state for turn %" PRIu64 " does not decompress; the previous one is kept", (uint64_t)s_pending.turn);
+        free(state);
+        pending_clear();
+        return;
+    }
+    free(s_snap[DAI_NET_SNAPSHOTS - 1].data);
+    memmove(&s_snap[1], &s_snap[0], sizeof(s_snap[0]) * (DAI_NET_SNAPSHOTS - 1));
+    s_snap[0].data = state;
+    s_snap[0].len = size;
+    s_snap[0].turn = s_pending.turn;
+    SYNCDBG(7, "Daimon: the host's state for turn %" PRIu64 " (%" PRIu64 " bytes) received", (uint64_t)s_snap[0].turn, (uint64_t)size);
+    pending_clear();
+}
+
+TbBool dai_net_state_part(const uint8_t *payload, size_t len)
+{
+    struct DaiStatePartHeader h;
+    if (len < sizeof(h)) return false;
+    memcpy(&h, payload, sizeof(h));
+    const uint8_t *bytes = payload + sizeof(h);
+    const size_t n = len - sizeof(h);
+    if ((h.original == 0) || (h.original > DAI_NET_MAX_STATE) || (h.compressed == 0) || (h.compressed > DAI_NET_MAX_STATE)
+     || (h.parts == 0) || (h.parts != (h.compressed + DAI_NET_PART_BYTES - 1) / DAI_NET_PART_BYTES) || (h.part >= h.parts))
+        return false;
+    const size_t at = (size_t)h.part * DAI_NET_PART_BYTES;
+    const size_t want = ((size_t)h.compressed - at < DAI_NET_PART_BYTES) ? (size_t)h.compressed - at : DAI_NET_PART_BYTES;
+    if (n != want) return false;
+    // Older than the newest complete snapshot, or than the state being gathered: not wanted.
+    if ((s_snap[0].data != NULL) && ((GameTurnDelta)(h.turn - s_snap[0].turn) <= 0)) return true;
+    if (s_pending.active && ((GameTurnDelta)(h.turn - s_pending.turn) < 0)) return true;
+    if (!s_pending.active || (h.turn != s_pending.turn)) {
+        // A newer state supersedes one still incomplete.
+        pending_clear();
+        s_pending.data = (uint8_t *)malloc(h.compressed);
+        if (s_pending.data == NULL) return false;
+        s_pending.active = true;
+        s_pending.turn = (DaiTurn)h.turn;
+        s_pending.parts = h.parts;
+        s_pending.compressed = h.compressed;
+        s_pending.original = h.original;
+    } else if ((h.parts != s_pending.parts) || (h.compressed != s_pending.compressed) || (h.original != s_pending.original)) {
+        return false; // the same turn told two ways: keep what came first
+    }
+    if (s_pending.got[h.part]) return true; // a duplicate
+    memcpy(s_pending.data + at, bytes, n);
+    s_pending.got[h.part] = 1;
+    if (++s_pending.received == s_pending.parts) pending_complete();
+    return true;
+}
+
+TbBool dai_net_state_parts(DaiTurn turn, const uint8_t *blob, size_t len, void (*part)(void *ctx, const uint8_t *payload, size_t len), void *ctx)
+{
+    if ((len == 0) || (len > DAI_NET_MAX_STATE)) return false;
+    uLongf csize = compressBound(len);
+    uint8_t *packed = (uint8_t *)malloc(csize);
+    if ((packed == NULL) || (compress(packed, &csize, blob, len) != Z_OK) || (csize > DAI_NET_MAX_STATE)) {
+        free(packed);
+        return false;
+    }
+    uint8_t buf[sizeof(struct DaiStatePartHeader) + DAI_NET_PART_BYTES];
+    struct DaiStatePartHeader h;
+    h.turn = turn;
+    h.parts = (uint16_t)((csize + DAI_NET_PART_BYTES - 1) / DAI_NET_PART_BYTES);
+    h.compressed = (uint32_t)csize;
+    h.original = (uint32_t)len;
+    for (uint16_t i = 0; i < h.parts; i++) {
+        h.part = i;
+        const size_t at = (size_t)i * DAI_NET_PART_BYTES;
+        const size_t n = (csize - at < DAI_NET_PART_BYTES) ? csize - at : DAI_NET_PART_BYTES;
+        memcpy(buf, &h, sizeof(h));
+        memcpy(buf + sizeof(h), packed + at, n);
+        part(ctx, buf, sizeof(h) + n);
+    }
+    free(packed);
+    return true;
+}
+
+static void send_part(void *ctx, const uint8_t *payload, size_t len)
+{
+    (void)ctx;
+    char *write_pos = begin_net_message(NETMSG_DAIMON_STATE);
+    memcpy(write_pos, payload, len);
+    write_pos += len;
+    send_to_active_peers(1, NetSend_Reliable, netstate.msg_buffer, (size_t)(write_pos - netstate.msg_buffer),
+        ALL_NET_USERS_MASK & ~(UINT64_C(1) << netstate.my_id));
+}
+
+void dai_net_send_state(DaiTurn turn, const uint8_t *blob, size_t len)
+{
+    if (!network_is_active() || !network_is_host()) return;
+    if (!dai_net_state_parts(turn, blob, len, send_part, NULL))
+        WARNLOG("Daimon: its state (%" PRIu64 " bytes) could not be sent to the clients", (uint64_t)len);
+}
+
+TbError dai_net_process_state_message(NetUserId source, const char *buf, size_t len)
+{
+    if ((source != SERVER_ID) || network_is_host()) {
+        WARNLOG("Ignoring Daimon's state from peer %" PRId64 ": only the host sends it", (int64_t)source);
+        return Lb_OK;
+    }
+    if (!dai_net_state_part((const uint8_t *)buf, len))
+        WARNLOG("Ignoring a malformed part of Daimon's state from the host (%" PRIu64 " bytes)", (uint64_t)len);
+    return Lb_OK;
+}
 
 #ifdef __cplusplus
 }
