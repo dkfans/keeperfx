@@ -1,0 +1,20 @@
+# Skybird Trill: the last rival, with a vast treasury. A warlord that spends: trains its creatures far, casts freely,
+# and ends the game with Armageddon once it is far ahead.
+[personality.skybird_tyrant]
+name = "Skybird Tyrant"
+description = "Rich and ruthless: trains hard, spends on spells, finishes with Armageddon."
+inherits = "warlord"
+
+[personality.skybird_tyrant.creatures]
+train_target_level = 8
+train_rich_level = 10
+
+[personality.skybird_tyrant.tactics]
+cast_freeze = 1
+cast_protect = 1
+cast_speed = 1
+cast_max_spend = 20000
+
+[personality.skybird_tyrant.magic]
+obey = "fights_and_work"
+armageddon = "finisher"

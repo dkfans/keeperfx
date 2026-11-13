@@ -1,0 +1,13 @@
+# Buffy Oak: two allied keepers told to dig for the close gold (the built-in AI's "DIG TO CLOSE GOLD"). Daimon's
+# version: misers that mine hard and bank, then strike together when the level's script calls it.
+[personality.gold_digger]
+name = "Gold Digger"
+description = "Mines and banks; attacks with its ally when the time comes."
+inherits = "miser"
+
+[personality.gold_digger.workforce]
+imps_max = 24
+
+[personality.gold_digger.offence]
+loyalty = 1.0
+treachery = 0.0

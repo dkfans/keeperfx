@@ -1,0 +1,10 @@
+# Lushmeadow-on-Down: the campaign's first rival keeper. A builder that grows a tidy dungeon and leaves the player
+# alone for a while (the level's script lets it attack later).
+[personality.lushmeadow_upstart]
+name = "Lushmeadow Upstart"
+description = "A young keeper: builds neat rooms, slow to fight."
+inherits = "builder"
+
+[personality.lushmeadow_upstart.offence]
+superiority_to_attack = 200
+attack_level_target = 4
