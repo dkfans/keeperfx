@@ -39,7 +39,7 @@ struct CatalogueEntry;
 // saved fields* changes in a way the schema decoder can't reconcile by name --
 // see SaveManager::ReadReplayHeader. A field rename/reorder/insertion
 // alone does NOT need a bump; the schema decode matches by name.)
-#define PACKET_SAVE_HEAD_VER 6
+#define PACKET_SAVE_HEAD_VER 7
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
@@ -66,7 +66,7 @@ struct PacketSaveHead {
     UserPreferences user_prefs[MAX_NET_USERS];
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
-    int8_t frontend_alliances;
+    int32_t frontend_alliances;
     char user_names[MAX_NET_USERS][PLAYER_MP_NAME_LEN];
 };
 

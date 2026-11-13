@@ -315,6 +315,10 @@ void frontnet_return_to_main_menu(struct GuiButton *gbtn)
   frontend_set_state(FeSt_MAIN_MENU);
 }
 
+#define SPRITE_ICON_COLOURS 4
+#define TINTED_ICON_COUNT (MAX_NET_USERS - SPRITE_ICON_COLOURS + 1)
+#define PLAYER_ICON_TINT_CHANNELS 3
+
 static void build_frontend_dimmed_remap(unsigned char *remap, int red_sixteenths, int green_sixteenths, int blue_sixteenths)
 {
     for (int i = 0; i < PALETTE_COLORS; i++) {
@@ -325,21 +329,35 @@ static void build_frontend_dimmed_remap(unsigned char *remap, int red_sixteenths
 
 void frontnet_draw_player_icon(NetUserId user, int pos_x, int pos_y, int units_per_px)
 {
-    static unsigned char shadow_remap[PALETTE_COLORS];
-    static TbBool shadow_remap_initialized;
-    if (!shadow_remap_initialized) {
-        build_frontend_dimmed_remap(shadow_remap, 3, 3, 3);
-        shadow_remap_initialized = true;
+    static const unsigned char tint_sixteenths[TINTED_ICON_COUNT][PLAYER_ICON_TINT_CHANNELS] = {
+        {3, 3, 3},
+        {16, 16, 16},
+        {8, 2, 7},
+        {8, 8, 8},
+        {16, 9, 1},
+    };
+    static unsigned char tint_remaps[TINTED_ICON_COUNT][PALETTE_COLORS];
+    static TbBool tint_remaps_initialized;
+    if (!tint_remaps_initialized) {
+        for (int32_t tint = 0; tint < TINTED_ICON_COUNT; tint++) {
+            build_frontend_dimmed_remap(tint_remaps[tint], tint_sixteenths[tint][0], tint_sixteenths[tint][1], tint_sixteenths[tint][2]);
+        }
+        tint_remaps_initialized = true;
     }
-    if (net_player_colour[user] < 0) {
-        LbSpriteDrawResizedRemap(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_blue_med), shadow_remap);
-        return;
-    }
-    if (net_player_colour[user] == NET_PLAYER_COLOUR_RANDOM) {
+    int8_t colour = net_player_colour[user];
+    if (colour == NET_PLAYER_COLOUR_RANDOM) {
         LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_random_colour));
         return;
     }
-    LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_red_med + net_player_colour[user]));
+    if (colour >= 0 && colour < SPRITE_ICON_COLOURS) {
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_red_med + colour));
+        return;
+    }
+    int32_t tint = 0;
+    if (colour >= SPRITE_ICON_COLOURS) {
+        tint = colour - SPRITE_ICON_COLOURS + 1;
+    }
+    LbSpriteDrawResizedRemap(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_blue_med), tint_remaps[tint]);
 }
 
 void frontnet_messages_up(struct GuiButton *gbtn)

@@ -85,6 +85,8 @@ extern "C" {
 #define LOBBY_SELECTOR_TEXT_RIGHT_INSET 8
 #define LOBBY_ROW_HEIGHT 26
 #define LOBBY_PANEL_PADDING 4
+#define LOBBY_PLAYERS_HEIGHT 190
+#define LOBBY_PLAYER_ROW_HEIGHT ((LOBBY_PLAYERS_HEIGHT - 2 * LOBBY_PANEL_PADDING) / MAX_NET_USERS)
 #define LOBBY_SCROLL_BUTTON_HEIGHT 14
 #define LOBBY_SCROLL_BUTTON_OVERLAP 13
 #define LOBBY_OPTION_TEXT_GAP 6
@@ -154,7 +156,7 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
 struct GuiButtonInit frontend_net_start_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,   NULL,                    0, 999,  12, 999,  12, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,  {11},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, 10,  60, 10,  60, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET, LOBBY_HEADER_HEIGHT, frontnet_draw_lobby_players_header, 0, GUIStr_Empty, 0, {31},    0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10,  86,  10,  86, LOBBY_LEFT_WIDTH,190, frontnet_draw_lobby_panel_without_scrollbar,         0, GUIStr_Empty, 0,   {0},    0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10,  86,  10,  86, LOBBY_LEFT_WIDTH,LOBBY_PLAYERS_HEIGHT, frontnet_draw_lobby_panel_without_scrollbar,         0, GUIStr_Empty, 0,   {0},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_player_setting,frontnet_change_player_setting,frontend_over_button,0,  10,  90,  10,  90, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET,104, frontnet_draw_net_start_players,   0, GUIStr_Empty, 0,  {21},    0, frontnet_maintain_net_start_players },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, LOBBY_RIGHT_X,  60, LOBBY_RIGHT_X,  60, LOBBY_RIGHT_WIDTH - LOBBY_HEADER_INSET, LOBBY_HEADER_HEIGHT, frontnet_draw_lobby_settings_header, 0, GUIStr_Empty, 0, {117},    0, NULL },
   { LbBtnT_NormalBtn,  BID_LOBBY_MAPPACK_SELECTOR, 0, 0, frontnet_open_mappack_list,frontnet_open_mappack_list,frontend_over_button,0, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_WIDTH, LOBBY_ROW_HEIGHT, NULL, 0, GUIStr_Empty, 0, {LOBBY_MAPPACK_SELECTOR_ID},    0, frontnet_maintain_host_setting },
@@ -188,7 +190,7 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
 struct GuiButtonInit frontend_skirmish_lobby_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,   NULL,                    0, 999,  12, 999,  12, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0, {113},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, 10,  60, 10,  60, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET, LOBBY_HEADER_HEIGHT, frontnet_draw_lobby_players_header, 0, GUIStr_Empty, 0, {31},    0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10,  86,  10,  86, LOBBY_LEFT_WIDTH,190, frontnet_draw_lobby_panel_without_scrollbar,         0, GUIStr_Empty, 0,   {0},    0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  10,  86,  10,  86, LOBBY_LEFT_WIDTH,LOBBY_PLAYERS_HEIGHT, frontnet_draw_lobby_panel_without_scrollbar,         0, GUIStr_Empty, 0,   {0},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_player_setting,frontnet_change_player_setting,frontend_over_button,0,  10,  90,  10,  90, LOBBY_LEFT_WIDTH - LOBBY_HEADER_INSET,104, frontnet_draw_net_start_players,   0, GUIStr_Empty, 0,  {21},    0, frontnet_maintain_net_start_players },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, LOBBY_RIGHT_X,  60, LOBBY_RIGHT_X,  60, LOBBY_RIGHT_WIDTH - LOBBY_HEADER_INSET, LOBBY_HEADER_HEIGHT, frontnet_draw_lobby_settings_header, 0, GUIStr_Empty, 0, {117},    0, NULL },
   { LbBtnT_NormalBtn,  BID_LOBBY_MAPPACK_SELECTOR, 0, 0, frontnet_open_mappack_list,frontnet_open_mappack_list,frontend_over_button,0, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_WIDTH, LOBBY_ROW_HEIGHT, NULL, 0, GUIStr_Empty, 0, {LOBBY_MAPPACK_SELECTOR_ID},    0, frontnet_maintain_host_setting },
@@ -1011,7 +1013,7 @@ static NetUserId lobby_player_at_mouse(struct GuiButton *gbtn)
     if (!mouse_is_over_lobby_area(gbtn, false)) {
         return -1;
     }
-    NetUserId user = (GetMouseY() - gbtn->scr_pos_y) * 16 / (LOBBY_ROW_HEIGHT * lobby_menu_scale(gbtn));
+    NetUserId user = (GetMouseY() - gbtn->scr_pos_y) * 16 / (LOBBY_PLAYER_ROW_HEIGHT * lobby_menu_scale(gbtn));
     if (user >= net_lobby_max_players) {
         return -1;
     }
@@ -1029,7 +1031,7 @@ static NetUserId lobby_editable_player_at_mouse(struct GuiButton *gbtn)
 
 void frontnet_maintain_net_start_players(struct GuiButton *gbtn)
 {
-    gbtn->height = (net_lobby_max_players * LOBBY_ROW_HEIGHT * lobby_menu_scale(gbtn) + 8) / 16;
+    gbtn->height = (net_lobby_max_players * LOBBY_PLAYER_ROW_HEIGHT * lobby_menu_scale(gbtn) + 8) / 16;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (lobby_editable_player_at_mouse(gbtn) >= 0)) & LbBtnF_Enabled;
 }
 
@@ -1049,7 +1051,7 @@ void frontnet_change_player_setting(struct GuiButton *gbtn)
 void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
     const struct TbSprite *icon = get_frontend_sprite(GFS_bullfrog_red_med);
-    int height = (LOBBY_ROW_HEIGHT * lobby_menu_scale(gbtn) + 8) / 16;
+    int height = (LOBBY_PLAYER_ROW_HEIGHT * lobby_menu_scale(gbtn) + 8) / 16;
     int icon_scale = height * 16 / (icon->SHeight * 13 / 8);
     int icon_width = icon->SWidth * icon_scale / 16;
     int team_scale = height * 16 / get_frontend_sprite(GFS_team_1)->SHeight;

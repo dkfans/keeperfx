@@ -43,6 +43,7 @@
 #include "frontmenu_net.h"
 #include "frontend.h"
 #include "player_data.h"
+#include "player_instances.h"
 #include "net_game.h"
 #include "config.h"
 #include "config_sounds.h"
@@ -94,6 +95,7 @@ struct ConfigInfo skirmish_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[PLAYER_MP_NAME_LEN];
 char tmp_net_player_name[PLAYER_MP_NAME_LEN+4];
+const PlayerNumber net_seat_players[MAX_NET_USERS] = {PLAYER0, PLAYER1, PLAYER2, PLAYER3, PLAYER_GOOD, PLAYER4, PLAYER5, PLAYER6};
 int8_t net_player_colour[MAX_NET_USERS];
 int8_t net_player_team[MAX_NET_USERS];
 int32_t net_lobby_max_players;
@@ -186,13 +188,13 @@ static void shuffle_values(int8_t values[MAX_NET_USERS], int32_t count)
     }
 }
 
-static char alliances_from_teams(const int8_t teams[MAX_NET_USERS])
+static int32_t alliances_from_teams(const int8_t teams[MAX_NET_USERS])
 {
-    char alliances = 0;
-    for (NetUserId user1 = 0; user1 < MAX_NET_USERS; user1++) {
-        for (NetUserId user2 = user1 + 1; user2 < MAX_NET_USERS; user2++) {
-            if (teams[user1] >= 0 && teams[user1] < NET_TEAM_RANDOM && teams[user1] == teams[user2]) {
-                alliances |= alliance_grid[user1][user2];
+    int32_t alliances = 0;
+    for (int32_t seat1 = 0; seat1 < MAX_NET_USERS; seat1++) {
+        for (int32_t seat2 = seat1 + 1; seat2 < MAX_NET_USERS; seat2++) {
+            if (teams[seat1] >= 0 && teams[seat1] < NET_TEAM_RANDOM && teams[seat1] == teams[seat2]) {
+                alliances |= frontend_alliance_flag(seat1, seat2);
             }
         }
     }
@@ -290,7 +292,8 @@ void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS])
     TbBool seat_available[MAX_NET_USERS];
     PlayerNumber seats_left = 0;
     for (PlayerNumber colour = 0; colour < MAX_NET_USERS; colour++) {
-        seat_available[colour] = colour < level_seats || thing_exists(find_players_dungeon_heart(colour));
+        PlayerNumber plyr_idx = net_seat_players[colour];
+        seat_available[colour] = colour < level_seats || (player_is_keeper(plyr_idx) && thing_exists(find_players_dungeon_heart(plyr_idx)));
         seats_left += seat_available[colour];
     }
     memset(player_colours, -1, MAX_NET_USERS);
@@ -320,7 +323,7 @@ void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS])
     }
 }
 
-char net_alliances_from_player_colours(const int8_t player_colours[MAX_NET_USERS])
+int32_t net_alliances_from_player_colours(const int8_t player_colours[MAX_NET_USERS])
 {
     int8_t slot_teams[MAX_NET_USERS];
     memset(slot_teams, -1, sizeof(slot_teams));
@@ -334,12 +337,19 @@ char net_alliances_from_player_colours(const int8_t player_colours[MAX_NET_USERS
     return alliances_from_teams(slot_teams);
 }
 
-void net_store_lobby_empty_seats(const int8_t player_slots[MAX_NET_USERS])
+void net_apply_lobby_seats(const int8_t player_slots[MAX_NET_USERS])
 {
     net_lobby_empty_seats = 0;
-    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS; plyr_idx++) {
-        if (net_user_with_value(player_slots, plyr_idx) < 0) {
+    for (int8_t seat = 0; seat < MAX_NET_USERS; seat++) {
+        PlayerNumber plyr_idx = net_seat_players[seat];
+        if (net_user_with_value(player_slots, seat) < 0) {
             set_flag(net_lobby_empty_seats, to_flag(plyr_idx));
+            continue;
+        }
+        if (player_is_roaming(plyr_idx)) {
+            struct PlayerInfo *player = get_player(plyr_idx);
+            player->allocflags &= ~(PlaF_Allocated | PlaF_CompCtrl);
+            player->player_type = PT_Keeper;
         }
     }
 }
@@ -366,10 +376,12 @@ void current_campaign_net_name(char *buf, size_t size)
     snprintf(buf, size, "%s%s", prefix, campaign.fname);
 }
 
-static PlayerNumber coop_player(void)
+static int8_t coop_seat(void)
 {
-    if (campaign.human_player >= 0 && campaign.human_player < NET_PLAYER_COLOUR_RANDOM) {
-        return campaign.human_player;
+    for (int8_t seat = 0; seat < MAX_NET_USERS; seat++) {
+        if (net_seat_players[seat] == campaign.human_player) {
+            return seat;
+        }
     }
     return 0;
 }
@@ -400,7 +412,7 @@ static void host_update_players(void)
             continue;
         }
         if (net_lobby_force_coop()) {
-            net_player_colour[user] = coop_player();
+            net_player_colour[user] = coop_seat();
         } else if (net_player_colour[user] < 0) {
             net_player_colour[user] = first_unused_value(net_player_colour);
         }
@@ -572,17 +584,19 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
 
 void setup_alliances(void)
 {
-    for (int i = 0; i < MAX_NET_USERS; i++) {
-        if (!player_exists(get_player(i))) {
+    for (int32_t seat1 = 0; seat1 < MAX_NET_USERS; seat1++) {
+        PlayerNumber plyr1_idx = net_seat_players[seat1];
+        if (!player_exists(get_player(plyr1_idx))) {
             continue;
         }
-        for (int k = i + 1; k < MAX_NET_USERS; k++) {
-            if (!player_exists(get_player(k))) {
+        for (int32_t seat2 = seat1 + 1; seat2 < MAX_NET_USERS; seat2++) {
+            PlayerNumber plyr2_idx = net_seat_players[seat2];
+            if (!player_exists(get_player(plyr2_idx))) {
                 continue;
             }
-            if (frontend_is_player_allied(i, k)) {
-                set_ally_with_player(i, k, true);
-                set_ally_with_player(k, i, true);
+            if (flag_is_set(frontend_alliances, frontend_alliance_flag(seat1, seat2))) {
+                set_ally_with_player(plyr1_idx, plyr2_idx, true);
+                set_ally_with_player(plyr2_idx, plyr1_idx, true);
             }
         }
     }
@@ -606,7 +620,7 @@ void frontnet_service_update(void)
 
 static void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
-    if (net_number_of_enum_players >= 4)
+    if (net_number_of_enum_players >= MAX_NET_USERS)
     {
         ERRORLOG("Too many players in enumeration");
         return;
@@ -1122,11 +1136,11 @@ void frontnet_skirmish_resolve_seats(void)
     int8_t player_slots[MAX_NET_USERS];
     net_resolve_player_colours(player_slots);
     frontend_alliances = net_alliances_from_player_colours(player_slots);
-    net_store_lobby_empty_seats(player_slots);
+    net_apply_lobby_seats(player_slots);
     if (player_slots[SOLO_HUMAN_ID] < 0) {
         return;
     }
-    my_player_number = player_slots[SOLO_HUMAN_ID];
+    my_player_number = net_seat_players[player_slots[SOLO_HUMAN_ID]];
     game.local_plyr_idx = my_player_number;
 }
 

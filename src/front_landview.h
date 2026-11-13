@@ -83,7 +83,7 @@ enum NetAction {
 
 struct ScreenPacket {
   unsigned char networkstatus_flags;
-  char frontend_alliances;
+  int32_t frontend_alliances;
   short stored_data1; // Can contain: hand_position_x
   short stored_data2; // Can contain: hand_position_y
   short action_par1;

@@ -94,8 +94,19 @@ TbBool frontmap_input_active_ensign(long curr_mx, long curr_my);
 TbBool frontmap_update_zoom(void);
 
 #define RANDOM_PLAYER_GREY 40
+#define PALETTE_CHANNELS 3
 
-TbPixel net_player_colours[] = { 251, 58, 182, 11 };
+static const unsigned char net_player_name_colours[MAX_NET_USERS + 1][PALETTE_CHANNELS] = {
+    {42, 3, 3},
+    {14, 39, 55},
+    {23, 31, 20},
+    {63, 60, 27},
+    {50, 50, 50},
+    {38, 10, 48},
+    {8, 8, 8},
+    {60, 32, 4},
+    {RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY},
+};
 const int32_t hand_limp_xoffset[] = { 32, 31, 30, 29, 28, 27, 26, 24, 22, 19, 15, 9 };
 const int32_t hand_limp_yoffset[] = { -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0 };
 
@@ -288,7 +299,6 @@ static void draw_netmap_players_hands(void)
     struct ScreenPacket nspck;
     const char *plyr_nam;
     const struct TbSprite *spr;
-    TbPixel colr;
     TbClockMSec now;
     int32_t x, y;
     int32_t w;
@@ -310,12 +320,8 @@ static void draw_netmap_players_hands(void)
         }
         get_hand_packet(i, &nspck, slap_frame, now);
         plyr_nam = network_user_name(i);
-        colr = net_player_colours[0];
-        if (net_player_colour[i] == NET_PLAYER_COLOUR_RANDOM) {
-            colr = LbPaletteFindColour(frontend_palette, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY);
-        } else if (net_player_colour[i] >= 0) {
-            colr = net_player_colours[net_player_colour[i]];
-        }
+        const unsigned char *name_colour = net_player_name_colours[max(net_player_colour[i], 0)];
+        TbPixel colr = LbPaletteFindColour(frontend_palette, name_colour[0], name_colour[1], name_colour[2]);
         spr = get_hand_sprite_for_packet(&nspck, anim_frame, &x, &y);
         x -= (long)map_info.screen_shift_x;
         y -= (long)map_info.screen_shift_y;
