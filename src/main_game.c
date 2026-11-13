@@ -329,6 +329,8 @@ TbBool startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
     clear_packets();
+    DaimonLevelEnd(); // a playback runs no Daimon keeper: the recorded packets act
+    daimon_pending_slots_clear();
     if (!open_packet_file_for_load(replay.fname,&centry))
     {
         ERRORLOG("Cannot replay \"%s\": unreadable, or written by an incompatible version",
@@ -398,6 +400,12 @@ TbBool startup_saved_packet_game(void)
         replay.turns_fastforward = replay.turns_stored;
     post_init_level();
     post_init_players();
+    // The recording's Daimon keepers get their slots again: the level start's (the header's) and the script's. No
+    // keeper is built: the recorded packets play them.
+    daimon_pending_slots_set_mask(daimon_pending_slots_mask() | replay.head.players_daimon);
+    daimon_set_adopt_mask(replay.head.players_daimon_adopt);
+    daimon_claim_pending_slots();
+    DaimonLevelStart();
     set_selected_level_number(0);
     if ((game.mode_flags & MFlg_IsDemoMode) == 0) {
         observer_init(my_player_number);
@@ -473,10 +481,8 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
         setup_zombie_players();
     }
     setup_alliances();
-    post_init_level();
-    post_init_players();
-    post_init_packets();
-    // Skirmish against Daimon: the computer keepers in the lobby's empty seats are Daimon's.
+    // Skirmish against Daimon: the computer keepers in the lobby's empty seats are Daimon's (before the replay's
+    // header is written, in post_init_level).
     if (!network_is_active() && fe_computer_players && net_config_info.computer_daimon && frontnet_service_selected(FrontendNetSvc_Skirmish)) {
         for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
             if (flag_is_set(net_lobby_empty_seats, to_flag(plyr_idx)) && player_is_computer_keeper(get_player(plyr_idx))) {
@@ -484,6 +490,9 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
             }
         }
     }
+    post_init_level();
+    post_init_players();
+    post_init_packets();
     // The keepers handed to Daimon (the lobby, the level script's DAIMON_PLAYER) get their slots, once the script's
     // COMPUTER_PLAYER has set them up, and Daimon its keepers.
     daimon_claim_pending_slots();

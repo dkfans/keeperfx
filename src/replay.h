@@ -24,6 +24,7 @@
 #include "net_filecheck.h"
 #include "user_prefs.h"
 #include "packets.h"
+#include "net_game.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -39,12 +40,13 @@ struct CatalogueEntry;
 // saved fields* changes in a way the schema decoder can't reconcile by name --
 // see SaveManager::ReadReplayHeader. A field rename/reorder/insertion
 // alone does NOT need a bump; the schema decode matches by name.)
-#define PACKET_SAVE_HEAD_VER 6
+#define PACKET_SAVE_HEAD_VER 7 // 7: the Daimon slots (PSHF_DaimonSlots), players_daimon, players_daimon_adopt
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
     PSHF_Compressed = 0x02,
     PSHF_MultiGame  = 0x04,
+    PSHF_DaimonSlots = 0x08, /**< every turn also records the packet slots past the network users (Daimon's keepers) */
 };
 
 // Replay file header.
@@ -68,6 +70,8 @@ struct PacketSaveHead {
     signed char recording_user;
     int8_t frontend_alliances;
     char user_names[MAX_NET_USERS][PLAYER_MP_NAME_LEN];
+    PlayerBitFlags players_daimon;       /**< keepers handed to Daimon at the level start (the lobby; not the script's) */
+    PlayerBitFlags players_daimon_adopt; /**< human keepers Daimon adopts if their human leaves */
 };
 
 #pragma pack()
@@ -87,7 +91,7 @@ struct PacketDecoderState {
 
 struct ReplayReaderPos {
     struct PacketDecoderState dec;
-    struct Packet codec_prev[MAX_NET_USERS];
+    struct Packet codec_prev[PACKETS_COUNT];
     GameTurn pckt_gameturn;
 };
 

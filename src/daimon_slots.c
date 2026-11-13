@@ -183,6 +183,11 @@ void daimon_set_adopt_mask(uint16_t mask)
     adopt_mask = mask;
 }
 
+uint16_t daimon_adopt_mask(void)
+{
+    return adopt_mask;
+}
+
 int32_t daimon_claim_pending_slots(void)
 {
     // The keepers Daimon adopts if their human leaves: marked on every machine alike.

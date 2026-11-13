@@ -44,6 +44,7 @@ void daimon_pending_slots_set_mask(uint16_t mask);
 int32_t daimon_claim_pending_slots(void);
 /** The human keepers Daimon adopts if their human leaves (a network game's start-up sync), marked at the claim. */
 void daimon_set_adopt_mask(uint16_t mask);
+uint16_t daimon_adopt_mask(void);
 
 /** After a load: every Daimon keeper has its one slot, every slot a Daimon keeper; a keeper that hasn't goes to the
  *  built-in AI, a slot that hasn't is freed. The number of keepers kept. */
