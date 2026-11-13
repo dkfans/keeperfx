@@ -212,9 +212,10 @@ function RegisterSlapEvent(action, thing, player)
     return trigger
 end
 
----Triggers when a thing is picked up
+---Triggers when a thing is about to be picked up, before it is in the hand
+---set eventData.deny = true to leave the thing where it is
 ---@param action function|string the function to call when the event happens
----@param thing? Thing the thing that got picked up
+---@param thing? Thing the thing that is being picked up
 ---@param player? Player the player picking up
 ---@return Trigger
 function RegisterPickUpEvent(action, thing, player)
@@ -223,6 +224,45 @@ function RegisterPickUpEvent(action, thing, player)
     local trigger = CreateTrigger("PickUp",action,trigData)
     if thing then
         TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.thing == triggerData.Thing end)
+    end
+    if player then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.Player end)
+    end
+    return trigger
+end
+
+---Triggers when a thing is about to be dropped from the hand
+---eventData.pos contains the drop position; set eventData.deny = true to keep the thing in the hand
+---forced drops (keeper defeated, Armageddon teleport, computer fallback to its heart) also trigger this, but ignore deny
+---@param action function|string the function to call when the event happens
+---@param thing? Thing the thing that is being dropped
+---@param player? Player the player dropping
+---@return Trigger
+function RegisterCreatureDropEvent(action, thing, player)
+    local trigData = { Thing = thing, Player = player }
+
+    local trigger = CreateTrigger("CreatureDrop",action,trigData)
+    if thing then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.thing == triggerData.Thing end)
+    end
+    if player then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.Player end)
+    end
+    return trigger
+end
+
+---Triggers when a creature dropped from the hand touches the ground, after the engine has chosen its state and job
+---setting eventData.unit.state overrides that choice
+---@param action function|string the function to call when the event happens
+---@param unit? Creature the creature that landed
+---@param player? Player the player who dropped it
+---@return Trigger
+function RegisterCreatureLandedEvent(action, unit, player)
+    local trigData = { unit = unit, Player = player }
+
+    local trigger = CreateTrigger("CreatureLanded",action,trigData)
+    if unit then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.unit == triggerData.unit end)
     end
     if player then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.Player end)

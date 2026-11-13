@@ -1425,7 +1425,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             struct Coord3d pos;
             pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
             pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
-            pos.z.val = get_thing_height_at(thing, &pos);
+            pos.z.val = get_thing_height_at_xy(thing, &pos);
             move_thing_in_map(thing, &pos);
             reset_interpolation_of_thing(thing);
             set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objst->sprite_size_max, 0, 0, ODC_Default);
@@ -1687,7 +1687,7 @@ static TbBool find_free_position_on_slab(struct Thing* thing, struct Coord3d* po
             {
                 pos->x.val = subtile_coord_center(x);
                 pos->y.val = subtile_coord_center(y);
-                pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                pos->z.val = get_thing_height_at_xy_with_radius(thing, pos, nav_sizexy);
                 if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
                     return true;
                 }

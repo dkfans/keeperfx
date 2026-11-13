@@ -885,7 +885,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             }
         }
     }
-    thing->effect_generator.generation_delay = egenstat->generation_delay_min + UNSYNC_RANDOM(egenstat->generation_delay_max - egenstat->generation_delay_min + 1);
+    thing->effect_generator.generation_delay = egenstat->generation_delay_min + THING_RANDOM(thing, egenstat->generation_delay_max - egenstat->generation_delay_min + 1);
     return TUFRet_Modified;
 }
 

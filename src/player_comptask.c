@@ -60,6 +60,7 @@
 #include "game_legacy.h"
 #include "cursor_tag.h"
 #include "gui_msgs.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -361,7 +362,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
     }
     case GA_Unk15:
     case GA_PlaceRoom:
-        room = player_build_room_at(stl_x, stl_y, plyr_idx, param2, 1);
+        room = player_build_room_at(stl_x, stl_y, plyr_idx, NO_USER, param2, 1);
         if (room_is_invalid(room))
             break;
         return Lb_SUCCESS;
@@ -369,21 +370,21 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
         dungeon->creature_tendencies = param1;
         return Lb_SUCCESS;
     case GA_PlaceTrap:
-        if (!player_place_trap_at(stl_x, stl_y, plyr_idx, param1))
+        if (!player_place_trap_at(stl_x, stl_y, plyr_idx, NO_USER, param1))
             break;
         return Lb_SUCCESS;
     case GA_PlaceDoor: {
         k = tag_cursor_blocks_place_door(plyr_idx, -1, stl_x, stl_y);
-        if (packet_place_door(stl_x, stl_y, plyr_idx, param1, k)) {
+        if (packet_place_door(stl_x, stl_y, plyr_idx, NO_USER, param1, k)) {
             return Lb_SUCCESS;
         } else {
             return Lb_FAIL;
         }
     }
     case GA_SellTrap:
-        return player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y, false);
+        return player_sell_trap_at_subtile(plyr_idx, NO_USER, stl_x, stl_y, false);
     case GA_SellDoor:
-        return player_sell_door_at_subtile(plyr_idx, stl_x, stl_y);
+        return player_sell_door_at_subtile(plyr_idx, NO_USER, stl_x, stl_y);
     case GA_UsePwrLightning:
         return magic_use_available_power_on_subtile(plyr_idx, NO_USER,PwrK_LIGHTNING, power_level, stl_x, stl_y, PwCast_None, PwMod_Default);
     case GA_UsePwrSpeedUp:
@@ -779,6 +780,12 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
         ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(droptng),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
         return 0;
     }
+    if (!lua_on_creature_drop(droptng, comp->dungeon->owner, &locpos)) {
+        return 0;
+    }
+    if (!thing_exists(droptng) || (comp->held_thing_idx != droptng->index)) {
+        return 0;
+    }
     int i;
     i = max_height - height;
     if (i < 0) {
@@ -795,7 +802,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
         destroy_object(droptng);
     } else
     {
-        drop_held_thing_on_ground(comp->dungeon, droptng, &locpos);
+        drop_held_thing_on_ground(comp->dungeon, NO_USER, droptng, &locpos);
     }
     comp->held_thing_idx = 0;
     comp->tasks_did--;
@@ -819,6 +826,14 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
     }
     if (!can_place_thing_here(thing, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
         SYNCDBG(7,"Computer tries to pick up %s index %d which cannot be dropped at given place", thing_model_name(thing),(int)thing->index);
+        return 0;
+    }
+    if (!lua_on_pick_up(thing, comp->dungeon->owner)) {
+        SYNCDBG(7,"Computer tries to pick up %s index %d which is denied by script", thing_model_name(thing),(int)thing->index);
+        return 0;
+    }
+    // The handler may have removed the thing
+    if (!thing_exists(thing)) {
         return 0;
     }
     computer_pick_thing_by_hand(comp, thing);
@@ -848,8 +863,9 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
     locpos.x.val = subtile_coord_center(pos->x.stl.num);
     locpos.y.val = subtile_coord_center(pos->y.stl.num);
     locpos.z.val = get_thing_height_at(thing, &locpos);
-    drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
+    drop_held_thing_on_ground(comp->dungeon, NO_USER, thing, &locpos);
     comp->held_thing_idx = 0;
+    lua_on_creature_drop(thing, comp->dungeon->owner, &locpos);
     return true;
 }
 

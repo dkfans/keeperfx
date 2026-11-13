@@ -619,8 +619,9 @@ TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const str
         break;
     case JoKF_AssignOnAreaCenter:
         SYNCDBG(9,"Job %s requires dropping at %s center",creature_job_code_name(jobpref),room_code_name(room->kind));
+        // A room too small to have a centre area cannot take the job. Success was
+        // reported here even then, with pos never written.
         result = find_random_position_at_area_of_room(pos, room, RoArC_CENTER, thing);
-        result = true;
         break;
     case (JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter):
         SYNCDBG(9,"Job %s has no %s area preference",creature_job_code_name(jobpref),room_code_name(room->kind));

@@ -61,7 +61,7 @@ static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long slab_fl
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(speed, angle);
     pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(speed, angle);
-    pos.z.val = get_thing_height_at(thing, &pos);
+    pos.z.val = get_thing_height_at_xy(thing, &pos);
     return (creature_cannot_move_directly_to_with_collide(thing, &pos, slab_flags, crt_owner_flags) != 4);
 }
 
@@ -375,7 +375,7 @@ void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *c
             tmpos.y.val += nav_radius;
         }
     }
-    tmpos.z.val = get_thing_height_at(creatng, &tmpos);
+    tmpos.z.val = get_thing_height_at_xy(creatng, &tmpos);
     dstpos->x.val = tmpos.x.val;
     dstpos->y.val = tmpos.y.val;
     dstpos->z.val = tmpos.z.val;
@@ -666,7 +666,7 @@ static TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Co
     struct Coord3d horizontal_step_position;
     horizontal_step_position.x.val = coord;
     horizontal_step_position.y.val = pos1->y.val;
-    horizontal_step_position.z.val = get_thing_height_at(creatng, &horizontal_step_position);
+    horizontal_step_position.z.val = get_thing_height_at_xy(creatng, &horizontal_step_position);
     coord = pos1->y.val;
     if (coord < direct_line_position.y.val) {
         coord += speed;
@@ -677,7 +677,7 @@ static TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Co
     struct Coord3d vertical_step_position;
     vertical_step_position.y.val = coord;
     vertical_step_position.x.val = pos1->x.val;
-    vertical_step_position.z.val = get_thing_height_at(creatng, &vertical_step_position);
+    vertical_step_position.z.val = get_thing_height_at_xy(creatng, &vertical_step_position);
     return creature_cannot_move_directly_to_with_collide(creatng, &horizontal_step_position, slab_flags, crt_owner_flags) != 4
         && creature_cannot_move_directly_to_with_collide(creatng, &vertical_step_position, slab_flags, crt_owner_flags) != 4
         && creature_cannot_move_directly_to_with_collide(creatng, &direct_line_position, slab_flags, crt_owner_flags) != 4;
@@ -716,6 +716,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
     MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
     if ((hugging_blocked_flags & 1) != 0)
     {
         if (arg_pos->x.val >= creatng->mappos.x.val)
@@ -848,7 +849,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
         {
             next_position.x.val = move_coord_with_angle_x(creatng->mappos.x.val, speed, navi->angle);
             next_position.y.val = move_coord_with_angle_y(creatng->mappos.x.val, speed, navi->angle);
-            next_position.z.val = get_thing_height_at(creatng, &next_position);
+            next_position.z.val = get_thing_height_at_xy(creatng, &next_position);
             if (creature_cannot_move_directly_to_with_collide(creatng, &next_position, slab_flags, crt_owner_flags) == 4)
             {
                 temporary_blocked_flags = get_hugging_blocked_flags(creatng, &next_position, slab_flags, IGNORE_SLAB_OWNER_CHECK);
@@ -856,6 +857,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 blocking_flags = temporary_blocked_flags;
                 pos.x.val = creatng->mappos.x.val;
                 pos.y.val = creatng->mappos.y.val;
+                pos.z.val = creatng->mappos.z.val;
                 if ((blocking_flags & 1) != 0)
                 {
                     if (next_position.x.val >= creatng->mappos.x.val)
@@ -933,7 +935,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
 
             next_position.x.val = move_coord_with_angle_x(creatng->mappos.x.val, speed, navi->angle);
             next_position.y.val = move_coord_with_angle_y(creatng->mappos.y.val, speed, navi->angle);
-            next_position.z.val = get_thing_height_at(creatng, &next_position);
+            next_position.z.val = get_thing_height_at_xy(creatng, &next_position);
             check_forward_for_prospective_hugs(
                 creatng,
                 &next_position,
@@ -984,6 +986,7 @@ static int get_starting_angle_and_side_of_hug_sub1(
     MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
     adjusted_navigation_position.x.val = creatng->mappos.x.val;
     adjusted_navigation_position.y.val = creatng->mappos.y.val;
+    adjusted_navigation_position.z.val = creatng->mappos.z.val;
     if ((hugging_blocked_flags & 1) != 0)
     {
         if (pos->x.val >= creatng->mappos.x.val)
@@ -998,7 +1001,7 @@ static int get_starting_angle_and_side_of_hug_sub1(
             adjusted_navigation_position.x.stl.pos = 1;
             adjusted_navigation_position.x.val += nav_radius;
         }
-        adjusted_navigation_position.z.val = get_thing_height_at(creatng, &adjusted_navigation_position);
+        adjusted_navigation_position.z.val = get_thing_height_at_xy(creatng, &adjusted_navigation_position);
     }
     if ((hugging_blocked_flags & 2) != 0)
     {
@@ -1209,7 +1212,7 @@ static signed char get_starting_angle_and_side_of_hug(
         {
             target_movement_position.x.val = move_coord_with_angle_x(creatng->mappos.x.val, COORD_PER_STL, navi->angle);
             target_movement_position.y.val = move_coord_with_angle_y(creatng->mappos.y.val, COORD_PER_STL, navi->angle);
-            target_movement_position.z.val = get_thing_height_at(creatng, &target_movement_position);
+            target_movement_position.z.val = get_thing_height_at_xy(creatng, &target_movement_position);
             if (creature_cannot_move_directly_to_with_collide(creatng, &target_movement_position, slab_flags, crt_owner_flags) == 4)
             {
                 get_starting_angle_and_side_of_hug_sub1(creatng, &target_movement_position, slab_flags, IGNORE_SLAB_OWNER_CHECK);
@@ -1227,7 +1230,7 @@ static signed char get_starting_angle_and_side_of_hug(
             creatng->move_angle_xy = angle_of_wall_hug;
             target_movement_position.x.val = move_coord_with_angle_x(creatng->mappos.x.val, COORD_PER_STL, navi->angle);
             target_movement_position.y.val = move_coord_with_angle_y(creatng->mappos.y.val, COORD_PER_STL, navi->angle);
-            target_movement_position.z.val = get_thing_height_at(creatng, &target_movement_position);
+            target_movement_position.z.val = get_thing_height_at_xy(creatng, &target_movement_position);
             check_forward_for_prospective_hugs(
                 creatng,
                 &target_movement_position,
@@ -1328,7 +1331,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
                 pos.y.val = nav_radius + creatng->mappos.y.val - COORD_PER_STL;
                 pos.y.stl.pos = (COORD_PER_STL-1);
                 pos.y.val -= nav_radius;
-                pos.z.val = get_thing_height_at(creatng, &pos);
+                pos.z.val = get_thing_height_at_xy(creatng, &pos);
                 break;
             }
             return false;
@@ -1339,7 +1342,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
                 pos.x.val = creatng->mappos.x.val - nav_radius + COORD_PER_STL;
                 pos.x.stl.pos = 0;
                 pos.x.val += nav_radius;
-                pos.z.val = get_thing_height_at(creatng, &pos);
+                pos.z.val = get_thing_height_at_xy(creatng, &pos);
                 break;
             }
             return false;
@@ -1350,7 +1353,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
                 pos.y.val = creatng->mappos.y.val - nav_radius + COORD_PER_STL;
                 pos.y.stl.pos = 0;
                 pos.y.val += nav_radius;
-                pos.z.val = get_thing_height_at(creatng, &pos);
+                pos.z.val = get_thing_height_at_xy(creatng, &pos);
                 break;
             }
             return false;
@@ -1361,7 +1364,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
                 pos.x.val = nav_radius + creatng->mappos.x.val - COORD_PER_STL;
                 pos.x.stl.pos = (COORD_PER_STL-1);
                 pos.x.val -= nav_radius;
-                pos.z.val = get_thing_height_at(creatng, &pos);
+                pos.z.val = get_thing_height_at_xy(creatng, &pos);
                 break;
             }
             return false;
@@ -1374,7 +1377,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
 
         next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
         next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
-        next_pos.z.val = get_thing_height_at(creatng, &next_pos);
+        next_pos.z.val = get_thing_height_at_xy(creatng, &next_pos);
         if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, slab_flags, crt_owner_flags) == 4)
         {
             stored_creature_pos = creatng->mappos;
@@ -1399,7 +1402,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
     quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) * DEGREES_90;
     next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
     next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
-    next_pos.z.val = get_thing_height_at(creatng, &next_pos);
+    next_pos.z.val = get_thing_height_at_xy(creatng, &next_pos);
     if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, slab_flags, crt_owner_flags) != 4)
         return false;
     stored_creature_pos = creatng->mappos;
@@ -1773,7 +1776,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         {
           tmpos.x.val = creatng->mappos.x.val + distance_with_angle_to_coord_x(speed, navi->angle);
           tmpos.y.val = creatng->mappos.y.val + distance_with_angle_to_coord_y(speed, navi->angle);
-          tmpos.z.val = get_thing_height_at(creatng, &tmpos);
+          tmpos.z.val = get_thing_height_at_xy(creatng, &tmpos);
           if (creature_cannot_move_directly_to_with_collide(creatng, &tmpos, SlbAtFlg_Filled|SlbAtFlg_Valuable, crt_owner_flags) == 4)
           {
               block_flags = get_hugging_blocked_flags(creatng, &tmpos, SlbAtFlg_Filled|SlbAtFlg_Valuable, crt_owner_flags);
