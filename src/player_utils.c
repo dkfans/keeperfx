@@ -61,6 +61,7 @@
 #include "timer.h"
 #include "packets.h"
 #include "net_game.h"
+#include "daimon/Daimon.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -222,6 +223,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Computing player score
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
+    DaimonOnKeeperDefeated(player->id_number); // a keeper Daimon plays stops planning and writing packets
     output_player_message(player->id_number, SMsg_LevelFailed, 0);
     if (is_my_player(player)) {
         turn_off_all_menus();
