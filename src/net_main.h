@@ -39,7 +39,10 @@ extern "C" {
 #define MIN_NET_USERS 2
 #define MAX_NET_USERS 4
 #define MAX_NET_SPECTATORS 50
-#define MAX_NET_CONNECTIONS (MAX_NET_USERS + MAX_NET_SPECTATORS)
+/** The first spectator id: after the packet slots (PACKETS_COUNT, net_game.h), whose ids from MAX_NET_USERS on are the
+ *  local packet authors' (Daimon's keepers), never a connection. */
+#define FIRST_SPECTATOR_ID 9
+#define MAX_NET_CONNECTIONS (FIRST_SPECTATOR_ID + MAX_NET_SPECTATORS)
 #define SPECTATOR_CONNECT_DATA 0x53504543
 #define ALL_NET_USERS_MASK ((1 << MAX_NET_USERS) - 1)
 #define MAX_NET_PEERS (MAX_NET_USERS - 1)

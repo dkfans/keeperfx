@@ -104,7 +104,7 @@ static void assign_spectator_icon(NetUserId sender)
 {
     const char *name = netstate.users[sender].name;
     uint32_t used = 0;
-    for (NetUserId id = MAX_NET_USERS; id < MAX_NET_CONNECTIONS; id++) {
+    for (NetUserId id = FIRST_SPECTATOR_ID; id < MAX_NET_CONNECTIONS; id++) {
         used |= UINT32_C(1) << netstate.users[id].spectator_icon;
     }
     int32_t available = 0;
@@ -129,7 +129,7 @@ static void assign_spectator_icon(NetUserId sender)
 
 TbBool network_user_is_spectator(NetUserId user_id)
 {
-    return user_id >= MAX_NET_USERS && user_id < MAX_NET_CONNECTIONS;
+    return user_id >= FIRST_SPECTATOR_ID && user_id < MAX_NET_CONNECTIONS;
 }
 
 static void spectator_message_add(int32_t icon, const char *text)
@@ -194,7 +194,7 @@ TbError process_network_spectator_chat(NetUserId source, const char *buffer, siz
         return Lb_OK;
     }
     NetUserId sender = (uint8_t)buffer[0];
-    if (sender < MAX_NET_USERS || sender >= MAX_NET_CONNECTIONS || (source != SERVER_ID && source != sender)) {
+    if (sender < FIRST_SPECTATOR_ID || sender >= MAX_NET_CONNECTIONS || (source != SERVER_ID && source != sender)) {
         return Lb_OK;
     }
     int32_t icon = (uint8_t)buffer[1];
@@ -229,7 +229,7 @@ TbError process_network_spectator_chat(NetUserId source, const char *buffer, siz
 void network_spectator_update_roles(void)
 {
     network_spectators = 0;
-    for (NetUserId id = MAX_NET_USERS; id < MAX_NET_CONNECTIONS; id++) {
+    for (NetUserId id = FIRST_SPECTATOR_ID; id < MAX_NET_CONNECTIONS; id++) {
         if (IsUserActive(id) && netstate.users[id].spectator_state == NetSpectator_Streaming) {
             network_spectators |= UINT64_C(1) << id;
         }
@@ -368,7 +368,7 @@ void network_spectator_seat_users(void)
     if (!network_is_host()) {
         return;
     }
-    for (NetUserId spectator_id = MAX_NET_USERS; spectator_id < MAX_NET_CONNECTIONS; spectator_id++) {
+    for (NetUserId spectator_id = FIRST_SPECTATOR_ID; spectator_id < MAX_NET_CONNECTIONS; spectator_id++) {
         struct NetUser *spectator = &netstate.users[spectator_id];
         if (!IsUserActive(spectator_id) || !spectator->seat_requested) {
             continue;
@@ -578,7 +578,7 @@ void network_spectator_convert_requested_users(void)
          || (user_present(player_id) && !player_defeat_settled(get_net_user_player_number(player_id)))) {
             continue;
         }
-        NetUserId spectator_id = find_unused_user_id(MAX_NET_USERS, MAX_NET_CONNECTIONS);
+        NetUserId spectator_id = find_unused_user_id(FIRST_SPECTATOR_ID, MAX_NET_CONNECTIONS);
         if (spectator_id == INVALID_USER_ID) {
             return;
         }
@@ -789,7 +789,7 @@ void network_spectator_send_snapshots(void)
         return;
     }
     uint64_t recipients = 0;
-    for (NetUserId id = MAX_NET_USERS; id < MAX_NET_CONNECTIONS; id++) {
+    for (NetUserId id = FIRST_SPECTATOR_ID; id < MAX_NET_CONNECTIONS; id++) {
         if (IsUserActive(id) && !netstate.users[id].seat_requested && (netstate.users[id].spectator_state == NetSpectator_SnapshotPending || netstate.users[id].spectator_resync_requested)) {
             recipients |= UINT64_C(1) << id;
         }
@@ -806,7 +806,7 @@ void network_spectator_send_snapshots(void)
         for (int32_t i = 0; i < spectator_resync_turn_count; i++) {
             send_spectator_turn(&spectator_resync_turns[i], recipients);
         }
-        for (NetUserId id = MAX_NET_USERS; id < MAX_NET_CONNECTIONS; id++) {
+        for (NetUserId id = FIRST_SPECTATOR_ID; id < MAX_NET_CONNECTIONS; id++) {
             if (recipients & (UINT64_C(1) << id)) {
                 netstate.users[id].spectator_resync_requested = false;
                 if (netstate.users[id].spectator_state == NetSpectator_SnapshotPending) {

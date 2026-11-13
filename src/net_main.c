@@ -158,7 +158,7 @@ enum NetJoinRejection OnNewUser(NetUserId *assigned_id, enum NetConnectionRole r
     NetUserId last_id = netstate.max_users;
     if (role == NetRole_Spectator) {
         reason = net_lobby_spectator_rejection(INVALID_USER_ID);
-        first_id = MAX_NET_USERS;
+        first_id = FIRST_SPECTATOR_ID;
         last_id = MAX_NET_CONNECTIONS;
     } else {
         reason = net_lobby_join_rejection();

@@ -54,6 +54,8 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
+_Static_assert(FIRST_SPECTATOR_ID == PACKETS_COUNT, "spectator ids start after the packet slots");
+
 #ifdef __cplusplus
 extern "C" {
 #endif

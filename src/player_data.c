@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "observer.h"
 #include "player_data.h"
+#include "net_spectator.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -205,7 +206,7 @@ struct UserState *get_user_state(NetUserId user)
     if (user == OBSERVER_USER) {
         return &local_observer_user_state;
     }
-    if (network_is_active() && user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
+    if (network_is_active() && user == netstate.my_id && network_user_is_spectator(user)) {
         return &local_observer_user_state;
     }
     if ((user < 0) || (user >= MAX_NET_USERS))
