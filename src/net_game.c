@@ -687,8 +687,9 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
     toggle_computer_player(player->id_number);
     message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
     JUSTLOG("p:%d computer took over", player->id_number);
-    // The host hands it on to Daimon if the game was set up so: a packet of its own, applied everywhere (dai_net.h).
-    if (flag_is_set(player->allocflags, PlaF_DaimonAdopt) && network_is_active() && network_is_host() && !replay.load_enable) {
+    // The host hands it on to Daimon if the game was set up so: a packet of its own, applied everywhere (dai_net.h) --
+    // also once the game has gone local (the human who left was the last).
+    if (flag_is_set(player->allocflags, PlaF_DaimonAdopt) && network_is_host() && !replay.load_enable) {
         dai_net_request_adoption(player->id_number);
     }
 }
