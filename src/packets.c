@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "dai_net.h"
 #include "daimon_packets.h"
 #include "replay.h"
 #include "net_input_lag.h"
@@ -435,6 +436,7 @@ TbBool packet_action_has_camera_position(enum TbPacketAction action)
     case PckA_DaiCastAt:
     case PckA_DaiCastOn:
     case PckA_GroupAdd:
+    case PckA_DaimonCheats:
         return false;
     default:
         return true;
@@ -1147,6 +1149,7 @@ TbBool process_user_global_packet_action(NetUserId user)
     case PckA_DaiDigRect: case PckA_DaiBuildRect: case PckA_DaiSellRect: case PckA_DaiPlaceTrap:
     case PckA_DaiPlaceDoor: case PckA_DaiDropAt: case PckA_DaiCastAt: case PckA_DaiHandPick: case PckA_DaiCastOn:
     case PckA_FormGroup: case PckA_GroupAdd: case PckA_OrderGroup: case PckA_ReleaseGroup:
+    case PckA_DaimonCheats:
         return daimon_process_packet_action(user);
     case PckA_PlyrQueryCreature:
     {
@@ -1620,6 +1623,7 @@ enum PacketExchangeResult exchange_packets(void)
     update_dig_tag_input();
     if (!replay.load_enable && !spectator) {
         set_pending_timestamp_packet_action(get_local_packet());
+        dai_net_set_pending_host_action(get_local_packet());
         camera_packet_set_state(get_local_packet());
         set_packet_possession_target(get_local_packet());
         observer_set_packet_cursor(get_local_packet());

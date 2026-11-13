@@ -2,8 +2,9 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file dai_net.h
- *     Daimon in network games: not in this build yet. Every machine runs a local game's Daimon only; these do
- *     nothing, so Daimon's keepers are not offered in a network game.
+ *     Daimon and the host: the lobby's choice of Daimon opponents, a keeper's difficulty cheats and a dropped
+ *     player's adoption, sent once in the host's own packet (dai_net.c). Network play itself (the host authoring the
+ *     Daimon slots for the clients, replicating Daimon's state) is not in this build yet: those do nothing here.
  */
 /******************************************************************************/
 #ifndef DK_DAI_NET_H
@@ -22,21 +23,31 @@ struct Packet;
 
 #define DAI_NET_SNAPSHOTS 2
 
+/** The lobby's choice: the AI keepers are Daimon's, with this personality and difficulty ("" for the default). */
+void dai_net_set_opponents(TbBool on, const char *personality);
+TbBool dai_net_opponents(void);
+const char *dai_net_opponents_personality(void);
+void dai_net_set_opponents_difficulty(const char *difficulty);
+const char *dai_net_opponents_difficulty(void);
+/** Queues every keeper but the humans' (a bit per player) for Daimon at the level start, if the lobby chose it. */
+void dai_net_queue_opponents(uint16_t human_slots);
+void dai_net_set_assistants_allowed(TbBool on);
+TbBool dai_net_assistants_allowed(void);
+uint16_t dai_net_lobby_bits(void);
+void dai_net_read_lobby_bits(uint16_t bits);
+
+/** A dropped player's keeper adopted by Daimon (network games). */
+void dai_net_set_adoption(TbBool on);
+TbBool dai_net_adoption(void);
+void dai_net_request_adoption(PlayerNumber plyr_idx);
+void dai_net_cancel_adoption(PlayerNumber plyr_idx);
+/** A Daimon keeper's difficulty cheats, applied once on every machine (PckA_DaimonCheats in the host's packet). */
+void dai_net_request_cheats(PlayerNumber plyr_idx, uint64_t flags, int64_t gold, int64_t bonus_pct, int64_t discount_pct);
+/** The host's own packet, after its input: the first waiting request, if the packet has no action of its own. */
+void dai_net_set_pending_host_action(struct Packet *pckt);
+
 static inline TbBool dai_net_slot_expected(NetUserId slot) { (void)slot; return false; }
 static inline void dai_net_host_author_slots(void) {}
-static inline void dai_net_set_adoption(TbBool on) { (void)on; }
-static inline TbBool dai_net_adoption(void) { return false; }
-static inline void dai_net_set_opponents(TbBool on, const char *personality) { (void)on; (void)personality; }
-static inline TbBool dai_net_opponents(void) { return false; }
-static inline const char *dai_net_opponents_personality(void) { return ""; }
-static inline void dai_net_set_opponents_difficulty(const char *difficulty) { (void)difficulty; }
-static inline const char *dai_net_opponents_difficulty(void) { return ""; }
-static inline void dai_net_queue_opponents(uint16_t human_slots) { (void)human_slots; }
-static inline void dai_net_request_adoption(PlayerNumber plyr_idx) { (void)plyr_idx; }
-static inline void dai_net_cancel_adoption(PlayerNumber plyr_idx) { (void)plyr_idx; }
-static inline void dai_net_request_cheats(PlayerNumber plyr_idx, uint64_t flags, int64_t gold, int64_t bonus_pct, int64_t discount_pct)
-    { (void)plyr_idx; (void)flags; (void)gold; (void)bonus_pct; (void)discount_pct; }
-static inline void dai_net_set_pending_host_action(struct Packet *pckt) { (void)pckt; }
 static inline void dai_net_send_state(DaiTurn turn, const uint8_t *blob, size_t len) { (void)turn; (void)blob; (void)len; }
 static inline TbBool dai_net_snapshot(int64_t i, const uint8_t **data, size_t *len, DaiTurn *turn)
     { (void)i; (void)data; (void)len; (void)turn; return false; }

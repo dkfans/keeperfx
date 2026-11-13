@@ -219,6 +219,8 @@ enum TbPacketAction {
         PckA_GroupAdd,      // par1..par4: members to add
         PckA_OrderGroup,    // par1: the order | its value << 8; par2: the subtile
         PckA_ReleaseGroup,
+        PckA_DaimonCheats,  // par1: the keeper; par2: gold; par3: flags | discount << 4; par4: creature bonus
+        PckA_AdoptKeeper,   // par1: the dropped player's keeper
 };
 
 /** Packet flags for non-action player operation. **/

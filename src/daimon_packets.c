@@ -26,6 +26,11 @@
 #include "thing_doors.h"
 #include "config_trapdoor.h"
 #include "config_terrain.h"
+#include "net_main.h"
+#include "creature_control.h"
+#include "thing_creature.h"
+#include "player_utils.h"
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -39,6 +44,41 @@ struct GlobalAction {
     NetUserId user;
     struct PlayerInfo *player;
 };
+
+static TbBool global_daimon_cheats(const struct GlobalAction *ctx)
+{
+    const struct Packet *pckt = ctx->pckt;
+    if (ctx->user != SERVER_ID) {
+        WARNLOG("Ignoring Daimon's cheats from user %" PRId64 "; only the host may send them", (int64_t)ctx->user);
+        return 0;
+    }
+    const PlayerNumber plyr_idx = (PlayerNumber)pckt->actn_par1;
+    const int64_t gold = pckt->actn_par2, flags = (uint16_t)pckt->actn_par3 & 0xF, discount = (uint16_t)pckt->actn_par3 >> 4;
+    const int64_t bonus = pckt->actn_par4;
+    const char *why = ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT)) ? "no such player"
+        : (daimon_slot_of(plyr_idx) < 0) ? "not a Daimon keeper"
+        : (((flags & ~6) != 0) || (flags == 0)) ? "unknown flags"
+        : ((gold < 0) || (gold > 1000000) || (bonus < 0) || (bonus > 400) || (discount > 100)) ? "amounts out of range" : NULL;
+    if (why != NULL) {
+        WARNLOG("Ignoring Daimon's cheats for player %" PRId64 ": %s", (int64_t)pckt->actn_par1, why);
+        return 0;
+    }
+    struct PlayerInfo *player = get_player(plyr_idx);
+    if (flag_is_set(player->allocflags, PlaF_DaimonCheats)) return 0;
+    set_flag(player->allocflags, PlaF_DaimonCheats);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    if ((flags & 2) != 0) player_add_offmap_gold(plyr_idx, gold);
+    if ((flags & 4) != 0) {
+        dungeon->modifier.health += bonus;
+        dungeon->modifier.strength += bonus;
+        dungeon->modifier.armour += bonus;
+        dungeon->modifier.pay = (dungeon->modifier.pay > discount) ? dungeon->modifier.pay - discount : 0;
+        do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
+    }
+    JUSTLOG("p:%" PRId64 " Daimon's cheats applied (flags %" PRId64 ", gold %" PRId64 ", creatures +%" PRId64 "%%, pay -%" PRId64 "%%)",
+        (int64_t)plyr_idx, flags, ((flags & 2) != 0) ? gold : 0, ((flags & 4) != 0) ? bonus : 0, ((flags & 4) != 0) ? discount : 0);
+    return 0;
+}
 
 static TbBool global_keeper_group(const struct GlobalAction *ctx)
 {
@@ -269,6 +309,8 @@ TbBool daimon_process_packet_action(NetUserId user)
     ctx.user = user;
     ctx.player = get_player(ctx.plyr_idx);
     switch (ctx.pckt->action) {
+    case PckA_DaimonCheats:
+        return global_daimon_cheats(&ctx);
     case PckA_FormGroup: case PckA_GroupAdd: case PckA_OrderGroup: case PckA_ReleaseGroup:
         return global_keeper_group(&ctx);
     default:
