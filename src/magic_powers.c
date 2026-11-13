@@ -2096,6 +2096,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, NetUserId use
 TbResult magic_use_power_direct(PlayerNumber plyr_idx, NetUserId user, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
+
     lua_on_power_cast(plyr_idx, pwkind, power_level, stl_x, stl_y, thing);
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if(powerst->magic_use_func_idx > 0 && magic_use_func_list[powerst->magic_use_func_idx] != NULL)
