@@ -39,6 +39,10 @@ uint16_t daimon_pending_slots_mask(void);
 void daimon_pending_slots_set_mask(uint16_t mask);
 int32_t daimon_claim_pending_slots(void);
 
+/** After a load: every Daimon keeper has its one slot, every slot a Daimon keeper; a keeper that hasn't goes to the
+ *  built-in AI, a slot that hasn't is freed. The number of keepers kept. */
+int32_t daimon_restore_slots_after_load(void);
+
 /** Once a turn, after input and before the packet exchange: each Daimon keeper's slot packet cleared and written
  *  afresh by Daimon's turn (DaimonTickAuthors). */
 void daimon_write_slot_packets(void);

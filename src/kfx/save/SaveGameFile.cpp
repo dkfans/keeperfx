@@ -17,6 +17,7 @@
 #include "kfx/save/SaveManager_Internal.h"
 #include "kfx/save/core/save_bytes.h"
 #include "kfx/save/core/save_inspect.h"
+#include "daimon/Daimon.h"
 #include "kfx/save/core/save_migrate.h"
 #include "kfx/save/core/save_config_overlay.h"
 #include "kfx/save/core/save_names.h"
@@ -27,7 +28,8 @@
 namespace savegame {
 
 enum SaveResult Build(const Game *game_state, const IntralevelData *ilvl, const char *custom_ilvl_data, uint32_t custom_ilvl_len,
-    const Configs *baseline, const char *lua_data, uint32_t lua_len, const CatalogueEntry *centry, SaveBuffer *out, SaveError *err)
+    const Configs *baseline, const char *lua_data, uint32_t lua_len, const char *daimon_data, uint32_t daimon_len,
+    const CatalogueEntry *centry, SaveBuffer *out, SaveError *err)
 {
     SaveBufferOwner meta, schema_buffer, nams, conf, gamebuf, ilvlbuf;
     uint32_t root_count;
@@ -64,6 +66,8 @@ enum SaveResult Build(const Game *game_state, const IntralevelData *ilvl, const 
         succeeded = succeeded && (save_chunk_add(out, SCID_CustomIntralevelData, 0, custom_ilvl_data, custom_ilvl_len, false) == 0);
     if (lua_len > 0)
         succeeded = succeeded && (save_chunk_add(out, SCID_Lua, 0, lua_data, lua_len, true) == 0);
+    if (daimon_len > 0)
+        succeeded = succeeded && (save_chunk_add(out, SCID_Daimon, 0, daimon_data, daimon_len, true) == 0);
     if ((result == SVR_Ok) && !succeeded)
         result = save_fail(err, SVR_NoMemory, "out of memory");
     if (result != SVR_Ok)
@@ -88,7 +92,23 @@ bool Write(IFileSystem &filesystem, const char *fname, const CatalogueEntry *cen
         free(lua_data);
         return false;
     }
-    enum SaveResult result = Build(&game, &intralvl, custom_intralevel_data, custom_intralevel_data_len, conf_baseline, lua_data, (uint32_t)lua_len, centry, &out, &err);
+    // Daimon's keepers, when it plays any: its save version, then its state.
+    std::vector<char> daimon;
+    {
+        char *blob = nullptr;
+        const size_t blob_len = DaimonSaveBlob(&blob);
+        if ((blob_len > 0) && (blob_len < INT32_MAX - 4))
+        {
+            const uint32_t version = DAIMON_SAVE_MAJOR;
+            daimon.resize(4 + blob_len);
+            for (int i = 0; i < 4; i++)
+                daimon[i] = (char)((version >> (8 * i)) & 0xFF);
+            memcpy(daimon.data() + 4, blob, blob_len);
+        }
+        free(blob);
+    }
+    enum SaveResult result = Build(&game, &intralvl, custom_intralevel_data, custom_intralevel_data_len, conf_baseline, lua_data, (uint32_t)lua_len,
+        daimon.data(), (uint32_t)daimon.size(), centry, &out, &err);
     free(lua_data);
     if (result != SVR_Ok)
     {
@@ -110,7 +130,7 @@ struct RawChunk {
 };
 
 struct RawChunks {
-    RawChunk meta, schema, nams, conf, game, ilvl, custom_ilvl, lua;
+    RawChunk meta, schema, nams, conf, game, ilvl, custom_ilvl, lua, daimon;
     uint16_t minor = 0;     /* the file's schema revision */
 };
 
@@ -126,6 +146,7 @@ RawChunk *chunk_for(RawChunks &chunks, uint32_t id)
     case SCID_Level:  return &chunks.ilvl;
     case SCID_Lua:    return &chunks.lua;
     case SCID_CustomIntralevelData: return &chunks.custom_ilvl;
+    case SCID_Daimon: return &chunks.daimon;
     default:          return nullptr;   /* a chunk from a newer build that isn't required: skipped */
     }
 }
@@ -240,6 +261,7 @@ enum SaveResult Read(IFileSystem &filesystem, const char *fname, CatalogueEntry 
         out->conf_data = chunks.conf.data.release(); out->conf_len = chunks.conf.len;
         out->lua_data = reinterpret_cast<char *>(chunks.lua.data.release()); out->lua_len = chunks.lua.len;
         out->custom_ilvl_data = reinterpret_cast<char *>(chunks.custom_ilvl.data.release()); out->custom_ilvl_len = chunks.custom_ilvl.len;
+        out->daimon_data = reinterpret_cast<char *>(chunks.daimon.data.release()); out->daimon_len = chunks.daimon.len;
     }
     return result;
 }
@@ -250,6 +272,7 @@ void FreeReadResult(ReadResult *out)
     free(out->conf_data);
     free(out->lua_data);
     free(out->custom_ilvl_data);
+    free(out->daimon_data);
     memset(out, 0, sizeof(*out));
 }
 

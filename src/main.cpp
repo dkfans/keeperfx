@@ -152,6 +152,7 @@
 #endif
 
 #include "daimon/Daimon.h"
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 #ifdef _MSC_VER
@@ -872,6 +873,8 @@ void reinit_level_after_load(void)
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
     restore_computer_player_after_load();
+    daimon_restore_slots_after_load();
+    DaimonAfterLoad();
     sound_reinit_after_load();
     rederive_local_state();
     update_panel_colors();

@@ -170,6 +170,38 @@ int32_t daimon_claim_pending_slots(void)
     return claimed;
 }
 
+int32_t daimon_restore_slots_after_load(void)
+{
+    for (NetUserId slot = MAX_NET_USERS; slot < PACKETS_COUNT; slot++) {
+        const PlayerNumber plyr_idx = get_net_user_player_number(slot);
+        if (plyr_idx == PLAYER_NONE) {
+            continue;
+        }
+        const struct PlayerInfo *player = get_player(plyr_idx);
+        if ((plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT) || !player_exists(player) || !flag_is_set(player->allocflags, PlaF_Daimon)
+            || (daimon_slot_of(plyr_idx) != slot)) {
+            WARNLOG("Daimon: loaded slot %d names player %d, which is not a Daimon keeper there; the slot is freed", (int)slot, (int)plyr_idx);
+            set_net_user_player_number(slot, PLAYER_NONE);
+            memset(get_packet(slot), 0, sizeof(struct Packet));
+        }
+    }
+    int32_t kept = 0;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        struct PlayerInfo *player = get_player(plyr_idx);
+        if (!player_exists(player) || !flag_is_set(player->allocflags, PlaF_Daimon)) {
+            continue;
+        }
+        if (daimon_slot_of(plyr_idx) >= 0) {
+            kept++;
+            continue;
+        }
+        WARNLOG("Daimon: loaded player %d has no packet slot; handed to the built-in AI", (int)plyr_idx);
+        clear_flag(player->allocflags, PlaF_Daimon);
+        script_support_setup_player_as_computer_keeper(plyr_idx, 0);
+    }
+    return kept;
+}
+
 void daimon_write_slot_packets(void)
 {
     // A frame that waits for the exchange runs again: write each turn once.
