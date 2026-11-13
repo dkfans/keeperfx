@@ -71,6 +71,7 @@
   #include "ftests/ftest.h"
 #endif
 
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -468,6 +469,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
         setup_zombie_players();
     }
     setup_alliances();
+    daimon_claim_pending_slots();
     post_init_level();
     post_init_players();
     post_init_packets();

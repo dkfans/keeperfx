@@ -56,6 +56,7 @@
 #include "bflib_planar.h"
 #include "kfx/profiling/KfxProfilingC.h"
 #include "kfx/ai/TargetSearchProbe.h"
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1492,6 +1493,7 @@ TbBool script_support_setup_player_as_zombie_keeper(PlayerNumber plyr_idx)
         SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyr_idx);
         return false;
     }
+    daimon_forget_slot(plyr_idx);
     player->allocflags &= ~PlaF_Allocated; // mark as non-existing
     player->id_number = plyr_idx;
     player->allocflags &= ~(PlaF_CompCtrl | PlaF_Placeholder | PlaF_Seat);

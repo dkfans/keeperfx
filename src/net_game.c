@@ -52,6 +52,7 @@
 #include "net_filecheck.h"
 #include "net_spectator.h"
 #include "keeperfx.hpp"
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 _Static_assert(FIRST_SPECTATOR_ID == PACKETS_COUNT, "spectator ids start after the packet slots");
@@ -790,6 +791,7 @@ void seat_network_user(NetUserId user, PlayerNumber plyr_idx, const UserPreferen
 {
     struct PlayerInfo *player = get_player(plyr_idx);
     JUSTLOG("p:%d user %d took over from the computer", (int)plyr_idx, (int)user);
+    daimon_forget_slot(plyr_idx);
     player->allocflags &= ~(PlaF_CompCtrl | PlaF_Placeholder);
     if ((get_players_dungeon(player)->computer_enabled & 0x01) != 0) {
         toggle_computer_player(plyr_idx);

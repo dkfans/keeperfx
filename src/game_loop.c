@@ -67,6 +67,7 @@
 #include "timer.h"
 
 #include "kfx/save/SaveManager.h"
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -606,6 +607,9 @@ static void gameplay_loop_logic()
     }
     input_eastegg();
     input();
+    if (!replay.load_enable && ((game.operation_flags & GOF_Paused) == 0) && (!network_is_active() || network_is_host())) {
+        daimon_write_slot_packets();
+    }
     if (exchange_packets() == PExR_Wait) {
         return;
     }
