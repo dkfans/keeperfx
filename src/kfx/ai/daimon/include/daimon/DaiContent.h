@@ -71,12 +71,6 @@ struct DaiPowerSpec {
     int64_t strength = 0;           /**< at its first level */
 };
 
-/** A trap's activation type: trapdoor.cfg's numbers (content, the same in every tree; the engine's TrpAcT_*). */
-enum DaiTrapActivation : int64_t {
-    DaiTrapAct_None = 0, DaiTrapAct_HeadforTarget90 = 1, DaiTrapAct_EffectonTrap = 2, DaiTrapAct_ShotonTrap = 3,
-    DaiTrapAct_SlabChange = 4, DaiTrapAct_CreatureShot = 5, DaiTrapAct_CreatureSpawn = 6, DaiTrapAct_Power = 7,
-};
-
 struct DaiTrapSpec {
     int64_t kind = 0;
     char name[32] = {};

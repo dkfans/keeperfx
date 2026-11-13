@@ -8,11 +8,6 @@
 
 #include "daimon/DaiTypes.h"
 
-/** The slab a subtile is in (the engine's subtile_slab). */
-constexpr DaiSlabCoord DaiSubtileSlab(int64_t stl) { return stl / DAI_STL_PER_SLB; }
-/** A slab's centre subtile (the engine's slab_subtile_center). */
-constexpr DaiSubtlCoord DaiSlabSubtileCenter(int64_t slb) { return slb * DAI_STL_PER_SLB + 1; }
-
 /** The king's-move distance between two slabs. */
 inline int64_t DaiChess(DaiSlabCoord ax, DaiSlabCoord ay, DaiSlabCoord bx, DaiSlabCoord by)
 {
