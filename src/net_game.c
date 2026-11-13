@@ -478,7 +478,7 @@ static void build_local_startup_sync(void)
         // The lobby's "Computer players: Daimon": every keeper but the humans' is Daimon's, and Daimon adopts a human's
         // keeper when the built-in AI takes it over from a human who left.
         const TbBool daimon = (fe_computer_players != 0) && net_config_info.computer_daimon;
-        dai_net_set_opponents(daimon, "");
+        dai_net_set_opponents(daimon, "random");
         dai_net_set_adoption(daimon);
         uint16_t humans = 0;
         for (NetUserId u = 0; u < MAX_NET_USERS; u++) {

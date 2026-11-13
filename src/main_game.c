@@ -486,7 +486,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     if (!network_is_active() && fe_computer_players && net_config_info.computer_daimon && frontnet_service_selected(FrontendNetSvc_Skirmish)) {
         for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
             if (flag_is_set(net_lobby_empty_seats, to_flag(plyr_idx)) && player_is_computer_keeper(get_player(plyr_idx))) {
-                DaimonQueueLevelStart(plyr_idx, NULL, NULL);
+                DaimonQueueLevelStart(plyr_idx, "random", NULL); // a personality Skirmish may pick (skirmish_pool)
             }
         }
     }
