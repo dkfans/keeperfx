@@ -232,7 +232,7 @@ static int player_get_field(lua_State *L) {
             lua_pushstring(L, "Inactive");
         } else if (player_is_placeholder(player)) {
             lua_pushstring(L, "Placeholder");
-        } else if (player->allocflags & PlaF_CompCtrl) {
+        } else if (player_is_computer_keeper(player)) {
             lua_pushstring(L, "Computer");
         } else {
             lua_pushstring(L, "Human");

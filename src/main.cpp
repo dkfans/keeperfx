@@ -850,7 +850,7 @@ void reinit_level_after_load(void)
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
     parchment_loaded = 0;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         if (user_present(user))
         {
@@ -1001,10 +1001,11 @@ void clear_players_for_save(void)
       player->player_type = saved_player_type;
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
+      set_flag_value(player->allocflags, PlaF_Daimon, ((saved_allocation_flags & PlaF_Daimon) != 0));
       set_flag_value(player->allocflags, PlaF_Placeholder, ((saved_allocation_flags & PlaF_Placeholder) != 0));
       set_flag_value(player->allocflags, PlaF_Seat, ((saved_allocation_flags & PlaF_Seat) != 0));
     }
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
       struct UserState *ustate = get_user_state(user);
       ustate->hand_thing_idx = 0;
@@ -1163,7 +1164,7 @@ void PaletteSetUserPalette(NetUserId user, unsigned char *pal)
 
 void PaletteSetPlayerPalette(const struct PlayerInfo *player, unsigned char *pal)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         if (get_net_user_player_number(user) == player->id_number)
             PaletteSetUserPalette(user, pal);

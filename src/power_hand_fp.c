@@ -63,7 +63,7 @@ TbBool thing_pickable_while_possessed(NetUserId user, const struct Thing *thing)
         return false;
     }
     // Nobody else may be riding along or zooming in
-    for (NetUserId other = 0; other < MAX_NET_USERS; other++) {
+    for (NetUserId other = 0; other < PACKETS_COUNT; other++) {
         if ((other != possessor) && user_present(other)
          && user_controls_thing(other, thing, UCT_Direct | UCT_Passenger | UCT_Other | UCT_PossessionEntryZoom)) {
             return false;
@@ -315,7 +315,7 @@ void begin_fp_hand_pickup(struct Thing *thing)
 
 void process_fp_hand_drop_views(void)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         struct UserState *ustate = get_user_state(user);
         if (user_state_invalid(ustate) || !user_present(user)) {

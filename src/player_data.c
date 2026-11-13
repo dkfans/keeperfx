@@ -234,7 +234,7 @@ NetUserId get_player_primary_user(const struct PlayerInfo *player)
     }
     if ((player == NULL) || player_invalid(player))
         return -1;
-    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; ++user) {
         if (game.user_states[user].player_id == player->id_number) {
             return user;
         }
@@ -247,7 +247,7 @@ int32_t count_player_users(PlayerNumber plyr_idx)
     if (plyr_idx == PLAYER_NONE)
         return 0;
     int32_t count = 0;
-    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; ++user) {
         if (game.user_states[user].player_id == plyr_idx) {
             count++;
         }

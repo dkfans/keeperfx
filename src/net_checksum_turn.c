@@ -179,7 +179,7 @@ static void compute_checksums(struct DesyncChecksums* checksums) {
         }
     }
     checksums->users = 0;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         checksums->users += compute_user_checksum(user);
     }
     checksums->action_seed = game.action_random_seed;

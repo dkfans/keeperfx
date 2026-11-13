@@ -399,7 +399,7 @@ int32_t find_thing_in_list(const ThingIndex *things, uint8_t count, ThingIndex t
 */
 static int find_held_thing(PlayerNumber plyr_idx, ThingIndex tng_idx, ThingIndex **things, uint8_t **count)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         struct UserState *ustate = get_user_state(user);
         if (ustate->player_id != plyr_idx) {
             continue;
@@ -433,7 +433,7 @@ NetUserId get_user_holding_thing(const struct Thing *thing)
     if (!thing_exists(thing) || !flag_is_set(thing->alloc_flags, TAlF_IsInLimbo)) {
         return -1;
     }
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         const struct UserState *ustate = get_user_state(user);
         if (user_state_invalid(ustate)) {
             continue;
@@ -1236,7 +1236,7 @@ static TbBool drop_first_queued_thing(PlayerNumber plyr_idx)
 int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     int k = 0;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         if (get_user_state(user)->player_id != plyr_idx) {
             continue;
         }
@@ -1252,7 +1252,7 @@ int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
 
 void clear_things_in_hand(struct PlayerInfo *player)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         struct UserState *ustate = get_user_state(user);
         if (ustate->player_id != player->id_number) {
             continue;
@@ -1327,7 +1327,7 @@ void process_things_in_dungeon_hand(void)
         }
         if (is_active_keeper(player) && !dungeon_invalid(dungeon))
         {
-            for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+            for (NetUserId user = 0; user < PACKETS_COUNT; user++)
             {
                 struct UserState *ustate = get_user_state(user);
                 if (ustate->player_id == plyr_idx) {

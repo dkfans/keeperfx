@@ -271,7 +271,7 @@ void SaveManager::UpdateLastFileAfterSave(int slot)
     {
         const struct PlayerInfo *player = get_player(plyr_idx);
         if (flag_is_set(player->allocflags, PlaF_Allocated)
-          && (!flag_is_set(player->allocflags, PlaF_CompCtrl) || flag_is_set(player->allocflags, PlaF_Placeholder)))
+          && (!player_is_computer_keeper(player) || flag_is_set(player->allocflags, PlaF_Placeholder)))
             humans++;
     }
     char link[SAVE_FILENAME_MAX];

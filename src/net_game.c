@@ -610,7 +610,7 @@ TbBool network_human_contenders_remain(void)
 {
     for (PlayerNumber player_idx = 0; player_idx < PLAYERS_COUNT; player_idx++) {
         struct PlayerInfo *player = get_player(player_idx);
-        if (is_active_keeper(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_cannot_win(player_idx)) {
+        if (is_active_keeper(player) && !player_is_computer_keeper(player) && !player_cannot_win(player_idx)) {
             return true;
         }
     }
@@ -628,7 +628,7 @@ static TbBool network_has_remote_users_remaining(void)
         }
         if (user_present(user_id)) {
             const struct PlayerInfo *player = get_player(get_net_user_player_number(user_id));
-            if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
+            if (player_exists(player) && !player_is_computer_keeper(player)) {
                 return true;
             }
         }
@@ -645,7 +645,7 @@ static TbBool replay_has_remote_humans(void)
             continue;
         }
         const struct PlayerInfo *player = get_player(plyr_idx);
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
+        if (player_exists(player) && !player_is_computer_keeper(player)) {
             return true;
         }
     }
@@ -779,7 +779,7 @@ void hand_waiting_placeholders_to_ai(void)
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         struct PlayerInfo *player = get_player(plyr_idx);
         if (!player_exists(player) || !player_is_placeholder(player)
-            || (player->victory_state != VicS_Undecided) || flag_is_set(player->allocflags, PlaF_CompCtrl)) {
+            || (player->victory_state != VicS_Undecided) || player_is_computer_keeper(player)) {
             continue;
         }
         replace_network_player_with_ai(player);

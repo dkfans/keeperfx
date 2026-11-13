@@ -121,7 +121,7 @@ static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
     return is_active_keeper(player)
         && player->id_number != game.neutral_player_num
         && (player->victory_state != VicS_LostLevel)
-        && !flag_is_set(player->allocflags, PlaF_CompCtrl)
+        && !player_is_computer_keeper(player)
         && !player_is_placeholder(player);
 }
 
@@ -240,13 +240,13 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         if (get_net_user_player_number(user) != player->id_number)
             continue;
         if (!leave_user_controlled_creature(user) && !flag_is_set(player->allocflags, PlaF_CompCtrl))
             set_user_view_type(user, PVT_DungeonTop);
     }
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         if (get_net_user_player_number(user) == player->id_number)
             set_user_work_state(user, PSt_CtrlDungeon, 0);
     }
@@ -864,7 +864,7 @@ void init_local_player_state(void)
 
 static void reset_player_users_view_type(struct PlayerInfo *player)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         if (get_user_state(user)->player_id == player->id_number)
             reset_user_view_type(user, PVT_DungeonTop);
@@ -880,7 +880,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         local_state.main_palette = engine_palette;
     }
     // computer keepers have no users, so nothing to set up for them here
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         struct UserState *ustate = get_user_state(user);
         if (ustate->player_id != player->id_number)
@@ -1252,7 +1252,7 @@ void init_players_local_game(void)
 void process_player_states(void)
 {
     SYNCDBG(6,"Starting");
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         if (!user_present(user))
             continue;
