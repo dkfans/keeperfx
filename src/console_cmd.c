@@ -80,6 +80,7 @@
 #include "kjm_input.h"
 #include "timer.h"
 #include "kfx/save/SaveManager.h"
+#include "daimon/Daimon.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2351,6 +2352,77 @@ TbBool cmd_toggle_classic_bug(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+/* Daimon, the keeper AI: take a computer keeper, hand it back, and look inside. A view's first lines are the reply;
+ * all of them go to the log. A take from the console is for looking at Daimon: a replay does not repeat it. */
+#define DAI_REPLY_LINES 6
+static PlayerNumber dai_reply_to;
+static int32_t dai_lines;
+static TbBool dai_log_only;
+
+static void dai_reply_line(const char *line)
+{
+    JUSTLOG("DAI: %s", line);
+    if (!dai_log_only && (dai_lines < DAI_REPLY_LINES))
+        targeted_message_add(MsgType_Local, dai_reply_to, dai_reply_to, GUI_MESSAGES_DELAY, "%s", line);
+    dai_lines++;
+}
+
+static TbBool cmd_dai_view(PlayerNumber plyr_idx, char * args, const char *view, TbBool log_only)
+{
+    char * pr1str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(plyr_idx, pr1str);
+    if (!DaimonControls(id)) {
+        show_command_failure("player is not played by Daimon");
+        return false;
+    }
+    dai_reply_to = plyr_idx;
+    dai_lines = 0;
+    dai_log_only = log_only;
+    DaimonDump(id, view, dai_reply_line);
+    if (log_only)
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%d lines about player %d written to the log", (int)dai_lines, (int)id);
+    else if (dai_lines > DAI_REPLY_LINES)
+        targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "... %d more in the log", (int)(dai_lines - DAI_REPLY_LINES));
+    return true;
+}
+
+static TbBool cmd_dai_take(PlayerNumber plyr_idx, char * args)
+{
+    char * pr1str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(plyr_idx, pr1str);
+    char * personality = strsep_param_with_space(&args);
+    char * difficulty = strsep_param_with_space(&args);
+    if (!DaimonTake(id, personality, difficulty, DAIMON_MODE_OPPONENT, DAIMON_WHY_CONSOLE)) {
+        show_command_failure("Daimon takes a computer keeper, with a known personality and difficulty");
+        return false;
+    }
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Daimon plays player %d", (int)id);
+    return true;
+}
+
+static TbBool cmd_dai_release(PlayerNumber plyr_idx, char * args)
+{
+    char * pr1str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(plyr_idx, pr1str);
+    if (!DaimonHandBack(id, DAIMON_TO_COMPUTER2)) {
+        show_command_failure("player is not played by Daimon");
+        return false;
+    }
+    targeted_message_add(MsgType_Local, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player %d is the built-in AI's again", (int)id);
+    return true;
+}
+
+static TbBool cmd_dai_status(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "status", false); }
+static TbBool cmd_dai_know(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "know", false); }
+static TbBool cmd_dai_goals(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "goals", false); }
+static TbBool cmd_dai_objectives(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "objectives", false); }
+static TbBool cmd_dai_posture(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "posture", false); }
+static TbBool cmd_dai_requests(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "requests", false); }
+static TbBool cmd_dai_jobs(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "jobs", false); }
+static TbBool cmd_dai_claims(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "claims", false); }
+static TbBool cmd_dai_inbox(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "inbox", false); }
+static TbBool cmd_dai_dump(PlayerNumber plyr_idx, char * args) { return cmd_dai_view(plyr_idx, args, "dump", true); }
+
 TbBool cmd_get_action_point_pos(PlayerNumber plyr_idx, char * args)
 {
     char * pr1str = strsep_param_with_space(&args);
@@ -2698,6 +2770,18 @@ static const struct ConsoleCommand console_commands[] = {
    { "creature.state.set", cmd_set_creature_state, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "creature.subhealth", cmd_creature_sub_health, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "cursor.pos", cmd_cursor_pos, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+   { "dai.take", cmd_dai_take, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.release", cmd_dai_release, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.status", cmd_dai_status, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.know", cmd_dai_know, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.goals", cmd_dai_goals, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.objectives", cmd_dai_objectives, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.posture", cmd_dai_posture, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.requests", cmd_dai_requests, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.jobs", cmd_dai_jobs, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.claims", cmd_dai_claims, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.inbox", cmd_dai_inbox, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+   { "dai.dump", cmd_dai_dump, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
    { "dbc", cmd_dbc, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "digger.sendto", cmd_send_digger_to, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
    { "disconnect", cmd_disconnect, NULL, CmdS_Personal, CmdM_MultiplayerOnly, CmdC_Unrestricted },

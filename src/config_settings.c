@@ -544,6 +544,8 @@ TbBool load_settings(void)
         if (val) net_config_info.spectator_chat = value_coerce_bool(val);
         val = value_dict_get(vsec, "computer_players");
         if (val) net_config_info.computer_players = value_coerce_bool(val);
+        val = value_dict_get(vsec, "computer_daimon");
+        if (val) net_config_info.computer_daimon = value_coerce_bool(val);
         val = value_dict_get(vsec, "cheats_enabled");
         if (val) net_config_info.cheats_enabled = value_coerce_bool(val);
         val = value_dict_get(vsec, "computer_assistant");
@@ -645,6 +647,7 @@ short save_settings(void)
     TOSAVE("spectators_enabled = %d\n", (int)net_config_info.spectators_enabled);
     TOSAVE("spectator_chat = %d\n", (int)net_config_info.spectator_chat);
     TOSAVE("computer_players = %d\n", (int)net_config_info.computer_players);
+    TOSAVE("computer_daimon = %d\n", (int)net_config_info.computer_daimon);
     TOSAVE("cheats_enabled = %d\n", (int)net_config_info.cheats_enabled);
     TOSAVE("computer_assistant = %d\n", (int)net_config_info.computer_assistant);
     TOSAVE("reconnect_token = \"%016llx\"\n", (unsigned long long)settings.reconnect_token);

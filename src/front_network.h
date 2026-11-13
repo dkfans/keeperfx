@@ -63,6 +63,7 @@ struct ConfigInfo {
     uint8_t computer_players;
     uint8_t cheats_enabled;
     uint8_t computer_assistant;
+    uint8_t computer_daimon; /**< Skirmish: the computer players are Daimon's, the keeper AI */
 };
 
 struct TbNetworkPlayerName {

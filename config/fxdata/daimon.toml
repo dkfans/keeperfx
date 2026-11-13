@@ -1,0 +1,1075 @@
+# Daimon, the layered keeper AI (docs/plans/ai-plans/v2/). Global sections first, then the personalities.
+# Every key here has a reader: a test fails on a key nothing reads (lesson L5).
+# Mods, campaigns and levels may override any key (the usual fxdata / campaign / map%05d.daimon.toml order).
+
+[budgets]
+# Slabs a keeper's knowledge re-reads each turn in its rolling scan (a 170x170 map: one full pass in 113 turns at 256).
+slab_scan = 256
+# Slab visits a keeper's reach map may make each turn while it floods the map again after a change (03 section 5;
+# a 170x170 map: about 30k visits for the seeds and 4 a reached slab, so a new map every 10-30 turns at 4096).
+reach_visits = 4096
+# Nodes a keeper's dig searches may expand each turn (03 section 7.2: a whole 170x170 map in about 4 turns). Planning
+# runs on its own thread (12 section 13.11): 4x Phase 1's 2000 (and 4x the layout and route budgets) costs that thread
+# about a fifth more time and the main thread nothing; 8x gained nothing more in play.
+search_nodes = 8000
+# Dig searches a keeper runs at once (at most 4); another waits for one to finish.
+max_searches = 2
+# Sites the layout planner weighs each turn (04 section 5.3; about 1,900 for a room within radius 12: 8 turns).
+layout_candidates = 256
+
+[dig_costs]
+# The dig search's price of entering a slab, in turns of imp work (03 section 7.1). Rock, gems, another keeper's
+# walls, rooms and doors, and liquid no bridge can cross are never entered. Water is walked through.
+floor = 1
+earth = 20
+# Gold and dense gold on the way to somewhere else: allowed, never preferred.
+gold_route = 200
+dense_route = 500
+# The keeper's own fortified wall: its imps dig it, ten times as long as earth (block health 20 to earth's 2: P9,
+# dai_build_basic -- a lair grown onto its own fortified walls, priced as earth, stood 1,500 turns undug, the lair full).
+own_wall = 200
+enemy_floor = 80
+# A bridge slab over lava (or abyss, when the bridge may cross it): this plus its price in gold, at the
+# personality's gold_to_turns.
+bridge_base = 10
+# Added to ground next to an abyss: an imp working there can be knocked in.
+abyss_edge = 5
+# Above 1 the search may return a dearer route for less work (1: always the cheapest).
+heuristic_weight = 1.0
+# The attacker's costs (07 section 4.2): another keeper's claimed floor and rooms (its imps convert them, contested),
+# its doors per point of their health as last seen (the assault bashes them), and one of its revealed fortified walls
+# opened by a Destroy Walls cast -- 0: the power's price through the personality's gold_to_turns. Walls not yet seen
+# are unknown ground; rock and gems never.
+creep_cost = 60
+door_cost_per_hp = 0.05
+destroy_walls_cost = 0
+
+[excavation]
+# A dig route marks at most this many slabs ahead of the last one dug (03 section 7.3).
+marks_ahead = 12
+# Open marks mining keeps on one vein.
+mine_marks = 10
+# A route is searched again when what is left of it costs this much more than planned.
+replan_ratio = 1.5
+# Turns between rescoring the veins, entrances and neutral rooms (03 section 8.2).
+rescore_interval = 250
+# Turns a finished route to an entrance or room may wait for imps to claim it before it counts as blocked.
+claim_window = 2000
+# Turns before an unreachable vein is tried again (sooner when something near it changes).
+unreachable_retry = 3000
+# Veins mined at once, at most.
+max_veins = 3
+# Share of the keeper's 300 dig marks Excavation may hold, leaving the rest for later phases and the imps' own stack.
+marks_share = 0.6
+
+[workforce]
+# Turns between working out how many imps the keeper needs (03 section 8.3).
+interval = 100
+
+[programme]
+# Turns between the director working out which rooms the keeper wants and how big (sooner when its creatures or rooms
+# change; 04 section 4).
+interval = 500
+# Lair space kept free for creatures still to come, in creatures. 4 since P2.10: a creature comes every ~250 turns and
+# a lair grows in ~1,100, so 2 left the lair full for 1,200 turns on original level 60.
+lair_spare = 4
+# Pay days of gold the keeper must have in hand before it wants a training room.
+train_runway = 2
+
+[layout]
+# How far (slabs) from its anchor the layout planner looks for a room's site (04 section 5.1).
+radius = 12
+# The ring a site keeps between itself and any other room: one slab of wall (2: two).
+rim = 1
+# Turns a site the planner found stays good to build on (if nothing in it has changed since; 04 section 5.3).
+cache_turns = 2000
+# A room is grown when this share of its capacity is used (or its goal wants more slabs than it has).
+grow_at = 0.85
+
+[construction]
+# Rooms built (placed or grown) at once; the game takes one room drag at a time anyway (04 section 6). 2 since P2.10:
+# with one, a full lair waited ~1,100 turns behind a hatchery strip and turned creatures away (original level 60).
+room_build_concurrency = 2
+
+[creatures]
+# Hand trips putting creatures to work, at most, each 1,000 turns: every trip is a gesture, and holding a creature
+# angers it (04 section 7.3).
+moves_per_kturn = 6
+# Turns a livid creature is given for its anger's cause to be put right before it is dismissed (04 section 7.4).
+livid_grace = 600
+# Scavenging (08 section 7a): at most scavengers_max creatures in its scavenger room, the kinds weighed every
+# scavenge_interval turns. With no rival's creature of the kind in sight, the pool is tried (a human cannot see what is
+# left in it): pool_try_turns with nothing come, and the kind is dry for pool_dry_turns.
+scavengers_max = 4
+scavenge_interval = 500
+pool_try_turns = 2000
+pool_dry_turns = 10000
+
+[economy]
+# A keeper starts keeping its next wages (and the personality's margin over them) back this many turns before pay
+# day (03 section 6).
+reserve_window = 2500
+
+[inbox]
+# Turns an unhandled event stays in a keeper's inbox, by kind of fact (01 section 8.1). A repeat of the same event in
+# the same place refreshes it instead of adding another.
+expiry_payday_quarter = 500
+expiry_event = 1000
+expiry_objective = 2000
+expiry_custody = 1000
+expiry_sacrifice = 1000
+expiry_vampire_progress = 1000
+expiry_wall_cue = 600
+expiry_assist_refusal = 600
+expiry_sight_open = 200
+expiry_loss = 1000
+expiry_loss_scan = 300
+expiry_intruder = 300
+expiry_trap_fired = 300
+expiry_enemy_trap = 600
+expiry_victory = 100000
+expiry_new_kind = 2000
+
+[arbiter]
+# Most gestures a domain with runnable work may wait for before it runs (deficit round robin, 01 section 8.4).
+quota_window = 8
+# Utility a waiting job gains per 1000 turns it waits, x1024.
+age_bonus_per_kturn = 256
+# Each domain's share of the gestures while several have work (credit gained per gesture, deficit round robin).
+weight_economy = 1
+weight_workforce = 1
+weight_excavation = 1
+weight_construction = 1
+weight_creatures = 1
+weight_custody = 1
+weight_defence = 1
+weight_offence = 1
+weight_magic = 1
+weight_tactics = 1
+
+[jobs]
+# Turns a job may go without progress before it is Blocked (01 section 8.2).
+stall_window = 600
+
+[net]
+# Turns between the host's copies of Daimon's state to the clients (01 section 10.6).
+replicate_interval = 200
+
+[threads]
+# Threads Daimon's keepers plan on (12 section 5): -1 one per keeper, at most the logical cores less reserved_cores; a
+# positive number caps it (keepers past it share workers); 0 none, the planning runs on the main thread. The decisions
+# are the same whichever is chosen.
+workers = -1
+reserved_cores = 2
+# Test mode: each planning turn waits a random 0..jitter_us microseconds first (the results must not change). 0: off.
+jitter_us = 0
+# A planning turn's gestures land D turns after the turn it was planned from (12 section 4): D is the game's speed --
+# turns a second, times the fast-forward (Ctrl +/-) -- over this, rounded up, at least 1: at the default speed 1, at 8x
+# fast-forward 8. The wall time a keeper has to plan stays the same whatever the speed.
+base_turns_per_second = 20
+
+[director]
+# Turns between the director weighing its postures (05 section 6.2: opening, build_up, expand, contest, recover; 06:
+# defend; 07: raid, assault);
+# recover's triggers are checked every turn and switch at once.
+director_interval = 250
+# How much a posture's score must beat the current one's by (scores run 0-1000) before the director switches.
+switch_margin = 64
+# Turns build_up may last before the director looks past it even with rooms below their size.
+build_up_max_turns = 12000
+# Slabs from the keeper's rooms within which a rival keeper's ground means contest; and, in contest, mining keeps to
+# three times this from the heart.
+contest_radius = 12
+# Turns after a rival was last seen that its ground or strength stops counting.
+contest_forget = 3000
+# Turns a loss (a room gone, half the creatures gone) keeps recover wanted unless it is put right sooner.
+recover_window = 3000
+# Turns after an attack operation ended (won or given up) before the director takes up raid or assault again
+# (07 section 5).
+attack_rest = 2000
+
+[pace]
+# World gestures a keeper may make in any 1000 turns, by its difficulty's pace (05 section 7.2): a human's rate for
+# normal (400, until replays of good human play calibrate it; Q1), half that or less for easy, no cap for hard (one a
+# turn is the controller's own limit).
+relaxed = 150
+human = 400
+unlimited = 1000
+
+[cheats]
+# What a keeper's cheats give it, named after its difficulty ("hard+rich_start+stronger_creatures"; 05 section 7.3):
+# gold at the take, its creatures' health, strength and armour up by this percentage, their pay down by this one.
+# (sees_all, the third, only lifts the fog for Daimon's own reading of the map.)
+rich_start_gold = 10000
+creature_bonus_pct = 25
+pay_discount_pct = 25
+
+# The difficulties (05 section 7), apart from the personality: any personality plays at any difficulty. Each keeper's
+# director, programme and vein-rescore intervals are times interval_scale (2.0: it reacts half as often; its creatures'
+# work trips a 1000 turns divided by it); its search budgets (reach visits, dig search nodes, layout sites) times
+# budget_scale; a noise share of its choices goes to the second-best job; and it sees to an angry, hungry or wounded
+# creature only care_delay turns after the need began; and it makes at most [pace]'s gestures a 1000 turns at its pace
+# ("relaxed", "human" or "unlimited"). These three are built in with these values; a table here overrides them or adds
+# a new one (DAIMON_PLAYER and the setup screens name it).
+[threat]
+# The threat model (06 section 3): where enemies are and how they would come. Every `interval` turns each enemy the
+# keeper sees adds its force to the slabs within its reach (1 + its speed / speed_per_slab slabs); that influence
+# halves every `halflife` turns.
+interval = 25
+halflife = 1500
+speed_per_slab = 16
+# Every check_interval turns the sources are looked at again (rival ground, hero gates, the frontier where open ground
+# not the keeper's meets its own); the predicted routes from them to the heart, treasury and library are searched again
+# every route_interval turns, or at once when a source is new or the frontier moved (a breach). search_nodes: the
+# route searches' nodes a turn.
+check_interval = 100
+route_interval = 1000
+search_nodes = 4000
+# The keeper's defences as a rival sees them. A fortified wall stops everyone but its owner: imps never dig another
+# keeper's walls, only a Destroy Walls cast breaks them; destroy_walls > 0 prices one wall slab so (turns), as if
+# rivals had the power -- 0: walls stop them. Its doors are broken through, at own_door_per_hp turns a point of health.
+destroy_walls = 0
+own_door_per_hp = 0.25
+# A route's weight: a rival's known force; the frontier's and a hero gate's when nothing is known of who comes.
+frontier_weight = 50
+hero_weight = 200
+# The chokepoints kept: one-slab-wide places on the routes, the busiest first.
+max_chokepoints = 16
+
+[diplomacy]
+# Alliances (07 section 5a), weighed every `interval` turns: one is proposed once the value has held for ally_dwell
+# turns, never within peace_after_war turns of the last fight with that keeper; ALLIANCE_LOCKED levels are left alone.
+interval = 250
+ally_dwell = 2000
+peace_after_war = 10000
+
+[tactics]
+# Tactics, the one decider in fights (06 section 5): it looks at its engagements every fight_tick turns while there are
+# any, every idle_tick turns otherwise.
+fight_tick = 2
+idle_tick = 50
+# Fights come in bursts: past the difficulty's pace cap, Tactics may still make up to burst_turns gestures in the pace
+# window (the other domains wait the longer afterwards, so the total over time holds).
+burst_turns = 60
+# An enemy not yet fighting is a contact when on the keeper's ground, within contact_radius slabs of an objective's area,
+# or on a predicted route; an engagement serves the objectives whose area, widened by match_margin slabs, holds it.
+contact_radius = 6
+match_margin = 2
+
+[defence]
+# Defence (06 sections 4, 5.2, 6): every `interval` turns it posts its standing objectives -- the heart always, a room
+# whose box holds at least area_threat of the threat map, imps at work where it holds at least imps_threat -- and plans
+# the fortification. An intruder seen, or an alarm trap going off, is an Intercept for intercept_turns turns.
+interval = 100
+area_threat = 50
+imps_threat = 50
+# Doors not on the keeper's own creatures' ways are locked while an enemy is within lock_radius slabs (Q6).
+lock_radius = 10
+# The most traps and doors it plans (the personality's trap_usage and door_preference take a share of them).
+max_traps = 8
+max_doors = 4
+intercept_turns = 600
+# The director's defend posture (06 section 11): entered at once on an enemy force on the keeper's ground (its
+# creatures' levels, imps apart, at threat_force or more: a lone scout or a working imp is Tactics' alone), a breach,
+# its own alarm or its heart hurt; left once none of these has come for defend_cooldown turns. While in it, Defence takes
+# four times its share of the gestures and building slows. The same force engaging a Defence objective is the fight at
+# home that holds back an attack (07 P5.12).
+defend_cooldown = 1500
+threat_force = 4
+# The most guard posts a keeper whose personality wants them (guard_posts) asks for, each beside a busy chokepoint.
+max_guard_posts = 2
+# Hazards (07 P5.13): a neutral's or the heroes' trap the keeper sees, never re-armed, by which (within hazard_reach
+# slabs: a lightning bolt reaches four) hazard_imps of its imps were lost within hazard_window turns. While one is hot,
+# no new mining marks go near it, imps are bought no faster than one every hazard_rebuy_turns, its imps there are
+# warded (Protect, Speed) while the spell costs under ward_share of an imp, and it is sealed off: a door locked where
+# no walk from the heart reaches the trap's slab round it (the workshop is asked for one when none is in stock) --
+# imps claim the ground by a trap and pick up the gold there unasked, marks or none.
+hazard_imps = 2
+hazard_window = 3000
+hazard_reach = 4
+hazard_rebuy_turns = 600
+# Below this many imps no brake holds (hazard or not): an imp is bought with whatever gold there is, wages or no -- the
+# imps are what earns them (level 52: lightning traps by a vein left a keeper one imp and no gold for 40,000 turns).
+hazard_imps_floor = 3
+ward_share = 0.25
+# Spending one (a creature walks onto its trap to use up its shots, when something the keeper wants lies past it): the
+# creature of least force (the seat's rating: its kind's score at its level, times its health; nothing for one immune
+# to the trap) whose force is no more than the trap's rating -- the force of the imps it took, scaled by the need:
+# 1 + what lies past it (its veins' gold in units of spend_gold_imps imps' price, up to 4, any gems 4; up to 2 for a
+# chokepoint within its reach; 1 if the keeper's own creatures walk there), times the gold: up to four times over when
+# the keeper's gold is below spend_gold_imps imps' price (the price rises with every imp it has), down to a quarter
+# when well above it. The seal stands either way (the creature is dropped past it).
+spend_gold_imps = 4
+# Holding the way in (plan 13 L3): with the force estimate against it ([offence] response_share) and a chokepoint on
+# its own side under threat (the most threatened), the keeper asks for a guard post by it and keeps the personality's
+# hold_share % of its free fighters there by hand, each for hold_turns turns before it goes back to work (another
+# takes its place while the hold lasts).
+hold_turns = 1500
+
+[custody]
+# Custody (08 sections 4-6, 17): every plan_interval turns (and on a custody fact) each prisoner is given the plan worth
+# most -- convert or interrogate (the rack), a skeleton (left unfed in prison), a ghost (the rack, no heals), held, or
+# dismissed to make room. The imprison tendency is on while a prison has prison_spare places free; a victim kept alive is
+# healed below heal_victim_below % of its health; an interrogation is worth interrogate_value (on the creature score
+# table's scale: a level 3 spider scores 9) against a keeper whose heart is unknown; a prisoner held is worth hold_share of its force.
+plan_interval = 200
+prison_spare = 2
+heal_victim_below = 40
+interrogate_value = 10
+hold_share = 0.25
+# The temple (08 section 7.2): a recipe completed is worth its outcome on the same scale -- a summoned creature its
+# kind's score at its level; research or manufacture completed research_value, manufacture_value; all made happy
+# happy_value for each angry creature; a blessing bless_value for each creature it reaches; cheaper imps the imp price's
+# step (imp_price_step gold) on every imp to come, less the one given up -- less what the victims are worth. The imps
+# to come: those the workforce still wants, or as many as were made lately (bought back after losses) over the next
+# imp_horizon turns, whichever is more.
+research_value = 20
+manufacture_value = 10
+happy_value = 2
+bless_value = 1
+imp_price_step = 150
+imp_horizon = 20000
+# A graveyard (its imps carry bodies there to rise as vampires) once graveyard_bodies bodies lie on revealed ground at once.
+graveyard_bodies = 3
+# A jailbreak (08 section 10): a creature of its own in another keeper's prison or torture chamber, worth
+# jailbreak_min_force (its force x the personality's rescue_value): its imps tunnel to a slab beside that prison and
+# claim it (the creature escapes from a prison that touches its keeper's land), its creatures escorting; given up after
+# jailbreak_timeout turns, not tried again for jailbreak_retry.
+jailbreak_min_force = 5
+jailbreak_timeout = 10000
+jailbreak_retry = 5000
+
+[abilities]
+# A creature's abilities' worth (P9), as damage-equivalents, from the creature, instance, shot, spell and effect configs:
+# each use fitted into the creature's 100 turns by what a turn of casting is worth (a use holds it for the instance's
+# Time, and comes again after its ResetTime), melee in the same turns. Training is worth more to a creature by the share
+# of its output its next two levels' abilities add. An area of radius r subtiles hits 1 + area_density x pi (r / 3)^2
+# enemies (area_max at most), area_falloff of its damage each; a beam (lightning, drain) or a boulder passes through
+# beam_targets; no hit is worth more than enemy_hp; a hailstorm's pellets hit hail_hit of them; knocked back at full
+# strength (word of power, grenade, wind) an enemy is out of the fight knock_turns turns; an enemy deals enemy_damage
+# in 100 turns, what a disable (freeze, slow, fear, chicken) or a buff (armour, invisibility, speed) keeps from it,
+# ranged_share of it in shots a rebound turns back onto another (counted twice). Teleport (instant travel over the
+# keeper's ground) and sight (the counter to conceal and invisibility) are worth teleport_value and sight_value in
+# 100 turns, outside the fight.
+area_density = 0.25
+area_max = 4
+area_falloff = 0.6
+beam_targets = 2.5
+enemy_hp = 800
+hail_hit = 0.35
+knock_turns = 40
+enemy_damage = 400
+ranged_share = 0.4
+teleport_value = 150
+sight_value = 35
+# A trap's worth while triggered (DaiTrapRating) holds only while its charges last within a fight of trap_fight_turns
+# turns (an engagement's length): Shots x TimeBetweenShots of firing, then it waits for a new crate -- Word of Power's 3
+# shots fire for 252 turns, lightning's 6 for 840, a sentry's 255 never run out. A one-shot trap (boulder, TNT) is
+# worth its shot, as before: what it hits it mostly kills.
+trap_fight_turns = 1000
+# A kind reborn at its lair (a level lower) when killed from its Rebirth level (a vampire's 3) is very hard to lose: its
+# output counts rebirth_value more from that level (so training to it is worth more). Scavenging by an alluring kind
+# (ALLURING_SCVNGR, a vampire) with nothing of its kind to lure speeds the portal for any kind: worth allure_value of a
+# level-1 creature from the pool each lure's worth of scavenging.
+rebirth_value = 0.5
+allure_value = 0.5
+
+[offence]
+# The rivals (07 section 3): each rival keeper's estimate -- its heart if seen, its force (KnownForce and its lairs and
+# training rooms seen), how it has treated the keeper (hate: ground and rooms it took, its creatures on the keeper's
+# ground; halved every hate_halflife turns), its targets (its heart, its rooms, its portals, each with the defence seen
+# within defence_radius slabs) -- looked at every `interval` turns; the attacker's route to each target searched every
+# route_interval turns (search_nodes nodes a turn). An attack waits until the forecast covers attack_runway pay days.
+interval = 250
+route_interval = 1000
+search_nodes = 4000
+hate_halflife = 3000
+attack_runway = 2
+defence_radius = 5
+# An operation (one at a time, while the director wants one) is looked at every op_interval turns: recon gives up after
+# recon_timeout turns (a Sight of Evil peek at sight_level), stage after stage_timeout, breach after breach_timeout turns
+# in which the way to open got no shorter or after max_refusals refused digs and casts, an assault withdraws after
+# assault_timeout; a withdrawal takes withdraw_turns, and the target is then left alone for retry_after turns.
+op_interval = 50
+recon_timeout = 4000
+stage_timeout = 12000
+breach_timeout = 6000
+assault_timeout = 6000
+withdraw_turns = 1500
+retry_after = 6000
+sight_level = 2
+max_refusals = 3
+# Tactics serves an assault (07 section 4.3): the banner gathers the fighters at the staging point until gather_share %
+# of those it may send (all free fighters but the home guard) stand there, or gather_turns have passed, then goes onto
+# the target; meanwhile the hand drops fighters at the staging point, at most waves_per_kturn trips a 1000 turns.
+gather_turns = 600
+gather_share = 60
+waves_per_kturn = 8
+# Raids (07 section 4.4), one at a time beside an operation (not while it assaults or withdraws), the next
+# raid_interval / the personality's raid_appetite turns after the last: a portal of the rival's that touches the
+# keeper's land crept onto by creep_imps imps under the group's escort; the group on the rival's imps seen within
+# raid_border slabs of the keeper's land; the banner on a room of the rival's within raid_border for harass_turns, then
+# withdrawn. A raid not over by raid_timeout turns is given up.
+raid_interval = 3000
+raid_timeout = 3000
+harass_turns = 600
+raid_border = 6
+# With the force estimate for it -- the free fighters, the home guard left, at superiority_to_attack % of a rival room's
+# defence with response_share % of its force -- and nothing within raid_border, the imp hunt and the harass look this
+# far from the keeper's land (plan 13 L2: a rival behind a lava lake mined in peace).
+raid_reach = 30
+creep_imps = 4
+# After a heart falls (07 section 8): the loser's rooms crept onto, portals first, until none is left seen or
+# exploit_turns have passed.
+exploit_turns = 4000
+
+[difficulty]
+
+[difficulty.easy]
+interval_scale = 2.0
+budget_scale = 0.5
+noise = 0.2
+care_delay = 600
+pace = "relaxed"
+
+[difficulty.normal]
+interval_scale = 1.0
+budget_scale = 1.0
+noise = 0.0
+care_delay = 0
+pace = "human"
+
+[difficulty.hard]
+interval_scale = 0.75
+budget_scale = 1.5
+noise = 0.0
+care_delay = 0
+pace = "unlimited"
+
+# The personalities. (The [personality] line must stay: this game's TOML reader cannot open [personality.x] before it.)
+[personality]
+
+# Each personality's own header (not inherited): its name in the setup screens (a name_text_id above 0 names a
+# translated string instead), what it is like, and whether Skirmish's "random" may pick it (false when left out).
+# Its other tables hold the keys below; a personality names its parent with `inherits` (default when left out).
+[personality.default]
+name = "Default"
+description = "Balanced: the base every other personality inherits from."
+# Steward plays as it does and stands in for it among the random picks.
+skirmish_pool = false
+
+[personality.default.workforce]
+# The imps a keeper keeps: never fewer than imps_min (bought whenever the gold covers the next wages), never more than
+# imps_max; in between, as many as the work needs (an imp for work_per_imp open marks, claims and mining faces) or the
+# land does (an imp for slabs_per_imp owned slabs).
+imps_min = 4
+imps_max = 24
+work_per_imp = 4
+slabs_per_imp = 25
+# Share of working imps kept hurried by slaps (0: never slap), and the turns between slaps. 0.25 since Phase 1's
+# benchmark (Q2): ahead on every map by turn 20,000, by 1-13 % gold mined and 23-62 % gold banked.
+slap_share = 0.25
+slap_interval = 200
+# Above imps_min, an imp may cost at most this share of the gold that may be spent. Each imp costs more than the last
+# (150 gold more for every imp owned), so this is what stops the buying: 0.25 from 10000 gold and 3 imps buys up to 9
+# and keeps about 4000; 1.0 would spend everything on imps.
+imp_gold_share = 0.25
+# Tunnellers (the tunneller summon, where the level has it) bought instead of imps when one -- its price and
+# tunneller_paydays of its pay (it is a creature, and paid) -- comes cheaper than the next imp (1), or never (0).
+tunnellers = 1
+tunneller_paydays = 10
+# Imps trained (an imp learns speed at level 3 and teleport at 10, travelling to every task at once): up to train_imps
+# at a time, dropped in a training room while the director trains and the gold holds twice the training runway, to
+# imp_train_level -- with imp_train_rich_runway pay days of gold in hand, to imp_train_rich_level -- then dropped
+# back to work. Only the imps above imps_min; 0 never.
+train_imps = 2
+imp_train_level = 3
+imp_train_rich_level = 10
+imp_train_rich_runway = 12
+
+[personality.default.economy]
+# The wage reserve's margin over the wage bill: 0.25 keeps a quarter more than the wages back.
+reserve_margin = 0.25
+# Pay days the gold and income must cover before Economy stops pressing for gold.
+comfortable_paydays = 3
+# The gold outlook (P9, plan 13). The keeper knows the map's gold as a human does in its seat: every gold and gem slab
+# from the start, shroud where it is mined out of sight. Its income lasts while its side's gold does -- veins nearer
+# its heart than a seen rival's, half of those within gold_contest_share % as near (with no rival heart seen, the
+# map's gold over the keepers) -- or for ever with a gem face held. bank_paydays pay days' wages are kept in hand; the
+# rest is spare and goes to work (training first). Extra rooms (prison, torture, temple, graveyard, scavenger) only
+# while the income lasts extras_horizon turns or more: level 124, 395,000 gold on the map and no gems, banked 35,000-
+# 50,000 while its creatures trained slowly.
+bank_paydays = 4
+gold_contest_share = 20
+extras_horizon = 20000
+# A work room (library, workshop, training) at grow_full % of its capacity grows with spare gold; one with room to
+# spare does not -- the gold goes to training and spells (owner).
+grow_full = 90
+# When the next pay day is short and the pressure to mine and keep gold has not made it up, sell slabs of rooms not
+# wanted (or bigger than wanted) to pay the wages; never the treasury, lairs, hatcheries, the portal (1 yes, 0 no).
+sell_rooms_in_emergency = 1
+# Turns of hauling a vein's gold back to the nearest treasury, left to do, past which a treasury by the vein is asked
+# for (03 section 7.5, 04 section 8).
+forward_treasury_turns = 6000
+# Rooms fortified by hand (1; 0 never): an imp dropped on the edge of a room below fortify_below % efficiency, beside
+# its earth -- dropped with nothing nearer to do it fortifies that wall and the walls near it (a fortified wall scores
+# a room side twice what earth does). The work rooms first, then the stores, the lowest efficiency and the most earth
+# near the spot first; one drop each fortify_interval turns, with the imps the work wants, no hazard hot.
+fortify = 1
+fortify_below = 90
+fortify_interval = 400
+
+[personality.default.excavation]
+# The dig search's price of a slab nobody has seen (earth costs 20): 20 is bold, 60 cautious.
+unknown_cost = 30
+# Turns of imp work a piece of gold is worth to the dig search (a bridge slab's price, 03 section 7.1).
+gold_to_turns = 0.05
+# Turns ahead a vein's gems are counted for (they never run out).
+horizon_turns = 20000
+# A vein about as near a rival's heart as its own ([economy] gold_contest_share) scores this many times: the shared
+# gold first, before the rival takes it (plan 13).
+contest_vein_weight = 1.5
+
+[personality.default.programme]
+# The rooms the keeper builds, in order (rank 1 first; 0: only when one of its managers asks for it), and the slabs
+# each starts at; the director makes a lair and a hatchery bigger as creatures come, and the treasury as Economy asks
+# (04 section 4).
+treasury_rank = 1
+treasury_slabs = 9
+lair_rank = 2
+lair_slabs = 16
+hatchery_rank = 3
+hatchery_slabs = 12
+library_rank = 4
+library_slabs = 20
+training_rank = 5
+training_slabs = 16
+workshop_rank = 6
+workshop_slabs = 17
+prison_rank = 0
+prison_slabs = 9
+torture_rank = 0
+torture_slabs = 9
+temple_rank = 0
+temple_slabs = 9
+graveyard_rank = 0
+graveyard_slabs = 9
+scavenger_rank = 0
+scavenger_slabs = 9
+barracks_rank = 0
+barracks_slabs = 9
+guard_post_rank = 0
+guard_post_slabs = 9
+
+# Where each room goes: beside the heart, or beside another room of the programme (by its name above; 04 section 5.2).
+treasury_anchor = "heart"
+lair_anchor = "hatchery"
+hatchery_anchor = "lair"
+library_anchor = "heart"
+training_anchor = "lair"
+workshop_anchor = "heart"
+prison_anchor = "heart"
+torture_anchor = "heart"
+temple_anchor = "heart"
+graveyard_anchor = "heart"
+scavenger_anchor = "heart"
+barracks_anchor = "heart"
+guard_post_anchor = "heart"
+
+[personality.default.creatures]
+# The level the keeper trains its creatures to while its gold allows (04 section 7.5), and with train_rich_runway pay
+# days' wages of spare gold in hand (beyond [economy] bank_paydays) to train_rich_level (0: never past train_target_level). Training is worth train_weight times
+# its skill to a creature, against its other work: each level adds a third of its kind's job values (research,
+# manufacture, scavenge), its health and strength, and new abilities (P9, screen i: creatures stopped at level 4 and
+# researched with 65,000 gold unspent, the army behind the rival's until 45,000 turns).
+train_target_level = 4
+train_rich_level = 10
+train_rich_runway = 6
+train_weight = 1.5
+# Spare gold (beyond [economy] bank_paydays' wages) for train_spare_paydays pay days' wages, at least 1,000 a pay day:
+# training first in any posture but defend, creatures taken from their work (not from research while a room is still to
+# research), and the training room sized for half the creatures (plan 13).
+train_spare_paydays = 2
+# And more by the share of its fight the abilities of its next two levels add ([abilities]: a warlock's at level 1 more
+# than double it), times train_ability_weight.
+train_ability_weight = 1.0
+# Research is worth research_rooms_weight times its skill while a room is still to be researched: a warlock keeps to
+# the library early, a bile demon or a spider (research 1) trains.
+research_rooms_weight = 2.0
+# The kinds it draws and keeps: of the kinds that cannot come yet, the rooms of the one worth most for the slabs it
+# still needs (its fight at level 1, times the personality's favour for it) are built -- while weaker kinds can come
+# already, only for a kind worth attract_upgrade more than their draw (their mean worth by entrance score: the portal
+# draws among them all). At its creature limit its weakest free
+# creature (its worth at its level) goes on the portal when a kind that can come is worth dismiss_upgrade more
+# (dismiss_weak 1; 0 never).
+attract_upgrade = 1.5
+dismiss_weak = 1
+dismiss_upgrade = 2.0
+# A kind's worth: its fight at the level it is trained to (train_target_level, or its own if higher) -- a level-1
+# dragon's or warlock's is little, theirs at 4 among the best -- and work_worth a point of its best skill at research or
+# making. At most one creature dismissed each dismiss_interval turns.
+work_worth = 100
+dismiss_interval = 2000
+# Which livid creatures it dismisses when their anger cannot be put right in time: "never", "harmful" (those whose
+# anger would hurt the dungeon: killing, destroying, stealing, joining the enemy -- not merely leaving; 04 Q4), "always".
+dismiss_livid = "harmful"
+
+# Scavenging (08 section 7a): how keen on luring rivals' creatures of the kinds it has (0.5 weighs one at its worth
+# against the scavengers' gold; 0 never).
+scavenge_appetite = 0.3
+
+[personality.default.director]
+# How keen on expanding: scales the expand posture's score and every ExpandTo goal's weight.
+expand_appetite = 1.0
+# Contest when a rival keeper seen lately has at least this share of the keeper's own strength (creature levels and
+# imps), or holds ground within contest_radius of its rooms.
+contest_threshold = 0.8
+# Recover when this share of the creatures has gone within recover_window (from at least 4).
+recover_threshold = 0.5
+# Turns a posture is held before another may replace it (recover may always interrupt; opening ends when it is done).
+dwell_turns = 1500
+
+[personality.default.layout]
+# The layout planner's weights on its score's terms (04 section 5.2): predicted efficiency (percent), being beside an
+# anchor room (100), slabs from the anchor, turns of digging (the site and its way to the keeper's land), the
+# keeper's enemies' slabs within 8 (Phase 4 widens this), earth beside it to grow into, valuable slabs walled in.
+w_eff = 4.0
+w_adj = 1.0
+w_dist = 4.0
+w_dig = 0.1
+w_exp = 0.0
+w_grow = 2.0
+w_waste = 20.0
+
+[personality.default.tactics]
+# The spells Tactics casts in its fights (06 section 7), as combat-assistant rules: 1 casts it, 0 never.
+# Heal its hurt fighters; Lightning to finish a hurt enemy; Slow, Freeze and Chicken on the strongest enemy on its own
+# ground; Speed, Protect, Rebound, Flight and Vision on its strongest fighter; Conceal on an imp caught in a fight under
+# conceal_imps_below health %.
+cast_heal = 1
+cast_lightning = 1
+cast_slow = 1
+cast_freeze = 0
+cast_chicken = 0
+cast_speed = 0
+cast_protect = 0
+cast_rebound = 0
+cast_flight = 0
+cast_vision = 0
+cast_conceal = 1
+conceal_imps_below = 60
+# Disease (it spreads to the creatures beside its victim, never the keeper's own, but an ally's) on the strongest enemy
+# in a fight on its own ground of disease_battle creatures at least, with disease_reserve gold after the next wages;
+# never beside an ally's creatures.
+cast_disease = 0
+disease_battle = 4
+disease_reserve = 12000
+# Heal a fighter under this health %, at this overcharge level (0-8).
+heal_below = 35
+heal_level = 2
+# Hinder (Slow, Freeze, Chicken) and help (Speed, Protect) when the enemy's force in a fight is above this % of its own.
+hinder_ratio = 110
+# Lightning only an enemy under this health %, and only with none of its allies' creatures in reach.
+finish_below = 40
+# The overcharge level of every spell but Heal.
+spell_level = 1
+# Gold no spell may spend below (nor below the next wages plus this), and the most all of them may spend in a pay day.
+cast_reserve = 1000
+cast_max_spend = 4000
+# With spare gold (plan 13: beyond [economy] bank_paydays' wages) the most they may spend in a pay day rises to
+# cast_spare_share % of it: the gold banked fights.
+cast_spare_share = 50
+# Send help to a fight until the keeper's force there is this % of the enemy's.
+superiority_to_defend = 120
+# The Call to Arms banner moves to another fight only when that fight's stakes are this many times the banner's.
+cta_switch_margin = 1.5
+# Lift a fighter out of a fight under this health % (when no heal can come); give a fight up (lift its fighters home)
+# when the enemy's force is above this % of the keeper's there and no help can turn it; Hold Audience (every creature to
+# the heart, work stops) when the heart's health falls under this % (0: never).
+retreat_health = 25
+hopeless_ratio = 300
+hold_audience_below = 30
+# Where the Call to Arms banner may go: "never", "own_ground", or "anywhere" an objective pays for its upkeep.
+cta_use = "anywhere"
+# The group it wants (06 section 5a): more than 1 puts a barracks in the room programme.
+group_size = 1
+# Keep the creatures' flee tendency on (1) or off (0).
+flee_tendency = 1
+
+[personality.default.defence]
+# The weights Defence gives the heart, a room and imps at work when it posts them as objectives for Tactics.
+heart_priority = 4.0
+rooms_priority = 2.0
+imps_priority = 1.5
+# The share of [defence] max_traps and max_doors it plans; boulders (1 yes, 0 no).
+trap_usage = 0.5
+door_preference = 0.5
+boulder_use = 1
+# Last-ditch traps by its heart, nearest it first (within 5 slabs), the best-rated kind it has but a boulder, an alarm
+# or lava; apart from trap_usage's share (0 none). Armageddon wants traps by the heart before it is cast.
+heart_traps = 2
+# Guard posts beside the busiest chokepoints ([defence] max_guard_posts), and secret doors on them (1 yes, 0 no).
+guard_posts = 0
+secret_doors = 0
+# A hazard (a neutral's or the heroes' trap killing its imps, [defence] hazard_imps) guarding something worth having:
+# its shots spent by a creature sent to stand on it (1), or never (0: it is sealed with a door, or left).
+spend_traps = 1
+# The share (%) of its free fighters kept at a guard post by its most threatened chokepoint while the force estimate is
+# against it and the way in is under threat ([defence] hold_turns each); 0: never.
+hold_share = 30
+# The perimeter (plan 13): the fewest slabs -- at most perimeter_max_cut (0: none) -- that, held, close off
+# perimeter_min_area slabs or more round its heart from the rest of the map (rock, gems and lava as every keeper sees
+# them; level 61's ring of rock with two gaps). Its imps never dig them but one gate a gap, where a door goes; they
+# fortify the rest, which no enemy imp digs.
+perimeter_max_cut = 12
+perimeter_min_area = 150
+
+[personality.default.offence]
+# Never attack (1), or only a rival that has attacked the keeper (1).
+never_attack = 0
+only_attack_attackers = 0
+# The force wanted, as % of a target's defence, and the creatures' mean level, before an attack.
+superiority_to_attack = 150
+attack_level_target = 4
+# With the force at overwhelm_share % of what the attack needs the level and the runway are not waited for (0: always
+# wait for them; plan 13, level 124 run to 60,000). Over the last urgency_turns turns of its income (its side's gold
+# mined at the average income) the asks relax -- the level to 1, the runway to none, overwhelm_share to 100 % -- so
+# that the attack goes with gold left for its spells; waiting would bring neither gold nor levels (0: no urgency). None
+# in the game's first urgency_grace_paydays pay days: the early mining's pace is no measure of the gold's end.
+overwhelm_share = 150
+urgency_turns = 20000
+urgency_grace_paydays = 1
+# With its income ending within [economy] extras_horizon turns and no gem held, horizon_attack_bonus less superiority
+# (never under 100): the rival's treasury is the next income (plan 13).
+horizon_attack_bonus = 20
+# The share (%) of a rival's estimated force -- the creatures counted on the query panel at the levels last seen, and
+# its lairs' growth -- that comes to defend whatever is attacked (its heart, a portal, a room), on top of the defenders,
+# doors and traps seen there: the built-in computer sends its creatures to a room under attack.
+response_share = 50
+# The target it goes for first: "heart", "room" (the least defended) or "portal".
+first_target = "heart"
+# The share of its force kept home while it attacks; the score a target needs to be attacked.
+home_guard_share = 0.3
+attack_threshold = 1.0
+# Gold a 1000 turns for the Call to Arms banner's upkeep on enemy ground; withdraw when the enemy's force there is above
+# withdraw_ratio % of its own for withdraw_patience turns.
+cta_attack_budget = 3000
+withdraw_ratio = 200
+withdraw_patience = 600
+# How often it raids (07 section 4.4): [offence] raid_interval / raid_appetite turns between two; 0 never.
+raid_appetite = 0.5
+# Diplomacy (07 section 5a): it proposes an alliance to a keeper worth ally_min_value or more as an ally, accepts one
+# offered at ally_min_value x (1 - loyalty / 2), keeps it while the value stays above ally_min_value x (1 - loyalty),
+# and breaks it to attack an ally grown weak with treachery's chance at each look.
+loyalty = 0.7
+treachery = 0.1
+ally_min_value = 1.0
+
+[personality.default.custody]
+# Prisoners taken (1: the imprison tendency on, a prison asked for once it has fought) or not (0).
+take_prisoners = 1
+# Each prisoner plan's value scaled: convert, interrogate (the rack), skeleton (starved in prison), ghost (dies on the
+# rack), hold (kept from its keeper).
+w_convert = 1.0
+w_interrogate = 1.0
+w_skeleton = 1.0
+w_ghost = 1.0
+w_hold = 1.0
+# On a gold-poor map each plan pays its creature's upkeep: its pay, as force at the keeper's own force per gold, times
+# how short the gold is -- in full when its income ends now, half at [economy] extras_horizon turns, none from twice
+# that or with a gem held -- times w_upkeep. Ghosts (pay 20) and skeletons (70; neither eats) cost little; a converted
+# dragon (350) or a vampire (750) much (plan 13).
+w_upkeep = 1.0
+# A victim of the kind it pays most for kept on a rack: every creature of that kind then costs half its pay (1 yes, 0 no).
+pay_discount_torture = 1
+# A livid creature: dismissed (none), or held in prison while its cause is fixed within discipline_hold turns (prison),
+# or put on a rack when its kind is the one the pay discount wants (torture), or either (both).
+discipline = "none"
+discipline_hold = 1500
+# Sacrifices on its temple pool: none, prisoners only, or any of its creatures too ("any": a summoned creature's level is
+# the average of its victims', so even good ones may be worth giving).
+sacrifices = "any"
+# A graveyard for the bodies its fights leave, for vampires (1), or none (0).
+vampires = 1
+# With a graveyard standing (and room in it), which its fights leave -- prisoners or bodies -- by what they are worth:
+# the enemies it fights now as prisoners (their best plan) against a body, w_body times a vampire's worth over the
+# bodies a vampire takes (BodiesForVampire). Prisoners while they are worth more, else bodies (P9).
+w_body = 1.0
+# How much its own creatures held by another keeper are worth rescuing (their force times this; 0 never).
+rescue_value = 1.0
+
+[personality.default.magic]
+# Must Obey (its creatures move a quarter faster, attack a quarter more often, work a fifth faster, take any job and
+# neither sulk nor act on their anger; its price every few turns while on): "never", for its "fights", or for its
+# "fights_and_work". On only with obey_reserve gold after the next wages, off below obey_floor; a fight is obey_fighters
+# of its creatures fighting, work obey_workers of them researching, manufacturing or training; switched at most once
+# every obey_hold turns (the floor aside). For fights only, and for big ones: on for its work too, it was on some 40% of
+# a game (P9, screen h), its price some 35000 gold a game for a quarter faster, where some 5% is all that pays.
+obey = "fights"
+obey_reserve = 4000
+obey_floor = 1500
+obey_fighters = 6
+obey_workers = 8
+obey_hold = 300
+# Special boxes its hand can reach (1: used, 0: left): reveal map, steal hero, multiply creatures, increase level, make
+# safe and gold at once; heal all once heal_all_hurt creatures are under heal_all_below % health; resurrect on its best
+# dead. Never transfer creature or locate hidden world, nor the harmful ones or a level script's own.
+specials = 1
+heal_all_below = 60
+heal_all_hurt = 3
+# Speed Up on its creatures at work (1: yes, 0: never; the built-in computer's SplSpdu): a sped-up creature trains,
+# researches and manufactures twice as fast. Training first, then research while a room is left to research, then
+# manufacture; one not sped up already, the lowest level first; at level 1 (100 gold for 300 turns, the cheapest a
+# turn), while the spare gold covers work_speed_paydays pay days' wages and no room is being placed or grown -- the
+# rooms' gold first (plan 13: level 124 banked 35,000-40,000 while its creatures stayed a level behind the rival's).
+work_speed = 1
+work_speed_paydays = 2
+# Armageddon, every creature on the level brought to the caster's heart for a last fight: "never", or as a "finisher"
+# -- once its creatures' levels are armageddon_superiority % of all its rivals' together (their creature counts, as the
+# query panel shows them, at the levels seen), its heart at armageddon_heart % health or more, armageddon_traps of its
+# traps near the heart (defence heart_traps lays them), and the gold for the price and armageddon_reserve more for the
+# last fight's spells (an end-game move: the wages after it do not count). 133 %: skirmish maps give every keeper the
+# same creature limit, so twice the rivals' force seldom comes, but the last fight is at the caster's heart and a rival
+# seen in part may be twice its estimate (P9: 125 % cast on 52 levels against 42, 86 once revealed, and lost the heart).
+# Whoever casts it, the last fight's spells are cast with no gold kept back, Must Obey goes on, and nothing else is
+# bought from the cast on. From the teleport the whole map is revealed; a keeper loses only when it has no creatures
+# left (imps apart), and the survivors walk home from the last fight: until armageddon_finish_turns after it is over the
+# keeper assaults the best target's keeper, whatever its posture, readiness or losses, once its creatures' levels are
+# armageddon_superiority % of that keeper's, seen whole.
+armageddon = "never"
+armageddon_superiority = 133
+armageddon_heart = 80
+armageddon_traps = 2
+armageddon_reserve = 15000
+armageddon_finish_turns = 3000
+# And only with gold plentiful (owner): its price at most armageddon_gold_share % of the gold the keeper can still have,
+# its bank and its side's gold left (no limit with a gem face held) -- at 60,000 of level 124's 400,000 the gold trains
+# more, and Destroy Walls with an assault does the job cheaper.
+armageddon_gold_share = 15
+
+# --- The shipped personalities (05 section 5). Each inherits default and sets only where it differs; the tournament
+# checks each one's signature against steward's (05 section 9).
+
+[personality.steward]
+name = "Steward"
+description = "Balanced: builds good rooms, mines steadily, keeps its creatures content."
+skirmish_pool = true
+# Default's values: the baseline the others are measured against.
+
+[personality.miser]
+name = "Miser"
+description = "Hoards gold: a big treasury first, a large reserve, careful about unknown ground, trains little."
+skirmish_pool = true
+
+[personality.miser.economy]
+reserve_margin = 0.75
+comfortable_paydays = 6
+forward_treasury_turns = 4000
+
+[personality.miser.excavation]
+unknown_cost = 60
+
+[personality.miser.workforce]
+imps_max = 18
+imp_gold_share = 0.15
+
+[personality.miser.programme]
+treasury_slabs = 16
+training_slabs = 9
+
+[personality.miser.creatures]
+train_target_level = 2
+train_rich_runway = 20
+
+# Scavenging costs gold: never.
+scavenge_appetite = 0
+
+[personality.builder]
+name = "Builder"
+description = "Rooms first: generous sizes, laid out for efficiency."
+skirmish_pool = true
+
+# The kinds a personality favours (any kind by its code): a creature of one worth this much more (or less) to it --
+# the rooms it builds to draw one, the creatures it keeps at its limit. 1.0 unless named.
+[personality.builder.favour]
+SORCEROR = 1.5
+TROLL = 1.5
+
+[personality.builder.programme]
+treasury_slabs = 16
+lair_slabs = 25
+hatchery_slabs = 16
+library_slabs = 25
+training_slabs = 25
+workshop_slabs = 26
+
+[personality.builder.layout]
+w_eff = 8.0
+w_grow = 4.0
+
+[personality.swarm]
+name = "Swarm"
+description = "An imp army: many imps, kept hurried, mining hard and boldly."
+skirmish_pool = true
+
+[personality.swarm.economy]
+reserve_margin = 0.1
+comfortable_paydays = 2
+
+[personality.swarm.excavation]
+unknown_cost = 20
+
+[personality.swarm.workforce]
+imps_min = 8
+imps_max = 40
+work_per_imp = 3
+slabs_per_imp = 15
+slap_share = 0.5
+slap_interval = 150
+imp_gold_share = 0.4
+
+[personality.turtle]
+name = "Turtle"
+description = "Stays home behind doors and traps: guard posts, secret doors, a barracks for its guard; fights only on its own ground."
+skirmish_pool = true
+
+[personality.turtle.favour]
+ORC = 1.25
+TROLL = 1.25
+SORCEROR = 1.25
+
+[personality.turtle.custody]
+# Holds its prisoners rather than racking them; jails a livid creature until its cause is fixed.
+w_hold = 2.0
+w_convert = 0.5
+discipline = "prison"
+
+[personality.turtle.tactics]
+# Fights at home only, and with more than enough; lifts its hurt out early and gives up a lost fight sooner.
+cta_use = "own_ground"
+group_size = 4
+superiority_to_defend = 150
+retreat_health = 40
+hopeless_ratio = 200
+hold_audience_below = 50
+
+[personality.turtle.defence]
+heart_priority = 6.0
+rooms_priority = 3.0
+trap_usage = 1.0
+heart_traps = 4
+door_preference = 1.0
+guard_posts = 1
+secret_doors = 1
+
+[personality.turtle.offence]
+# A faithful ally: keeps an alliance through lean times and never turns on one.
+loyalty = 0.9
+treachery = 0.0
+
+[personality.turtle.magic]
+# Ends a won game with Armageddon: its last fight at its own heart, among its traps (P9).
+armageddon = "finisher"
+
+[personality.turtle.director]
+expand_appetite = 0.4
+contest_threshold = 0.6
+
+[personality.turtle.programme]
+# The workshop early, for its traps and doors.
+workshop_rank = 4
+library_rank = 6
+
+[personality.warlord]
+name = "Warlord"
+description = "Attacks early and often: raids the border, breaks in through doors and walls, a big group from a barracks."
+skirmish_pool = true
+
+[personality.warlord.favour]
+DRAGON = 1.5
+BILE_DEMON = 1.5
+DARK_MISTRESS = 1.25
+
+[personality.warlord.offence]
+# Less superiority and fewer levels before it attacks, less kept home, a lower bar for a target; raids three times as
+# often as default; more gold for the banner on enemy ground, and slower to give an assault up.
+superiority_to_attack = 110
+attack_level_target = 3
+home_guard_share = 0.2
+attack_threshold = 0.5
+raid_appetite = 1.5
+cta_attack_budget = 5000
+withdraw_ratio = 250
+# A fickle ally: keeps an alliance only while it pays well, and may turn on a weak ally.
+loyalty = 0.3
+treachery = 0.3
+
+[personality.warlord.custody]
+# Converts and raises skeletons; racks a livid creature.
+w_convert = 1.5
+w_skeleton = 1.5
+discipline = "torture"
+
+[personality.warlord.tactics]
+# Its group as big as the party limit allows (a barracks in its programme).
+group_size = 8
+
+[personality.warlord.magic]
+# Ends a won game with Armageddon.
+armageddon = "finisher"
+
+[personality.steady]
+name = "Steady"
+description = "A caretaker for a keeper whose player left: keeps what is there, builds few new rooms, dismisses nobody."
+# Drop-in adopts with it; not a skirmish opponent.
+skirmish_pool = false
+
+[personality.steady.economy]
+sell_rooms_in_emergency = 0
+
+[personality.steady.workforce]
+slap_share = 0
+
+[personality.steady.programme]
+library_rank = 0
+training_rank = 0
+workshop_rank = 0
+
+[personality.steady.creatures]
+dismiss_livid = "never"
+dismiss_weak = 0
+
+
+[assistant]
+# The human's Daimon assistant (single player; docs/plans/ai-plans/v2/09 section 5): it never touches what the human is
+# doing now -- the creature they possess and the group it leads, their hand's things, the thing under their cursor --
+# nor casts or drops within possession_radius subtiles of the possessed creature.
+possession_radius = 8
+# What the human did stays done (docs/plans/ai-plans/v2/09 section 5.3): a creature they picked up, dropped, slapped,
+# cast on or possessed is theirs for lease_turns; a slab they marked or unmarked, a room they built or sold, a trap or
+# door they placed or sold stays as they left it until they change it.
+lease_turns = 600
+
+[lieutenant]
+# An External seat's Daimon lieutenant (docs/plans/ai-plans/v2/10): what the seat's agent touches -- its orders, the
+# bridge's triggers and the seat's hand rules -- is the agent's: a creature for agent_lease_turns, a slab, room, trap or
+# door decision until the agent changes it.
+agent_lease_turns = 600
+
+[model_map]
+# A level's DAIMON = MODELS key (campaign [mapN] block or .lof; docs/daimon-authoring.md): each keeper its level gives
+# the built-in AI (COMPUTER_PLAYER(player, model)) plays as Daimon with the personality named for its model here; a
+# model not named plays the default.
+0 = "steward"
+1 = "steward"
+2 = "turtle"
+3 = "builder"
+4 = "builder"
+5 = "steward"
+10 = "warlord"
+11 = "turtle"
+12 = "swarm"
+13 = "turtle"
+14 = "builder"
+15 = "steward"
+16 = "warlord"

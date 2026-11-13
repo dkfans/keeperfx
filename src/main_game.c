@@ -471,11 +471,21 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
         setup_zombie_players();
     }
     setup_alliances();
-    daimon_claim_pending_slots();
     post_init_level();
     post_init_players();
     post_init_packets();
-    DaimonLevelStart(); // the claimed keepers' Daimon built, their players set up
+    // Skirmish against Daimon: the computer keepers in the lobby's empty seats are Daimon's.
+    if (!network_is_active() && fe_computer_players && net_config_info.computer_daimon && frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+            if (flag_is_set(net_lobby_empty_seats, to_flag(plyr_idx)) && player_is_computer_keeper(get_player(plyr_idx))) {
+                DaimonQueueLevelStart(plyr_idx, NULL, NULL);
+            }
+        }
+    }
+    // The keepers handed to Daimon (the lobby, the level script's DAIMON_PLAYER) get their slots, once the script's
+    // COMPUTER_PLAYER has set them up, and Daimon its keepers.
+    daimon_claim_pending_slots();
+    DaimonLevelStart();
     if (game.game_kind == GKind_MultiGame && network_is_active()) {
         network_game_started();
     }

@@ -757,6 +757,8 @@ static const char *lobby_option_value(int32_t option, char *value, size_t value_
         snprintf(value, value_size, "%d", net_lobby_max_players);
         return value;
     case LobbyOption_ComputerPlayers:
+        if ((fe_computer_players != 0) && net_config_info.computer_daimon && frontnet_service_selected(FrontendNetSvc_Skirmish))
+            return "Daimon";
         return get_on_off_string(fe_computer_players);
     default:
         return NULL;
