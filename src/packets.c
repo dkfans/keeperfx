@@ -428,6 +428,13 @@ TbBool packet_action_has_camera_position(enum TbPacketAction action)
     case PckA_ApplyRoomspaceDigTag:
     case PckA_SetTimestamp:
     case PckA_ZoomFromMap:
+    // Daimon's keepers (their slots' packets have no camera to send)
+    case PckA_DaiDigRect:
+    case PckA_DaiBuildRect:
+    case PckA_DaiDropAt:
+    case PckA_DaiCastAt:
+    case PckA_DaiCastOn:
+    case PckA_GroupAdd:
         return false;
     default:
         return true;

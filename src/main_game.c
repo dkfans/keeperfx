@@ -72,6 +72,7 @@
 #endif
 
 #include "daimon_slots.h"
+#include "daimon/Daimon.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -409,6 +410,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
     stop_streamed_samples();
+    DaimonLevelEnd(); // the previous level's keepers
     setup_count_players();
     if (local && (campaign.human_player >= 0) && (!force_player_num))
     {
@@ -473,6 +475,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_level();
     post_init_players();
     post_init_packets();
+    DaimonLevelStart(); // the claimed keepers' Daimon built, their players set up
     if (game.game_kind == GKind_MultiGame && network_is_active()) {
         network_game_started();
     }

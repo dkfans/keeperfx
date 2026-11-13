@@ -10,6 +10,7 @@
 
 #include <string.h>
 
+#include "daimon/Daimon.h"
 #include "dungeon_data.h"
 #include "engine_camera.h"
 #include "game_legacy.h"
@@ -26,7 +27,6 @@ extern "C" {
 #endif
 
 static uint16_t pending_slots_mask;
-static DaimonSlotWriter slot_writer;
 static int64_t prev_models[PLAYERS_COUNT];
 static GameTurn last_written_turn = (GameTurn)-1;
 
@@ -94,6 +94,16 @@ NetUserId daimon_assign_slot(PlayerNumber plyr_idx, int64_t *prev_model)
     return slot;
 }
 
+NetUserId daimon_adopt_slot(PlayerNumber plyr_idx)
+{
+    return daimon_assign_slot(plyr_idx, NULL);
+}
+
+int64_t daimon_slot_prev_model(PlayerNumber plyr_idx)
+{
+    return ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT)) ? prev_models[plyr_idx] : 0;
+}
+
 static void free_slot_of(PlayerNumber plyr_idx)
 {
     const NetUserId slot = daimon_slot_of(plyr_idx);
@@ -103,16 +113,6 @@ static void free_slot_of(PlayerNumber plyr_idx)
     set_net_user_player_number(slot, PLAYER_NONE);
     memset(get_packet(slot), 0, sizeof(struct Packet));
     clear_flag(get_player(plyr_idx)->allocflags, PlaF_Daimon);
-}
-
-NetUserId daimon_adopt_slot(PlayerNumber plyr_idx)
-{
-    return daimon_assign_slot(plyr_idx, NULL);
-}
-
-int64_t daimon_slot_prev_model(PlayerNumber plyr_idx)
-{
-    return ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT)) ? prev_models[plyr_idx] : 0;
 }
 
 TbBool daimon_release_slot(PlayerNumber plyr_idx, int64_t computer_model)
@@ -170,11 +170,6 @@ int32_t daimon_claim_pending_slots(void)
     return claimed;
 }
 
-void daimon_set_slot_writer(DaimonSlotWriter writer)
-{
-    slot_writer = writer;
-}
-
 void daimon_write_slot_packets(void)
 {
     // A frame that waits for the exchange runs again: write each turn once.
@@ -183,16 +178,11 @@ void daimon_write_slot_packets(void)
     }
     last_written_turn = get_gameturn();
     for (NetUserId slot = MAX_NET_USERS; slot < PACKETS_COUNT; slot++) {
-        const PlayerNumber plyr_idx = get_net_user_player_number(slot);
-        if (plyr_idx == PLAYER_NONE) {
-            continue;
-        }
-        struct Packet *pckt = get_packet(slot);
-        memset(pckt, 0, sizeof(struct Packet));
-        if (slot_writer != NULL) {
-            slot_writer(slot, plyr_idx, pckt);
+        if (get_net_user_player_number(slot) != PLAYER_NONE) {
+            memset(get_packet(slot), 0, sizeof(struct Packet));
         }
     }
+    DaimonTickAuthors(get_gameturn());
 }
 
 #ifdef __cplusplus

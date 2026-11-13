@@ -151,6 +151,7 @@
   #include "ftests/ftest.h"
 #endif
 
+#include "daimon/Daimon.h"
 #include "post_inc.h"
 
 #ifdef _MSC_VER
@@ -278,6 +279,7 @@ void init_keeper(void)
     init_custom_sprites(SPRITE_LAST_LEVEL);
     load_stats_files();
     check_and_auto_fix_stats();
+    DaimonInit();
     init_creature_scores();
     init_top_texture_to_cube_table();
     game.neutral_player_num = PLAYER_NEUTRAL;
