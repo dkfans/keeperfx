@@ -468,6 +468,9 @@ static void create_dropped_view(const struct HandDrop *drop)
     view->cctrl.instance_id = CrInst_NULL;
     view->cctrl.distance_to_destination = 0;
     viewtng->active_state = CrSt_CreatureBeingDropped;
+    if (flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {
+        viewtng->active_state = CrSt_ManualControl;
+    }
     play_creature_sound(viewtng, CrSnd_Drop, 3, 0);
 }
 
