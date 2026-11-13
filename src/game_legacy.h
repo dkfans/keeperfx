@@ -233,7 +233,7 @@ struct Game {
     int8_t save_game_slot;
     LevelNumber selected_level_number;
     struct PlayerInfo players[PLAYERS_COUNT];
-    struct UserState user_states[MAX_NET_USERS];
+    struct UserState user_states[PACKETS_COUNT]; // network users, then local packet authors (Daimon's keepers)
     struct Column columns_data[COLUMNS_COUNT];
     unsigned short slabset_num;
     struct SlabSet slabset[SLABSET_COUNT];

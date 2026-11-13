@@ -523,7 +523,7 @@ void clear_complete_game(void)
     local_state.time_delta = 0;
     local_state.show_gui = false;
     local_state.show_panel = false;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         game.user_states[user].player_id = PLAYER_NONE;
     }
     memset(&intralvl, 0, sizeof(struct IntralevelData));

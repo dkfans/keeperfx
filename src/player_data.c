@@ -209,7 +209,7 @@ struct UserState *get_user_state(NetUserId user)
     if (network_is_active() && user == netstate.my_id && network_user_is_spectator(user)) {
         return &local_observer_user_state;
     }
-    if ((user < 0) || (user >= MAX_NET_USERS))
+    if ((user < 0) || (user >= PACKETS_COUNT))
         return INVALID_USER_STATE;
     return &game.user_states[user];
 }
@@ -498,7 +498,7 @@ void clear_players(void)
     memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
     memset(game.user_states, 0, sizeof(game.user_states));
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         game.user_states[user].player_id = PLAYER_NONE;
         game.user_states[user].reconnect_player_id = PLAYER_NONE;
     }

@@ -129,7 +129,7 @@ _Static_assert(NET_MESSAGE_TYPE_SIZE + sizeof(int32_t) + DISKPATH_SIZE + sizeof(
 
 PlayerNumber get_net_user_player_number(NetUserId user)
 {
-    if ((user < 0) || (user >= MAX_NET_USERS)) {
+    if ((user < 0) || (user >= PACKETS_COUNT)) {
         return PLAYER_NONE;
     }
     return game.user_states[user].player_id;
@@ -145,7 +145,7 @@ TbBool user_present(NetUserId user)
 
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
 {
-    if ((user < 0) || (user >= MAX_NET_USERS)) {
+    if ((user < 0) || (user >= PACKETS_COUNT)) {
         return;
     }
     game.user_states[user].player_id = plyr_idx;
