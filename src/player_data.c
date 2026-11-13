@@ -139,6 +139,11 @@ TbBool player_exists(const struct PlayerInfo *player)
     return ((player->allocflags & PlaF_Allocated) != 0);
 }
 
+TbBool player_is_computer_keeper(const struct PlayerInfo *player)
+{
+    return (player->allocflags & (PlaF_CompCtrl | PlaF_Daimon)) != 0;
+}
+
 // has a computer or human keeper (possibly defeated)
 // Not a "zombie," hero, neutral, nor unused slot
 TbBool is_active_keeper(const struct PlayerInfo *player)

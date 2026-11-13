@@ -50,6 +50,7 @@ enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
     PlaF_Placeholder             = 0x02, /**< Human user disconnected, replaced by a computer > */
     PlaF_Seat                    = 0x04, /**< Playable by a human: includes humans (and placeholders), and lobby-assigned computers > */
+    PlaF_Daimon                  = 0x08, /**< Played by Daimon, the keeper AI: its packets come from its own packet slot (4..8) > */
     PlaF_CompCtrl                = 0x40,
 };
 
@@ -389,6 +390,8 @@ const struct PlayerInfo *get_displayed_player(void);
 NetUserId get_displayed_user(void);
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
+/** Played by a computer: the built-in AI (PlaF_CompCtrl) or Daimon (PlaF_Daimon). */
+TbBool player_is_computer_keeper(const struct PlayerInfo *player);
 TbBool is_active_keeper(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 NetUserId get_my_user(void);
