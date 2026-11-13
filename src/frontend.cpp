@@ -1445,7 +1445,14 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    // Off, the built-in AI, Daimon (the keeper AI), then off again.
+    // Skirmish always fills its empty seats: the built-in AI or Daimon (the keeper AI).
+    if (frontnet_service_selected(FrontendNetSvc_Skirmish))
+    {
+        net_config_info.computer_daimon = !net_config_info.computer_daimon;
+        save_settings();
+        return;
+    }
+    // Off, the built-in AI, Daimon, then off again.
     if ((fe_computer_players != 0) && !net_config_info.computer_daimon)
     {
         net_config_info.computer_daimon = 1;
