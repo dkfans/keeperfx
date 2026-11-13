@@ -57,6 +57,7 @@
 #include "thing_navigate.h"
 #include "thing_physics.h"
 
+#include "daimon_script_commands.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -7102,6 +7103,11 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPECIAL_STEAL_HERO",            "PLa     ", Cmd_USE_SPECIAL_STEAL_HERO, &special_steal_hero_check, &special_steal_hero_process},
   {"TRANSFER_CREATURE",                 "PC!An   ", Cmd_TRANSFER_CREATURE, &script_transfer_creature_check, &script_transfer_creature_process},
   {"CHANGE_CREATURES_ANNOYANCE",        "PC!AN   ", Cmd_CHANGE_CREATURES_ANNOYANCE, &change_creatures_annoyance_check, &change_creatures_annoyance_process},
+  {"DAIMON_PLAYER",                     "PAa     ", Cmd_DAIMON_PLAYER, &daimon_player_check, &daimon_player_process},
+  {"DAIMON_SET",                        "PAA     ", Cmd_DAIMON_SET, &daimon_set_check, &daimon_set_process},
+  {"DAIMON_BUILD",                      "PRNNNN  ", Cmd_DAIMON_BUILD, &daimon_build_check, &daimon_build_process},
+  {"DAIMON_ATTACK",                     "PAa     ", Cmd_DAIMON_ATTACK, &daimon_attack_check, &daimon_attack_process},
+  {"DAIMON_DIG",                        "PNN     ", Cmd_DAIMON_DIG, &daimon_dig_check, &daimon_dig_process},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG, NULL, NULL},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG, NULL, NULL},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG, NULL, NULL},

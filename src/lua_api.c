@@ -37,6 +37,7 @@
 #include <zlib.h>
 
 #include "daimon_slots.h"
+#include "daimon_lua.h"
 #include "post_inc.h"
 
 /**********************************************/
@@ -2884,4 +2885,5 @@ void reg_host_functions(lua_State *L)
     Lens_register(L);
     Map_register(L);
     register_lua_sound_api(L);
+    register_lua_daimon_api(L);
 }

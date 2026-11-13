@@ -211,6 +211,11 @@ enum TbScriptCommands {
     Cmd_SET_LEVEL_ENSIGN                   = 198,
     Cmd_DISPLAY_VARIABLE_WITH_LABEL        = 199,
     Cmd_CHANGE_CREATURES_ANNOYANCE         = 200,
+    Cmd_DAIMON_PLAYER                      = 201,
+    Cmd_DAIMON_SET                         = 202,
+    Cmd_DAIMON_BUILD                       = 203,
+    Cmd_DAIMON_ATTACK                      = 204,
+    Cmd_DAIMON_DIG                         = 205,
 };
 
 struct ScriptLine {
