@@ -15,7 +15,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define SAVE_FORMAT_MAJOR 1
-#define SAVE_FORMAT_MINOR 11
+#define SAVE_FORMAT_MINOR 12
 #define SAVE_MIN_READABLE_MAJOR 1
 #define SAVE_MAGIC_SIZE 8
 #define SAVE_HEADER_SIZE 20
