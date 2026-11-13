@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "daimon_packets.h"
 #include "replay.h"
 #include "net_input_lag.h"
 #include "net_checksum_turn.h"
@@ -1136,6 +1137,10 @@ TbBool process_user_global_packet_action(NetUserId user)
     case PckA_SetRoomspaceSubtile:
         apply_roomspace_packet_action(user, pckt);
         return false;
+    case PckA_DaiDigRect: case PckA_DaiBuildRect: case PckA_DaiSellRect: case PckA_DaiPlaceTrap:
+    case PckA_DaiPlaceDoor: case PckA_DaiDropAt: case PckA_DaiCastAt: case PckA_DaiHandPick: case PckA_DaiCastOn:
+    case PckA_FormGroup: case PckA_GroupAdd: case PckA_OrderGroup: case PckA_ReleaseGroup:
+        return daimon_process_packet_action(user);
     case PckA_PlyrQueryCreature:
     {
         query_creature(user, pckt->actn_par1, (pckt->actn_par2 & 0x01) != 0, (pckt->actn_par2 & 0x02) != 0);

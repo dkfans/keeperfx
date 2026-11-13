@@ -175,6 +175,7 @@ SAVE_DECLARE(TrapInfo);
 SAVE_DECLARE(TunnellerTrigger);
 SAVE_DECLARE(TurnTimer);
 SAVE_DECLARE(UserState);
+SAVE_DECLARE(KeeperGroupState);
 SAVE_DECLARE(Wander);
 SAVE_DECLARE(WorkersRulesConfig);
 SAVE_DECLARE_UNION(ComputerTask_u_sell_traps_doors);
