@@ -107,6 +107,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"MAP_FORMAT_VERSION", 14},
   {"INTRO_DESC_ID",     15},
   {"DESCRIPTION_GEO",    16},  
+  {"DAIMON",             17}, // the keepers Daimon plays (daimon_level.h)
   {NULL,                  0},
   };
 
@@ -1099,6 +1100,15 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             break;            
         case 15: // INTRO_DESC_ID
             get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_id,LINEMSG_SIZE);
+            break;
+        case 17: // DAIMON
+            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->daimon,sizeof(lvinfo->daimon)) > 0)
+            {
+                struct DaimonLevelKeyEntry e[DAIMON_KEY_MAX_ENTRIES];
+                if (daimon_level_key_parse(lvinfo->daimon, e, DAIMON_KEY_MAX_ENTRIES) <= 0)
+                    CONFWRNLOG("No entry in \"%s\" parameter in [%s] block of '%s' file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
             break;
         case 16: // DESCRIPTION_GEO
             lvinfo->level_description_geo = malloc(sizeof(struct LevelDescriptionGeo));

@@ -74,6 +74,7 @@
 #include "daimon_slots.h"
 #include "daimon/Daimon.h"
 #include "dai_net.h"
+#include "daimon_level.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -402,6 +403,7 @@ TbBool startup_saved_packet_game(void)
     post_init_players();
     // The recording's Daimon keepers get their slots again: the level start's (the header's) and the script's. No
     // keeper is built: the recorded packets play them.
+    daimon_queue_level_key(); // the level's own DAIMON key, from the same level files
     daimon_pending_slots_set_mask(daimon_pending_slots_mask() | replay.head.players_daimon);
     daimon_set_adopt_mask(replay.head.players_daimon_adopt);
     daimon_claim_pending_slots();
@@ -493,8 +495,12 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_level();
     post_init_players();
     post_init_packets();
-    // The keepers handed to Daimon (the lobby, the level script's DAIMON_PLAYER) get their slots, once the script's
-    // COMPUTER_PLAYER has set them up, and Daimon its keepers.
+    // The level's own DAIMON key (its campaign [mapN] block or .lof): after the script, whose COMPUTER_PLAYER makes the
+    // keepers it names AI keepers.
+    if (!network_is_active())
+        daimon_queue_level_key();
+    // The keepers handed to Daimon (the lobby, the level's DAIMON key, its script's DAIMON_PLAYER) get their slots,
+    // once the script's COMPUTER_PLAYER has set them up, and Daimon its keepers.
     daimon_claim_pending_slots();
     DaimonLevelStart();
     if (game.game_kind == GKind_MultiGame && network_is_active()) {

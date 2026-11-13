@@ -20,6 +20,7 @@
 #define DK_CFGCMPGNS_H
 
 #include "globals.h"
+#include "daimon_level.h"
 #include "bflib_basics.h"
 
 #include "config.h"
@@ -172,6 +173,8 @@ struct LevelInformation {
   int mapsize_y;  
   char intro_desc_id[LINEMSG_SIZE];  
   struct LevelDescriptionGeo *level_description_geo;
+  /** DAIMON = the keepers Daimon plays from the level start (daimon_level.h). */
+  char daimon[LEVEL_DAIMON_LEN];
 };
 
 struct CampaignsList {

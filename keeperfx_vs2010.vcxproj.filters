@@ -454,6 +454,7 @@
     <ClCompile Include="src\kfx\ai\daimon\src\jobs\JobTactics.cpp" />
     <ClCompile Include="src\list_walk.c" />
     <ClCompile Include="src\room_side_score.c" />
+    <ClCompile Include="src\daimon_level.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />
@@ -908,6 +909,7 @@
     <ClInclude Include="src\kfx\ai\daimon\src\jobs\JobPath.h" />
     <ClInclude Include="src\list_walk.h" />
     <ClInclude Include="src\room_side_score.h" />
+    <ClInclude Include="src\daimon_level.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
