@@ -78,6 +78,8 @@ struct NetLandLocalState {
     int32_t limp_y;
     int32_t local_slap_send_frame;
     int32_t slap_miss_wait;
+    LevelNumber ensign_level;
+    int32_t ensign_slot;
 };
 
 extern LevelNumber mouse_over_lvnum;
@@ -94,8 +96,19 @@ TbBool frontmap_input_active_ensign(long curr_mx, long curr_my);
 TbBool frontmap_update_zoom(void);
 
 #define RANDOM_PLAYER_GREY 40
+#define PALETTE_CHANNELS 3
 
-TbPixel net_player_colours[] = { 251, 58, 182, 11 };
+static const unsigned char net_player_name_colours[MAX_NET_USERS + 1][PALETTE_CHANNELS] = {
+    {42, 3, 3},
+    {14, 39, 55},
+    {23, 31, 20},
+    {63, 60, 27},
+    {38, 10, 48},
+    {8, 8, 8},
+    {60, 32, 4},
+    {50, 50, 50},
+    {RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY},
+};
 const int32_t hand_limp_xoffset[] = { 32, 31, 30, 29, 28, 27, 26, 24, 22, 19, 15, 9 };
 const int32_t hand_limp_yoffset[] = { -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0 };
 
@@ -219,6 +232,35 @@ static const struct TbSprite *get_hand_sprite_for_packet(const struct ScreenPack
     }
 }
 
+static TbBool ensign_slot_taken(LevelNumber lvnum, int32_t slot)
+{
+    for (int32_t i = 0; i < MAX_NET_USERS; i++) {
+        const struct ScreenPacket *other_nspck = &net_screen_packet[i];
+        if ((i == my_player_number) || !is_connected_screen_packet(other_nspck) || (screen_packet_action(other_nspck) != NetAct_None)) {
+            continue;
+        }
+        if ((other_nspck->action_par1 == lvnum) && (other_nspck->action_par2 == slot)
+          && ((net_map_local.ensign_level != lvnum) || (i < my_player_number))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static int32_t claim_ensign_slot(LevelNumber lvnum)
+{
+    if ((net_map_local.ensign_level == lvnum) && !ensign_slot_taken(lvnum, net_map_local.ensign_slot)) {
+        return net_map_local.ensign_slot;
+    }
+    net_map_local.ensign_level = SINGLEPLAYER_NOTSTARTED;
+    net_map_local.ensign_slot = 0;
+    while (ensign_slot_taken(lvnum, net_map_local.ensign_slot)) {
+        net_map_local.ensign_slot++;
+    }
+    net_map_local.ensign_level = lvnum;
+    return net_map_local.ensign_slot;
+}
+
 static void get_hand_packet(PlayerNumber plyr_idx, struct ScreenPacket *nspck, int32_t slap_frame, TbClockMSec now)
 {
     if (!is_my_player_number(plyr_idx)) {
@@ -274,12 +316,15 @@ static void get_hand_packet(PlayerNumber plyr_idx, struct ScreenPacket *nspck, i
         set_packet_slap_frame(nspck, slap_frame);
         return;
     }
-    if (nspck->action_par1 > 0) {
+    if (nspck->action_par1 <= 0) {
+        net_map_local.ensign_level = SINGLEPLAYER_NOTSTARTED;
+        return;
+    }
+    struct LevelInformation* lvinfo = get_level_info(nspck->action_par1);
+    if (lvinfo != NULL) {
         const struct TbSprite* spr = get_map_ensign(1);
-        struct LevelInformation* lvinfo = get_level_info(nspck->action_par1);
-        if (lvinfo != NULL) {
-            set_screen_packet_position(nspck, lvinfo->ensign_x + my_player_number * ((int32_t)spr->SWidth), lvinfo->ensign_y - 48);
-        }
+        nspck->action_par2 = claim_ensign_slot(nspck->action_par1);
+        set_screen_packet_position(nspck, lvinfo->ensign_x + nspck->action_par2 * ((int32_t)spr->SWidth), lvinfo->ensign_y - 48);
     }
 }
 
@@ -288,7 +333,6 @@ static void draw_netmap_players_hands(void)
     struct ScreenPacket nspck;
     const char *plyr_nam;
     const struct TbSprite *spr;
-    TbPixel colr;
     TbClockMSec now;
     int32_t x, y;
     int32_t w;
@@ -310,12 +354,8 @@ static void draw_netmap_players_hands(void)
         }
         get_hand_packet(i, &nspck, slap_frame, now);
         plyr_nam = network_user_name(i);
-        colr = net_player_colours[0];
-        if (net_player_colour[i] == NET_PLAYER_COLOUR_RANDOM) {
-            colr = LbPaletteFindColour(frontend_palette, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY);
-        } else if (net_player_colour[i] >= 0) {
-            colr = net_player_colours[net_player_colour[i]];
-        }
+        const unsigned char *name_colour = net_player_name_colours[max(net_player_colour[i], 0)];
+        TbPixel colr = LbPaletteFindColour(frontend_palette, name_colour[0], name_colour[1], name_colour[2]);
         spr = get_hand_sprite_for_packet(&nspck, anim_frame, &x, &y);
         x -= (long)map_info.screen_shift_x;
         y -= (long)map_info.screen_shift_y;

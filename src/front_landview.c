@@ -513,16 +513,24 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         {
             if (frontend_menu_state == FeSt_NETLAND_VIEW)
             {
-                switch (lvinfo->players)
-                {
-                case 2:
-                    ensign_sprite_index = 5;
-                    break;
+                switch (lvinfo->players) {
                 case 3:
                     ensign_sprite_index = 7;
                     break;
                 case 4:
                     ensign_sprite_index = 9;
+                    break;
+                case 5:
+                    ensign_sprite_index = 11;
+                    break;
+                case 6:
+                    ensign_sprite_index = 13;
+                    break;
+                case 7:
+                    ensign_sprite_index = 15;
+                    break;
+                case 8:
+                    ensign_sprite_index = 17;
                     break;
                 default:
                     ensign_sprite_index = 5;
@@ -530,27 +538,18 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
                 }
                 if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_highlighted == lvinfo->lvnum))
                     ensign_sprite_index++;
-                if (ensign_type == EnsCoop)
-                {
-                    ensign_sprite_index = ensign_sprite_index + 6;
+                if (ensign_type == EnsCoop) {
+                    ensign_sprite_index += 14;
                 }
             }
             else
             {
-                switch (lvinfo->players)
-                {
-                case 2:
-                    ensign_sprite_index = EnsDisMulti2;
-                    break;
-                case 3:
-                    ensign_sprite_index = EnsDisMulti3;
-                    break;
-                case 4:
+                if (lvinfo->players >= 4) {
                     ensign_sprite_index = EnsDisMulti4;
-                    break;
-                default:
+                } else if (lvinfo->players == 3) {
+                    ensign_sprite_index = EnsDisMulti3;
+                } else {
                     ensign_sprite_index = EnsDisMulti2;
-                    break;
                 }
             }
             spr = get_map_ensign(ensign_sprite_index);
