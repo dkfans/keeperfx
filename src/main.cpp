@@ -846,6 +846,7 @@ void reinit_level_after_load(void)
 {
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting");
+    creature_desc_rebuild_from_config();
     // Reinit structures from within the game
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
