@@ -101,10 +101,10 @@ static const unsigned char net_player_name_colours[MAX_NET_USERS + 1][PALETTE_CH
     {14, 39, 55},
     {23, 31, 20},
     {63, 60, 27},
-    {50, 50, 50},
     {38, 10, 48},
     {8, 8, 8},
     {60, 32, 4},
+    {50, 50, 50},
     {RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY},
 };
 const int32_t hand_limp_xoffset[] = { 32, 31, 30, 29, 28, 27, 26, 24, 22, 19, 15, 9 };

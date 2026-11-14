@@ -331,10 +331,10 @@ void frontnet_draw_player_icon(NetUserId user, int pos_x, int pos_y, int units_p
 {
     static const unsigned char tint_sixteenths[TINTED_ICON_COUNT][PLAYER_ICON_TINT_CHANNELS] = {
         {3, 3, 3},
-        {16, 16, 16},
         {8, 2, 7},
         {8, 8, 8},
         {16, 9, 1},
+        {16, 16, 16},
     };
     static unsigned char tint_remaps[TINTED_ICON_COUNT][PALETTE_COLORS];
     static TbBool tint_remaps_initialized;

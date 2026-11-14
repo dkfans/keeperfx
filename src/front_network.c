@@ -95,7 +95,7 @@ struct ConfigInfo skirmish_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[PLAYER_MP_NAME_LEN];
 char tmp_net_player_name[PLAYER_MP_NAME_LEN+4];
-const PlayerNumber net_seat_players[MAX_NET_USERS] = {PLAYER0, PLAYER1, PLAYER2, PLAYER3, PLAYER_GOOD, PLAYER4, PLAYER5, PLAYER6};
+const PlayerNumber net_seat_players[MAX_NET_USERS] = {PLAYER0, PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER_GOOD};
 int8_t net_player_colour[MAX_NET_USERS];
 int8_t net_player_team[MAX_NET_USERS];
 int32_t net_lobby_max_players;
