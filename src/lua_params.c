@@ -438,6 +438,10 @@ long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
         {
             return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
         }
+        if (0 == strcasecmp(text, "ANY_DIGGER"))
+        {
+            return CREATURE_DIGGER;
+        }
 
         luaL_argcheck(L,id != -1,index,"unrecognized creature type");
 

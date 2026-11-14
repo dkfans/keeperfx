@@ -7,6 +7,7 @@
 ---@field exp_points integer amount of experience points the creature has, 256 times as large as the LevelsTrainValues
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
+---@field hand_icon integer panel sprite number of this creature's hand icon
 ---@field workroom Room the room the creature is currently working in
 ---@field state creature_state
 ---@field state_besides_interruptions creature_state the state the creature is in, ignoring interruption states like moving around or being slapped. Used for checking what the creature is actually doing instead of just what state it is in. read-only

@@ -19,6 +19,7 @@
 #include "game_merge.h"
 #include "bflib_datetm.h"
 #include "player_utils.h"
+#include "player_data.h"
 #include "lvl_script_lib.h"
 #include "room_library.h"
 #include "room_util.h"
@@ -32,6 +33,8 @@
 #include "lua_base.h"
 #include "lua_params.h"
 #include "lua_api_sound.h"
+#include "engine_redraw.h"
+#include "custom_sprites.h"
 
 
 #include <zlib.h>
@@ -2666,6 +2669,43 @@ static int lua_Pay_for_power(lua_State *L)
     return 1;
 }
 
+static long custom_buff_icon_arg(lua_State *L, int index)
+{
+    long id = (lua_type(L, index) == LUA_TNUMBER) ? lua_tointeger(L, index) : get_icon_id(luaL_checkstring(L, index));
+    if ((id <= 0) || (id == bad_icon_id))
+        return luaL_argerror(L, index, "unrecognized icon");
+    return id;
+}
+
+static int lua_set_custom_buff_icons(lua_State *L)
+{
+    const char *name = luaL_checkstring(L, 1);
+    long icons[32];
+    short dy[32] = {0};
+    int count = 0;
+    if (lua_istable(L, 2))
+    {
+        for (int i = 1; (i <= (int)lua_objlen(L, 2)) && (count < 32); i++)
+        {
+            lua_rawgeti(L, 2, i);
+            int fields = lua_istable(L, -1);
+            if (fields)
+            {
+                lua_getfield(L, -1, "icon");
+                lua_getfield(L, -2, "y");
+                dy[count] = (short)lua_tointeger(L, -1);
+                lua_pop(L, 1);
+            }
+            icons[count++] = custom_buff_icon_arg(L, -1);
+            lua_pop(L, fields + 1);
+        }
+    }
+    else if (!lua_isnoneornil(L, 2))
+        icons[count++] = custom_buff_icon_arg(L, 2);
+    set_custom_buff_icon_slot(name, icons, dy, count);
+    return 0;
+}
+
 static const luaL_Reg global_methods[] = {
 //Setup Commands
    {"SetGenerateSpeed",                 lua_Set_generate_speed           },
@@ -2722,6 +2762,7 @@ static const luaL_Reg global_methods[] = {
    {"QuickPlayerInformation"                ,lua_Quick_player_information               },
    {"QuickPlayerInformationWithPos"         ,lua_Quick_player_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
+   {"SetCustomBuffIcons"                    ,lua_set_custom_buff_icons           },
    {"QuickMessage"                          ,lua_Quick_message                   },
    {"GetGameTimestamp"                      ,lua_get_game_timestamp              },
    {"ClearMessage"                          ,lua_Clear_message                   },
