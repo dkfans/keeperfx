@@ -52,6 +52,16 @@
 #include "post_inc.h"
 
 static int32_t lobby_chat_text_width;
+static const short player_colour_sprites[MAX_NET_USERS] = {
+    GFS_bullfrog_red_med,
+    GFS_bullfrog_blue_med,
+    GFS_bullfrog_green_med,
+    GFS_bullfrog_yellow_med,
+    GFS_bullfrog_purple_med,
+    GFS_bullfrog_black_med,
+    GFS_bullfrog_orange_med,
+    GFS_bullfrog_white_med,
+};
 
 const char *net_join_error_text(enum NetJoinRejection reason)
 {
@@ -254,7 +264,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
         text = net_player[netplyr_idx].name;
         if (netplyr_idx >= net_number_of_enum_players)
             break;
-        spr = get_frontend_sprite(GFS_bullfrog_red_med+netplyr_idx);
+        spr = get_frontend_sprite(player_colour_sprites[netplyr_idx]);
         i = height - spr->SHeight * fs_units_per_px / 16;
         LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, fs_units_per_px, spr);
         LbTextSetWindow(gbtn->scr_pos_x, shift_y + gbtn->scr_pos_y, gbtn->width - spr->SWidth * fs_units_per_px / 16, height);
@@ -315,10 +325,6 @@ void frontnet_return_to_main_menu(struct GuiButton *gbtn)
   frontend_set_state(FeSt_MAIN_MENU);
 }
 
-#define SPRITE_ICON_COLOURS 4
-#define TINTED_ICON_COUNT (MAX_NET_USERS - SPRITE_ICON_COLOURS + 1)
-#define PLAYER_ICON_TINT_CHANNELS 3
-
 static void build_frontend_dimmed_remap(unsigned char *remap, int red_sixteenths, int green_sixteenths, int blue_sixteenths)
 {
     for (int i = 0; i < PALETTE_COLORS; i++) {
@@ -329,35 +335,15 @@ static void build_frontend_dimmed_remap(unsigned char *remap, int red_sixteenths
 
 void frontnet_draw_player_icon(NetUserId user, int pos_x, int pos_y, int units_per_px)
 {
-    static const unsigned char tint_sixteenths[TINTED_ICON_COUNT][PLAYER_ICON_TINT_CHANNELS] = {
-        {3, 3, 3},
-        {8, 2, 7},
-        {3, 3, 3},
-        {16, 9, 1},
-        {16, 16, 16},
-    };
-    static unsigned char tint_remaps[TINTED_ICON_COUNT][PALETTE_COLORS];
-    static TbBool tint_remaps_initialized;
-    if (!tint_remaps_initialized) {
-        for (int32_t tint = 0; tint < TINTED_ICON_COUNT; tint++) {
-            build_frontend_dimmed_remap(tint_remaps[tint], tint_sixteenths[tint][0], tint_sixteenths[tint][1], tint_sixteenths[tint][2]);
-        }
-        tint_remaps_initialized = true;
-    }
     int8_t colour = net_player_colour[user];
     if (colour == NET_PLAYER_COLOUR_RANDOM) {
         LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_random_colour));
         return;
     }
-    if (colour >= 0 && colour < SPRITE_ICON_COLOURS) {
-        LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_red_med + colour));
+    if (colour < 0) {
         return;
     }
-    int32_t tint = 0;
-    if (colour >= SPRITE_ICON_COLOURS) {
-        tint = colour - SPRITE_ICON_COLOURS + 1;
-    }
-    LbSpriteDrawResizedRemap(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_blue_med), tint_remaps[tint]);
+    LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(player_colour_sprites[colour]));
 }
 
 void frontnet_messages_up(struct GuiButton *gbtn)
