@@ -20,6 +20,8 @@
 #include "pre_inc.h"
 #include "bflib_sound.h"
 
+#include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -44,8 +46,12 @@ extern "C" {
 // Global variables
 static long NoSoundEmitters = SOUND_EMITTERS_MAX;
 struct SoundEmitter emitter[128];
-static long MaxNoSounds;
-static struct S3DSample SampleList[SOUNDS_MAX_COUNT];
+/** Number of sample slots currently in use; set by S3DSetNumberOfSounds(). */
+static long MaxNoSounds = 0;
+/** Sample slot storage, grown on demand by S3DSetNumberOfSounds(). */
+static struct S3DSample *SampleList = NULL;
+/** Number of slots allocated in SampleList; never less than MaxNoSounds. */
+static long SampleListCapacity = 0;
 static S3D_LineOfSight_Func LineOfSightFunction;
 static long deadzone_radius;
 
@@ -86,17 +92,41 @@ long S3DInit(void)
     S3DSetSoundReceiverSensitivity(64);
     S3DSetLineOfSightFunction(dummy_line_of_sight_function);
     S3DSetDeadzoneRadius(0);
-    S3DSetNumberOfSounds(SOUNDS_MAX_COUNT);
+    // Clear any existing slots. The number of slots is chosen by S3DSetNumberOfSounds().
     init_sample_list();
     return 1;
 }
 
+/**
+ * Sets how many samples can be tracked as playing at once.
+ * The slot storage grows to fit. Slots must not be shrunk while samples are playing,
+ * so call this right after S3DInit(), before anything is played.
+ * @return True on success, false if memory for the slots could not be allocated
+ *     (the previous number of slots stays in effect).
+ */
 long S3DSetNumberOfSounds(long nMaxSounds)
 {
-    if (nMaxSounds > SOUNDS_MAX_COUNT)
-        nMaxSounds = SOUNDS_MAX_COUNT;
+    // Slot indices are passed around as SoundSmplTblID (short), so that is the hard upper bound.
+    if (nMaxSounds > SHRT_MAX)
+        nMaxSounds = SHRT_MAX;
     if (nMaxSounds < 1)
         nMaxSounds = 1;
+    if (nMaxSounds > SampleListCapacity)
+    {
+        struct S3DSample* new_list = (struct S3DSample*)calloc(nMaxSounds, sizeof(struct S3DSample));
+        if (new_list == NULL)
+        {
+            ERRORLOG("Cannot allocate %ld sound sample slots", nMaxSounds);
+            return false;
+        }
+        if (SampleList != NULL)
+        {
+            memcpy(new_list, SampleList, SampleListCapacity * sizeof(struct S3DSample));
+            free(SampleList);
+        }
+        SampleList = new_list;
+        SampleListCapacity = nMaxSounds;
+    }
     MaxNoSounds = nMaxSounds;
     return true;
 }
@@ -569,7 +599,7 @@ short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax)
     struct S3DSample *sample;
     long i;
     int32_t spcval = INT32_MAX;
-    short min_sample_id = SOUNDS_MAX_COUNT;
+    short min_sample_id = -1;
     if ((ctype == 2) || (ctype == 3))
     {
         for (i=0; i < MaxNoSounds; i++)
@@ -737,7 +767,7 @@ void delete_all_sound_emitters(void)
 
 void init_sample_list(void)
 {
-    for (long i = 0; i < SOUNDS_MAX_COUNT; i++)
+    for (long i = 0; i < SampleListCapacity; i++)
     {
         struct S3DSample* sample = &SampleList[i];
         memset(sample, 0, sizeof(struct S3DSample));
