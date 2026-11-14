@@ -95,7 +95,6 @@ static int map_set_field(lua_State *L) {
     const char *key = luaL_checkstring(L, 2);
 
     if (strcmp(key, "default_texture") == 0) {
-        LevelNumber lvnumb = get_loaded_level_number();
         if (lua_isnumber(L, 3)) {
             // Integer input is 0-based: ID 0 = tmapa000.dat
             // Store as 1-based internally (texture_id + 1) to match string input convention.
@@ -105,7 +104,7 @@ static int map_set_field(lua_State *L) {
             if (texture_id >= 0)
             {
                 game.texture_id = texture_id + 1;
-                load_texture_map_file(texture_id, lvnumb, get_level_fgroup(lvnumb));
+                load_texture_map_file(texture_id);
             }
         } else {
             // String input is 1-based and uses texture_pack_desc values ("STANDARD"=1, "ANCIENT"=2, ...).
@@ -114,7 +113,7 @@ static int map_set_field(lua_State *L) {
             long texture_id = luaL_checkNamedCommand(L, 3, texture_pack_desc);
             game.texture_id = texture_id;
             if (texture_id > 0)
-                load_texture_map_file(texture_id - 1, lvnumb, get_level_fgroup(lvnumb));
+                load_texture_map_file(texture_id - 1);
         }
         return 0;
     }
