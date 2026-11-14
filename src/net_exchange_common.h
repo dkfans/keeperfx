@@ -39,6 +39,10 @@ TbBool can_send_to_peer(NetUserId peer_id);
 void send_to_active_peers(int send_count, enum NetworkPeerSendMode send_mode, const char *buffer, size_t msg_size, uint64_t user_mask);
 TbBool all_expected_exchange_frames_received(const TbBool has_received_frame[MAX_NET_USERS], TbBool is_host);
 TbError exchange_frame_message(void *send_buf, void *server_buf, size_t frame_size, enum NetMessageType msg_type);
+/** The host sends a Daimon slot's packet for this turn to every client, with the slot's recent ones (the frame a peer
+ *  sends for itself, with the slot as its peer id). */
+struct Packet;
+void exchange_slot_frame(NetUserId slot, const struct Packet *packet);
 TbError process_network_message(NetUserId source, void *server_buf, size_t frame_size, enum NetMessageType expected_frame_type, NetUserId *frame_peer_id);
 TbError exchange_frame_block(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t frame_size);
 void process_peer_msgs(NetUserId peer_id, void *server_buf, size_t frame_size);

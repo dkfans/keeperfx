@@ -79,6 +79,8 @@ foreach(_t IN LISTS KFX_TARGETS)
     # Put src/ on the include path so sources in subdirectories (src/kfx/platform/, ...)
     # can use "pre_inc.h" and "kfx/platform/Foo.h" style includes.
     target_include_directories(${_t} PRIVATE "${CMAKE_SOURCE_DIR}/src")
+    # Daimon, the keeper AI: its headers are included as "daimon/Foo.h".
+    target_include_directories(${_t} PRIVATE "${CMAKE_SOURCE_DIR}/src/kfx/ai/daimon/include")
     apply_keeperfx_warnings(${_t})
     apply_keeperfx_link_flags(${_t})
     kfx_link_dependencies(${_t})

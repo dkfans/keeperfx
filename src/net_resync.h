@@ -35,6 +35,9 @@ char *encode_resync_message(const void *buffer, size_t total_length, size_t *mes
 
 void intentional_desync();
 
+/** Whether reinit_level_after_load() runs for a resync (the game goes on), not for a load. */
+TbBool resync_reinit_active(void);
+
 #ifdef __cplusplus
 }
 #endif

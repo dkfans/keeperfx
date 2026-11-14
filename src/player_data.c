@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "observer.h"
 #include "player_data.h"
+#include "net_spectator.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -138,6 +139,11 @@ TbBool player_exists(const struct PlayerInfo *player)
     return ((player->allocflags & PlaF_Allocated) != 0);
 }
 
+TbBool player_is_computer_keeper(const struct PlayerInfo *player)
+{
+    return (player->allocflags & (PlaF_CompCtrl | PlaF_Daimon)) != 0;
+}
+
 // has a computer or human keeper (possibly defeated)
 // Not a "zombie," hero, neutral, nor unused slot
 TbBool is_active_keeper(const struct PlayerInfo *player)
@@ -205,10 +211,10 @@ struct UserState *get_user_state(NetUserId user)
     if (user == OBSERVER_USER) {
         return &local_observer_user_state;
     }
-    if (network_is_active() && user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
+    if (network_is_active() && user == netstate.my_id && network_user_is_spectator(user)) {
         return &local_observer_user_state;
     }
-    if ((user < 0) || (user >= MAX_NET_USERS))
+    if ((user < 0) || (user >= PACKETS_COUNT))
         return INVALID_USER_STATE;
     return &game.user_states[user];
 }
@@ -228,7 +234,7 @@ NetUserId get_player_primary_user(const struct PlayerInfo *player)
     }
     if ((player == NULL) || player_invalid(player))
         return -1;
-    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; ++user) {
         if (game.user_states[user].player_id == player->id_number) {
             return user;
         }
@@ -241,7 +247,7 @@ int32_t count_player_users(PlayerNumber plyr_idx)
     if (plyr_idx == PLAYER_NONE)
         return 0;
     int32_t count = 0;
-    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; ++user) {
         if (game.user_states[user].player_id == plyr_idx) {
             count++;
         }
@@ -497,7 +503,7 @@ void clear_players(void)
     memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
     memset(game.user_states, 0, sizeof(game.user_states));
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         game.user_states[user].player_id = PLAYER_NONE;
         game.user_states[user].reconnect_player_id = PLAYER_NONE;
     }

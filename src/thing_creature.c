@@ -7904,7 +7904,7 @@ struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, Cr
         control_creature_as_passenger(possessing_user, newtng);
     }
     // If not directly nor passenger controlled, but still player is doing something with it.
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         struct UserState *ustate = get_user_state(user);
         if (ustate->controlled_thing_idx == thing->index)

@@ -71,6 +71,10 @@
   #include "ftests/ftest.h"
 #endif
 
+#include "daimon_slots.h"
+#include "daimon/Daimon.h"
+#include "dai_net.h"
+#include "daimon_level.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -172,6 +176,7 @@ static TbBool init_level(void)
     game.paused_at_gameturn = false;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
+    dai_net_reset(); // the previous game's copies of Daimon's state
     reset_heap_manager();
     // GL's keeper-sprite atlas caches by draw_idx, stable only within one
     // sprite-heap generation -- clear it in lockstep with the heap reset
@@ -325,6 +330,8 @@ TbBool startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
     clear_packets();
+    DaimonLevelEnd(); // a playback runs no Daimon keeper: the recorded packets act
+    daimon_pending_slots_clear();
     if (!open_packet_file_for_load(replay.fname,&centry))
     {
         ERRORLOG("Cannot replay \"%s\": unreadable, or written by an incompatible version",
@@ -394,6 +401,13 @@ TbBool startup_saved_packet_game(void)
         replay.turns_fastforward = replay.turns_stored;
     post_init_level();
     post_init_players();
+    // The recording's Daimon keepers get their slots again: the level start's (the header's) and the script's. No
+    // keeper is built: the recorded packets play them.
+    daimon_queue_level_key(); // the level's own DAIMON key, from the same level files
+    daimon_pending_slots_set_mask(daimon_pending_slots_mask() | replay.head.players_daimon);
+    daimon_set_adopt_mask(replay.head.players_daimon_adopt);
+    daimon_claim_pending_slots();
+    DaimonLevelStart();
     set_selected_level_number(0);
     if ((game.mode_flags & MFlg_IsDemoMode) == 0) {
         observer_init(my_player_number);
@@ -408,6 +422,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
     stop_streamed_samples();
+    DaimonLevelEnd(); // the previous level's keepers
     setup_count_players();
     if (local && (campaign.human_player >= 0) && (!force_player_num))
     {
@@ -471,6 +486,14 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_level();
     post_init_players();
     post_init_packets();
+    // The level's own DAIMON key (its campaign [mapN] block or .lof): after the script, whose COMPUTER_PLAYER makes the
+    // keepers it names AI keepers.
+    if (!network_is_active())
+        daimon_queue_level_key();
+    // The keepers handed to Daimon (the lobby, the level's DAIMON key, its script's DAIMON_PLAYER) get their slots,
+    // once the script's COMPUTER_PLAYER has set them up, and Daimon its keepers.
+    daimon_claim_pending_slots();
+    DaimonLevelStart();
     if (game.game_kind == GKind_MultiGame && network_is_active()) {
         network_game_started();
     }
@@ -523,7 +546,7 @@ void clear_complete_game(void)
     local_state.time_delta = 0;
     local_state.show_gui = false;
     local_state.show_panel = false;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++) {
         game.user_states[user].player_id = PLAYER_NONE;
     }
     memset(&intralvl, 0, sizeof(struct IntralevelData));

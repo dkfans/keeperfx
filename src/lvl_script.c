@@ -1087,7 +1087,7 @@ void process_check_new_tunneller_parties(void)
 static TbBool scripted_outcome_applies_to_player(const struct PlayerInfo *player)
 {
     return player_exists(player)
-        && (!flag_is_set(player->allocflags, PlaF_CompCtrl) || flag_is_set(player->allocflags, PlaF_Placeholder))
+        && (!player_is_computer_keeper(player) || flag_is_set(player->allocflags, PlaF_Placeholder))
         && (player->victory_state == VicS_Undecided);
 }
 

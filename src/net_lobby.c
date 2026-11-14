@@ -173,7 +173,7 @@ enum NetJoinRejection net_lobby_join_rejection(void)
 int32_t net_lobby_spectator_count(void)
 {
     int32_t count = 0;
-    for (NetUserId id = MAX_NET_USERS; id < MAX_NET_CONNECTIONS; id++) {
+    for (NetUserId id = FIRST_SPECTATOR_ID; id < MAX_NET_CONNECTIONS; id++) {
         if (netstate.users[id].progress != USER_UNUSED) {
             count++;
         }
@@ -186,7 +186,7 @@ enum NetJoinRejection net_lobby_spectator_rejection(NetUserId reservation)
     if (netstate.phase != NetPhase_InGame) {
         return NetJoin_SpectatorState;
     }
-    const TbBool reserved = (reservation >= MAX_NET_USERS && reservation < MAX_NET_CONNECTIONS && netstate.users[reservation].progress != USER_UNUSED);
+    const TbBool reserved = (reservation >= FIRST_SPECTATOR_ID && reservation < MAX_NET_CONNECTIONS && netstate.users[reservation].progress != USER_UNUSED);
     const struct NetUser *returning = NULL;
     if (reserved) {
         returning = &netstate.users[reservation];
@@ -243,7 +243,7 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
             return Lb_FAIL;
         }
         NetUserId assigned_id = (uint8_t)read_pos[0];
-        if (assigned_id <= SERVER_ID || assigned_id >= MAX_NET_CONNECTIONS || (net_join_role == NetRole_Player && assigned_id >= MAX_NET_USERS) || (net_join_role == NetRole_Spectator && assigned_id < MAX_NET_USERS)) {
+        if (assigned_id <= SERVER_ID || assigned_id >= MAX_NET_CONNECTIONS || (net_join_role == NetRole_Player && assigned_id >= MAX_NET_USERS) || (net_join_role == NetRole_Spectator && assigned_id < FIRST_SPECTATOR_ID)) {
             return Lb_FAIL;
         }
         netstate.my_id = assigned_id;

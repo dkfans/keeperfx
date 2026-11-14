@@ -909,7 +909,7 @@ void process_user_instance(NetUserId user)
 
 void process_player_instances(void)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
         process_user_instance(user);
     SYNCDBG(9,"Finished");
 }
@@ -1051,7 +1051,7 @@ NetUserId get_user_controlling_thing(const struct Thing *thing, uint32_t uct_fla
 {
     if (!thing_exists(thing))
         return -1;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         if (user_present(user) && user_controls_thing_now(user, thing, uct_flags))
             return user;
@@ -1063,7 +1063,7 @@ TbBool thing_controlled_by_other_user(NetUserId user, const struct Thing *thing,
 {
     if (!thing_exists(thing))
         return false;
-    for (NetUserId other = 0; other < MAX_NET_USERS; other++)
+    for (NetUserId other = 0; other < PACKETS_COUNT; other++)
     {
         if ((other != user) && user_present(other) && user_controls_thing_now(other, thing, uct_flags))
             return true;

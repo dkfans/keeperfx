@@ -18,6 +18,8 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "dai_net.h"
+#include "daimon_packets.h"
 #include "replay.h"
 #include "net_input_lag.h"
 #include "net_checksum_turn.h"
@@ -427,6 +429,14 @@ TbBool packet_action_has_camera_position(enum TbPacketAction action)
     case PckA_ApplyRoomspaceDigTag:
     case PckA_SetTimestamp:
     case PckA_ZoomFromMap:
+    // Daimon's keepers (their slots' packets have no camera to send)
+    case PckA_DaiDigRect:
+    case PckA_DaiBuildRect:
+    case PckA_DaiDropAt:
+    case PckA_DaiCastAt:
+    case PckA_DaiCastOn:
+    case PckA_GroupAdd:
+    case PckA_DaimonCheats:
         return false;
     default:
         return true;
@@ -1136,6 +1146,11 @@ TbBool process_user_global_packet_action(NetUserId user)
     case PckA_SetRoomspaceSubtile:
         apply_roomspace_packet_action(user, pckt);
         return false;
+    case PckA_DaiDigRect: case PckA_DaiBuildRect: case PckA_DaiSellRect: case PckA_DaiPlaceTrap:
+    case PckA_DaiPlaceDoor: case PckA_DaiDropAt: case PckA_DaiCastAt: case PckA_DaiHandPick: case PckA_DaiCastOn:
+    case PckA_FormGroup: case PckA_GroupAdd: case PckA_OrderGroup: case PckA_ReleaseGroup:
+    case PckA_DaimonCheats: case PckA_AdoptKeeper:
+        return daimon_process_packet_action(user);
     case PckA_PlyrQueryCreature:
     {
         query_creature(user, pckt->actn_par1, (pckt->actn_par2 & 0x01) != 0, (pckt->actn_par2 & 0x02) != 0);
@@ -1260,7 +1275,7 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
         transfer_creature(thing_get(pckt->actn_par1), thing_get(pckt->actn_par2), plyr_idx);
         break;
     case PckA_ToggleComputer:
-        if (computer_assistant_allowed()) {
+        if (computer_assistant_allowed() && !flag_is_set(get_player(plyr_idx)->allocflags, PlaF_Daimon)) {
             toggle_computer_player(plyr_idx);
         }
         break;
@@ -1588,6 +1603,7 @@ enum PacketExchangeResult exchange_packets(void)
     }
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
+    track_daimon_slot_packets(); // before the host writes the slots' packets and anyone waits for them
     const NetUserId local_user = get_local_user();
     TbBool spectator = network_user_is_spectator(local_user);
     struct Packet *my_packet = get_local_packet();
@@ -1608,6 +1624,7 @@ enum PacketExchangeResult exchange_packets(void)
     update_dig_tag_input();
     if (!replay.load_enable && !spectator) {
         set_pending_timestamp_packet_action(get_local_packet());
+        dai_net_set_pending_host_action(get_local_packet());
         camera_packet_set_state(get_local_packet());
         set_packet_possession_target(get_local_packet());
         observer_set_packet_cursor(get_local_packet());
@@ -1615,6 +1632,8 @@ enum PacketExchangeResult exchange_packets(void)
     if (!spectator) {
         store_packet_history(local_user, my_packet);
     }
+    // The host's Daimon keepers' packets, born with its own and sent before it waits for anyone (dai_net.h).
+    dai_net_host_author_slots();
     host_spoof_dropped_user_packets();
     TbBigChecksum packet_checksum = my_packet->checksum;
     if (network_is_active()) {

@@ -47,13 +47,14 @@
 #include "net_resync.h"
 #include "local_camera.h"
 #include "replay_rewind.h"
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define PACKET_TURN_MAX_SIZE (MAX_NET_USERS*sizeof(struct Packet) + sizeof(TbBigChecksum))
+#define PACKET_TURN_MAX_SIZE (PACKETS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
 struct ReplayState replay;
 unsigned long initial_replay_seed;
 static TbBool replay_playback_paused;
@@ -73,7 +74,7 @@ extern TbBool FLEE_BUTTON_DEFAULT;
 #endif
 
 // -- compression/decompression state --
-static struct Packet packet_codec_prev[MAX_NET_USERS];
+static struct Packet packet_codec_prev[PACKETS_COUNT];
 static uint32_t packet_bits_acc;
 static int packet_bits_count;
 static TbBool packet_bits_pending;
@@ -110,6 +111,12 @@ static int packet_saved_users(NetUserId *users)
     {
         if (replay.head.user_players[user] >= 0)
             users[n++] = user;
+    }
+    // Daimon's keepers' slots, every turn (they are mostly empty, and a keeper may be given to Daimon at any turn)
+    if (flag_is_set(replay.head.flags, PSHF_DaimonSlots))
+    {
+        for (NetUserId slot = MAX_NET_USERS; slot < PACKETS_COUNT; slot++)
+            users[n++] = slot;
     }
     return n;
 }
@@ -899,7 +906,7 @@ static TbBool apply_long_turn_records(const struct PacketDecoderState *records_s
 
 static GameTurn count_stored_turns(void)
 {
-    NetUserId users[MAX_NET_USERS];
+    NetUserId users[PACKETS_COUNT];
     const int nusers = packet_saved_users(users);
     unsigned char pckt_buf[PACKET_TURN_MAX_SIZE+4];
     const unsigned int start_pos = replay.file_pos;
@@ -1100,7 +1107,7 @@ struct TurnRewritePoint {
     uint32_t bits_acc;
     int bits_count;
     TbBool bits_pending;
-    struct Packet codec_prev[MAX_NET_USERS];
+    struct Packet codec_prev[PACKETS_COUNT];
     TbBigChecksum chksum;
     int nusers;
     unsigned char pckt_buf[PACKET_TURN_MAX_SIZE+4];
@@ -1297,7 +1304,7 @@ void replay_forget_saved_turn(void)
 
 short save_packets(void)
 {
-    NetUserId users[MAX_NET_USERS];
+    NetUserId users[PACKETS_COUNT];
     const int nusers = packet_saved_users(users);
     SYNCDBG(6,"Starting");
     const TbBigChecksum chksum = replay.checksum_verify ? compute_replay_integrity() : 0;
@@ -1538,6 +1545,9 @@ TbBool open_new_packet_file_for_save(void)
     replay.head.players_exist = 0;
     replay.head.players_comp = 0;
     replay.head.players_seat = 0;
+    // Daimon's keepers of the level start that the level script does not give it (the script plays back itself).
+    replay.head.players_daimon = daimon_pending_slots_mask();
+    replay.head.players_daimon_adopt = daimon_adopt_mask();
     replay_long_turn_open = false;
     reset_packet_codec();
     if (packet_wire_size == 0)
@@ -1545,7 +1555,7 @@ TbBool open_new_packet_file_for_save(void)
         ERRORLOG("Cannot determine the packet wire format size");
         return false;
     }
-    replay.head.flags = PSHF_Compressed;
+    replay.head.flags = PSHF_Compressed | PSHF_DaimonSlots;
     if (replay.checksum_verify)
         set_flag(replay.head.flags, PSHF_Checksum);
     if (game.game_kind == GKind_MultiGame)
@@ -1629,7 +1639,7 @@ static TbBool turn_has_quit_packet(void)
 void load_packets_for_turn(GameTurn nturn)
 {
     SYNCDBG(19,"Starting");
-    NetUserId users[MAX_NET_USERS];
+    NetUserId users[PACKETS_COUNT];
     const int nusers = packet_saved_users(users);
     unsigned char pckt_buf[PACKET_TURN_MAX_SIZE+4];
     replay_crashlog_turn = nturn;

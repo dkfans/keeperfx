@@ -586,6 +586,14 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
         case 14: // MAP_FORMAT_VERSION
             // As for now, ignore these
             break;
+        case 17: // DAIMON
+            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->daimon,sizeof(lvinfo->daimon)) > 0)
+            {
+                struct DaimonLevelKeyEntry e[DAIMON_KEY_MAX_ENTRIES];
+                if (daimon_level_key_parse(lvinfo->daimon, e, DAIMON_KEY_MAX_ENTRIES) <= 0)
+                    WARNMSG("No entry in \"%s\" in LOF file '%s'.", COMMAND_TEXT(cmd_num), fname);
+            }
+            break;
         case 13: // MAPSIZE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {

@@ -151,6 +151,8 @@
   #include "ftests/ftest.h"
 #endif
 
+#include "daimon/Daimon.h"
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 #ifdef _MSC_VER
@@ -278,6 +280,7 @@ void init_keeper(void)
     init_custom_sprites(SPRITE_LAST_LEVEL);
     load_stats_files();
     check_and_auto_fix_stats();
+    DaimonInit();
     init_creature_scores();
     init_top_texture_to_cube_table();
     game.neutral_player_num = PLAYER_NEUTRAL;
@@ -850,7 +853,7 @@ void reinit_level_after_load(void)
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
     parchment_loaded = 0;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         if (user_present(user))
         {
@@ -870,6 +873,11 @@ void reinit_level_after_load(void)
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
     restore_computer_player_after_load();
+    daimon_restore_slots_after_load();
+    if (resync_reinit_active())
+        DaimonAfterResync();    // the game Daimon was playing: its keepers go on
+    else
+        DaimonAfterLoad();
     sound_reinit_after_load();
     rederive_local_state();
     update_panel_colors();
@@ -1001,10 +1009,11 @@ void clear_players_for_save(void)
       player->player_type = saved_player_type;
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
+      set_flag_value(player->allocflags, PlaF_Daimon, ((saved_allocation_flags & PlaF_Daimon) != 0));
       set_flag_value(player->allocflags, PlaF_Placeholder, ((saved_allocation_flags & PlaF_Placeholder) != 0));
       set_flag_value(player->allocflags, PlaF_Seat, ((saved_allocation_flags & PlaF_Seat) != 0));
     }
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
       struct UserState *ustate = get_user_state(user);
       ustate->hand_thing_idx = 0;
@@ -1163,7 +1172,7 @@ void PaletteSetUserPalette(NetUserId user, unsigned char *pal)
 
 void PaletteSetPlayerPalette(const struct PlayerInfo *player, unsigned char *pal)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         if (get_net_user_player_number(user) == player->id_number)
             PaletteSetUserPalette(user, pal);

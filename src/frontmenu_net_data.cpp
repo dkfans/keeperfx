@@ -194,6 +194,7 @@ struct GuiButtonInit frontend_skirmish_lobby_buttons[] = {
   { LbBtnT_NormalBtn,  BID_LOBBY_MAPPACK_SELECTOR, 0, 0, frontnet_open_mappack_list,frontnet_open_mappack_list,frontend_over_button,0, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_X, LOBBY_MAPPACK_Y, LOBBY_RIGHT_WIDTH, LOBBY_ROW_HEIGHT, NULL, 0, GUIStr_Empty, 0, {LOBBY_MAPPACK_SELECTOR_ID},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, LOBBY_RIGHT_X,  86, LOBBY_RIGHT_X,  86, LOBBY_RIGHT_WIDTH,LOBBY_MAPPACK_LIST_HEIGHT, frontnet_draw_lobby_settings_panel,       0, GUIStr_Empty, 0,   {0},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,LobbyOption_MaximumPlayers, LOBBY_OPTION_X,  90, LOBBY_OPTION_X,  90, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {45},    0, frontnet_maintain_host_setting },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_change_lobby_option,frontnet_change_lobby_option,frontend_over_button,LobbyOption_ComputerPlayers, LOBBY_OPTION_X, 116, LOBBY_OPTION_X, 116, LOBBY_OPTION_WIDTH, 26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0,  {46},    0, frontnet_maintain_host_setting },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,    FeSt_NETLAND_VIEW, LOBBY_START_BUTTON_X, 422, LOBBY_START_BUTTON_X, 422, LOBBY_BUTTON_WIDTH, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {15},    0, frontnet_start_game_maintain },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,    FeSt_NET_SERVICE, LOBBY_CANCEL_BUTTON_X, 422, LOBBY_CANCEL_BUTTON_X, 422, LOBBY_BUTTON_WIDTH, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {16},    0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 0, 455, 0, 455,371,46, frontend_draw_product_version, 0, GUIStr_Empty, 0, {0}, 0, NULL },
@@ -757,6 +758,9 @@ static const char *lobby_option_value(int32_t option, char *value, size_t value_
         snprintf(value, value_size, "%d", net_lobby_max_players);
         return value;
     case LobbyOption_ComputerPlayers:
+        // Skirmish's own choice, or the network host's (sent to the clients with the lobby settings)
+        if ((fe_computer_players != 0) && (frontnet_service_selected(FrontendNetSvc_Skirmish) ? net_config_info.computer_daimon : net_lobby_settings.computer_daimon))
+            return "Daimon";
         return get_on_off_string(fe_computer_players);
     default:
         return NULL;
@@ -1033,6 +1037,15 @@ void frontnet_maintain_net_start_players(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (lobby_editable_player_at_mouse(gbtn) >= 0)) & LbBtnF_Enabled;
 }
 
+static int lobby_name_text_x(struct GuiButton *gbtn)
+{
+    const struct TbSprite *icon = get_frontend_sprite(GFS_bullfrog_red_med);
+    int height = (LOBBY_ROW_HEIGHT * lobby_menu_scale(gbtn) + 8) / 16;
+    int icon_scale = height * 16 / (icon->SHeight * 13 / 8);
+    const int *columns = active_player_columns();
+    return gbtn->scr_pos_x + LOBBY_PLAYER_ROW_INSET * gbtn->width / columns[LobbyPlayerColumn_Count] + icon->SWidth * icon_scale / 16;
+}
+
 void frontnet_change_player_setting(struct GuiButton *gbtn)
 {
     NetUserId user = lobby_editable_player_at_mouse(gbtn);
@@ -1040,10 +1053,15 @@ void frontnet_change_player_setting(struct GuiButton *gbtn)
         return;
     }
     enum NetPlayerSettingKind kind = NetPlayerSetting_Colour;
+    TbBool backwards = gbtn->button_state_right_pressed;
     if (lobby_player_column_at_mouse(gbtn) == LobbyPlayerColumn_Team) {
         kind = NetPlayerSetting_Team;
+    } else if (net_lobby_computer_player(user) && net_lobby_daimon_seats() && (GetMouseX() >= lobby_name_text_x(gbtn))) {
+        // a Daimon seat's name: click for its personality, right-click for its difficulty (its icon still sets the colour)
+        kind = backwards ? NetPlayerSetting_DaimonDifficulty : NetPlayerSetting_DaimonPersonality;
+        backwards = false;
     }
-    frontnet_cycle_player_setting(kind, user, gbtn->button_state_right_pressed);
+    frontnet_cycle_player_setting(kind, user, backwards);
 }
 
 void frontnet_draw_net_start_players(struct GuiButton *gbtn)
@@ -1083,7 +1101,11 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         }
         char ping[LOBBY_NUMBER_TEXT_LENGTH] = "-";
         const char *name = network_user_name(user);
-        if (computer) {
+        char daimon_name[64];
+        if (computer && net_lobby_daimon_seats()) {
+            net_lobby_daimon_seat_text(user, daimon_name, sizeof(daimon_name));
+            name = daimon_name;
+        } else if (computer) {
             name = get_string(GUIStr_MnuComputer);
         } else if (user != my_player_number && GetPing(user) > 0) {
             snprintf(ping, sizeof(ping), "%u", GetPing(user));

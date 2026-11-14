@@ -39,6 +39,8 @@ extern "C" {
 enum NetPlayerSettingKind {
     NetPlayerSetting_Colour,
     NetPlayerSetting_Team,
+    NetPlayerSetting_DaimonPersonality, /**< a computer seat Daimon plays: 0 random, n the n-th personality */
+    NetPlayerSetting_DaimonDifficulty,  /**< ... and its difficulty, an index of daimon_config_difficulty_names */
     NetPlayerSetting_Count,
 };
 
@@ -63,6 +65,7 @@ struct ConfigInfo {
     uint8_t computer_players;
     uint8_t cheats_enabled;
     uint8_t computer_assistant;
+    uint8_t computer_daimon; /**< Skirmish: the computer players are Daimon's, the keeper AI */
 };
 
 struct TbNetworkPlayerName {
@@ -97,6 +100,13 @@ TbBool net_lobby_computer_player(NetUserId user);
 TbBool net_lobby_force_coop(void);
 void frontnet_select_coop_level(LevelNumber lvnum);
 void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId user, TbBool backwards);
+/** Whether the lobby's computer seats are Daimon's: Skirmish's own choice, or the network host's. */
+TbBool net_lobby_daimon_seats(void);
+/** A Daimon seat as the Players list shows it: "Daimon: Random, normal". */
+void net_lobby_daimon_seat_text(NetUserId user, char *buf, size_t len);
+/** At the start, on the machine that plays Daimon: each Daimon computer seat queued for its player with its
+ *  personality and difficulty. */
+void net_lobby_queue_daimon_seats(const int8_t player_slots[MAX_NET_USERS]);
 void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS]);
 char net_alliances_from_player_colours(const int8_t player_colours[MAX_NET_USERS]);
 void net_store_lobby_empty_seats(const int8_t player_slots[MAX_NET_USERS]);

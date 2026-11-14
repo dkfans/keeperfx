@@ -47,6 +47,7 @@
 #include "thing_navigate.h"
 #include "thing_traps.h"
 
+#include "daimon_slots.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1340,6 +1341,7 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, lon
         SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyr_idx,(int)comp_model);
         comp_model = 0;
     }
+    daimon_forget_slot(plyr_idx);
     player->allocflags |= PlaF_Allocated;
     player->id_number = plyr_idx;
     player->allocflags |= PlaF_CompCtrl;

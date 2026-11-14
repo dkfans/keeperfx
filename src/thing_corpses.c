@@ -517,7 +517,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     set_flag_value(deadtng->alloc_flags, TAlF_IsControlled, memf1);
     if (owner != game.neutral_player_num)
     {
-        for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+        for (NetUserId user = 0; user < PACKETS_COUNT; user++)
         {
             struct UserState *ustate = get_user_state(user);
             if (ustate->controlled_thing_idx == prev_idx)

@@ -305,7 +305,7 @@ static void init_user_dungeon_camera(struct UserState *ustate)
 
 void init_player_cameras(struct PlayerInfo *player)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         struct UserState *ustate = get_user_state(user);
         if (ustate->player_id != player->id_number)
@@ -507,7 +507,7 @@ static void update_player_camera_shake(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
 
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         const struct UserState *ustate = get_user_state(user);
         if ((ustate->player_id == player->id_number) && (ustate->view_type == PVT_CreatureContrl || ustate->view_type == PVT_CreaturePasngr)

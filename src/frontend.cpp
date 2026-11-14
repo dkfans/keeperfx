@@ -1445,12 +1445,29 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
+    // Skirmish always fills its empty seats: the built-in AI or Daimon (the keeper AI).
+    if (frontnet_service_selected(FrontendNetSvc_Skirmish))
+    {
+        net_config_info.computer_daimon = !net_config_info.computer_daimon;
+        save_settings();
+        return;
+    }
+    // Off, the built-in AI, Daimon, then off again.
+    if ((fe_computer_players != 0) && !net_config_info.computer_daimon)
+    {
+        net_config_info.computer_daimon = 1;
+        save_settings();
+        net_lobby_apply_settings();
+        return;
+    }
     if (screen_packet_action(nspck) == NetAct_None)
     {
         screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
         nspck->action_par1 = (fe_computer_players == 0);
         net_config_info.computer_players = nspck->action_par1;
+        net_config_info.computer_daimon = 0;
         save_settings();
+        net_lobby_apply_settings();
     }
 }
 

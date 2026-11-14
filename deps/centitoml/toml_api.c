@@ -414,7 +414,8 @@ static void *expand(void *p, int sz, int newsz)
     if (!s)
         return 0;
 
-    memcpy(s, p, sz);
+    if (sz > 0)
+        memcpy(s, p, sz);
     FREE(p);
     return s;
 }
@@ -1252,58 +1253,47 @@ static int walk_tabpath(context_t *ctx)
     /* start from root */
     table_t cur = {ctx->root, ctx->meta};
 
-    VALUE *meta_item = ctx->meta;
-
     for (int i = 0; i < ctx->tpath.top; i++)
     {
         const char *key = ctx->tpath.key[i];
 
-        VALUE *nexttab = 0;
+        /* What is there under this key decides the way on: the child's own type, not the table we are in. */
+        VALUE *nexttab = value_dict_get(cur.tab, key);
+        VALUE *meta_item = (nexttab != NULL) ? value_dict_get(value_array_get(cur.meta, IDX_CHILDREN), key) : NULL;
 
-        char kind = ptoml_get_kind(cur);
-
-        switch (kind)
+        if (nexttab == NULL)
         {
-            case 'r': // root table
-            case '{':
-                /* found a table. nexttab is where we will go next. */
-                nexttab = value_dict_get(cur.tab, key);
-                meta_item = value_dict_get(value_array_get(cur.meta, IDX_CHILDREN), key);
-                break;
-
-            case 'a':
-                /* found an array. nexttab is the last table in the array. */
-                if (kind != '{')
-                {
-                    return e_internal(ctx, FLINE);
-                }
-
-                size_t nitem = value_array_size(cur.tab);
-                if (nitem == 0)
-                {
-                    return e_internal(ctx, FLINE);
-                }
-
-                nexttab = value_array_get(cur.tab, nitem - 1);
-                meta_item = value_array_get(value_array_get(cur.meta, IDX_CHILDREN), nitem - 1);
-                break;
-            case 'v':
-                return e_keyexists(ctx, ctx->tpath.tok[i].lineno);
-
-            default:
-            { /* Not found. Let's create an implicit table. */
-                table_t next = create_table_in_table(ctx, cur, ctx->tpath.tok[i]);
-                if (!next.tab)
-                {
-                    return e_outofmemory(ctx, FLINE);
-                }
-
-                /* tabs created by walk_tabpath are considered implicit */
-                value_init_bool(value_array_get(next.meta, IDX_IMPLICIT), 1);
-                nexttab = next.tab;
-                meta_item = next.meta;
+            /* Not found. Let's create an implicit table. */
+            table_t next = create_table_in_table(ctx, cur, ctx->tpath.tok[i]);
+            if (!next.tab)
+            {
+                return e_outofmemory(ctx, FLINE);
             }
-                break;
+
+            /* tabs created by walk_tabpath are considered implicit */
+            value_init_bool(value_array_get(next.meta, IDX_IMPLICIT), 1);
+            nexttab = next.tab;
+            meta_item = next.meta;
+        }
+        else if (value_type(nexttab) == VALUE_DICT)
+        {
+            /* found a table: go into it */
+        }
+        else if ((value_type(nexttab) == VALUE_ARRAY) && (meta_item != NULL)
+              && (value_int32(value_array_get(meta_item, IDX_KIND)) == '{'))
+        {
+            /* found an array of tables: go into its last table */
+            size_t nitem = value_array_size(nexttab);
+            if (nitem == 0)
+            {
+                return e_internal(ctx, FLINE);
+            }
+            meta_item = value_array_get(value_array_get(meta_item, IDX_CHILDREN), nitem - 1);
+            nexttab = value_array_get(nexttab, nitem - 1);
+        }
+        else
+        {
+            return e_keyexists(ctx, ctx->tpath.tok[i].lineno);
         }
 
         /* switch to next tab */

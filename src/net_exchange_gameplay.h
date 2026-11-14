@@ -44,6 +44,11 @@ struct QueuedGameplayChat {
 struct Packet;
 
 void initialize_packet_history(void);
+/** Once a turn on every machine, before its packets are exchanged (exchange_packets): notes the turn each Daimon slot
+ *  starts being played, the first turn the host writes a packet for it. */
+void track_daimon_slot_packets(void);
+/** A Daimon slot played since the turn in `*first_turn` (track_daimon_slot_packets); false: not played. */
+TbBool daimon_slot_first_packet_turn(NetUserId slot, GameTurn *first_turn);
 void store_packet_history(NetUserId user, const struct Packet *packet);
 const struct Packet *get_history_packet(NetUserId user, GameTurn turn);
 const struct Packet *get_latest_history_packet(NetUserId user);

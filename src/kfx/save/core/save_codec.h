@@ -43,6 +43,8 @@ enum SaveChunkId {
     SCID_Lua     = SAVE_FOURCC('L','U','A',' '),
     /** The custom data scripts can keep between levels. */
     SCID_CustomIntralevelData = SAVE_FOURCC('C','I','L','D'),
+    /** Daimon's keepers (the keeper AI): a u32 version, then its state. Not required: a build without Daimon skips it. */
+    SCID_Daimon  = SAVE_FOURCC('D','A','I','M'),
     /** A count-prefixed run of same-typed records, concatenated with no per-record framing (decode
      *  advances by each record's own decoded byte count). Used by the smaller files that hold an
      *  array of one struct type, such as the high scores. */

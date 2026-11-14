@@ -205,6 +205,22 @@ enum TbPacketAction {
         PckA_CheatKillCreature,
         PckA_SetTimestamp,
         PckA_SetHandDropTarget,
+        // Daimon's keeper controller (daimon_packets.c): one self-contained packet per gesture, x | y << 16 positions
+        PckA_DaiDigRect,    // par1, par2: opposite corner slabs; par3: 0 tag, 1 untag
+        PckA_DaiBuildRect,  // par1, par2: the drag's start and end slabs; par3: the room kind
+        PckA_DaiSellRect,   // par1, par2: the drag's start and end slabs
+        PckA_DaiPlaceTrap,  // par1: the subtile; par2: the trap kind
+        PckA_DaiPlaceDoor,  // par1: the subtile; par2: the door kind
+        PckA_DaiDropAt,     // par1: the subtile; par2: the held thing that must be dropped
+        PckA_DaiCastAt,     // par1: the subtile; par2: the power kind; par3: the level
+        PckA_DaiHandPick,   // par1: the thing
+        PckA_DaiCastOn,     // par1: the power kind; par2: the thing; par3: the level
+        PckA_FormGroup,     // par1: the first member
+        PckA_GroupAdd,      // par1..par4: members to add
+        PckA_OrderGroup,    // par1: the order | its value << 8; par2: the subtile
+        PckA_ReleaseGroup,
+        PckA_DaimonCheats,  // par1: the keeper; par2: gold; par3: flags | discount << 4; par4: creature bonus
+        PckA_AdoptKeeper,   // par1: the dropped player's keeper
 };
 
 /** Packet flags for non-action player operation. **/

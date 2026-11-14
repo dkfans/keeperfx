@@ -36,6 +36,7 @@
 #include <SDL3/SDL.h>
 #include "config_keeperfx.h"
 #include "config_strings.h"
+#include "dai_net.h"
 #include "post_inc.h"
 /******************************************************************************/
 
@@ -96,7 +97,10 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
     }
     peer_id = (NetUserId)(uint8_t)read_pos[0];
     read_pos += 1;
-    if (peer_id >= MAX_NET_USERS) {
+    // A Daimon slot's frame: the host's, to a client, gameplay only. It has no peer behind it: no ack, no relay.
+    const TbBool daimon_slot = (message_type == NETMSG_GAMEPLAY_UNSEQUENCED) && (peer_id >= MAX_NET_USERS)
+        && (peer_id < PACKETS_COUNT) && (source == SERVER_ID) && !network_is_host();
+    if ((peer_id >= MAX_NET_USERS) && !daimon_slot) {
         WARNLOG("Ignoring message type %d with invalid peer ID %i from peer %i", (int)message_type, peer_id, source);
         return Lb_OK;
     }
@@ -106,7 +110,7 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
         WARNLOG("Peer %i tried to send message type %d for peer %i", (int)source, (int)message_type, (int)peer_id);
         return Lb_OK;
     }
-    char *player_frame = (char *)server_buf + peer_id * frame_size;
+    char *player_frame = daimon_slot ? NULL : (char *)server_buf + peer_id * frame_size;
     size_t payload_size = message_size - (read_pos - netstate.msg_buffer);
     TbBool relay_message = true;
     if (message_type == NETMSG_GAMEPLAY_UNSEQUENCED) {
@@ -132,7 +136,7 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
             return Lb_OK;
         }
         const struct Packet *packets = (const struct Packet *)read_pos;
-        relay_message = netstate.users[peer_id].ack != seq_nbr;
+        relay_message = !daimon_slot && (netstate.users[peer_id].ack != seq_nbr);
         if (peer_id == SERVER_ID && packets[0].turn == get_gameturn() && get_history_packet((PlayerNumber)peer_id, packets[0].turn) == NULL) {
             host_packet_received = local_state.process_turn_time;
         }
@@ -142,6 +146,9 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
                 continue;
             }
             store_packet_history((PlayerNumber)peer_id, &packets[i]);
+        }
+        if (daimon_slot) {
+            return Lb_OK; // the history is where load_old_packets() takes it from
         }
         struct Packet *frame_packet = (struct Packet *)player_frame;
         *frame_packet = packets[0];
@@ -261,6 +268,39 @@ TbBool all_expected_exchange_frames_received(const TbBool has_received_frame[MAX
         }
     }
     return true;
+}
+
+void exchange_slot_frame(NetUserId slot, const struct Packet *packet)
+{
+    if (!network_is_host() || (slot < MAX_NET_USERS) || (slot >= PACKETS_COUNT)) {
+        return;
+    }
+    char *write_pos = begin_net_message(NETMSG_GAMEPLAY_UNSEQUENCED);
+    *write_pos = (char)slot;
+    write_pos += 1;
+    memcpy(write_pos, &netstate.seq_nbr, sizeof(netstate.seq_nbr));
+    write_pos += sizeof(netstate.seq_nbr);
+    memcpy(write_pos, &netstate.gameplay_generation, sizeof(netstate.gameplay_generation));
+    write_pos += sizeof(netstate.gameplay_generation);
+    unsigned char *packet_count = (unsigned char *)write_pos;
+    *packet_count = 1;
+    write_pos += 1;
+    memcpy(write_pos, packet, sizeof(struct Packet));
+    write_pos += sizeof(struct Packet);
+    // the slot's recent packets too, as the host's own frame carries its own (a lost frame is made good by the next)
+    for (GameTurnDelta offset = 1; offset < PACKET_HISTORY_SIZE && *packet_count < REDUNDANT_PACKET_BUNDLE; offset += 1) {
+        if ((GameTurn)offset > packet->turn) {
+            break;
+        }
+        const struct Packet *history_packet = get_history_packet(slot, packet->turn - offset);
+        if (history_packet == NULL) {
+            continue;
+        }
+        memcpy(write_pos, history_packet, sizeof(struct Packet));
+        write_pos += sizeof(struct Packet);
+        *packet_count += 1;
+    }
+    send_exchange_message(NETMSG_GAMEPLAY_UNSEQUENCED, (size_t)(write_pos - netstate.msg_buffer), INVALID_USER_ID);
 }
 
 TbError exchange_frame_message(void *send_buf, void *server_buf, size_t frame_size, enum NetMessageType msg_type)
@@ -399,6 +439,8 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
         return process_lobby_settings_message(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_SEAT:
         return process_network_spectator_seat(source, read_pos, payload_size);
+    case NETMSG_DAIMON_STATE:
+        return dai_net_process_state_message(source, read_pos, payload_size);
     default:
         return Lb_OK;
     }

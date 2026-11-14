@@ -1,0 +1,11 @@
+# Elf's Dance: two allied keepers who build and defend. Both stay home behind doors and traps and hold their
+# chokepoints; they come out only for what reaches their ground.
+[personality.elven_warden]
+name = "Elven Warden"
+description = "Holds its ground behind doors, traps and guard posts, beside its ally."
+inherits = "turtle"
+
+[personality.elven_warden.offence]
+only_attack_attackers = 1
+loyalty = 1.0
+treachery = 0.0

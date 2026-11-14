@@ -23,6 +23,7 @@ PKG_CAMPAIGN_FILES = \
 	$(patsubst %,pkg/campgns/campgn_order.txt,$(CAMPAIGNS)) \
 	$(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS)) \
 	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/*.txt))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/*.toml))) \
 	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_crtr/*.cfg))) \
 	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_lnd/*.txt)))
 PKG_CAMPAIGN_DIRS = $(sort $(dir $(PKG_CAMPAIGN_FILES)))
@@ -124,6 +125,9 @@ pkg/campgns/%.cfg: campgns/%.cfg | pkg/campgns
 	$(CP) $^ $@
 
 pkg/campgns/%.txt: campgns/%.txt | $(PKG_CAMPAIGN_DIRS)
+	$(CP) $^ $@
+
+pkg/campgns/%.toml: campgns/%.toml | $(PKG_CAMPAIGN_DIRS)
 	$(CP) $^ $@
 
 pkg/creatrs/%.cfg: config/creatrs/%.cfg | pkg/creatrs

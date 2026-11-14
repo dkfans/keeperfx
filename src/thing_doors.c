@@ -283,7 +283,7 @@ long destroy_door(struct Thing *doortng)
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     place_slab_type_on_map(SlbT_CLAIMED, stl_x, stl_y, slabmap_owner(slb), 0);
     do_slab_efficiency_alteration(slb_x, slb_y);
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
     {
         if (!user_present(user) || !player_exists(get_user_player(user)))
             continue;

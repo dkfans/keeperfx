@@ -40,6 +40,7 @@
 #include "config_players.h"
 #include "config_slabsets.h"
 #include "dungeon_data.h"
+#include "keeper_group_state.h"
 #include "thing_data.h"
 #include "thing_traps.h"
 #include "thing_doors.h"
@@ -233,7 +234,8 @@ struct Game {
     int8_t save_game_slot;
     LevelNumber selected_level_number;
     struct PlayerInfo players[PLAYERS_COUNT];
-    struct UserState user_states[MAX_NET_USERS];
+    struct UserState user_states[PACKETS_COUNT]; // network users, then local packet authors (Daimon's keepers)
+    struct KeeperGroupState keeper_group[PLAYERS_COUNT]; // each keeper's one ordered group (Daimon's keeper controller)
     struct Column columns_data[COLUMNS_COUNT];
     unsigned short slabset_num;
     struct SlabSet slabset[SLABSET_COUNT];

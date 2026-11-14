@@ -36,6 +36,8 @@
 
 #include <zlib.h>
 
+#include "daimon_slots.h"
+#include "daimon_lua.h"
 #include "post_inc.h"
 
 /**********************************************/
@@ -92,6 +94,7 @@ static int lua_Computer_player(lua_State *L)
     {
 
         struct PlayerInfo* player = get_player(player_idx);
+        daimon_forget_slot(player_idx);
         player->player_type = PT_Roaming;
         player->allocflags |= PlaF_Allocated;
         player->allocflags |= PlaF_CompCtrl;
@@ -2882,4 +2885,5 @@ void reg_host_functions(lua_State *L)
     Lens_register(L);
     Map_register(L);
     register_lua_sound_api(L);
+    register_lua_daimon_api(L);
 }

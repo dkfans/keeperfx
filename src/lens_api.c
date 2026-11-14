@@ -158,7 +158,7 @@ void set_user_lens(NetUserId user, int lens)
 
 void set_all_users_lens(int lens, const char *custom_lens)
 {
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
         set_user_state_lens(get_user_state(user), lens, custom_lens);
 }
 

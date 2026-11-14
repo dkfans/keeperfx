@@ -1443,7 +1443,7 @@ void power_lost_side_effects(PowerKind pwkind, PlayerNumber plyr_idx)
             turn_off_power_call_to_arms(plyr_idx);
         break;
     case PwrK_POSSESS:
-        for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+        for (NetUserId user = 0; user < PACKETS_COUNT; user++)
         {
             if (get_net_user_player_number(user) == plyr_idx && get_user_view_type(user) == PVT_CreatureContrl)
             {

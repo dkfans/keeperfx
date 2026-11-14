@@ -4,6 +4,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "daimon/Daimon.h"
 #include "game_saves.h"
 
 #include "globals.h"
@@ -255,6 +256,17 @@ static TbBool apply_game_kfxs(const char *fname, struct LoadedSave *loaded_save,
             SAVEWARN("can't restore the Lua state of \"%s\"", fname);
             return false;
         }
+    }
+    // Daimon's state waits for DaimonAfterLoad (after the players are set up again), which checks it.
+    if (read_result->daimon_len >= 4)
+    {
+        const uint8_t *d = (const uint8_t *)read_result->daimon_data;
+        const int64_t version = (int64_t)((uint32_t)d[0] | ((uint32_t)d[1] << 8) | ((uint32_t)d[2] << 16) | ((uint32_t)d[3] << 24));
+        DaimonStageLoad(read_result->daimon_data + 4, read_result->daimon_len - 4, version);
+    }
+    else if (read_result->daimon_len > 0)
+    {
+        DaimonStageLoad(nullptr, 0, -1);
     }
     rebuild_derived_game_state();
     return true;
