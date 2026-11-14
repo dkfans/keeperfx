@@ -513,20 +513,12 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         {
             if (frontend_menu_state == FeSt_NETLAND_VIEW)
             {
-                switch (lvinfo->players)
-                {
-                case 2:
-                    ensign_sprite_index = 5;
-                    break;
-                case 3:
-                    ensign_sprite_index = 7;
-                    break;
-                case 4:
+                if (lvinfo->players >= 4) {
                     ensign_sprite_index = 9;
-                    break;
-                default:
+                } else if (lvinfo->players == 3) {
+                    ensign_sprite_index = 7;
+                } else {
                     ensign_sprite_index = 5;
-                    break;
                 }
                 if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_highlighted == lvinfo->lvnum))
                     ensign_sprite_index++;
@@ -537,20 +529,12 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             }
             else
             {
-                switch (lvinfo->players)
-                {
-                case 2:
-                    ensign_sprite_index = EnsDisMulti2;
-                    break;
-                case 3:
-                    ensign_sprite_index = EnsDisMulti3;
-                    break;
-                case 4:
+                if (lvinfo->players >= 4) {
                     ensign_sprite_index = EnsDisMulti4;
-                    break;
-                default:
+                } else if (lvinfo->players == 3) {
+                    ensign_sprite_index = EnsDisMulti3;
+                } else {
                     ensign_sprite_index = EnsDisMulti2;
-                    break;
                 }
             }
             spr = get_map_ensign(ensign_sprite_index);
