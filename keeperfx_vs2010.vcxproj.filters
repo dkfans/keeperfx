@@ -37,7 +37,6 @@
     <ClCompile Include="src\lua_api_lens.c" />
     <ClCompile Include="src\lua_api_room.c" />
     <ClCompile Include="src\bflib_planar.c" />
-    <ClCompile Include="src\bflib_sndlib.cpp" />
     <ClCompile Include="src\bflib_sound.c" />
     <ClCompile Include="src\bflib_sprfnt.c" />
     <ClCompile Include="src\bflib_string.c" />
@@ -278,6 +277,10 @@
     <ClCompile Include="src\gui_vscroll.c" />
     <ClCompile Include="src\kfx\audio\AudioCallback.cpp" />
     <ClCompile Include="src\kfx\audio\AudioStream.cpp" />
+    <ClCompile Include="src\kfx\audio\AudioSystem.cpp" />
+    <ClCompile Include="src\kfx\audio\MusicStream.cpp" />
+    <ClCompile Include="src\kfx\audio\SoundBank.cpp" />
+    <ClCompile Include="src\kfx\audio\SoundEffects.cpp" />
     <ClCompile Include="src\kfx\audio\StreamPool.cpp" />
     <ClCompile Include="src\kfx\audio\VoiceMirror.cpp" />
     <ClCompile Include="src\kfx\platform\GLContextSDL.cpp" />
@@ -627,6 +630,7 @@
     <ClInclude Include="src\kfx\audio\AudioStream.h" />
     <ClInclude Include="src\kfx\audio\AudioLog.h" />
     <ClInclude Include="src\kfx\audio\Commands.h" />
+    <ClInclude Include="src\kfx\audio\SoundInternal.h" />
     <ClInclude Include="src\kfx\audio\SpscRing.h" />
     <ClInclude Include="src\kfx\audio\StreamConfig.h" />
     <ClInclude Include="src\kfx\audio\StreamPool.h" />
