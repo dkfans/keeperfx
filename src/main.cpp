@@ -151,6 +151,7 @@
   #include "ftests/ftest.h"
 #endif
 
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef _MSC_VER
@@ -1695,17 +1696,7 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
 
 static short process_command_line(unsigned short argc, char *argv[])
 {
-  char fullpath[CMDLN_MAXLEN+1];
-  snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
-  snprintf(keeper_runtime_directory, sizeof(keeper_runtime_directory), "%s", fullpath);
-  char *endpos = strrchr( keeper_runtime_directory, '\\');
-  if (endpos==NULL)
-      endpos=strrchr( keeper_runtime_directory, '/');
-  if (endpos!=NULL)
-      *endpos='\0';
-  else
-      strcpy(keeper_runtime_directory, ".");
-
+  // keeper_runtime_directory, the game folder, was set by userdirs_init().
   AssignCpuKeepers = 0;
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
@@ -2014,6 +2005,11 @@ static short process_command_line(unsigned short argc, char *argv[])
       {
           narg++;
       }
+      else if (userdirs_option_value_count(parstr) >= 0)
+      {
+          // -gamedir, -userdir, -portable and the like, which userdirs_init() handled.
+          narg += userdirs_option_value_count(parstr);
+      }
       else if(strcasecmp(parstr, "exitonfailedtest") == 0)
       {
 #ifdef FUNCTESTING
@@ -2082,18 +2078,23 @@ static short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
+/** The log file name: the value of -log, or keeperfx.log. A relative name is in the state folder. */
 static const char* determine_log_filename(unsigned short argument_count, char *argument_values[])
 {
     for (int argument_index = 1; argument_index < argument_count; argument_index++) {
         if (argument_values[argument_index] && (argument_values[argument_index][0] == '-' || argument_values[argument_index][0] == '/')) {
             char* argument_name = argument_values[argument_index] + 1;
             if (strcasecmp(argument_name, "log") == 0 && argument_index + 1 < argument_count) {
-                remove("keeperfx.log");
+                // Remove the default log, so that nobody reads an old one thinking it is this game's.
+                char default_log[FULLPATH_SIZE];
+                userdirs_path(default_log, sizeof(default_log), UsrDir_State, DEFAULT_LOG_FILENAME);
+                if (default_log[0] != '\0')
+                    remove(default_log);
                 return argument_values[argument_index + 1];
             }
         }
     }
-    return log_file_name;
+    return DEFAULT_LOG_FILENAME;
 }
 
 static short resolve_startup_config(void)
@@ -2162,9 +2163,17 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     // else runs. ASSERT_GAME_THREAD() will throw if func called on RT happens on this thread, implying access violation
     RendererThread_RegisterGameThread();
 
+    // The folders of the game and of the user's files come first: the log is in one of them.
+    userdirs_init(argc, argv);
+
     // Determine correct log file based on command line flags
     const char* selected_log_file_name = determine_log_filename(argc, argv);
-    LbErrorLogSetup("/", selected_log_file_name, 5);
+    LbErrorLogSetup(userdirs_get(UsrDir_State), selected_log_file_name, 5);
+    userdirs_log_summary();
+    userdirs_migrate();
+    // Tell the player, once, when their files of the game folder were copied into the user folders.
+    if (userdirs_migration_notice() != NULL)
+        queue_frontend_error_box(userdirs_migration_notice());
 
     retval = process_command_line(argc,argv);
     if (retval < 1)

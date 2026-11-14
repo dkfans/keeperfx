@@ -12,7 +12,6 @@ const char * PlatformManager_GetOSVersion(void);
 const void * PlatformManager_GetImageBase(void);
 const char * PlatformManager_GetWineVersion(void);
 const char * PlatformManager_GetWineHost(void);
-const char * PlatformManager_GetUserPrefDir(void);
 size_t       PlatformManager_GetScratchSize(void);
 
 int          PlatformManager_InitVideo(void);

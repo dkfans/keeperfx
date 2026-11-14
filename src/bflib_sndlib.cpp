@@ -686,24 +686,43 @@ extern "C" void set_music_volume(SoundVolume value) {
 	}
 }
 
+/**
+ * Plays a music file: a path, or a name kept in a save (game.music_fname). game.music_fname gets the file's name
+ * relative to the game or data folder, which is the same for every player and holds no user's folder; a file
+ * outside those folders (given in the console) is played but not kept.
+ */
 extern "C" TbBool play_music(const char * fname) {
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
-	if (g_current_music_fname == fname) {
+	if ((fname == NULL) || (fname[0] == '\0')) {
+		return false;
+	}
+	char path[FULLPATH_SIZE];
+	if (!find_game_file_by_name(fname, path, sizeof(path))) {
+		snprintf(path, sizeof(path), "%s", fname);
+	}
+	char name[FULLPATH_SIZE];
+	if (!make_game_file_name(path, name, sizeof(name))) {
+		const TbBool absolute = (fname[0] == '/') || (fname[0] == '\\') || (fname[1] == ':');
+		snprintf(name, sizeof(name), "%s", absolute ? "" : fname);
+	}
+	if (strlen(name) >= sizeof(game.music_fname)) {
+		WARNLOG("Music file name too long to keep in saves: %s", name);
+		name[0] = '\0';
+	} else if (name[0] == '\0') {
+		WARNLOG("Music file %s is outside the game and data folders, saves won't resume it", path);
+	}
+	if (g_current_music_fname == path) {
 		return true;
 	}
-    game.music_track = -1;
-	// Guard against fname aliasing game.music_fname itself — snprintf with overlapping
-	// src/dest is undefined behaviour.
-	if (fname != game.music_fname) {
-		snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
-	}
+	game.music_track = -1;
+	snprintf(game.music_fname, sizeof(game.music_fname), "%s", name);
 	if (!g_mixer || !g_music_track) {
 		return false;
 	}
 	// SDL3_mixer: load into a MIX_Audio and bind it to the persistent music track.
-	MIX_Audio* new_audio = MIX_LoadAudio(g_mixer, game.music_fname, false);
+	MIX_Audio* new_audio = MIX_LoadAudio(g_mixer, path, false);
 	if (!new_audio) {
-		WARNLOG("Cannot load music from %s: %s", game.music_fname, SDL_GetError());
+		WARNLOG("Cannot load music from %s: %s", path, SDL_GetError());
 		return false;
 	}
 	// MIX_SetTrackAudio replaces any currently-bound audio; the old audio is no
@@ -714,11 +733,11 @@ extern "C" TbBool play_music(const char * fname) {
 		MIX_DestroyAudio(old_audio);
 	}
 	if (!MIX_PlayTrack(g_music_track, 0)) {
-		WARNLOG("Cannot play music from %s: %s", game.music_fname, SDL_GetError());
+		WARNLOG("Cannot play music from %s: %s", path, SDL_GetError());
 		return false;
 	}
 	MIX_SetTrackLoops(g_music_track, -1); // loop forever (was Mix_PlayMusic(music, -1))
-	g_current_music_fname = fname;
+	g_current_music_fname = path;
 	g_current_music_track = 0;
 	return true;
 }
@@ -805,14 +824,9 @@ static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
 	}
 	const int wanted = track - 2; // 0-based position within the chosen format's files
 
-	char filespec[2048];
-	prepare_file_path_buf(filespec, sizeof(filespec), FGrp_Music, "*");
-	if (filespec[0] == '\0') {
-		return false;
-	}
-
+	// The music folders of the user's data folder and of the game, as one.
 	struct TbFileEntry fe;
-	struct TbFileFind *ff = LbFileFindFirst(filespec, &fe);
+	struct TbFileFind *ff = find_first_file_in_group(NULL, FGrp_Music, "*", &fe);
 	if (ff == NULL) {
 		return false;
 	}
@@ -834,6 +848,10 @@ static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
 	if (best_priority < 0) {
 		return false;
 	}
+	// Each folder's list is sorted, the two together may not be.
+	std::stable_sort(files.begin(), files.end(), [](const std::pair<int, std::string> &a, const std::pair<int, std::string> &b) {
+		return strcasecmp(a.second.c_str(), b.second.c_str()) < 0;
+	});
 
 	// Map the track within the winning format's files only, keeping sorted order
 	int index = 0;
@@ -859,7 +877,7 @@ extern "C" TbBool play_music_track(int track) {
 	} else if (features_enabled & Ft_NoCdMusic) {
 		// play_music() itself skips restarting if this exact resolved file is
 		// already the one actually playing (e.g. reloading a save for the same level).
-		char fpath[2048];
+		char fpath[FULLPATH_SIZE];
 		if (!resolve_track_music_path(track, fpath, sizeof(fpath))) {
 			WARNLOG("No music file found for track %d in the music folder", track);
 			return false;

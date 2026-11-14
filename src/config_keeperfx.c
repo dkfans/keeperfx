@@ -45,6 +45,7 @@
 #include "moonphase.h"
 #include "keeperfx.hpp"
 #include "net_matchmaking.h"
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -61,7 +62,7 @@ unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 struct InstallInfo install_info;
-char keeper_runtime_directory[152];
+char keeper_runtime_directory[FULLPATH_SIZE];
 short api_enabled = false;
 uint16_t api_port = 5599;
 uint32_t packetsave_max_kb = 32768;
@@ -431,8 +432,9 @@ static void load_string_configuration(const char *buf, int32_t len, const char *
           // If the path is relative, resolve it against keeper_runtime_directory.
           // This makes INSTALL_PATH=./ work on platforms where CWD != data dir.
           if (install_info.inst_path[0] != '/' && strchr(install_info.inst_path, ':') == NULL) {
-              char resolved[304];
-              snprintf(resolved, sizeof(resolved), "%s/%s", keeper_runtime_directory, install_info.inst_path);
+              char resolved[sizeof(install_info.inst_path)];
+              if (snprintf(resolved, sizeof(resolved), "%s/%s", keeper_runtime_directory, install_info.inst_path) >= (int)sizeof(resolved))
+                  CONFWRNLOG("INSTALL_PATH is too long in %s.", config_textname);
               prepare_diskpath(resolved, sizeof(resolved));
               strncpy(install_info.inst_path, resolved, sizeof(install_info.inst_path)-1);
               install_info.inst_path[sizeof(install_info.inst_path)-1] = '\0';
@@ -1253,11 +1255,11 @@ short load_configuration(void)
   SYNCDBG(4,"Starting");
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
-  // Set default runtime directory and load the config file
-  strcpy(keeper_runtime_directory,".");
+  // keeper_runtime_directory is the game folder, which userdirs_init() chose.
   // Config file variables
   const char* sname; // Filename
   const char* fname; // Filepath
+  char game_fname[FULLPATH_SIZE];
 
   if (start_params.ignore_mods == false)
   {
@@ -1284,17 +1286,29 @@ short load_configuration(void)
         fname = start_params.config_file; // Absolute path
     } else {
         sname = start_params.config_file;
-        fname = prepare_file_path(FGrp_Main, sname);
+        fname = prepare_file_path_buf_in(game_fname, sizeof(game_fname), FLayer_Game, NULL, FGrp_Main, sname);
     }
   }
   else
   {
     sname = keeper_config_file;
-    fname = prepare_file_path(FGrp_Main, sname);
+    // The game's own file, never one in the user's data folder: that one would replace it, while the user's
+    // changes are a separate file read below.
+    fname = prepare_file_path_buf_in(game_fname, sizeof(game_fname), FLayer_Game, NULL, FGrp_Main, sname);
   }
 
   const char *config_textname = "Base config";
   load_file_configuration(fname, sname, config_textname, 0);
+
+  // The user's changes: keeperfx.cfg in the config folder, holding only the options they change. In a portable
+  // install that is the file read above. A game started with -config uses that file alone.
+  if (!start_params.overrides[Clo_ConfigFile])
+  {
+    char user_fname[FULLPATH_SIZE];
+    userdirs_path(user_fname, sizeof(user_fname), UsrDir_Config, keeper_config_file);
+    if ((user_fname[0] != '\0') && (strcmp(user_fname, game_fname) != 0))
+      load_file_configuration(user_fname, user_fname, "User config", CnfLd_IgnoreErrors);
+  }
 
   load_configuration_for_mod_all();
 

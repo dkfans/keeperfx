@@ -36,6 +36,9 @@
 #include <fstream>
 #include <map>
 #include "config.h"
+#include "kfx/platform/UserDirs.h"
+#include "kfx/platform/UserDirsFs.h"
+#include "kfx/platform/UserDirsPolicy.h"
 #include "post_inc.h"
 
 // Maximum number of messages that can be queued at once.
@@ -171,7 +174,7 @@ bool played_recently(const char * fname)
 enum class SpeechResolveResult { LanguageMatch, FallbackBase, FallbackEng, FallbackAnyLang, ZipBundled, NotFound };
 
 // Extract a speech entry named in [speech] from the current level's mapNNNNN.zip bundle
-// into a cached temp file, and return that file's path.
+// into the cache folder, and return that file's path.
 static std::string extract_zip_speech_to_temp(LevelNumber lvnum, const char* entry_path)
 {
 	unsigned char* data = nullptr;
@@ -184,16 +187,19 @@ static std::string extract_zip_speech_to_temp(LevelNumber lvnum, const char* ent
 		if (c == '/' || c == '\\' || c == ':') c = '_';
 	}
 	std::error_code ec;
-	std::filesystem::path temp_dir = std::filesystem::temp_directory_path(ec);
-	if (ec) {
+	// The user's own cache folder rather than the shared temporary one, where another user could have made
+	// the folder first.
+	char subdir[64];
+	snprintf(subdir, sizeof(subdir), "speech/map%05d", lvnum);
+	std::string error;
+	const std::string dir = userdirs::Join(userdirs_get(UsrDir_Cache), subdir);
+	if (!userdirs::MakeDirs(dir, error)) {
+		ERRORLOG("Can't extract speech: %s", error.c_str());
 		free(data);
 		return "";
 	}
-	char subdir[64];
-	snprintf(subdir, sizeof(subdir), "keeperfx_map%05d_speech", lvnum);
-	temp_dir /= subdir;
-	std::filesystem::create_directories(temp_dir, ec);
-	std::filesystem::path temp_file = temp_dir / safe_name;
+	std::filesystem::path temp_dir = userdirs::ToPath(dir);
+	std::filesystem::path temp_file = temp_dir / userdirs::ToPath(safe_name);
 
 	bool already_extracted = false;
 	if (std::filesystem::exists(temp_file, ec)) {
@@ -208,7 +214,7 @@ static std::string extract_zip_speech_to_temp(LevelNumber lvnum, const char* ent
 		}
 	}
 	free(data);
-	return temp_file.string();
+	return userdirs::FromPath(temp_file);
 }
 
 static std::string resolve_speech_path(const char* path, const char* lang,

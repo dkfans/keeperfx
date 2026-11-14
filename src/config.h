@@ -65,6 +65,13 @@ enum TbFileGroups {
         FGrp_Replays,
 };
 
+/** Where a file of a group is looked for. */
+enum FileLayer {
+    FLayer_Any = 0, /**< The user's data folder first, then the game folder: the copy that exists. */
+    FLayer_User,    /**< The user's data folder only. */
+    FLayer_Game,    /**< The game folder only. */
+};
+
 enum TbExtraLevels {
     ExLv_None      =  0,
     ExLv_FullMoon  =  1,
@@ -258,7 +265,7 @@ struct ConfigFileData{
 };
 
 /******************************************************************************/
-extern char keeper_runtime_directory[152];
+extern char keeper_runtime_directory[FULLPATH_SIZE];
 
 #pragma pack()
 /******************************************************************************/
@@ -270,12 +277,37 @@ char *prepare_file_fmtpath_mod(const char *mod_dir, short fgroup, const char *fm
 char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname);
 char *prepare_file_path(short fgroup, const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
+/** Like prepare_file_path_buf_mod(), in the given layer. Groups the game writes are always in the user's data folder. */
+char *prepare_file_path_buf_in(char *dst, int dst_size, enum FileLayer layer, const char *mod_dir, short fgroup, const char *fname);
+struct TbFileFind;
+struct TbFileEntry;
+/**
+ * Lists the files matching pattern (such as "*.cfg") in a group's folder, in the user's data folder first and
+ * then in the game folder; a name in both is listed once. Use with LbFileFindNext() and LbFileFindEnd();
+ * prepare_file_path_mod(mod_dir, fgroup, name) gives the path of the copy that is listed.
+ */
+struct TbFileFind *find_first_file_in_group(const char *mod_dir, short fgroup, const char *pattern, struct TbFileEntry *fentry);
 /* New API - self-documenting game vs. mod distinction */
 char *get_game_file_path(short fgroup, const char *fname);
 char *get_mod_file_path(const char *mod_dir, short fgroup, const char *fname);
 char *get_game_file_path_fmt(short fgroup, const char *fmt_str, ...);
 char *get_mod_file_path_fmt(const char *mod_dir, short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const char *fmt_str, ...);
+/** Path of a file the game makes from other files, in the cache folder: <cache>/<group's folder>/fname. */
+char *prepare_cache_file_path(char *dst, int dst_size, short fgroup, const char *fname);
+/** Loads a file of len bytes the game can make itself: the game's copy (the original game shipped some of them,
+ *  and older versions saved them in the game folder), or else the one in the cache folder. A file of another size
+ *  is not used. Returns true when it was loaded. */
+TbBool load_cached_file(short fgroup, const char *fname, void *buffer, unsigned long len);
+/** Saves a file the game made into the cache folder, replacing the one there. */
+void save_cached_file(short fgroup, const char *fname, const void *buffer, unsigned long len);
+/** The name to keep of a file of the game or of the user's data folder in saves and anything sent to other players:
+ *  its path relative to that folder ("campgns/x/media/song.ogg"), the same for every player. False, and an empty
+ *  dst, when the file is in neither folder or the name doesn't fit. */
+TbBool make_game_file_name(const char *path, char *dst, size_t dst_size);
+/** The file of a name made by make_game_file_name(): the user's copy, else the game's (or INSTALL_PATH's). An
+ *  absolute path is kept as it is. False when no such file exists; dst is then the game folder's path. */
+TbBool find_game_file_by_name(const char *name, char *dst, size_t dst_size);
 /******************************************************************************/
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags);
 /******************************************************************************/

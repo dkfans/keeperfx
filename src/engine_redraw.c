@@ -359,9 +359,10 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
     }
 }
 
+/** Loads data/mapfadeg.dat, a file of the original game, or makes it when it is missing. */
 void generate_map_fade_ghost_table(const char *fname, unsigned char *palette, unsigned char *ghost_table)
 {
-    if (LbFileLoadAt(fname, ghost_table) != PALETTE_COLORS*PALETTE_COLORS)
+    if (!load_cached_file(FGrp_StdData, fname, ghost_table, PALETTE_COLORS*PALETTE_COLORS))
     {
         unsigned char* out = ghost_table;
         for (int i = 0; i < PALETTE_COLORS; i++)
@@ -377,7 +378,7 @@ void generate_map_fade_ghost_table(const char *fname, unsigned char *palette, un
                 out++;
             }
         }
-        LbFileSaveAt(fname, ghost_table, PALETTE_COLORS*PALETTE_COLORS);
+        save_cached_file(FGrp_StdData, fname, ghost_table, PALETTE_COLORS*PALETTE_COLORS);
     }
 }
 
@@ -444,7 +445,7 @@ static void draw_map_fade(TbBool fading_in)
             return;
         }
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
-        generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
+        generate_map_fade_ghost_table("mapfadeg.dat", engine_palette, map_fade_ghost_table);
         local_state.map_fade_prepared = true;
     }
     // 0 shows the dungeon, 32 the parchment

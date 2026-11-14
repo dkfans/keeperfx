@@ -37,6 +37,7 @@
 #include "vidmode.h"
 #include "value_util.h"
 #include <ctype.h>
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -421,7 +422,7 @@ TbBool load_settings(void)
     SYNCDBG(6,"Starting");
     setup_default_settings();
 
-    char *fname = prepare_file_path(FGrp_Save, "settings.toml");
+    const char *fname = userdirs_settings_file();
     VALUE root;
     if (!load_toml_file(fname, &root, CnfLd_IgnoreErrors))
     {
@@ -586,7 +587,7 @@ short save_settings(void)
      && memcmp(&skirmish_config_info, &skirmish_config_saved, sizeof(skirmish_config_info)) == 0)
         return true;
 
-    char *fname = prepare_file_path(FGrp_Save, "settings.toml");
+    const char *fname = userdirs_settings_file();
 
     char *buf = (char *)malloc(16384);
     if (!buf) return false;
@@ -652,7 +653,8 @@ short save_settings(void)
     TOSAVE("max_players = %d\n", (int)skirmish_config_info.max_players);
 #undef TOSAVE
 
-    LbFileSaveAt(fname, buf, len);
+    if (!LbFileSaveReplacing(fname, buf, len))
+        ERRORLOG("Can't write \"%s\"", fname);
     free(buf);
     settings_saved = settings;
     net_config_saved = net_config_info;

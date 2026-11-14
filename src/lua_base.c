@@ -26,6 +26,7 @@
 #include "config_trapdoor.h"
 #include "config_crtrstates.h"
 
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -81,14 +82,188 @@ static void lua_whitelist(lua_State *L, const char *libname, const char *keep)
     lua_pop(L, 1);
 }
 
+/**
+ * Maps are downloaded from the internet, so their scripts get to files by the rule of UserDirsScript.h: files in
+ * the game and data folders only, and writing and removing in levels/, campgns/, multiplayer/ and mods/ of the data
+ * folder only. A relative path is relative to those folders, as it used to be relative to the game folder. When the
+ * data folder is not the game folder, a file the script reads is the user's copy when there is one, else the game's.
+ */
+static TbBool lua_script_file(lua_State *L, const char *path, enum ScriptFileAccess access, char *buf, size_t buf_size)
+{
+    char error[FULLPATH_SIZE + 256];
+    const char *extra_root = (install_info.inst_path[0] != '\0') ? install_info.inst_path : NULL;
+    if (userdirs_script_file(path, access, extra_root, buf, buf_size, error, sizeof(error)))
+        return true;
+    WARNLOG("Map script file refused: %s", error);
+    lua_pushnil(L);
+    lua_pushstring(L, error);
+    return false;
+}
+
+/** io.open, for the files lua_script_file() allows. The original io.open is the upvalue. */
+static int lua_io_open_in_user_folders(lua_State *L)
+{
+    const char *path = luaL_checkstring(L, 1);
+    const char *mode = luaL_optstring(L, 2, "r");
+    // "r" reads, "w" replaces, "a" and "r+" change a file, "w+" replaces it.
+    enum ScriptFileAccess access = ScrFile_Read;
+    if (mode[0] == 'w')
+        access = ScrFile_Write;
+    else if ((mode[0] == 'a') || (strchr(mode, '+') != NULL))
+        access = ScrFile_Update;
+    char buf[FULLPATH_SIZE];
+    if (!lua_script_file(L, path, access, buf, sizeof(buf)))
+        return 2;
+    int base = lua_gettop(L);
+    lua_pushvalue(L, lua_upvalueindex(1));
+    lua_pushstring(L, buf);
+    lua_pushstring(L, mode);
+    lua_call(L, 2, LUA_MULTRET);
+    return lua_gettop(L) - base;
+}
+
+/** os.remove, for the files lua_script_file() lets a script remove. The original os.remove is the upvalue. */
+static int lua_os_remove_in_user_folders(lua_State *L)
+{
+    const char *path = luaL_checkstring(L, 1);
+    char buf[FULLPATH_SIZE];
+    if (!lua_script_file(L, path, ScrFile_Remove, buf, sizeof(buf)))
+        return 2;
+    int base = lua_gettop(L);
+    lua_pushvalue(L, lua_upvalueindex(1));
+    lua_pushstring(L, buf);
+    lua_call(L, 1, LUA_MULTRET);
+    return lua_gettop(L) - base;
+}
+
+/**
+ * Loads a Lua file like luaL_loadfilex(), naming the chunk by the file's path relative to the game or data folder
+ * ("@./levels/map00001.lua"), so that what scripts see of their own path (debug.getinfo) and may store in saves or
+ * send to other players is the same for every player, whatever folders they use.
+ */
+static int lua_load_script_file(lua_State *L, const char *fname, const char *mode)
+{
+    char chunkname[FULLPATH_SIZE + 4];
+    char rel[FULLPATH_SIZE];
+    const char *extra_root = (install_info.inst_path[0] != '\0') ? install_info.inst_path : NULL;
+    if (userdirs_relative_name(fname, extra_root, rel, sizeof(rel)))
+        snprintf(chunkname, sizeof(chunkname), "@./%s", rel);
+    else
+        snprintf(chunkname, sizeof(chunkname), "@%s", fname);
+    FILE *file = fopen(fname, "rb");
+    if (file == NULL) {
+        lua_pushfstring(L, "cannot open %s", chunkname + 1);
+        return LUA_ERRFILE;
+    }
+    size_t size = 0;
+    size_t capacity = 65536;
+    char *data = (char *)malloc(capacity);
+    while (data != NULL) {
+        size_t got = fread(data + size, 1, capacity - size, file);
+        size += got;
+        if (size < capacity)
+            break;
+        capacity *= 2;
+        char *bigger = (char *)realloc(data, capacity);
+        if (bigger == NULL)
+            free(data);
+        data = bigger;
+    }
+    TbBool read_error = ferror(file);
+    fclose(file);
+    if ((data == NULL) || read_error) {
+        free(data);
+        lua_pushfstring(L, "cannot read %s", chunkname + 1);
+        return LUA_ERRFILE;
+    }
+    // A first line starting with '#' is skipped, as luaL_loadfile() does; its line end stays, for line numbers.
+    size_t start = 0;
+    if ((size > 0) && (data[0] == '#')) {
+        while ((start < size) && (data[start] != '\n'))
+            start++;
+    }
+    int result = luaL_loadbufferx(L, data + start, size - start, chunkname, mode);
+    free(data);
+    return result;
+}
+
+/** loadfile(filename [, mode [, env]]) for the files lua_script_file() lets a script read. Without a file name it
+ *  is the original, which reads the standard input; that is the upvalue. */
+static int lua_loadfile_in_user_folders(lua_State *L)
+{
+    if (lua_isnoneornil(L, 1)) {
+        lua_pushvalue(L, lua_upvalueindex(1));
+        lua_insert(L, 1);
+        lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
+        return lua_gettop(L);
+    }
+    const char *path = luaL_checkstring(L, 1);
+    const char *mode = luaL_optstring(L, 2, NULL);
+    char buf[FULLPATH_SIZE];
+    if (!lua_script_file(L, path, ScrFile_Read, buf, sizeof(buf)))
+        return 2;
+    add_loaded_file_checksum(buf);
+    if (lua_load_script_file(L, buf, mode) != LUA_OK) {
+        lua_pushnil(L);
+        lua_insert(L, -2);
+        return 2;
+    }
+    if (!lua_isnoneornil(L, 3)) {
+        lua_pushvalue(L, 3);
+        lua_setfenv(L, -2);
+    }
+    return 1;
+}
+
+/** dofile(filename) for the files lua_script_file() lets a script read; the original is the upvalue. */
+static int lua_dofile_in_user_folders(lua_State *L)
+{
+    if (lua_isnoneornil(L, 1)) {
+        lua_pushvalue(L, lua_upvalueindex(1));
+        lua_insert(L, 1);
+        lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
+        return lua_gettop(L);
+    }
+    const char *path = luaL_checkstring(L, 1);
+    char buf[FULLPATH_SIZE];
+    if (!lua_script_file(L, path, ScrFile_Read, buf, sizeof(buf)))
+        return lua_error(L);
+    add_loaded_file_checksum(buf);
+    lua_settop(L, 1);
+    if (lua_load_script_file(L, buf, NULL) != LUA_OK)
+        return lua_error(L);
+    lua_call(L, 0, LUA_MULTRET);
+    return lua_gettop(L) - 1;
+}
+
+/** Replaces lib.name with fn, which gets the original as its upvalue. */
+static void lua_wrap_function(lua_State *L, const char *libname, const char *name, lua_CFunction fn)
+{
+    lua_getglobal(L, libname);
+    if (!lua_istable(L, -1)) {
+        lua_pop(L, 1);
+        return;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isfunction(L, -1)) {
+        lua_pushcclosure(L, fn, 1);
+        lua_setfield(L, -2, name);
+    } else {
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+}
+
 // Remove Lua functions which can break the sandbox/determinism
 static void disable_lua_functions(lua_State *L)
 {
     // TODO - remove/replace these
     lua_whitelist(L, "io", "open");
+    lua_wrap_function(L, "io", "open", lua_io_open_in_user_folders);
 
     // TODO - remove/replace these
     lua_whitelist(L, "os", "remove");
+    lua_wrap_function(L, "os", "remove", lua_os_remove_in_user_folders);
 
     lua_blacklist(L, "package", "loadlib");
 
@@ -139,22 +314,35 @@ void close_lua_script()
 }
 
 
+/** Adds the "?" pattern of a group's folder to a package.path; the user's folder first, when it has one. */
+static void add_lua_search_path(char *path, size_t path_size, short fgroup, const char *pattern)
+{
+    char dir[FULLPATH_SIZE];
+    for (int layer = FLayer_User; layer <= FLayer_Game; layer++)
+    {
+        if ((layer == FLayer_User) && !userdirs_has_user_layer())
+            continue;
+        prepare_file_path_buf_in(dir, sizeof(dir), (enum FileLayer)layer, NULL, fgroup, pattern);
+        if (dir[0] == '\0')
+            continue;
+        size_t len = strlen(path);
+        snprintf(path + len, path_size - len, "%s;", dir);
+    }
+}
+
 int setLuaPath( lua_State* L)
 {
     #define PATH_LENGTH 4096
-    char fx_data_path[PATH_LENGTH];
-    prepare_file_path_buf(fx_data_path, sizeof(fx_data_path), FGrp_FxData, "lua/?.lua");
-    char campaignpath[PATH_LENGTH];
-    prepare_file_path_buf(campaignpath, sizeof(campaignpath), FGrp_CmpgConfig, "lua/?.lua");
-    char levelpath[PATH_LENGTH];
-    prepare_file_path_buf(levelpath, sizeof(levelpath), FGrp_CmpgLvls, "?.lua");
-
+    char search_path[3 * 2 * FULLPATH_SIZE] = "";
+    add_lua_search_path(search_path, sizeof(search_path), FGrp_CmpgLvls, "?.lua");
+    add_lua_search_path(search_path, sizeof(search_path), FGrp_CmpgConfig, "lua/?.lua");
+    add_lua_search_path(search_path, sizeof(search_path), FGrp_FxData, "lua/?.lua");
 
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "path"); // get field "path" from table at top of stack (-1)
     const char *cur_path = lua_tostring(L, -1); // grab path string from top of stack
-    char new_path[PATH_LENGTH];
-    snprintf(new_path, sizeof(new_path), "%s;%s;%s;%s", levelpath,campaignpath,fx_data_path,cur_path);
+    char new_path[sizeof(search_path) + PATH_LENGTH];
+    snprintf(new_path, sizeof(new_path), "%s%s", search_path, cur_path);
     lua_pop(L, 1); // get rid of the string on the stack we just pushed on line 5
     lua_pushstring(L, new_path); // push the new one
     lua_setfield(L, -2, "path"); // set the field "path" in table at -2 with value at top of stack
@@ -165,7 +353,7 @@ int setLuaPath( lua_State* L)
 static int load_checksummed_lua_file(lua_State *L, const char *fname)
 {
     add_loaded_file_checksum(fname);
-    return luaL_loadfile(L, fname);
+    return lua_load_script_file(L, fname, NULL);
 }
 
 static int load_checksummed_lua_module(lua_State *L)
@@ -186,28 +374,18 @@ static int load_checksummed_lua_module(lua_State *L)
     return 1;
 }
 
-static int call_checksummed_file_function(lua_State *L)
-{
-    if (lua_type(L, 1) == LUA_TSTRING) {
-        add_loaded_file_checksum(lua_tostring(L, 1));
-    }
-    lua_pushvalue(L, lua_upvalueindex(1));
-    lua_insert(L, 1);
-    lua_call(L, lua_gettop(L) - 1, LUA_MULTRET);
-    return lua_gettop(L);
-}
-
-static void checksum_file_function(lua_State *L, const char *function_name)
+/** Replaces the global function_name with fn, which gets the original as its upvalue. */
+static void wrap_global_function(lua_State *L, const char *function_name, lua_CFunction fn)
 {
     lua_getglobal(L, function_name);
-    lua_pushcclosure(L, call_checksummed_file_function, 1);
+    lua_pushcclosure(L, fn, 1);
     lua_setglobal(L, function_name);
 }
 
 static void install_checksummed_lua_loaders(lua_State *L)
 {
-    checksum_file_function(L, "loadfile");
-    checksum_file_function(L, "dofile");
+    wrap_global_function(L, "loadfile", lua_loadfile_in_user_folders);
+    wrap_global_function(L, "dofile", lua_dofile_in_user_folders);
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "loaders");
     lua_pushcfunction(L, load_checksummed_lua_module);
@@ -724,10 +902,12 @@ TbBool lua_set_serialised_data(const char *data, size_t len)
 
 void generate_lua_types_file()
 {
-    const char *filename = "native_types.lua";
-    FILE *out = fopen(filename, "w");
+    // For map makers, so it goes beside their maps: in the user's data folder.
+    char filename[FULLPATH_SIZE];
+    userdirs_path(filename, sizeof(filename), UsrDir_Data, "native_types.lua");
+    FILE *out = (filename[0] != '\0') ? fopen(filename, "w") : NULL;
     if (!out) {
-        perror("Failed to open output file");
+        ERRORLOG("Can't write \"%s\"", filename);
         return;
     }
     fprintf(out, "---@meta native_types\n");
