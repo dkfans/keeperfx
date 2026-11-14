@@ -78,6 +78,8 @@ struct NetLandLocalState {
     int32_t limp_y;
     int32_t local_slap_send_frame;
     int32_t slap_miss_wait;
+    LevelNumber ensign_level;
+    int32_t ensign_slot;
 };
 
 extern LevelNumber mouse_over_lvnum;
@@ -230,6 +232,35 @@ static const struct TbSprite *get_hand_sprite_for_packet(const struct ScreenPack
     }
 }
 
+static TbBool ensign_slot_taken(LevelNumber lvnum, int32_t slot)
+{
+    for (int32_t i = 0; i < MAX_NET_USERS; i++) {
+        const struct ScreenPacket *other_nspck = &net_screen_packet[i];
+        if ((i == my_player_number) || !is_connected_screen_packet(other_nspck) || (screen_packet_action(other_nspck) != NetAct_None)) {
+            continue;
+        }
+        if ((other_nspck->action_par1 == lvnum) && (other_nspck->action_par2 == slot)
+          && ((net_map_local.ensign_level != lvnum) || (i < my_player_number))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static int32_t claim_ensign_slot(LevelNumber lvnum)
+{
+    if ((net_map_local.ensign_level == lvnum) && !ensign_slot_taken(lvnum, net_map_local.ensign_slot)) {
+        return net_map_local.ensign_slot;
+    }
+    net_map_local.ensign_level = SINGLEPLAYER_NOTSTARTED;
+    net_map_local.ensign_slot = 0;
+    while (ensign_slot_taken(lvnum, net_map_local.ensign_slot)) {
+        net_map_local.ensign_slot++;
+    }
+    net_map_local.ensign_level = lvnum;
+    return net_map_local.ensign_slot;
+}
+
 static void get_hand_packet(PlayerNumber plyr_idx, struct ScreenPacket *nspck, int32_t slap_frame, TbClockMSec now)
 {
     if (!is_my_player_number(plyr_idx)) {
@@ -285,12 +316,15 @@ static void get_hand_packet(PlayerNumber plyr_idx, struct ScreenPacket *nspck, i
         set_packet_slap_frame(nspck, slap_frame);
         return;
     }
-    if (nspck->action_par1 > 0) {
+    if (nspck->action_par1 <= 0) {
+        net_map_local.ensign_level = SINGLEPLAYER_NOTSTARTED;
+        return;
+    }
+    struct LevelInformation* lvinfo = get_level_info(nspck->action_par1);
+    if (lvinfo != NULL) {
         const struct TbSprite* spr = get_map_ensign(1);
-        struct LevelInformation* lvinfo = get_level_info(nspck->action_par1);
-        if (lvinfo != NULL) {
-            set_screen_packet_position(nspck, lvinfo->ensign_x + my_player_number * ((int32_t)spr->SWidth), lvinfo->ensign_y - 48);
-        }
+        nspck->action_par2 = claim_ensign_slot(nspck->action_par1);
+        set_screen_packet_position(nspck, lvinfo->ensign_x + nspck->action_par2 * ((int32_t)spr->SWidth), lvinfo->ensign_y - 48);
     }
 }
 
