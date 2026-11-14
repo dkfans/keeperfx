@@ -1457,6 +1457,7 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
     {
         net_config_info.computer_daimon = 1;
         save_settings();
+        net_lobby_apply_settings();
         return;
     }
     if (screen_packet_action(nspck) == NetAct_None)
@@ -1466,6 +1467,7 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
         net_config_info.computer_players = nspck->action_par1;
         net_config_info.computer_daimon = 0;
         save_settings();
+        net_lobby_apply_settings();
     }
 }
 

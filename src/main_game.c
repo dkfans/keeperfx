@@ -483,15 +483,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
         setup_zombie_players();
     }
     setup_alliances();
-    // Skirmish against Daimon: the computer keepers in the lobby's empty seats are Daimon's (before the replay's
-    // header is written, in post_init_level).
-    if (!network_is_active() && fe_computer_players && net_config_info.computer_daimon && frontnet_service_selected(FrontendNetSvc_Skirmish)) {
-        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-            if (flag_is_set(net_lobby_empty_seats, to_flag(plyr_idx)) && player_is_computer_keeper(get_player(plyr_idx))) {
-                DaimonQueueLevelStart(plyr_idx, "random", NULL); // a personality Skirmish may pick (skirmish_pool)
-            }
-        }
-    }
     post_init_level();
     post_init_players();
     post_init_packets();

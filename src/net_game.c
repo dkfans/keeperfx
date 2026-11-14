@@ -487,6 +487,8 @@ static void build_local_startup_sync(void)
                 humans |= (uint16_t)(1u << slot);
         }
         dai_net_queue_opponents(humans);
+        // each computer seat with the personality and difficulty the lobby gave it
+        net_lobby_queue_daimon_seats(s_local_startup_sync.player_slots);
         s_local_startup_sync.daimon_players = daimon_pending_slots_mask();
         if (dai_net_adoption())
             s_local_startup_sync.daimon_adopt = humans;

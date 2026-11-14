@@ -758,8 +758,8 @@ static const char *lobby_option_value(int32_t option, char *value, size_t value_
         snprintf(value, value_size, "%d", net_lobby_max_players);
         return value;
     case LobbyOption_ComputerPlayers:
-        // the host's own choice (a client sees On: the start-up sync tells it which keepers are Daimon's)
-        if ((fe_computer_players != 0) && net_config_info.computer_daimon && (frontnet_service_selected(FrontendNetSvc_Skirmish) || network_is_host()))
+        // Skirmish's own choice, or the network host's (sent to the clients with the lobby settings)
+        if ((fe_computer_players != 0) && (frontnet_service_selected(FrontendNetSvc_Skirmish) ? net_config_info.computer_daimon : net_lobby_settings.computer_daimon))
             return "Daimon";
         return get_on_off_string(fe_computer_players);
     default:
@@ -1037,6 +1037,15 @@ void frontnet_maintain_net_start_players(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (lobby_editable_player_at_mouse(gbtn) >= 0)) & LbBtnF_Enabled;
 }
 
+static int lobby_name_text_x(struct GuiButton *gbtn)
+{
+    const struct TbSprite *icon = get_frontend_sprite(GFS_bullfrog_red_med);
+    int height = (LOBBY_ROW_HEIGHT * lobby_menu_scale(gbtn) + 8) / 16;
+    int icon_scale = height * 16 / (icon->SHeight * 13 / 8);
+    const int *columns = active_player_columns();
+    return gbtn->scr_pos_x + LOBBY_PLAYER_ROW_INSET * gbtn->width / columns[LobbyPlayerColumn_Count] + icon->SWidth * icon_scale / 16;
+}
+
 void frontnet_change_player_setting(struct GuiButton *gbtn)
 {
     NetUserId user = lobby_editable_player_at_mouse(gbtn);
@@ -1044,10 +1053,15 @@ void frontnet_change_player_setting(struct GuiButton *gbtn)
         return;
     }
     enum NetPlayerSettingKind kind = NetPlayerSetting_Colour;
+    TbBool backwards = gbtn->button_state_right_pressed;
     if (lobby_player_column_at_mouse(gbtn) == LobbyPlayerColumn_Team) {
         kind = NetPlayerSetting_Team;
+    } else if (net_lobby_computer_player(user) && net_lobby_daimon_seats() && (GetMouseX() >= lobby_name_text_x(gbtn))) {
+        // a Daimon seat's name: click for its personality, right-click for its difficulty (its icon still sets the colour)
+        kind = backwards ? NetPlayerSetting_DaimonDifficulty : NetPlayerSetting_DaimonPersonality;
+        backwards = false;
     }
-    frontnet_cycle_player_setting(kind, user, gbtn->button_state_right_pressed);
+    frontnet_cycle_player_setting(kind, user, backwards);
 }
 
 void frontnet_draw_net_start_players(struct GuiButton *gbtn)
@@ -1087,7 +1101,11 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         }
         char ping[LOBBY_NUMBER_TEXT_LENGTH] = "-";
         const char *name = network_user_name(user);
-        if (computer) {
+        char daimon_name[64];
+        if (computer && net_lobby_daimon_seats()) {
+            net_lobby_daimon_seat_text(user, daimon_name, sizeof(daimon_name));
+            name = daimon_name;
+        } else if (computer) {
             name = get_string(GUIStr_MnuComputer);
         } else if (user != my_player_number && GetPing(user) > 0) {
             snprintf(ping, sizeof(ping), "%u", GetPing(user));

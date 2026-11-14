@@ -57,6 +57,8 @@
 #include "thing_list.h"
 #include <stddef.h>
 #include <SDL3/SDL.h>
+#include "config_daimon.h"
+#include "daimon/Daimon.h"
 #include "post_inc.h"
 
 #include <string.h>
@@ -116,10 +118,45 @@ struct NetPlayerSetting {
     int8_t requested;
 };
 
+static int8_t net_daimon_personality[MAX_NET_USERS];
+static int8_t net_daimon_difficulty[MAX_NET_USERS];
+
 static struct NetPlayerSetting net_player_settings[NetPlayerSetting_Count] = {
     [NetPlayerSetting_Colour] = {net_player_colour, NET_PLAYER_COLOUR_RANDOM + 1, -1},
     [NetPlayerSetting_Team] = {net_player_team, NET_TEAM_RANDOM + 1, -1},
+    // their counts are daimon.toml's, set by daimon_seat_choices()
+    [NetPlayerSetting_DaimonPersonality] = {net_daimon_personality, 1, -1},
+    [NetPlayerSetting_DaimonDifficulty] = {net_daimon_difficulty, 1, -1},
 };
+
+#define DAIMON_SEAT_DIFFICULTIES 32
+static struct DaimonPersonalityInfo daimon_seat_personalities[DAIMON_MAX_PERSONALITIES];
+static size_t daimon_seat_personality_count;
+static const char *daimon_seat_difficulties[DAIMON_SEAT_DIFFICULTIES];
+static size_t daimon_seat_difficulty_count;
+
+/** daimon.toml's personalities and difficulties, as the Daimon seat settings count them. */
+static void daimon_seat_choices(void)
+{
+    daimon_seat_personality_count = daimon_config_personality_list(daimon_seat_personalities, DAIMON_MAX_PERSONALITIES);
+    daimon_seat_difficulty_count = daimon_config_difficulty_names(daimon_seat_difficulties, DAIMON_SEAT_DIFFICULTIES);
+    net_player_settings[NetPlayerSetting_DaimonPersonality].values_count = (int8_t)min(daimon_seat_personality_count + 1, 127);
+    net_player_settings[NetPlayerSetting_DaimonDifficulty].values_count = (int8_t)max(min(daimon_seat_difficulty_count, 127), 1);
+}
+
+/** A seat's difficulty: unset is normal. */
+static int8_t daimon_seat_difficulty_index(NetUserId user)
+{
+    if ((net_daimon_difficulty[user] >= 0) && ((size_t)net_daimon_difficulty[user] < daimon_seat_difficulty_count)) {
+        return net_daimon_difficulty[user];
+    }
+    for (size_t i = 0; i < daimon_seat_difficulty_count; i++) {
+        if (strcmp(daimon_seat_difficulties[i], "normal") == 0) {
+            return (int8_t)i;
+        }
+    }
+    return 0;
+}
 
 static TbBool check_frontend_version_mismatch(void);
 
@@ -161,6 +198,14 @@ TbBool net_player_colours_conflict(void)
 void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId user, TbBool backwards)
 {
     struct NetPlayerSetting *setting = &net_player_settings[kind];
+    if (kind == NetPlayerSetting_DaimonPersonality || kind == NetPlayerSetting_DaimonDifficulty) {
+        daimon_seat_choices();
+        if (kind == NetPlayerSetting_DaimonDifficulty) {
+            setting->values[user] = daimon_seat_difficulty_index(user);
+        } else if (setting->values[user] < 0) {
+            setting->values[user] = 0;
+        }
+    }
     int8_t step = 1;
     if (backwards) {
         step = setting->values_count - 1;
@@ -828,6 +873,7 @@ static void process_frontend_packets(void)
   if (!frontnet_matchmaking_update()) {
     return;
   }
+  daimon_seat_choices();
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
   nspckt->networkstatus_flags |= NetStat_PlayerConnected;
   nspckt->frontend_alliances = frontend_alliances;
@@ -1114,6 +1160,44 @@ void frontnet_skirmish_update(void)
     frontend_alliances = alliances_from_teams(net_player_team);
 }
 
+TbBool net_lobby_daimon_seats(void)
+{
+    if (fe_computer_players == 0) {
+        return false;
+    }
+    return frontnet_service_selected(FrontendNetSvc_Skirmish) ? net_config_info.computer_daimon : net_lobby_settings.computer_daimon;
+}
+
+void net_lobby_daimon_seat_text(NetUserId user, char *buf, size_t len)
+{
+    daimon_seat_choices();
+    const char *personality = "Random";
+    const int8_t p = net_daimon_personality[user];
+    if ((p > 0) && ((size_t)p <= daimon_seat_personality_count)) {
+        personality = daimon_personality_display_name(&daimon_seat_personalities[p - 1]);
+    }
+    const char *difficulty = (daimon_seat_difficulty_count > 0) ? daimon_seat_difficulties[daimon_seat_difficulty_index(user)] : "normal";
+    snprintf(buf, len, "Daimon: %s, %s", personality, difficulty);
+}
+
+void net_lobby_queue_daimon_seats(const int8_t player_slots[MAX_NET_USERS])
+{
+    if (!net_lobby_daimon_seats()) {
+        return;
+    }
+    daimon_seat_choices();
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        const PlayerNumber plyr_idx = player_slots[user];
+        if (!net_lobby_computer_player(user) || (plyr_idx < 0) || (plyr_idx >= PLAYERS_COUNT)) {
+            continue;
+        }
+        const int8_t p = net_daimon_personality[user];
+        const char *personality = ((p > 0) && ((size_t)p <= daimon_seat_personality_count)) ? daimon_seat_personalities[p - 1].id : "random";
+        const char *difficulty = (daimon_seat_difficulty_count > 0) ? daimon_seat_difficulties[daimon_seat_difficulty_index(user)] : NULL;
+        DaimonQueueLevelStart(plyr_idx, personality, difficulty);
+    }
+}
+
 void frontnet_skirmish_resolve_seats(void)
 {
     if (!frontnet_service_selected(FrontendNetSvc_Skirmish)) {
@@ -1123,6 +1207,7 @@ void frontnet_skirmish_resolve_seats(void)
     net_resolve_player_colours(player_slots);
     frontend_alliances = net_alliances_from_player_colours(player_slots);
     net_store_lobby_empty_seats(player_slots);
+    net_lobby_queue_daimon_seats(player_slots);
     if (player_slots[SOLO_HUMAN_ID] < 0) {
         return;
     }
