@@ -57,7 +57,7 @@ int            snd_door_place_count = 0;
 int            snd_tunnel_dig_count = 0;
 int            snd_dig_spell_count  = 0;
 int            snd_dig_impact_count = 0;
-int            snd_foot_spur_count = 0;
+int            snd_steal_room_hit_count = 0;
 int            snd_foot_wet_count  = 0;
 int            snd_foot_snow_count = 0;
 int            snd_chicken_cluck_count = 0;
@@ -65,7 +65,7 @@ int            snd_strike_wall_count = 0;
 int            snd_reinforce_hit_count = 0;
 int            snd_lobby_player_leave_count = 0;
 
-SoundSmplTblID snd_foot_spur       = 0;
+SoundSmplTblID snd_steal_room_hit       = 0;
 SoundSmplTblID snd_foot_wet        = 0;
 SoundSmplTblID snd_insect_fly      = 0;
 
@@ -1025,8 +1025,8 @@ TbBool cache_common_sound_ids(void)
     CACHE_SND_COUNT(snd_door_place,  snd_door_place_count,  "DOOR_PLACE")
     CACHE_SND_COUNT(snd_dig_impact,  snd_dig_impact_count,  "DIG_IMPACT")
     CACHE_SND(snd_dig_dirt,        "DIG_DIRT")
+    CACHE_SND_COUNT(snd_steal_room_hit,   snd_steal_room_hit_count,   "CLAIM_ROOM_HIT")
 
-    CACHE_SND_COUNT(snd_foot_spur,   snd_foot_spur_count,   "FOOT_SPUR")
     CACHE_SND_COUNT(snd_foot_wet,    snd_foot_wet_count,    "FOOT_WET")
     CACHE_SND(snd_insect_fly,      "INSECT_FLY")
     CACHE_SND_COUNT(snd_chicken_cluck, snd_chicken_cluck_count, "CHICKEN_CLUCK")

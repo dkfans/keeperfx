@@ -162,8 +162,6 @@ extern int            snd_dig_impact_count;
 extern SoundSmplTblID snd_dig_dirt;
 
 /* Footstep variants */
-extern SoundSmplTblID snd_foot_spur;
-extern int            snd_foot_spur_count;
 extern SoundSmplTblID snd_foot_wet;
 extern int            snd_foot_wet_count;
 
@@ -179,6 +177,8 @@ extern SoundSmplTblID snd_strike_wall;
 extern int            snd_strike_wall_count;
 extern SoundSmplTblID snd_reinforce_hit;    /* imp wall reinforcement impact */
 extern int            snd_reinforce_hit_count;
+extern SoundSmplTblID snd_steal_room_hit;   /* imp room steal impact */
+extern int            snd_steal_room_hit_count;
 
 /* Spells */
 extern SoundSmplTblID snd_spell_wall;
