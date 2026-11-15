@@ -175,11 +175,11 @@ void play_creature_footstep(struct Thing *thing, SoundVolume loudness)
     const int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
     unsigned char tileset = path_tileset_id(thing);
     SoundSmplTblID smpl_idx;
-    if ((tileset != 0) && (tileset_footprint[tileset] != TngEffElm_None)) {
-        unsigned short foot_snd = tileset_footstep_snd[tileset];
+    unsigned short foot_snd = tileset_footstep_snd[tileset];
+    if ((tileset != 0) && (foot_snd != 0)) {
         int count = tileset_footstep_cnt[tileset];
         int variant = (count > 1) ? smpl_variant % count : smpl_variant;
-        smpl_idx = (foot_snd != 0 ? foot_snd : snd_foot_snow) + variant;
+        smpl_idx = foot_snd + variant;
     } else {
         smpl_idx = creature_sound_unified_id(crsound, smpl_variant);
     }

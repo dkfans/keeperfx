@@ -166,8 +166,6 @@ extern SoundSmplTblID snd_foot_spur;
 extern int            snd_foot_spur_count;
 extern SoundSmplTblID snd_foot_wet;
 extern int            snd_foot_wet_count;
-extern SoundSmplTblID snd_foot_snow;
-extern int            snd_foot_snow_count;
 
 /* Creature ambient */
 extern SoundSmplTblID snd_insect_fly;       /* diptera/insect flying buzz */
