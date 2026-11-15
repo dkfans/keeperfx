@@ -100,7 +100,7 @@ std::function<void(std::string)> socketerrorfunc = nullptr;
 std::function<void()> slotconnectedfunc = nullptr;
 std::function<void()> slotdisconnectedfunc = nullptr;
 std::function<void(std::vector<std::string>)> connectionrefusedfunc = nullptr;
-std::function<void()> roominfofunc = nullptr;
+std::function<void(AP_RoomInfo)> roominfofunc = nullptr;
 std::function<void()> roomupdatefunc = nullptr;
 std::function<void(std::vector<AP_NetworkItem>)> itemsrecvfunc = nullptr;
 std::function<void()> datapkgfunc = nullptr;
@@ -650,7 +650,7 @@ void AP_SetSocketErrorCallback(std::function<void(std::string)> f_error) { socke
 void AP_SetSlotConnectedCallback(std::function<void()> f_connected) { slotconnectedfunc = f_connected; }
 void AP_SetSlotDisconnectedCallback(std::function<void()> f_disconnected) { slotdisconnectedfunc = f_disconnected; }
 void AP_SetConnectionRefusedCallback(std::function<void(std::vector<std::string>)> f_refused) { connectionrefusedfunc = f_refused; }
-void AP_SetRoomInfoCallback(std::function<void()> f_roominfo) { roominfofunc = f_roominfo; }
+void AP_SetRoomInfoCallback(std::function<void(AP_RoomInfo)> f_roominfo) { roominfofunc = f_roominfo; }
 void AP_SetRoomUpdateCallback(std::function<void()> f_roomupdate) { roomupdatefunc = f_roomupdate; }
 void AP_SetItemsReceivedCallback(std::function<void(std::vector<AP_NetworkItem>)> f_itemsrecv) { itemsrecvfunc = f_itemsrecv; }
 void AP_SetDataPackageChangedCallback(std::function<void()> f_datapkg) { datapkgfunc = f_datapkg; }
@@ -765,6 +765,10 @@ std::uint64_t AP_GetUUID() {
 
 int AP_GetPlayerID() {
     return ap_player_id;
+}
+
+int AP_GetPlayerTeam() {
+    return ap_player_team;
 }
 
 void AP_BulkSetServerData(AP_SetServerDataRequest* request) {
@@ -983,7 +987,7 @@ bool parse_response(std::string msg, std::string &request) {
             lib_room_info.datapackage_checksums = serv_datapkg_checksums;
             lib_room_info.seed_name = root[i]["seed_name"].asString();
             lib_room_info.time = root[i]["time"].asDouble();
-            if (roominfofunc) roominfofunc();
+            if (roominfofunc) roominfofunc(lib_room_info);
 
             if (!auth) {
                 Json::Value req_t;

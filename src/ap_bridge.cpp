@@ -20,7 +20,6 @@
 #include "keeperfx.hpp"
 #include "lvl_script_lib.h"
 #include "post_inc.h"
-#include "lua_triggers.h"
 
 void ap_location_info_callback(std::vector<AP_NetworkItem> locations);
 void ap_receive(AP_NetworkItem,bool);
@@ -31,6 +30,7 @@ void ap_send_message(std::string msg);
 void ap_print(std::string text);
 void ap_command_result(std::string text);
 void set_quick_information_default(short icon_idx, const char* msg_text);
+void ap_room_info_callback(AP_RoomInfo info);
 
 void RedirectStdoutToFile() {
     FILE* fp;
@@ -58,7 +58,8 @@ RedirectStdoutToFile();
     AP_SetItemClearCallback(ap_clear);
     AP_SetItemRecvCallback(ap_receive);
     AP_SetLocationCheckedCallback(ap_send);
-    AP_SetLocationInfoCallback(ap_location_info_callback);    
+    AP_SetLocationInfoCallback(ap_location_info_callback);
+    AP_SetRoomInfoCallback(ap_room_info_callback);
     AP_SetRoomUpdateCallback(ap_room_update);
     AP_SetSlotConnectedCallback(ap_slot_connected);
     AP_SetChatMessageCallback(ap_chat_message);
@@ -103,10 +104,18 @@ void ap_socketconnected(){
 }
 
 void ap_slot_connected(){
+    g_ap_state.slotID = AP_GetPlayerID();
+    g_ap_state.teamID = AP_GetPlayerTeam();
+    snprintf(g_ap_state.save_id, sizeof(g_ap_state.save_id), "save/%s_%d_%d", g_ap_state.seed, g_ap_state.teamID, g_ap_state.slotID);
     g_ap_state.connected = true;
     frontend_archipelago_connected();
     //callback once connected to AP server, send scounts for all locations not checked yet, so that ap_location_info_callback will be triggered. 
     ap_refresh_missing();
+}
+
+void ap_room_info_callback(AP_RoomInfo info)
+{
+    snprintf(g_ap_state.seed, sizeof(g_ap_state.seed), "%s", info.seed_name.c_str());
 }
 
 void ap_room_update()
@@ -323,6 +332,11 @@ void ap_bridge_send_message(const char* msg)
 void ap_goal_complete(void)
 {
     AP_StoryComplete();
+}
+
+const char *ap_get_save_dir(void)
+{
+    return g_ap_state.save_id;
 }
 
 void ap_process_sacrifice_recipe(struct SacrificeRecipe *sac)

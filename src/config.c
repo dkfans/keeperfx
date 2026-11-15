@@ -45,6 +45,7 @@
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "post_inc.h"
+#include "ap_bridge.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1311,6 +1312,10 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
   case FGrp_Save:
       mdir=keeper_runtime_directory;
       sdir="save";
+      break;
+  case FGrp_APSave:
+      mdir = keeper_runtime_directory;
+      sdir = ap_get_save_dir();
       break;
   case FGrp_SShots:
       mdir=keeper_runtime_directory;

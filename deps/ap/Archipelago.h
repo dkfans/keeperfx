@@ -118,7 +118,6 @@ void AP_SetSocketErrorCallback(std::function<void(std::string)> f_error);
 void AP_SetSlotConnectedCallback(std::function<void()> f_connected);
 void AP_SetSlotDisconnectedCallback(std::function<void()> f_disconnected);
 void AP_SetConnectionRefusedCallback(std::function<void(std::vector<std::string>)> f_refused);
-void AP_SetRoomInfoCallback(std::function<void()> f_roominfo);
 void AP_SetRoomUpdateCallback(std::function<void()> f_roomupdate);
 void AP_SetItemsReceivedCallback(std::function<void(std::vector<AP_NetworkItem>)> f_itemsrecv);
 void AP_SetDataPackageChangedCallback(std::function<void()> f_datapkg);
@@ -234,6 +233,7 @@ int AP_GetRoomInfo(AP_RoomInfo*);
 AP_ConnectionStatus AP_GetConnectionStatus();
 std::uint64_t AP_GetUUID();
 int AP_GetPlayerID();
+int AP_GetPlayerTeam();
 void AP_UpdateTags(std::vector<std::string> const& tags);
 
 /* Serverside Data Types */
@@ -392,3 +392,4 @@ void AP_SetGiftingSupported(bool);
 void AP_SetChatMessageCallback(std::function<void(AP_ChatMessage)> f_chatmsgrecv);
 void AP_SetServerChatCallback(std::function<void(AP_ServerChatMessage)> f_chat);
 void AP_SetHintCallback(std::function<void(AP_HintMessage)> f_hint);
+void AP_SetRoomInfoCallback(std::function<void(AP_RoomInfo)> f_roominfo);

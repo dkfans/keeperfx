@@ -15,6 +15,10 @@ void ap_state_init(struct APState* ap)
     ap->items_count = 0;
     ap->checked_count = 0;
     ap->total_location_count = 0;
+    strcpy(ap->seed, "NA");
+    strcpy(ap->save_id, "NA");
+    ap->slotID = 0;
+    ap->teamID = 0;
     for (int i = 0; i < AP_LOCATION_NO; i++) {
         ap->checked_locations[i] = 0;
         memset(&ap->items_received[i], 0, sizeof(ap->items_received[i]));

@@ -57,6 +57,10 @@ struct APState
     int checked_count;
     int total_location_count;
     struct AP_SlotData slot_data;
+    char seed[32]; // As of writing, a 'seed' is a constant of 20 digits long.
+    int slotID;
+    int teamID;
+    char save_id[64]; // {seed_team_slot} , the most 'unique' way to identify each world we can do.
 };
 
 struct AP_LocationInfo

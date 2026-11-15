@@ -2855,7 +2855,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           continue_game_option_available = continue_game_available();
           if (!continue_game_option_available)
           {
-              char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+              char* fname = prepare_file_path(FGrp_APSave, continue_game_filename);
               LbFileDelete(fname);
           }
           load_arch_config_file();
