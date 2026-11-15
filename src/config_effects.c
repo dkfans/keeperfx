@@ -306,7 +306,6 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"LightIntensity", effelcst->light_intensity  );
             CONDITIONAL_ASSIGN_INT(section,"LightFlags",     effelcst->light_flags   );
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind", effelcst->affected_by_wind );
-            CONDITIONAL_ASSIGN_SOUND(section,"FootstepSound", effelcst->footstep_snd);
         }
     }
 

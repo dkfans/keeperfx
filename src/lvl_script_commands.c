@@ -436,26 +436,6 @@ const struct NamedCommand orientation_desc[] = {
   {NULL, 0}
 };
 
-const struct NamedCommand texture_pack_desc[] = {
-  {"NONE",         0},
-  {"STANDARD",     1},
-  {"ANCIENT",      2},
-  {"WINTER",       3},
-  {"SNAKE_KEY",    4},
-  {"STONE_FACE",   5},
-  {"VOLUPTUOUS",   6},
-  {"BIG_BREASTS",  6},
-  {"ROUGH_ANCIENT",7},
-  {"SKULL_RELIEF", 8},
-  {"DESERT_TOMB",  9},
-  {"GYPSUM",       10},
-  {"LILAC_STONE",  11},
-  {"SWAMP_SERPENT",12},
-  {"LAVA_CAVERN",  13},
-  {"LATERITE_CAVERN",14},
-  {NULL,           0},
-};
-
 ThingModel parse_creature_name(const char *creature_name)
 {
     ThingModel ret = get_rid(creature_desc, creature_name);

@@ -205,7 +205,7 @@ static TbBool init_level(void)
     level_load_time_phase(LevelLoadTime_Sprites);
     init_custom_sprites(get_selected_level_number());
     level_load_time_phase(LevelLoadTime_Configs);
-    // Map sounds must exist before effects.toml reads FootstepSound.
+    // Map sounds must exist before tileset.toml reads FootstepSound.
     load_level_sounds_config(get_level_fgroup(get_selected_level_number()), get_selected_level_number());
     load_stats_files();
     level_load_time_phase(LevelLoadTime_GameSetup);

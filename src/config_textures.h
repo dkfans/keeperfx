@@ -28,8 +28,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 extern const struct ConfigFileData keeper_textureanim_file_data;
-extern const struct ConfigFileData keeper_footprints_file_data;
-extern ThingModel texture_footprint[TEXTURE_VARIATIONS_COUNT];
+extern const struct ConfigFileData keeper_tileset_file_data;
+extern struct NamedCommand texture_pack_desc[];
+extern ThingModel tileset_footprint[TEXTURE_VARIATIONS_COUNT];
+extern unsigned short tileset_footstep_snd[TEXTURE_VARIATIONS_COUNT];
+extern int tileset_footstep_cnt[TEXTURE_VARIATIONS_COUNT];
 /******************************************************************************/
 #ifdef __cplusplus
 }

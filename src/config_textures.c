@@ -23,6 +23,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "value_util.h"
+#include "config_sounds.h"
 #include "thing_effects.h"
 #include "thing_list.h"
 
@@ -37,7 +38,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 static TbBool load_textureanim_config_file(const char *fname, unsigned short flags);
-static TbBool load_footprints_config_file(const char *fname, unsigned short flags);
+static TbBool load_tileset_config_file(const char *fname, unsigned short flags);
+static TbBool tileset_names_post_load(void);
 
 const struct ConfigFileData keeper_textureanim_file_data = {
     .filename = "textureanim.toml",
@@ -46,14 +48,18 @@ const struct ConfigFileData keeper_textureanim_file_data = {
     .post_load_func = NULL,
 };
 
-const struct ConfigFileData keeper_footprints_file_data = {
-    .filename = "footprints.toml",
-    .load_func = load_footprints_config_file,
+const struct ConfigFileData keeper_tileset_file_data = {
+    .filename = "tileset.toml",
+    .load_func = load_tileset_config_file,
     .pre_load_func = NULL,
-    .post_load_func = NULL,
+    .post_load_func = tileset_names_post_load,
 };
 
-ThingModel texture_footprint[TEXTURE_VARIATIONS_COUNT];
+static char tileset_name[TEXTURE_VARIATIONS_COUNT][COMMAND_WORD_LEN];
+struct NamedCommand texture_pack_desc[TEXTURE_VARIATIONS_COUNT + 1];
+ThingModel tileset_footprint[TEXTURE_VARIATIONS_COUNT];
+unsigned short tileset_footstep_snd[TEXTURE_VARIATIONS_COUNT];
+int tileset_footstep_cnt[TEXTURE_VARIATIONS_COUNT];
 /******************************************************************************/
 
 static TbBool load_textureanim_config_file(const char *fname, unsigned short flags)
@@ -89,28 +95,50 @@ static TbBool load_textureanim_config_file(const char *fname, unsigned short fla
     return true;
 }
 
-static TbBool load_footprints_config_file(const char *fname, unsigned short flags)
+static TbBool tileset_names_post_load(void)
+{
+    int n = 0;
+    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT; i++)
+    {
+        if (tileset_name[i][0] == '\0')
+            continue;
+        texture_pack_desc[n].name = tileset_name[i];
+        texture_pack_desc[n].num = i;
+        n++;
+    }
+    texture_pack_desc[n].name = NULL;
+    return true;
+}
+
+static TbBool load_tileset_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
     if (!load_toml_file(fname, &file_root, flags))
         return false;
 
     if ((flags & CnfLd_AcceptPartial) == 0)
-        memset(texture_footprint, TngEffElm_None, sizeof(texture_footprint));
+    {
+        memset(tileset_name, 0, sizeof(tileset_name));
+        memset(tileset_footprint, 0, sizeof(tileset_footprint));
+        memset(tileset_footstep_snd, 0, sizeof(tileset_footstep_snd));
+        memset(tileset_footstep_cnt, 0, sizeof(tileset_footstep_cnt));
+        snprintf(tileset_name[0], COMMAND_WORD_LEN, "NONE");
+    }
 
     char key[64];
-    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT; i++)
+    for (int i = 1; i < TEXTURE_VARIATIONS_COUNT; i++)
     {
         snprintf(key, sizeof(key), "texture%d", i);
         VALUE *section = value_dict_get(&file_root, key);
         if (value_type(section) != VALUE_DICT)
             continue;
-        VALUE *foot = value_dict_get(section, "Footprint");
-        if (value_type(foot) == VALUE_INT32 || value_type(foot) == VALUE_STRING)
-        {
-            int id = value_parse_model(TCls_EffectElem, foot);
-            texture_footprint[i] = (id > 0) ? id : 0;
-        }
+        VALUE *name = value_dict_get(section, "Name");
+        if (value_type(name) == VALUE_STRING)
+            snprintf(tileset_name[i], COMMAND_WORD_LEN, "%s", value_string(name));
+        int model = value_parse_model(TCls_EffectElem, value_dict_get(section, "Footprint"));
+        if (model > 0)
+            tileset_footprint[i] = model;
+        CONDITIONAL_ASSIGN_ARR2_SOUND(section, "FootstepSound", tileset_footstep_snd[i], tileset_footstep_cnt[i]);
     }
     value_fini(&file_root);
     return true;

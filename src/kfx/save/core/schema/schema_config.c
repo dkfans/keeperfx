@@ -385,7 +385,6 @@ SAVE_STRUCT(EffectElementConfigStats, struct EffectElementConfigStats,
     SAVE_FIELD(struct EffectElementConfigStats, light_intensity, SV_U8),
     SAVE_FIELD(struct EffectElementConfigStats, light_flags, SV_I32),
     SAVE_FIELD(struct EffectElementConfigStats, affected_by_wind, SV_U8),
-    SAVE_FIELD(struct EffectElementConfigStats, footstep_snd, SV_U16),
 );
 
 SAVE_STRUCT(EffectGeneratorConfigStats, struct EffectGeneratorConfigStats,

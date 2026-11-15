@@ -1,0 +1,52 @@
+# Script tileset id. WINTER is 3 and tmapa002.dat. NONE is built in and has no file.
+# Footprint is the effect element on a path slab. FootstepSound replaces the snow step.
+# A name, an id, or [name_or_id, count]. Unset still plays FOOT_SNOW.
+# A map or campaign file replaces any block it lists.
+
+[texture1]
+Name = "STANDARD"
+
+[texture2]
+Name = "ANCIENT"
+
+[texture3]
+Name = "WINTER"
+Footprint = "EFFECTELEMENT_ICE_MELT3"
+FootstepSound = "FOOT_SNOW"
+
+[texture4]
+Name = "SNAKE_KEY"
+
+[texture5]
+Name = "STONE_FACE"
+
+[texture6]
+Name = "VOLUPTUOUS"
+
+[texture7]
+Name = "ROUGH_ANCIENT"
+
+[texture8]
+Name = "SKULL_RELIEF"
+
+[texture9]
+Name = "DESERT_TOMB"
+Footprint = "EFFECTELEMENT_STEP_SAND"
+FootstepSound = "FOOT_SNOW"
+
+[texture10]
+Name = "GYPSUM"
+Footprint = "EFFECTELEMENT_STEP_GYPSUM"
+FootstepSound = "FOOT_SNOW"
+
+[texture11]
+Name = "LILAC_STONE"
+
+[texture12]
+Name = "SWAMP_SERPENT"
+
+[texture13]
+Name = "LAVA_CAVERN"
+
+[texture14]
+Name = "LATERITE_CAVERN"

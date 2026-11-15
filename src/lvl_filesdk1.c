@@ -1483,7 +1483,7 @@ static TbBool load_level_file(LevelNumber lvnum)
         init_top_texture_to_cube_table();
         result = false;
     }
-    // Filesystem sounds were loaded before effects. This pass picks up samples
+    // Filesystem sounds were loaded before tileset.toml. This pass picks up samples
     // that are only inside the map zip.
     load_level_sounds_config(fgroup, lvnum);
     return result;

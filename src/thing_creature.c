@@ -6182,21 +6182,16 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
-ThingModel get_footstep_effect_element(struct Thing* thing)
-{
-    unsigned char ext_txtr = game.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
-    int texture = (ext_txtr == 0) ? game.texture_id : ext_txtr - 1;
-    if ((texture < 0) || (texture >= TEXTURE_VARIATIONS_COUNT))
-        return TngEffElm_None;
-    return texture_footprint[texture];
-}
-
-ThingModel path_footprint(struct Thing *thing)
+unsigned char path_tileset_id(struct Thing *thing)
 {
     struct SlabMap *slb = get_slabmap_thing_is_on(thing);
     if (slb->kind != SlbT_PATH)
-        return TngEffElm_None;
-    return get_footstep_effect_element(thing);
+        return 0;
+    unsigned char ext_txtr = game.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    int texture = ext_txtr ? ext_txtr : game.texture_id + 1;
+    if ((texture <= 0) || (texture >= TEXTURE_VARIATIONS_COUNT))
+        return 0;
+    return (unsigned char)texture;
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
@@ -6224,7 +6219,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
         }
     } else
     {
-        ThingModel footprint = path_footprint(thing);
+        ThingModel footprint = tileset_footprint[path_tileset_id(thing)];
         if (footprint != TngEffElm_None)
         {
             nfoot = get_foot_creature_has_down(thing, cctrl);
@@ -6280,7 +6275,6 @@ void process_landscape_affecting_creature(struct Thing *thing)
     SYNCDBG(18,"Starting");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
-    thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {

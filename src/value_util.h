@@ -179,6 +179,11 @@ int sound_id_from_text(const char* text);
         field1 = sound_id_from_text(value_string(val_arr));\
         field2 = 0;\
     }\
+    else if (value_type(val_arr) == VALUE_INT32)\
+    {\
+        field1 = value_int32(val_arr);\
+        field2 = 0;\
+    }\
 }
 
 #define SET_NAME(section,desc,namefield) \
