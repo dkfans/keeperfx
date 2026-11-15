@@ -35,6 +35,8 @@
 #include "lua_api_sound.h"
 #include "engine_redraw.h"
 #include "custom_sprites.h"
+#include "creature_graphics.h"
+#include "lvl_script_commands.h"
 
 
 #include <zlib.h>
@@ -1368,6 +1370,30 @@ static int lua_Set_trap_configuration(lua_State *L)
 }
 
 //static int lua_Set_creature_configuration(lua_State *L)
+
+static int lua_Get_creature_configuration(lua_State *L)
+{
+    ThingModel crmodel = lua_istable(L, 1) ? luaL_checkCreature(L, 1)->model : luaL_checkNamedCommand(L, 1, creature_desc);
+    const char *property = luaL_checkstring(L, 2);
+    short block;
+    short creatvar;
+    if (!get_creature_configuration_variable(property, &block, &creatvar))
+        return luaL_argerror(L, 2, "unknown creature configuration property");
+    if (block == CrtConf_SPRITES)
+    {
+        lua_pushinteger(L, get_creature_model_graphics(crmodel, creatvar - 1));
+        return 1;
+    }
+    if (block == CrtConf_SOUNDS)
+    {
+        struct CreatureSound *crsound = get_creature_model_sound(crmodel, creatvar);
+        lua_pushinteger(L, crsound->index);
+        lua_pushinteger(L, crsound->count);
+        return 2;
+    }
+    return luaL_argerror(L, 2, "creature configuration property cannot be read yet");
+}
+
 static int lua_Set_effect_generator_configuration(lua_State *L)
 {
     set_configuration(L, &effects_effectgenerator_named_fields_set, "SET_EFFECT_GENERATOR_CONFIGURATION");
@@ -2803,6 +2829,7 @@ static const luaL_Reg global_methods[] = {
     {"SetObjectConfiguration",               lua_Set_object_configuration        },
     {"SetTrapConfiguration",                 lua_Set_trap_configuration          },
     //{"SetCreatureConfiguration",           lua_Set_creature_configuration      },
+    {"GetCreatureConfiguration",             lua_Get_creature_configuration      },
     {"SetEffectGeneratorConfiguration",      lua_Set_effect_generator_configuration},
     //{"SetPowerConfiguration",              lua_Set_power_configuration         },
     {"SetRoomConfiguration",                 lua_Set_room_configuration          },

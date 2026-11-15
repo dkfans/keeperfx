@@ -464,6 +464,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 void stop_creature_sound(struct Thing *thing, long snd_idx);
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
+struct CreatureSound *get_creature_model_sound(ThingModel cmodel, long snd_idx);
 TbBool creature_can_gain_experience(const struct Thing *thing);
 
 /** Convert a CreatureSound slot + variant index to the unified sample ID.
