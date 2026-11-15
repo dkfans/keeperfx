@@ -119,6 +119,7 @@ struct EffectElementConfigStats {
     unsigned char light_intensity;
     int32_t light_flags;
     unsigned char affected_by_wind;
+    unsigned short footstep_snd;
 };
 
 struct EffectsConfig {

@@ -23,7 +23,10 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "value_util.h"
+#include "thing_effects.h"
+#include "thing_list.h"
 
+#include <string.h>
 #include <toml.h>
 #include "config_strings.h"
 #include "game_legacy.h"
@@ -34,6 +37,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 static TbBool load_textureanim_config_file(const char *fname, unsigned short flags);
+static TbBool load_footprints_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_textureanim_file_data = {
     .filename = "textureanim.toml",
@@ -41,6 +45,15 @@ const struct ConfigFileData keeper_textureanim_file_data = {
     .pre_load_func = NULL,
     .post_load_func = NULL,
 };
+
+const struct ConfigFileData keeper_footprints_file_data = {
+    .filename = "footprints.toml",
+    .load_func = load_footprints_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
+
+ThingModel texture_footprint[TEXTURE_VARIATIONS_COUNT];
 /******************************************************************************/
 
 static TbBool load_textureanim_config_file(const char *fname, unsigned short flags)
@@ -73,6 +86,33 @@ static TbBool load_textureanim_config_file(const char *fname, unsigned short fla
     }
     value_fini(&file_root);
 
+    return true;
+}
+
+static TbBool load_footprints_config_file(const char *fname, unsigned short flags)
+{
+    VALUE file_root;
+    if (!load_toml_file(fname, &file_root, flags))
+        return false;
+
+    if ((flags & CnfLd_AcceptPartial) == 0)
+        memset(texture_footprint, TngEffElm_None, sizeof(texture_footprint));
+
+    char key[64];
+    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT; i++)
+    {
+        snprintf(key, sizeof(key), "texture%d", i);
+        VALUE *section = value_dict_get(&file_root, key);
+        if (value_type(section) != VALUE_DICT)
+            continue;
+        VALUE *foot = value_dict_get(section, "Footprint");
+        if (value_type(foot) == VALUE_INT32 || value_type(foot) == VALUE_STRING)
+        {
+            int id = value_parse_model(TCls_EffectElem, foot);
+            texture_footprint[i] = (id > 0) ? id : 0;
+        }
+    }
+    value_fini(&file_root);
     return true;
 }
 

@@ -21,12 +21,15 @@
 #include "bflib_basics.h"
 
 #include "config.h"
+#include "engine_textures.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 extern const struct ConfigFileData keeper_textureanim_file_data;
+extern const struct ConfigFileData keeper_footprints_file_data;
+extern ThingModel texture_footprint[TEXTURE_VARIATIONS_COUNT];
 /******************************************************************************/
 #ifdef __cplusplus
 }

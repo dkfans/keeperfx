@@ -36,7 +36,9 @@
 #include "gui_topmsg.h"
 #include "front_landview.h"
 #include "frontmenu_ingame_evnt.h"
-#include "thing_data.h"
+#include "thing_effects.h"
+#include "thing_creature.h"
+#include "config_effects.h"
 #include "thing_list.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
@@ -170,9 +172,11 @@ void play_creature_footstep(struct Thing *thing, SoundVolume loudness)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     const int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
+    ThingModel footprint = path_footprint(thing);
     SoundSmplTblID smpl_idx;
-    if (flag_is_set(thing->movement_flags, TMvF_IsOnSnow)) {
-        smpl_idx = snd_foot_snow + smpl_variant;
+    if (footprint != TngEffElm_None) {
+        unsigned short foot_snd = get_effect_element_model_stats(footprint)->footstep_snd;
+        smpl_idx = ((foot_snd != 0) ? foot_snd : snd_foot_snow) + smpl_variant;
     } else {
         smpl_idx = creature_sound_unified_id(crsound, smpl_variant);
     }
