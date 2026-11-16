@@ -1134,6 +1134,15 @@ static TbBool value_is_sound_filepath(const char* text)
     return kfx_audio_path_supported(text) != 0;
 }
 
+/** Warns when text has a file extension that is not a supported audio format. */
+static TbBool warn_unsupported_audio_format(const char* text)
+{
+    if (!kfx_audio_path_has_extension(text))
+        return false;
+    WARNLOG("unsupported audio format '%s', supported: %s", text, kfx_audio_format_list_text());
+    return true;
+}
+
 int sound_id_from_text(const char* text)
 {
     int id = sound_manager_get_id(text);
@@ -1163,9 +1172,7 @@ int64_t value_sound_id(const struct NamedField* named_field, const char* value_t
     }
     if (!value_is_sound_filepath(value_text))
     {
-        if (strrchr(value_text, '.') != NULL)
-            NAMFIELDWRNLOG("unsupported audio format '%s', supported: %s", value_text, kfx_audio_format_list_text());
-        else
+        if (!warn_unsupported_audio_format(value_text))
             NAMFIELDWRNLOG("Unrecognized sound name for field '%s', got '%s'", named_field->name, value_text);
     }
     return 0;
@@ -1206,9 +1213,7 @@ void speech_ref_parse(SpeechRef* ref, const char* text)
         return;
     }
     if (!value_is_sound_filepath(text)) {
-        if (strrchr(text, '.') != NULL)
-            WARNLOG("unsupported audio format '%s', supported: %s", text, kfx_audio_format_list_text());
-        else
+        if (!warn_unsupported_audio_format(text))
             WARNLOG("Unrecognized speech value '%s': not a number, known name, or audio file path", text);
         return;
     }
@@ -1238,9 +1243,7 @@ int64_t value_speech_ref(const struct NamedField* named_field, const char* value
     if (smsg > 0)
         return (int64_t)smsg;
     if (!value_is_sound_filepath(value_text)) {
-        if (strrchr(value_text, '.') != NULL)
-            NAMFIELDWRNLOG("unsupported audio format '%s', supported: %s", value_text, kfx_audio_format_list_text());
-        else
+        if (!warn_unsupported_audio_format(value_text))
             NAMFIELDWRNLOG("Unrecognized speech value '%s' for field '%s': not a number, known name, or audio file path",
                            value_text, named_field->name);
         return 0;

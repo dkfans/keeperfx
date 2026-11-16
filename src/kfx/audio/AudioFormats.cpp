@@ -4,14 +4,22 @@
 
 namespace kfx::audio {
 
-AudioFormat audio_format_from_path(const char * path) {
+static const char * path_extension(const char * path) {
     if (path == nullptr) {
-        return AudioFormat::None;
+        return nullptr;
     }
     const char * dot = strrchr(path, '.');
     const char * slash = strrchr(path, '/');
     const char * backslash = strrchr(path, '\\');
     if (dot == nullptr || dot < slash || dot < backslash) {
+        return nullptr;
+    }
+    return dot;
+}
+
+AudioFormat audio_format_from_path(const char * path) {
+    const char * dot = path_extension(path);
+    if (dot == nullptr) {
         return AudioFormat::None;
     }
     if (strcasecmp(dot, ".wav") == 0) return AudioFormat::Wav;
@@ -46,6 +54,10 @@ const char * audio_format_list_text() {
     return "wav, mp3, flac, ogg";
 }
 
+bool audio_path_has_extension(const char * path) {
+    return path_extension(path) != nullptr;
+}
+
 } // namespace kfx::audio
 
 extern "C" int kfx_audio_path_supported(const char * path) {
@@ -54,4 +66,8 @@ extern "C" int kfx_audio_path_supported(const char * path) {
 
 extern "C" const char * kfx_audio_format_list_text(void) {
     return kfx::audio::audio_format_list_text();
+}
+
+extern "C" int kfx_audio_path_has_extension(const char * path) {
+    return kfx::audio::audio_path_has_extension(path) ? 1 : 0;
 }
