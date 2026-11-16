@@ -39,7 +39,7 @@ void lua_on_dungeon_destroyed(PlayerNumber plyr_idx)
 	}
 }
 
-void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
+void lua_on_chatmsg(PlayerNumber plyr_idx, const char *msg)
 {
 	SYNCDBG(6,"Starting");
 	lua_getglobal(Lvl_script, "OnChatMsg");

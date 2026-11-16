@@ -234,6 +234,7 @@ enum TbPacketControl {
         PCtr_GameMenuOpen   = 0x400000,
         PCtr_SpecialMenuOpen = 0x800000,
         PCtr_ChatOpen       = 0x1000000,
+        PCtr_ChatMessage    = 0x2000000,
 };
 
 /**
