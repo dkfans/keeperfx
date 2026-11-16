@@ -12,13 +12,11 @@
 #include <AL/alc.h>
 #include <AL/alext.h>
 #include <SDL3/SDL.h>
-#include <SDL3_mixer/SDL_mixer.h>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-
-// Single-header MP3 decoder (no external DLL dependency)
-#include "../../../deps/dr_mp3.h"
+#include <cmath>
+#include "kfx/audio/AudioDecoder.h"
 #include <memory>
 #include <vector>
 #include <fstream>
@@ -405,72 +403,12 @@ extern "C" int custom_sound_bank_size() {
 	return g_custom_bank.size();
 }
 
-// Decode data as MP3 (via dr_mp3) and push it into g_custom_bank.
-// data/size may point into a larger buffer (e.g. after stripping a BMU header).
-static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
-	const uint8_t* data, size_t size)
-{
-	drmp3_config cfg = {};
-	drmp3_uint64 frame_count = 0;
-	drmp3_int16* mp3_pcm = drmp3_open_memory_and_read_pcm_frames_s16(
-		data, size, &cfg, &frame_count, nullptr);
-	if (!mp3_pcm || frame_count == 0) {
-		if (mp3_pcm) drmp3_free(mp3_pcm, nullptr);
-		AUDIOERR("Cannot decode MP3 data from %s", filepath);
-		return false;
-	}
-
-	const ALenum al_fmt = (cfg.channels == 1)
-		? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-	const size_t byte_count =
-		(size_t)frame_count * cfg.channels * sizeof(drmp3_int16);
-
-	try {
-		const std::vector<uint8_t> pcm(
-			reinterpret_cast<const uint8_t*>(mp3_pcm),
-			reinterpret_cast<const uint8_t*>(mp3_pcm) + byte_count);
-		g_custom_bank.emplace_back(filepath, sample_id, pcm,
-			al_fmt, (int)cfg.sampleRate);
-	} catch (...) {
-		drmp3_free(mp3_pcm, nullptr);
-		return false;
-	}
-	drmp3_free(mp3_pcm, nullptr);
-	return true;
-}
-
-// Decode an in-memory WAV/OGG/FLAC/MP3/BMU buffer and append it to g_custom_bank as a
-// signed-16-bit OpenAL buffer. Shared by the disk-file and in-memory (e.g. zip-sourced)
-// loading entry points below.
-//   - Plain WAV/RIFF : wave_file (same in-process header parser the base sound.dat bank
-//                       uses) — preserves the source's own channel count/format exactly.
-//   - OGG / FLAC     : SDL3_mixer MIX_AudioDecoder, keeping the source's channel count
-//                       (mono or stereo) and rate.
-//   - Plain MP3      : dr_mp3 single-header decoder (compiled in, no external DLLs)
-//   - BMU V1.0       : 8-byte wrapper used by some campaigns; contains a plain MP3
-//                       stream after the header — stripped and decoded via dr_mp3.
+// Decode an in-memory audio buffer and append it to g_custom_bank as a 16-bit OpenAL buffer; plain WAV keeps its own format, everything else goes through AudioDecoder.
 static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample_id,
 	const uint8_t* data, size_t size)
 {
 	KFX_ZONE_COLOR("decode_custom_sound", KFX_COLOR_AUDIO);
-	// Detect BMU V1.0 wrapper (8-byte ASCII prefix used by some campaigns).
-	// After the prefix the payload is a standard MP3 (often with an ID3 tag).
-	static const uint8_t bmu_magic[8] = { 'B','M','U',' ','V','1','.','0' };
-	if (size > 8 && memcmp(data, bmu_magic, 8) == 0) {
-		return decode_mp3_and_store(logical_name, sample_id, data + 8, size - 8);
-	}
-
-	// Detect MP3 by ID3v2 tag or sync-word (0xFF 0xE? / 0xFF 0xF?).
-	// Also handle plain .mp3 extension as a hint.
-	const bool looks_like_mp3 =
-		(size >= 3 && data[0] == 'I' && data[1] == 'D' && data[2] == '3') ||
-		(size >= 2 && data[0] == 0xFF && (data[1] & 0xE0) == 0xE0);
-	if (looks_like_mp3) {
-		return decode_mp3_and_store(logical_name, sample_id, data, size);
-	}
-
-	// --- Plain WAV/RIFF path: parse with wave_file, same as the base sound.dat bank uses.
-	// This preserves the file's own format exactly, including ADPCM.
+	// Plain WAV/RIFF keeps its own format, including ADPCM.
 	if (size >= 12 && memcmp(data, "RIFF", 4) == 0 && memcmp(data + 8, "WAVE", 4) == 0) {
 		try {
 			std::string buf(reinterpret_cast<const char*>(data), size);
@@ -483,51 +421,38 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 		}
 	}
 
-	// --- OGG / FLAC (and anything else the mixer decodes) path ---
-	// SDL3_mixer no longer exposes raw PCM from a loaded MIX_Audio (as SDL2's
-	// Mix_Chunk::abuf did), so use a MIX_AudioDecoder to decode the buffer to
-	// the same output format the old mixer produced (44100 Hz / S16 / stereo)
-	// and hand that PCM to OpenAL. This keeps OGG/FLAC custom-sound support.
-	SDL_IOStream* io = SDL_IOFromConstMem(data, size);
-	if (!io) {
-		AUDIOERR("Cannot create IOStream for %s: %s", logical_name, SDL_GetError());
-		return false;
-	}
-
-	// closeio=true: the decoder takes ownership of the stream.
-	MIX_AudioDecoder* decoder = MIX_CreateAudioDecoder_IO(io, true, 0);
+	std::string error;
+	auto decoder = kfx::audio::open_audio_memory(data, size, error);
 	if (!decoder) {
-		AUDIOERR("Cannot decode audio file %s: %s", logical_name, SDL_GetError());
+		AUDIOERR("Cannot decode audio file %s: %s", logical_name, error.c_str());
 		return false;
 	}
-
-	// Keep the source's channel count and rate: forcing stereo stops OpenAL from positioning
-	// the sound, and upmixing mono makes it louder. More than two channels is downmixed.
-	SDL_AudioSpec src_spec;
-	if (!MIX_GetAudioDecoderFormat(decoder, &src_spec)) {
-		AUDIOERR("Cannot read audio format of %s: %s", logical_name, SDL_GetError());
-		MIX_DestroyAudioDecoder(decoder);
-		return false;
-	}
-	const SDL_AudioSpec out_spec = { SDL_AUDIO_S16, (src_spec.channels == 1) ? 1 : 2, src_spec.freq };
-	const ALenum al_fmt = (out_spec.channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-
+	const uint8_t channels = decoder->channels();
 	std::vector<uint8_t> pcm;
 	try {
-		uint8_t buffer[16384];
+		float block[4096 * 2];
 		for (;;) {
-			int got = MIX_DecodeAudio(decoder, buffer, sizeof(buffer), &out_spec);
-			if (got <= 0) break; // 0 == end of stream, <0 == error
-			pcm.insert(pcm.end(), buffer, buffer + got);
+			const uint32_t frames = decoder->read(block, 4096);
+			if (frames == 0) break;
+			const size_t old_size = pcm.size();
+			pcm.resize(old_size + size_t(frames) * channels * sizeof(int16_t));
+			int16_t * dst = reinterpret_cast<int16_t *>(pcm.data() + old_size);
+			for (uint32_t i = 0; i < frames * channels; i++) {
+				const float clamped = std::fmax(-1.0f, std::fmin(1.0f, block[i]));
+				dst[i] = int16_t(clamped * 32767.0f);
+			}
 		}
-	} catch (...) {
-		MIX_DestroyAudioDecoder(decoder);
+	} catch (const std::exception &) {
 		AUDIOERR("Out of memory buffering audio %s", logical_name);
 		return false;
 	}
-	MIX_DestroyAudioDecoder(decoder);
+	if (pcm.empty()) {
+		AUDIOERR("Audio file %s contains no samples", logical_name);
+		return false;
+	}
+	const ALenum al_fmt = (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
 	try {
-		g_custom_bank.emplace_back(logical_name, sample_id, pcm, al_fmt, out_spec.freq);
+		g_custom_bank.emplace_back(logical_name, sample_id, pcm, al_fmt, int(decoder->sample_rate()));
 	} catch (const std::exception & e) {
 		AUDIOERR("Cannot store audio %s: %s", logical_name, e.what());
 		return false;
