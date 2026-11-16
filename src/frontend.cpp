@@ -1762,6 +1762,8 @@ void frontend_archipelago_connect(struct GuiButton *gbtn)
 
 void frontend_archipelago_connected(void)
 {    
+    continue_game_option_available = continue_game_available();
+    initialise_load_game_slots();
     set_frontend_archipelago_status("Connected to Archipelago!");
 }
 
