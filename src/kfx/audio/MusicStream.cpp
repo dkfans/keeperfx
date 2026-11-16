@@ -8,6 +8,7 @@
 #include "game_legacy.h"
 #include "kfx/profiling/KfxProfiling.h"
 #include "kfx/audio/AudioLog.h"
+#include "kfx/audio/AudioFormats.h"
 #include "kfx/audio/SoundInternal.h"
 #include <SDL3/SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
@@ -164,28 +165,6 @@ extern "C" TbBool play_music_fgroup(short fgroup, const char * fname) {
     return play_music(fpath);
 }
 
-// Music container extensions, in order of preference. Files of other extensions
-// (and non-audio files like MusicReadme.txt) are ignored, so they can't shift
-// the track-to-file mapping.
-// The preferred option is to preserve 100% of the original audio quality while
-// using as little storage space as possible, that's why FLAC is first candidate.
-static const char *const music_file_extensions[] = {
-	".flac", ".wav", ".ogg", ".mp3"
-};
-
-static int music_extension_priority(const char *filename) {
-	const char *ext = strrchr(filename, '.');
-	if (ext == NULL) {
-		return -1;
-	}
-	for (size_t i = 0; i < sizeof(music_file_extensions) / sizeof(music_file_extensions[0]); i++) {
-		if (strcasecmp(ext, music_file_extensions[i]) == 0) {
-			return (int)i;
-		}
-	}
-	return -1;
-}
-
 // Resolve which music file plays for a given redbook track number
 static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
 	if (track < 2) {
@@ -208,7 +187,7 @@ static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
 	std::vector<std::pair<int, std::string>> files; // (priority rank, filename)
 	int best_priority = -1;
 	do {
-		const int prio = music_extension_priority(fe.Filename);
+		const int prio = kfx::audio::audio_format_music_priority(kfx::audio::audio_format_from_path(fe.Filename));
 		if (prio < 0) {
 			continue; // not a recognized music file
 		}
