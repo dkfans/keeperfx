@@ -18,8 +18,7 @@
 #include <cstdlib>
 
 // Single-header MP3 decoder (no external DLL dependency)
-#define DR_MP3_IMPLEMENTATION
-#include "../deps/dr_mp3.h"
+#include "../../../deps/dr_mp3.h"
 #include <memory>
 #include <vector>
 #include <fstream>

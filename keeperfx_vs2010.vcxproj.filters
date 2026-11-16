@@ -276,6 +276,8 @@
     <ClCompile Include="src\ftests\tests\ftest_template.c" />
     <ClCompile Include="src\gui_vscroll.c" />
     <ClCompile Include="src\kfx\audio\AudioCallback.cpp" />
+    <ClCompile Include="src\kfx\audio\AudioDecoder.cpp" />
+    <ClCompile Include="src\kfx\audio\VorbisDecoder.c" />
     <ClCompile Include="src\kfx\audio\AudioFormats.cpp" />
     <ClCompile Include="src\kfx\audio\AudioStream.cpp" />
     <ClCompile Include="src\kfx\audio\AudioSystem.cpp" />
@@ -628,6 +630,7 @@
     <ClInclude Include="src\ftests\tests\ftest_template.h" />
     <ClInclude Include="src\gui_vscroll.h" />
     <ClInclude Include="src\kfx\audio\AudioCallback.h" />
+    <ClInclude Include="src\kfx\audio\AudioDecoder.h" />
     <ClInclude Include="src\kfx\audio\AudioFormats.h" />
     <ClInclude Include="src\kfx\audio\AudioStream.h" />
     <ClInclude Include="src\kfx\audio\AudioLog.h" />
