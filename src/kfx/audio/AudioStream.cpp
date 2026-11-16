@@ -51,6 +51,10 @@ void audio_stream_set_volume(AudioStreamHandle handle, float volume) {
     g_pool.set_volume(handle, volume);
 }
 
+void audio_stream_set_paused(AudioStreamHandle handle, bool paused) {
+    g_pool.set_paused(handle, paused);
+}
+
 uint64_t audio_stream_frames_consumed(AudioStreamHandle handle) {
     return g_pool.frames_consumed(handle);
 }

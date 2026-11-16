@@ -30,6 +30,8 @@ public:
     // No more data will be written; the slot ends once its ring drains.
     void finish(StreamHandle handle);
     void set_volume(StreamHandle handle, float volume);
+    // Silent and keeps its buffered data.
+    void set_paused(StreamHandle handle, bool paused);
     uint64_t frames_consumed(StreamHandle handle) const;
     uint32_t underruns(StreamHandle handle) const;
     bool is_finished(StreamHandle handle) const;
@@ -58,6 +60,7 @@ private:
         std::atomic<bool> playing{false};  // audio thread
         std::atomic<bool> finished{false}; // audio thread
         std::atomic<float> volume{1.0f};
+        std::atomic<bool> paused{false};
         std::atomic<uint64_t> consumed{0};
         std::atomic<uint32_t> underrun_count{0};
     };

@@ -37,6 +37,7 @@ StreamHandle StreamPool::open(const StreamFormat & format) {
         slot.playing.store(false, std::memory_order_relaxed);
         slot.finished.store(false, std::memory_order_relaxed);
         slot.volume.store(1.0f, std::memory_order_relaxed);
+        slot.paused.store(false, std::memory_order_relaxed);
         slot.consumed.store(0, std::memory_order_relaxed);
         slot.underrun_count.store(0, std::memory_order_relaxed);
         slot.generation = (slot.generation + 1) & 0xFFFFFF;
@@ -91,6 +92,12 @@ void StreamPool::finish(StreamHandle handle) {
 void StreamPool::set_volume(StreamHandle handle, float volume) {
     if (Slot * slot = find(handle)) {
         slot->volume.store(std::max(volume, 0.0f), std::memory_order_relaxed);
+    }
+}
+
+void StreamPool::set_paused(StreamHandle handle, bool paused) {
+    if (Slot * slot = find(handle)) {
+        slot->paused.store(paused, std::memory_order_release);
     }
 }
 
@@ -201,6 +208,9 @@ bool StreamPool::mix_into(float * out, size_t frame_count) {
                 continue;
             }
             slot.playing.store(true, std::memory_order_relaxed);
+        }
+        if (slot.paused.load(std::memory_order_acquire)) {
+            continue;
         }
         if (mix_slot(slot, out, frame_count) > 0) {
             contributed = true;

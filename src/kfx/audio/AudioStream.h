@@ -29,6 +29,8 @@ void audio_stream_start(AudioStreamHandle handle);
 // No more data will be written; the stream ends once it drains.
 void audio_stream_finish(AudioStreamHandle handle);
 void audio_stream_set_volume(AudioStreamHandle handle, float volume);
+// A paused stream is silent and keeps its buffered data.
+void audio_stream_set_paused(AudioStreamHandle handle, bool paused);
 // Frames the audio callback has consumed; divide by the sample rate for the audio clock.
 uint64_t audio_stream_frames_consumed(AudioStreamHandle handle);
 uint32_t audio_stream_underruns(AudioStreamHandle handle);
