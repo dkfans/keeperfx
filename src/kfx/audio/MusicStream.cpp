@@ -65,6 +65,9 @@ extern "C" TbBool play_music(const char * fname) {
 		snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
 	}
 	KFX_ZONE_COLOR("play_music", KFX_COLOR_AUDIO);
+	if (SoundDisabled) {
+		return false;
+	}
 	if (!kfx_audio_path_supported(game.music_fname)) {
 		AUDIOWARN("unsupported audio format '%s', supported: %s", game.music_fname, kfx_audio_format_list_text());
 		return false;
