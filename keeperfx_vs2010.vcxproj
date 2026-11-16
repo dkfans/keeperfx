@@ -61,6 +61,7 @@
     <ClCompile Include="src\kfx\audio\SoundBank.cpp" />
     <ClCompile Include="src\kfx\audio\SoundEffects.cpp" />
     <ClCompile Include="src\kfx\audio\StreamConverter.cpp" />
+    <ClCompile Include="src\kfx\audio\StreamPlayer.cpp" />
     <ClCompile Include="src\kfx\audio\StreamPool.cpp" />
     <ClCompile Include="src\kfx\audio\VoiceMirror.cpp" />
     <ClCompile Include="src\kfx\platform\FileSystemLb.cpp" />
@@ -435,6 +436,7 @@
     <ClInclude Include="src\kfx\audio\SpscRing.h" />
     <ClInclude Include="src\kfx\audio\StreamConfig.h" />
     <ClInclude Include="src\kfx\audio\StreamConverter.h" />
+    <ClInclude Include="src\kfx\audio\StreamPlayer.h" />
     <ClInclude Include="src\kfx\audio\StreamPool.h" />
     <ClInclude Include="src\kfx\audio\StreamRing.h" />
     <ClInclude Include="src\kfx\audio\VoiceMirror.h" />
