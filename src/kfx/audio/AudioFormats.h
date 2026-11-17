@@ -13,6 +13,8 @@ AudioFormat audio_format_from_header(const uint8_t * data, size_t size);
 int audio_format_music_priority(AudioFormat format);
 const char * audio_format_list_text();
 bool audio_path_has_extension(const char * path);
+// Null-terminated list of supported extensions, with the dot, in lookup order.
+const char * const * audio_format_extensions();
 
 } // namespace kfx::audio
 
@@ -21,6 +23,7 @@ extern "C" {
 int kfx_audio_path_supported(const char * path);
 int kfx_audio_path_has_extension(const char * path);
 const char * kfx_audio_format_list_text(void);
+const char * const * kfx_audio_format_extensions(void);
 #ifdef __cplusplus
 }
 #endif

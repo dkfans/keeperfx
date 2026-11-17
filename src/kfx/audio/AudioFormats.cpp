@@ -68,7 +68,16 @@ bool audio_path_has_extension(const char * path) {
     return path_extension(path) != nullptr;
 }
 
+const char * const * audio_format_extensions() {
+    static const char * const extensions[] = {".wav", ".mp3", ".ogg", ".flac", nullptr};
+    return extensions;
+}
+
 } // namespace kfx::audio
+
+extern "C" const char * const * kfx_audio_format_extensions(void) {
+    return kfx::audio::audio_format_extensions();
+}
 
 extern "C" int kfx_audio_path_supported(const char * path) {
     return kfx::audio::audio_format_from_path(path) != kfx::audio::AudioFormat::None ? 1 : 0;
