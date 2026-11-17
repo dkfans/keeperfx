@@ -676,7 +676,7 @@ static void command_set_creature_property(const char* crtr_name, const char* pro
         SCRPTERRLOG("Unknown creature property kind, \"%s\"", property);
         return;
     }
-    command_add_value(Cmd_SET_CREATURE_PROPERTY, ALL_PLAYERS, crtr_id, prop_id, val);
+    command_add_value(Cmd_SET_CREATURE_PROPERTY, 0, crtr_id, prop_id, val);
 }
 
 /**

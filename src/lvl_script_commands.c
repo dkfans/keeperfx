@@ -2470,6 +2470,13 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     long config_value_primary = 0, config_value_secondary = 0, config_value_tertiary = 0, config_value_quaternary = 0, config_value_quinary = 0, config_value_senary = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
+        //  HEROVSKEEPERCOST || CREATURELOYALTY  || LOYALTYLEVEL     || PROPERTIES
+        if ((creatvar == 22) || (creatvar == 24) || (creatvar == 25) || (creatvar == 28))
+        {
+            SCRPTERRLOG("Attribute %s(%d) not supported.", creatmodel_attributes_commands[creatvar - 1].name, creatvar);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
         if (creatvar == 20) // ATTACKPREFERENCE
         {
             config_value_primary = get_id(attackpref_desc, scline->tp[2]);
@@ -3073,15 +3080,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 21: // PAY
             crconf->pay = value;
             break;
-        case 22: // HEROVSKEEPERCOST
-            break;
         case 23: // SLAPSTOKILL
             crconf->slaps_to_kill = value;
-            break;
-        case 24: // CREATURELOYALTY
-        case 25: // LOYALTYLEVEL
-        case 28: // PROPERTIES
-            CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 26: // DAMAGETOBOULDER
             crconf->damage_to_boulder = value;
