@@ -59,7 +59,6 @@ int            snd_dig_spell_count  = 0;
 int            snd_dig_impact_count = 0;
 int            snd_steal_room_hit_count = 0;
 int            snd_foot_wet_count  = 0;
-int            snd_foot_snow_count = 0;
 int            snd_chicken_cluck_count = 0;
 int            snd_strike_wall_count = 0;
 int            snd_reinforce_hit_count = 0;
