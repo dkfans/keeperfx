@@ -1,8 +1,18 @@
 #include "AudioFormats.h"
 #include <cstring>
-#include <strings.h>
 
 namespace kfx::audio {
+
+static bool equals_ignore_case(const char * a, const char * b) {
+    for (; *a != '\0' && *b != '\0'; ++a, ++b) {
+        const char ca = (*a >= 'A' && *a <= 'Z') ? char(*a - 'A' + 'a') : *a;
+        const char cb = (*b >= 'A' && *b <= 'Z') ? char(*b - 'A' + 'a') : *b;
+        if (ca != cb) {
+            return false;
+        }
+    }
+    return *a == *b;
+}
 
 static const char * path_extension(const char * path) {
     if (path == nullptr) {
@@ -22,10 +32,10 @@ AudioFormat audio_format_from_path(const char * path) {
     if (dot == nullptr) {
         return AudioFormat::None;
     }
-    if (strcasecmp(dot, ".wav") == 0) return AudioFormat::Wav;
-    if (strcasecmp(dot, ".mp3") == 0) return AudioFormat::Mp3;
-    if (strcasecmp(dot, ".flac") == 0) return AudioFormat::Flac;
-    if (strcasecmp(dot, ".ogg") == 0) return AudioFormat::Ogg;
+    if (equals_ignore_case(dot, ".wav")) return AudioFormat::Wav;
+    if (equals_ignore_case(dot, ".mp3")) return AudioFormat::Mp3;
+    if (equals_ignore_case(dot, ".flac")) return AudioFormat::Flac;
+    if (equals_ignore_case(dot, ".ogg")) return AudioFormat::Ogg;
     return AudioFormat::None;
 }
 
