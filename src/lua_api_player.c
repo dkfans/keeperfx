@@ -43,8 +43,6 @@ static int lua_Set_texture(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     
     long texture_id = luaL_checkTexturePack(L, 2);
-    if (texture_id == 0)
-        texture_id = -1;
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_player_texture(i, texture_id);
