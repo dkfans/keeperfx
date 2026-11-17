@@ -143,7 +143,7 @@ public:
     uint8_t channels() const override { return (uint8_t)wav.channels; }
     uint32_t read(float * out, uint32_t max_frames) override {
         const uint32_t got = (uint32_t)drwav_read_pcm_frames_f32(&wav, max_frames, out);
-        failed_ = got == 0 && max_frames > 0 && (src.io_error || wav.readCursorInPCMFrames < wav.totalPCMFrameCount);
+        failed_ = got == 0 && max_frames > 0 && src.io_error;
         return got;
     }
     bool rewind() override { return drwav_seek_to_pcm_frame(&wav, 0) == DRWAV_TRUE; }
