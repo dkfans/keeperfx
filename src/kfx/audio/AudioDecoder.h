@@ -14,6 +14,11 @@ public:
     // Frames of interleaved float written to out; 0 at end of stream or on error.
     virtual uint32_t read(float * out, uint32_t max_frames) = 0;
     virtual bool rewind() = 0;
+    // True when the last read returned 0 because of a read or decode error, not the end of the stream.
+    bool failed() const { return failed_; }
+
+protected:
+    bool failed_ = false;
 };
 
 // The format is chosen from the file header, not the extension; error is set on failure.

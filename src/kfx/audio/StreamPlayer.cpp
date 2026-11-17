@@ -79,11 +79,12 @@ void fill_converter(StreamJob & job) {
             job.decoded_lap = true;
             continue;
         }
-        if (job.loop && job.decoded_lap && job.decoder->rewind()) {
+        if (job.decoder->failed()) {
+            AUDIOWARN("Stopping \"%s\": %s", job.path.c_str(), "decode error");
+        } else if (job.loop && job.decoded_lap && job.decoder->rewind()) {
             job.decoded_lap = false;
             continue;
-        }
-        if (!job.decoded_any) {
+        } else if (!job.decoded_any) {
             AUDIOWARN("Cannot play \"%s\": %s", job.path.c_str(), "no audio could be decoded");
         }
         job.decoder_done = true;

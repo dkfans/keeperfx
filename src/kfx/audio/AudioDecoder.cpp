@@ -78,9 +78,14 @@ struct ByteSource {
     size_t mem_size = 0;
     size_t mem_pos = 0;
     int64_t base = 0;
+    bool io_error = false;
 
     size_t read(void * dst, size_t bytes) {
-        if (file) return std::fread(dst, 1, bytes, file.get());
+        if (file) {
+            const size_t got = std::fread(dst, 1, bytes, file.get());
+            if (got < bytes && std::ferror(file.get())) io_error = true;
+            return got;
+        }
         const size_t n = (mem_pos < mem_size) ? std::min(bytes, mem_size - mem_pos) : 0;
         if (n) std::memcpy(dst, mem + mem_pos, n);
         mem_pos += n;
@@ -137,7 +142,9 @@ public:
     uint32_t sample_rate() const override { return wav.sampleRate; }
     uint8_t channels() const override { return (uint8_t)wav.channels; }
     uint32_t read(float * out, uint32_t max_frames) override {
-        return (uint32_t)drwav_read_pcm_frames_f32(&wav, max_frames, out);
+        const uint32_t got = (uint32_t)drwav_read_pcm_frames_f32(&wav, max_frames, out);
+        failed_ = got == 0 && max_frames > 0 && (src.io_error || wav.readCursorInPCMFrames < wav.totalPCMFrameCount);
+        return got;
     }
     bool rewind() override { return drwav_seek_to_pcm_frame(&wav, 0) == DRWAV_TRUE; }
 };
@@ -150,7 +157,10 @@ public:
     uint32_t sample_rate() const override { return flac->sampleRate; }
     uint8_t channels() const override { return (uint8_t)flac->channels; }
     uint32_t read(float * out, uint32_t max_frames) override {
-        return (uint32_t)drflac_read_pcm_frames_f32(flac, max_frames, out);
+        const uint32_t got = (uint32_t)drflac_read_pcm_frames_f32(flac, max_frames, out);
+        failed_ = got == 0 && max_frames > 0 &&
+                  (src.io_error || (flac->totalPCMFrameCount > 0 && flac->currentPCMFrame < flac->totalPCMFrameCount));
+        return got;
     }
     bool rewind() override { return drflac_seek_to_pcm_frame(flac, 0) == DRFLAC_TRUE; }
 };
@@ -163,8 +173,11 @@ public:
     ~DrMp3Decoder() override { if (ok) drmp3_uninit(&mp3); }
     uint32_t sample_rate() const override { return mp3.sampleRate; }
     uint8_t channels() const override { return (uint8_t)mp3.channels; }
+    // dr_mp3 skips undecodable data, so only I/O errors are reported.
     uint32_t read(float * out, uint32_t max_frames) override {
-        return (uint32_t)drmp3_read_pcm_frames_f32(&mp3, max_frames, out);
+        const uint32_t got = (uint32_t)drmp3_read_pcm_frames_f32(&mp3, max_frames, out);
+        failed_ = got == 0 && max_frames > 0 && src.io_error;
+        return got;
     }
     bool rewind() override { return drmp3_seek_to_pcm_frame(&mp3, 0) == DRMP3_TRUE; }
 };
@@ -180,7 +193,13 @@ public:
     uint8_t channels() const override { return chans; }
     uint32_t read(float * out, uint32_t max_frames) override {
         const int got = stb_vorbis_get_samples_float_interleaved(vorbis, chans, out, (int)(max_frames * chans));
-        return got > 0 ? (uint32_t)got : 0;
+        if (got > 0) {
+            stb_vorbis_get_error(vorbis); // clears errors it recovered from
+            failed_ = false;
+            return (uint32_t)got;
+        }
+        failed_ = max_frames > 0 && stb_vorbis_get_error(vorbis) != VORBIS__no_error;
+        return 0;
     }
     bool rewind() override { return stb_vorbis_seek_start(vorbis) != 0; }
 };
