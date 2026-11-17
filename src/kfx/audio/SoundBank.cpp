@@ -403,7 +403,7 @@ extern "C" int custom_sound_bank_size() {
 	return g_custom_bank.size();
 }
 
-// Decode an in-memory audio buffer and append it to g_custom_bank as a 16-bit OpenAL buffer; plain WAV keeps its own format, everything else goes through AudioDecoder.
+// Decode an audio buffer and append it to g_custom_bank as a 16-bit OpenAL buffer.
 static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample_id,
 	const uint8_t* data, size_t size)
 {

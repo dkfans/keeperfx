@@ -22,7 +22,7 @@ namespace kfx::audio {
 
 // Sample rate of the shared mix; streams must be written at exactly this rate.
 constexpr uint32_t kCoreSampleRate = KFX_AUDIO_CORE_RATE;
-// Number of simultaneously open stream slots.
+// Number of simultaneously open stream slots: movie, music and speech use 3; a track change briefly needs one more.
 constexpr size_t kStreamSlots = KFX_AUDIO_STREAM_SLOTS;
 // Ring length per slot, in milliseconds of audio.
 constexpr uint32_t kStreamRingMs = KFX_AUDIO_STREAM_RING_MS;

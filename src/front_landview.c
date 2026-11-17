@@ -857,7 +857,6 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       {
           fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_before);
       }
-      playing_good_descriptive_speech = 1;
     } else
     {
       if (lvinfo->speech_after[0] == '\0')
@@ -874,14 +873,17 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       {
           fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_after);
       }
-      playing_bad_descriptive_speech = 1;
     }
-    playing_speech_lvnum = lvnum;
     if (!kfx_audio_path_supported(fname))
     {
         WARNLOG("unsupported audio format '%s', supported: %s", fname, kfx_audio_format_list_text());
         return false;
     }
+    if (play_good)
+      playing_good_descriptive_speech = 1;
+    else
+      playing_bad_descriptive_speech = 1;
+    playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
     //volume is overwritten in update_frontmap_ambient_sound
     return play_streamed_sample(fname, settings.sound_volume);
