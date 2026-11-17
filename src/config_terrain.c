@@ -90,7 +90,7 @@ const struct NamedCommand terrain_room_total_capacity_func_type[] = {
     {"slabs_pow2_wth_effcncy",  7},
     {"gold_slabs_wth_effcncy",  8},
     {"gold_slabs_full",         9},
-    {"gold_slabs_div2",        10},
+    {"slabs_mul2",             10},
     {"none",                   11},
     {NULL,                      0},
   };
@@ -283,11 +283,11 @@ extern void count_slabs_all_wth_effcncy(struct Room *room);
 extern void count_slabs_no_min_wth_effcncy(struct Room *room);
 extern void count_slabs_div2_wth_effcncy(struct Room *room);
 extern void count_slabs_div2_nomin_effcncy(struct Room *room);
+extern void count_slabs_mul2(struct Room* room);
 extern void count_slabs_mul2_wth_effcncy(struct Room *room);
 extern void count_slabs_pow2_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_full(struct Room *room);
-extern void count_gold_slabs_div2(struct Room* room);
 
 Room_Update_Func terrain_room_total_capacity_func_list[] = {
   NULL,
@@ -300,7 +300,7 @@ Room_Update_Func terrain_room_total_capacity_func_list[] = {
   count_slabs_pow2_wth_effcncy,
   count_gold_slabs_wth_effcncy,
   count_gold_slabs_full,
-  count_gold_slabs_div2,
+  count_slabs_mul2,
   NULL,
   NULL,
 };

@@ -445,6 +445,11 @@ void count_slabs_all_only(struct Room *room)
     room->total_capacity = room->slabs_count;
 }
 
+void count_slabs_mul2(struct Room* room)
+{
+    room->total_capacity = room->slabs_count*2;
+}
+
 void count_slabs_all_wth_effcncy(struct Room *room)
 {
     unsigned long count = room->slabs_count * ((long)room->efficiency);
