@@ -1956,16 +1956,13 @@ static int lua_Set_digger(lua_State *L)
 static int lua_Set_texture(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long texture_id = luaL_checkNamedCommand(L,2,texture_pack_desc);
-
-    if (texture_id == -1)
-    {
-        texture_id = 0;
-    }
-    else if (texture_id < 0)
-    {
-        return luaL_argerror(L, 2, "invalid texture id");
-    }
+    // "NONE" and "DEFAULT" resolve to slot 0, which is written onto every owned slab.
+    // That paints Default and drops per-slab .slx styles, same as DK SET_TEXTURE.
+    // PLAYER:set_texture turns slot 0 into -1. set_player_texture treats a negative
+    // as a reset and copies slab_ext_data_initial back, so the .slx styles return.
+    // Both leave dungeon->texture_pack at 0, so a slab claimed later still gets its
+    // .slx style. Not changed here.
+    long texture_id = luaL_checkTexturePack(L, 2);
 
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
@@ -2112,7 +2109,7 @@ static int lua_Change_slab_texture(lua_State *L)
 {
     MapSlabCoord slb_x = luaL_checkslb_x(L, 1);
     MapSlabCoord slb_y = luaL_checkslb_y(L, 2);
-    long texture_id = luaL_checkNamedCommand(L, 3,texture_pack_desc);
+    long texture_id = luaL_checkTexturePack(L, 3);
     int fill_type = luaL_optNamedCommand(L, 4,fill_desc);
 
     if (fill_type > 0)

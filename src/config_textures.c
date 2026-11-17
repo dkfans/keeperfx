@@ -56,7 +56,7 @@ const struct ConfigFileData keeper_tileset_file_data = {
 };
 
 static char tileset_name[TEXTURE_VARIATIONS_COUNT][COMMAND_WORD_LEN];
-struct NamedCommand texture_pack_desc[TEXTURE_VARIATIONS_COUNT + 1];
+struct NamedCommand texture_pack_desc[TEXTURE_VARIATIONS_COUNT + 2];
 ThingModel tileset_footprint[TEXTURE_VARIATIONS_COUNT];
 unsigned short tileset_footstep_snd[TEXTURE_VARIATIONS_COUNT];
 int tileset_footstep_cnt[TEXTURE_VARIATIONS_COUNT];
@@ -106,6 +106,9 @@ static TbBool tileset_names_post_load(void)
         texture_pack_desc[n].num = i;
         n++;
     }
+    texture_pack_desc[n].name = "DEFAULT";
+    texture_pack_desc[n].num = 0;
+    n++;
     texture_pack_desc[n].name = NULL;
     return true;
 }
@@ -126,19 +129,20 @@ static TbBool load_tileset_config_file(const char *fname, unsigned short flags)
     }
 
     char key[64];
-    for (int i = 1; i < TEXTURE_VARIATIONS_COUNT; i++)
+    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT - 1; i++)
     {
+        int slot = i + 1;
         snprintf(key, sizeof(key), "texture%d", i);
         VALUE *section = value_dict_get(&file_root, key);
         if (value_type(section) != VALUE_DICT)
             continue;
         VALUE *name = value_dict_get(section, "Name");
         if (value_type(name) == VALUE_STRING)
-            snprintf(tileset_name[i], COMMAND_WORD_LEN, "%s", value_string(name));
+            snprintf(tileset_name[slot], COMMAND_WORD_LEN, "%s", value_string(name));
         int model = value_parse_model(TCls_EffectElem, value_dict_get(section, "Footprint"));
         if (model > 0)
-            tileset_footprint[i] = model;
-        CONDITIONAL_ASSIGN_ARR2_SOUND(section, "FootstepSound", tileset_footstep_snd[i], tileset_footstep_cnt[i]);
+            tileset_footprint[slot] = model;
+        CONDITIONAL_ASSIGN_ARR2_SOUND(section, "FootstepSound", tileset_footstep_snd[slot], tileset_footstep_cnt[slot]);
     }
     value_fini(&file_root);
     return true;
