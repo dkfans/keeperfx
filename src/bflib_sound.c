@@ -573,7 +573,7 @@ short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax)
     struct S3DSample *sample;
     long i;
     int32_t spcval = INT32_MAX;
-    short min_sample_id = SOUNDS_MAX_COUNT;
+    short min_sample_id = -1;
     if ((ctype == 2) || (ctype == 3))
     {
         for (i=0; i < MaxNoSounds; i++)
