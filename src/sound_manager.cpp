@@ -53,7 +53,7 @@ bool SoundManager::initialize() {
 
     // If init_sound() was already called (e.g. from main()), adopt that state
     // rather than calling it again — a second call would try to re-open the
-    // audio device and corrupt the SDL_mixer / OpenAL state.
+    // audio device and corrupt the OpenAL / SDL3 audio state.
     if (GetSoundInstalled()) {
         initialized_ = true;
         return true;

@@ -21,16 +21,15 @@
 ARCH = i686-w64-mingw32
 SDL_MAIN_LIBRARY = sdl/lib/libSDL3.dll.a
 SDL_EXTENSION_LIBRARIES = \
-	sdl/lib/libSDL3_mixer.dll.a \
 	sdl/lib/libSDL3_image.dll.a
 
 include prebuilds.mk
 
 .PHONY: clean-libsdl deep-clean-libsdl
 
-.INTERMEDIATE: libsdl libsdlmixer libsdlimage
+.INTERMEDIATE: libsdl libsdlimage
 
-libexterns: libsdl libsdlmixer libsdlimage
+libexterns: libsdl libsdlimage
 	touch libexterns
 
 clean-libexterns: clean-libsdl
@@ -70,38 +69,6 @@ endif
 ##################
 
 $(SDL_EXTENSION_LIBRARIES): | $(SDL_MAIN_LIBRARY)
-
-ifneq (,$(findstring .tar.gz,$(SDL_MIXER_PACKAGE)))
-
-libsdlmixer: sdl/lib/libSDL3_mixer.dll.a
-
-sdl/lib/libSDL3_mixer.dll.a: sdl/$(SDL_MIXER_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include
-	cd "$(<D)"; \
-	tar -xzf "$(<F)"
-	$(CP) -r sdl/SDL3_mixer-*/$(ARCH)/include/* sdl/include/
-	$(CP) -r sdl/SDL3_mixer-*/$(ARCH)/lib/* sdl/lib/
-	$(CP) sdl/SDL3_mixer-*/$(ARCH)/bin/SDL3_mixer.dll sdl/for_final_package/
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-sdl/$(SDL_MIXER_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(SDL_MIXER_DOWNLOAD)"
-	tar -tzf "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
-
-else
-
-$(error Cannot handle SDL_mixer library prebuild. You need to prepare the library manually.)
-
-endif
-
-##################
 
 ifneq (,$(findstring .tar.gz,$(SDL_IMAGE_PACKAGE)))
 

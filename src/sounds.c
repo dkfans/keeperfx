@@ -74,7 +74,6 @@ const char foot_down_sound_sample_variant[] = {
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
-int sdl_flags = 0;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char repeats, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
 {
@@ -473,7 +472,6 @@ TbBool init_sound(void)
     snd_settng->redbook_enable = ((features_enabled & Ft_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
-    sdl_flags = InitialiseSDLAudio();
     if (!GetSoundInstalled())
     {
       SoundDisabled = 1;

@@ -1,5 +1,5 @@
 #include "pre_inc.h"
-// Music and streamed speech through the stream player, and the SDL3_mixer lifetime.
+// Music and streamed speech through the stream player.
 #include "config_keeperfx.h"
 #include "cdrom.h"
 #include "bflib_sndlib.h"
@@ -12,7 +12,6 @@
 #include "kfx/audio/SoundInternal.h"
 #include "kfx/audio/StreamPlayer.h"
 #include <SDL3/SDL.h>
-#include <SDL3_mixer/SDL_mixer.h>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -28,7 +27,6 @@
 namespace {
 
 SoundVolume g_music_volume = 0;
-MIX_Mixer* g_mixer = nullptr;
 std::mutex g_mix_mutex;
 
 std::string g_current_music_fname; // empty if a numbered track (or nothing) is playing
@@ -43,7 +41,6 @@ void free_music_state() {
 		g_current_music_track = 0;
 		g_current_music_fname.clear();
 	}
-	ShutDownSDLAudio();
 	SYNCDBG(7, "Music state freed");
 }
 
@@ -289,40 +286,6 @@ extern "C" void MonitorStreamedSoundTrack() {
 	S3DDropsEviction = 0;
 	S3DDropsVolumeZero = 0;
 	S3DDropsOutOfRange = 0;
-}
-
-extern "C" int InitialiseSDLAudio()
-{
-	if (!SDL_Init(SDL_INIT_AUDIO)) {
-		AUDIOERR("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
-		return 0;
-	}
-	// SDL3_mixer: MIX_Init() is reference-counted and takes no format flags
-	// (decoders are discovered automatically).
-	if (!MIX_Init()) {
-		AUDIOERR("Could not initialise SDL3_mixer: %s", SDL_GetError());
-		return 0;
-	}
-	SDL_AudioSpec spec;
-	spec.format   = SDL_AUDIO_S16;
-	spec.channels = 2;
-	spec.freq     = 44100;
-	g_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
-	if (!g_mixer) {
-		AUDIOERR("Could not open audio device for SDL mixer: %s", SDL_GetError());
-		MIX_Quit();
-		return 0;
-	}
-	return 1;
-}
-
-extern "C" void ShutDownSDLAudio()
-{
-	if (g_mixer) {
-		MIX_DestroyMixer(g_mixer);
-		g_mixer = nullptr;
-	}
-	MIX_Quit();
 }
 
 extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)

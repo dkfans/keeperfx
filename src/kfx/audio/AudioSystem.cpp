@@ -199,7 +199,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			return true;
 		}
 		print_device_info();
-		// sounds.c calls InitAudio before InitialiseSDLAudio, so take our own SDL audio reference.
+		// Own SDL audio reference, dropped in release_audio_output().
 		if (!SDL_InitSubSystem(SDL_INIT_AUDIO)) {
 			throw std::runtime_error(std::string("Cannot initialise SDL audio subsystem: ") + SDL_GetError());
 		}
