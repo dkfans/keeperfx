@@ -52,6 +52,22 @@ FILE * open_file_utf8(const char * path) {
     return std::fopen(path, "rb");
 }
 
+bool file_seek(FILE * file, int64_t offset, int origin) {
+#ifdef _WIN32
+    return _fseeki64(file, offset, origin) == 0;
+#else
+    return fseeko(file, off_t(offset), origin) == 0;
+#endif
+}
+
+int64_t file_tell(FILE * file) {
+#ifdef _WIN32
+    return _ftelli64(file);
+#else
+    return int64_t(ftello(file));
+#endif
+}
+
 struct FileCloser { void operator()(FILE * f) const { if (f) std::fclose(f); } };
 using FilePtr = std::unique_ptr<FILE, FileCloser>;
 
@@ -72,8 +88,8 @@ struct ByteSource {
     }
     bool seek(int64_t offset, SeekFrom from) {
         if (file) {
-            if (from == SeekFrom::Set) return std::fseek(file.get(), (long)(base + offset), SEEK_SET) == 0;
-            return std::fseek(file.get(), (long)offset, from == SeekFrom::Cur ? SEEK_CUR : SEEK_END) == 0;
+            if (from == SeekFrom::Set) return file_seek(file.get(), base + offset, SEEK_SET);
+            return file_seek(file.get(), offset, from == SeekFrom::Cur ? SEEK_CUR : SEEK_END);
         }
         int64_t target = offset;
         if (from == SeekFrom::Set) target = base + offset;
@@ -85,9 +101,9 @@ struct ByteSource {
     }
     bool tell(int64_t & out) {
         if (file) {
-            const long pos = std::ftell(file.get());
+            const int64_t pos = file_tell(file.get());
             if (pos < 0) return false;
-            out = (int64_t)pos - base;
+            out = pos - base;
         } else {
             out = (int64_t)mem_pos - base;
         }
@@ -259,7 +275,7 @@ std::unique_ptr<AudioDecoder> open_audio_file(const char * path, std::string & e
     const AudioFormat format = audio_format_from_header(header, got);
     if (format == AudioFormat::None) return fail(error, "not a supported audio file");
     if (format == AudioFormat::Mp3 && has_bmu_header(header, got)) source->base = (int64_t)kBmuHeaderSize;
-    if (std::fseek(source->file.get(), (long)source->base, SEEK_SET) != 0) return fail(error, "cannot read file");
+    if (!file_seek(source->file.get(), source->base, SEEK_SET)) return fail(error, "cannot read file");
     return make_decoder(format, std::move(source), error);
 }
 
