@@ -25,9 +25,9 @@ public:
     void stop(PlayerChannel channel);                       // immediate
     void fade_out(PlayerChannel channel, uint32_t milliseconds);
     void set_paused(PlayerChannel channel, bool paused);
-    void set_volume(PlayerChannel channel, float volume);   // 0..1
-    bool is_playing(PlayerChannel channel);                 // active and not finished
-    void update();                                          // every tick: frees finished and faded-out jobs
+    void set_volume(PlayerChannel channel, float volume);   // 0..1, applied by the worker
+    bool is_playing(PlayerChannel channel);                 // active and not finished; never waits on the worker
+    void update();                                          // every tick: frees finished and faded-out jobs the worker is not busy with
     void shutdown();                                        // stops both jobs and joins the worker
 
 private:
@@ -35,6 +35,7 @@ private:
 
     StreamJob & job_for(PlayerChannel channel);
     void wake_worker();
+    void stop_worker();
     void worker_main();
 
     std::unique_ptr<StreamJob> jobs_[kJobCount];

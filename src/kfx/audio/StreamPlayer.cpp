@@ -21,20 +21,21 @@ constexpr uint32_t kReadFrames = 2048;     // source frames per decoder read
 constexpr auto kWorkerPeriod = std::chrono::milliseconds(10);
 }
 
-// Game thread and worker share a job only under its mutex.
+// Game thread and worker share a job under its mutex; active, done and volume are also read lock-free.
 struct StreamJob {
     std::mutex mutex;
     std::unique_ptr<AudioDecoder> decoder;
     std::unique_ptr<StreamConverter> converter;
     AudioStreamHandle handle = 0;
-    bool active = false;
+    std::atomic<bool> active{false};
     bool loop = false;
     bool paused = false;
     bool decoder_done = false;
     bool finish_sent = false;
     bool decoded_any = false;  // since open
     bool decoded_lap = false;  // since open or the last rewind
-    float volume = 1.0f;
+    std::atomic<float> volume{1.0f};
+    float applied_volume = 1.0f; // last volume the worker gave the slot
     bool fading = false;
     Clock::time_point fade_start;
     uint32_t fade_ms = 0;
@@ -57,7 +58,7 @@ void release(StreamJob & job) {
     job.converter.reset();
     job.active = false;
     job.fading = false;
-    job.done.store(false, std::memory_order_relaxed);
+    job.done = false;
 }
 
 bool write_pending(StreamJob & job) {
@@ -117,24 +118,27 @@ void pump(StreamJob & job) {
 
 void service(StreamJob & job) {
     std::lock_guard<std::mutex> lock(job.mutex);
-    if (!job.active || job.done.load(std::memory_order_relaxed)) {
+    if (!job.active || job.done) {
         return;
     }
     if (job.fading) {
         const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - job.fade_start).count();
         if (elapsed >= int64_t(job.fade_ms)) {
             audio_stream_set_volume(job.handle, 0.0f);
-            job.done.store(true, std::memory_order_relaxed);
+            job.done = true;
             return;
         }
         audio_stream_set_volume(job.handle, job.fade_from * (1.0f - float(elapsed) / float(job.fade_ms)));
+    } else if (const float volume = job.volume; volume != job.applied_volume) {
+        audio_stream_set_volume(job.handle, volume);
+        job.applied_volume = volume;
     }
     if (job.paused) {
         return;
     }
     if (job.finish_sent) {
         if (audio_stream_is_finished(job.handle)) {
-            job.done.store(true, std::memory_order_relaxed);
+            job.done = true;
         }
         return;
     }
@@ -149,8 +153,9 @@ StreamPlayer::StreamPlayer() {
     }
 }
 
+// Slots belong to the stream pool, which may already be gone at exit; shutdown() closes them.
 StreamPlayer::~StreamPlayer() {
-    shutdown();
+    stop_worker();
 }
 
 StreamJob & StreamPlayer::job_for(PlayerChannel channel) {
@@ -196,9 +201,10 @@ bool StreamPlayer::play(PlayerChannel channel, const char * path, float volume, 
         job.decoded_any = false;
         job.decoded_lap = false;
         job.volume = std::clamp(volume, 0.0f, 1.0f);
+        job.applied_volume = job.volume;
         job.path = name;
         job.active = true;
-        audio_stream_set_volume(handle, job.volume);
+        audio_stream_set_volume(handle, job.applied_volume);
     }
     if (!worker_.joinable()) {
         worker_ = std::thread(&StreamPlayer::worker_main, this);
@@ -216,12 +222,12 @@ void StreamPlayer::stop(PlayerChannel channel) {
 void StreamPlayer::fade_out(PlayerChannel channel, uint32_t milliseconds) {
     StreamJob & job = job_for(channel);
     std::lock_guard<std::mutex> lock(job.mutex);
-    if (!job.active || job.fading || job.done.load(std::memory_order_relaxed)) {
+    if (!job.active || job.fading || job.done) {
         return;
     }
     if (milliseconds == 0) {
         audio_stream_set_volume(job.handle, 0.0f);
-        job.done.store(true, std::memory_order_relaxed);
+        job.done = true;
         return;
     }
     job.fading = true;
@@ -240,24 +246,19 @@ void StreamPlayer::set_paused(PlayerChannel channel, bool paused) {
 }
 
 void StreamPlayer::set_volume(PlayerChannel channel, float volume) {
-    StreamJob & job = job_for(channel);
-    std::lock_guard<std::mutex> lock(job.mutex);
-    job.volume = std::clamp(volume, 0.0f, 1.0f);
-    if (job.active && !job.fading) {
-        audio_stream_set_volume(job.handle, job.volume);
-    }
+    job_for(channel).volume = std::clamp(volume, 0.0f, 1.0f);
 }
 
 bool StreamPlayer::is_playing(PlayerChannel channel) {
     StreamJob & job = job_for(channel);
-    std::lock_guard<std::mutex> lock(job.mutex);
-    return job.active && !job.done.load(std::memory_order_relaxed);
+    return job.active && !job.done;
 }
 
 void StreamPlayer::update() {
     for (auto & job : jobs_) {
-        std::lock_guard<std::mutex> lock(job->mutex);
-        if (job->active && job->done.load(std::memory_order_relaxed)) {
+        // A job the worker is servicing is reaped on a later tick.
+        std::unique_lock<std::mutex> lock(job->mutex, std::try_to_lock);
+        if (lock.owns_lock() && job->active && job->done) {
             release(*job);
         }
     }
@@ -266,6 +267,10 @@ void StreamPlayer::update() {
 void StreamPlayer::shutdown() {
     stop(PlayerChannel::Music);
     stop(PlayerChannel::Speech);
+    stop_worker();
+}
+
+void StreamPlayer::stop_worker() {
     if (!worker_.joinable()) {
         return;
     }
