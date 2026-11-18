@@ -145,7 +145,7 @@ long find_reachable_imp_tasks_excluding_start(struct Thing *creatng, SpDiggerTas
                 struct Coord3d pos;
                 pos.x.val = subtile_coord_center(stl_x);
                 pos.y.val = subtile_coord_center(stl_y);
-                pos.z.val = get_thing_height_at(creatng, &pos);
+                pos.z.val = get_thing_height_at_xy(creatng, &pos);
 
                 if (creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default)) {
                     return n;
@@ -460,7 +460,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
             {
                 navpos.x.val = subtile_coord_center(stl_x);
                 navpos.y.val = subtile_coord_center(stl_y);
-                navpos.z.val = get_thing_height_at(thing, &navpos);
+                navpos.z.val = get_thing_height_at_xy(thing, &navpos);
                 if (creature_can_navigate_to_with_storage(thing, &navpos, NavRtF_Default))
                 {
                     min_taskid = 1;
@@ -482,7 +482,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
           {
               navpos.x.val = subtile_coord_center(stl_x);
               navpos.y.val = subtile_coord_center(stl_y);
-              navpos.z.val = get_thing_height_at(thing, &navpos);
+              navpos.z.val = get_thing_height_at_xy(thing, &navpos);
               if (creature_can_navigate_to_with_storage(thing, &navpos, NavRtF_Default))
               {
                   min_taskid = 2;

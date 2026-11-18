@@ -1,0 +1,51 @@
+# [textureN] is tmapaNNN.dat, the number a script passes. WINTER is [texture2], tmapa002.dat.
+# Footprint is the effect element on a path slab. FootstepSound is [id, count] or ["NAME", count].
+# A map or campaign file replaces any block it lists.
+
+[texture0]
+Name = "STANDARD"
+
+[texture1]
+Name = "ANCIENT"
+
+[texture2]
+Name = "WINTER"
+Footprint = "EFFECTELEMENT_ICE_MELT3"
+FootstepSound = [182, 3]
+
+[texture3]
+Name = "SNAKE_KEY"
+
+[texture4]
+Name = "STONE_FACE"
+
+[texture5]
+Name = "VOLUPTUOUS"
+
+[texture6]
+Name = "ROUGH_ANCIENT"
+
+[texture7]
+Name = "SKULL_RELIEF"
+
+[texture8]
+Name = "DESERT_TOMB"
+Footprint = "EFFECTELEMENT_STEP_SAND"
+FootstepSound = [182, 3]
+
+[texture9]
+Name = "GYPSUM"
+Footprint = "EFFECTELEMENT_STEP_GYPSUM"
+FootstepSound = [182, 3]
+
+[texture10]
+Name = "LILAC_STONE"
+
+[texture11]
+Name = "SWAMP_SERPENT"
+
+[texture12]
+Name = "LAVA_CAVERN"
+
+[texture13]
+Name = "LATERITE_CAVERN"

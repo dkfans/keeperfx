@@ -33,6 +33,7 @@ struct NetSP;
 struct NetSP* InitEnetSP();
 uint32_t GetPing(int id);
 uint32_t GetPlayersPing(void);
+uint32_t GetPingVariance(int id);
 unsigned int GetPacketLoss(int id);
 unsigned int GetClientDataInTransit();
 int32_t GetResyncProgress(void);

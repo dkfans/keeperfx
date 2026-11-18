@@ -40,6 +40,9 @@
 #include "player_instances.h"
 #include "local_possession.h"
 #include "creature_control.h"
+#include "power_hand.h"
+#include "power_hand_fp.h"
+#include "local_camera_hand_fp.h"
 #include "bflib_datetm.h"
 
 #include <math.h>
@@ -358,8 +361,14 @@ void look_local_first_person_camera(struct Thing *ctrltng, int32_t turn_x, int32
         *pitch = viewtng->move_angle_z;
         return;
     }
-    process_first_person_look(ctrltng, turn_x, turn_y, cam->rotation_angle_x, cam->rotation_angle_y,
+    // While carried, the view's pitch is animated, so look from the creature's pitch instead
+    int32_t current_pitch = cam->rotation_angle_y;
+    if (local_state.camera.fp_hand_active && (get_local_fp_hand_phase(ctrltng, NULL) != FPHand_None)) {
+        current_pitch = local_state.camera.first_person_look_pitch;
+    }
+    process_first_person_look(ctrltng, turn_x, turn_y, cam->rotation_angle_x, current_pitch,
         &local_state.camera.first_person_look_yaw, &local_state.camera.first_person_look_pitch, &local_state.camera.first_person_look_roll);
+    apply_local_fp_hand_look(ctrltng);
     local_state.camera.first_person_look_pending = true;
     *yaw = local_state.camera.first_person_look_yaw;
     *pitch = local_state.camera.first_person_look_pitch;
@@ -375,13 +384,8 @@ static void snap_back_first_person_look(struct Camera *cam, const struct Thing *
     cam->rotation_angle_y = (cam->rotation_angle_y + delta_pitch / 2) & ANGLE_MASK;
 }
 
-static void update_local_first_person_camera(struct Thing *ctrltng)
+static void update_local_first_person_look(struct Camera *cam, struct Thing *ctrltng, struct Thing *viewtng)
 {
-    struct Camera* cam = &local_state.camera.destination[CamIV_FirstPerson];
-    struct Thing *viewtng = get_local_possession_view(ctrltng);
-    int eye_height = get_creature_eye_height(ctrltng);
-    update_first_person_position(cam, viewtng, get_local_creature_control(ctrltng), eye_height);
-
     // A replay shows the recorded look as the creature took it.
     if (replay.load_enable)
     {
@@ -405,6 +409,20 @@ static void update_local_first_person_camera(struct Thing *ctrltng)
     if ((ctrltng->movement_flags & TMvF_Flying) != 0) {
         cam->rotation_angle_z = local_state.camera.first_person_look_roll;
     }
+}
+
+static void update_local_first_person_camera(struct Thing *ctrltng)
+{
+    struct Camera* cam = &local_state.camera.destination[CamIV_FirstPerson];
+    struct Thing *viewtng = get_local_possession_view(ctrltng);
+    int32_t hand_turn;
+    const enum FirstPersonHandPhase hand_phase = start_local_fp_hand_camera(cam, ctrltng, &hand_turn);
+    if (!fp_hand_positions_view(hand_phase, hand_turn)) {
+        int eye_height = get_creature_eye_height(ctrltng);
+        update_first_person_position(cam, viewtng, get_local_creature_control(ctrltng), eye_height);
+    }
+    update_local_first_person_look(cam, ctrltng, viewtng);
+    update_local_fp_hand_camera(cam, ctrltng, hand_phase, hand_turn);
 }
 
 TbBool update_local_camera_time(void)
@@ -547,8 +565,12 @@ void update_local_first_person_view(void)
 {
     struct PlayerInfo *player = get_my_player();
     struct Thing *ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
+    engine_hide_ceiling = false;
+    engine_view_above_walls = false;
+    engine_view_distance_limit = 0;
     if (!local_state.camera.ready || is_observer_camera_active() || (player == &local_observer_player)
      || (get_local_active_camera_index() != CamIV_FirstPerson) || !thing_exists(ctrltng)) {
+        local_state.camera.fp_hand_active = false;
         return;
     }
     update_local_first_person_camera(ctrltng);

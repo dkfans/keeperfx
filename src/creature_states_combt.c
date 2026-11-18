@@ -3388,7 +3388,7 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     {
         pos.x.val = figtng->mappos.x.val - dist_x;
         pos.y.val = figtng->mappos.y.val - dist_y;
-        pos.z.val = get_thing_height_at(figtng, &pos);
+        pos.z.val = get_thing_height_at_xy(figtng, &pos);
         if (creature_move_to(figtng, &pos, get_creature_speed(figtng), 0, 1) != -1)
         {
            return Lb_SUCCESS;
@@ -3410,7 +3410,7 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
       else
         pos.x.val -= COORD_PER_STL;
     }
-    pos.z.val = get_thing_height_at(figtng, &pos);
+    pos.z.val = get_thing_height_at_xy(figtng, &pos);
 
     if (setup_person_move_backwards_to_coord(figtng, &pos, NavRtF_Default))
     {
@@ -3428,7 +3428,7 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
       pos.x.val += 768 * i;
     else
       pos.y.val += 768 * i;
-    pos.z.val = get_thing_height_at(figtng, &pos);
+    pos.z.val = get_thing_height_at_xy(figtng, &pos);
     if (setup_person_move_backwards_to_coord(figtng, &pos, NavRtF_Default))
     {
         figtng->continue_state = continue_state;

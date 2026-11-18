@@ -141,7 +141,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
       pos1->x.val, pos1->y.val, &px, &py);
     pos2->x.val = px;
     pos2->y.val = py;
-    pos2->z.val = get_thing_height_at(thing, pos2);
+    pos2->z.val = get_thing_height_at_xy(thing, pos2);
     if (thing_in_wall_at(thing, pos2))
         get_nearest_valid_position_for_creature_at(thing, pos2);
     nav_thing_can_travel_over_lava = 0;
@@ -252,6 +252,7 @@ struct ClosestGate
     ThingIndex index;
     TbBool friendly;
     MapCoordDelta distance;
+    int found_order;
 };
 int sortgates(const void* a, const void* b) 
 {
@@ -265,7 +266,9 @@ int sortgates(const void* a, const void* b)
     if (ga->distance < gb->distance) return -1;
     if (ga->distance > gb->distance) return 1;
 
-    return 0;
+    // Then the order they were found in: qsort() is not stable, and C libraries
+    // differ in how they order equal elements, which would let clients disagree
+    return (ga->found_order > gb->found_order) - (ga->found_order < gb->found_order);
 }
 
 /**
@@ -281,6 +284,8 @@ struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng)
     {
         hero_gates[g].index = 0;
         hero_gates[g].distance = INT32_MAX;
+        hero_gates[g].friendly = false;
+        hero_gates[g].found_order = g;
     }
 
     //Go through all objects to find gates and record distance
@@ -305,8 +310,9 @@ struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng)
         hero_gates[found_gates].index = thing->index;
         hero_gates[found_gates].distance = get_chessboard_distance(&thing->mappos, &herotng->mappos);;
         hero_gates[found_gates].friendly = (players_are_enemies(herotng->owner, get_slab_owner_thing_is_on(thing)) == false);
+        hero_gates[found_gates].found_order = found_gates;
         found_gates++;
-        if (found_gates > HERO_GATES_COUNT)
+        if (found_gates >= HERO_GATES_COUNT)
             break;
 
         // Per thing code ends

@@ -1397,11 +1397,11 @@ void script_place_trap(PlayerNumber plyridx, ThingModel trapkind, MapSubtlCoord 
     {
         if (free)
         {
-            player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+            player_place_trap_without_check_at(stl_x, stl_y, plyridx, NO_USER, trapkind, free);
         }
         else
         {
-            player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
+            player_place_trap_at(stl_x, stl_y, plyridx, NO_USER, trapkind);
         }
     }
 }

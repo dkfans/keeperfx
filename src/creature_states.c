@@ -65,6 +65,7 @@
 #include "game_legacy.h"
 #include "sprites.h"
 #include "lua_cfg_funcs.h"
+#include "lua_triggers.h"
 
 #include "creature_states_gardn.h"
 #include "creature_states_hero.h"
@@ -83,6 +84,8 @@
 #include "creature_states_tresr.h"
 #include "creature_states_barck.h"
 
+#include "engine_camera.h"
+#include "local_hand.h"
 #include "keeperfx.hpp"
 #include "kfx/ai/TargetSearchProbe.h"
 #include "post_inc.h"
@@ -1185,7 +1188,7 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
                     int block_radius = subtile_coord(thing_nav_block_sizexy(thing), 0) / 2;
                     pos->x.val = subtile_coord_center(x);
                     pos->y.val = subtile_coord_center(y);
-                    pos->z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
+                    pos->z.val = get_thing_height_at_xy_with_radius(thing, pos, block_radius);
                     if (!thing_in_wall_at_with_radius(thing, pos, block_radius))
                     {
                         return true;
@@ -1223,7 +1226,7 @@ TbBool creature_find_any_position_to_move_within_slab(struct Coord3d *pos, const
         {
             pos->x.val = subtile_coord_center(x);
             pos->y.val = subtile_coord_center(y);
-            pos->z.val = get_thing_height_at(thing, pos);
+            pos->z.val = get_thing_height_at_xy(thing, pos);
             return true;
         }
         m = (m+1) % (STL_PER_SLB*STL_PER_SLB);
@@ -1508,7 +1511,7 @@ short cleanup_timebomb(struct Thing *creatng)
     return 0;
 }
 
-short creature_being_dropped(struct Thing *creatng)
+static short process_creature_being_dropped(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     SYNCDBG(17,"Starting for %s index %ld",thing_model_name(creatng),(long)creatng->index);
@@ -1521,8 +1524,7 @@ short creature_being_dropped(struct Thing *creatng)
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     // If dropping still in progress, do nothing
-    if ( !(thing_touching_floor(creatng) || (((creatng->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(creatng))))
-    {
+    if (!thing_has_landed(creatng)) {
         // Note that the creature should have no self control while dropping - after all, it was in hand moments ago
         SYNCDBG(17,"The %s index %d owner %d dropped at (%d,%d) isn't touching ground yet",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
         return CrStRet_Modified;
@@ -1550,8 +1552,8 @@ short creature_being_dropped(struct Thing *creatng)
         if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
         {
             struct Dungeon* dungeon = get_dungeon(creatng->owner);
-            if (!dungeon_invalid(dungeon)) {
-                dungeon->camera_deviate_jump = 96;
+            if (!dungeon_invalid(dungeon) && (get_local_hand_drop_view(creatng) != LocalHandDropView_Landed)) {
+                dungeon->camera_deviate_jump = TREMBLING_LANDING_CAMERA_DEVIATE_JUMP;
             }
         }
         // Make sure computer control flag is set (almost) accordingly to job, so that we won't start a fight when in captivity
@@ -1675,6 +1677,21 @@ short creature_being_dropped(struct Thing *creatng)
         //set_creature_assigned_job(creatng, Job_NULL); -- already assigned
     }
     return CrStRet_ResetOk;
+}
+
+short creature_being_dropped(struct Thing *creatng)
+{
+    short ret = process_creature_being_dropped(creatng);
+    // Still falling - the creature has not landed yet
+    if (ret == CrStRet_Modified) {
+        return ret;
+    }
+    // Landed and the engine has chosen state and job; Lua may override them now
+    lua_on_creature_landed(creatng, creatng->holding_player);
+    if (!thing_exists(creatng) || !thing_is_creature(creatng)) {
+        return CrStRet_Deleted;
+    }
+    return ret;
 }
 
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
@@ -2755,7 +2772,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                 {
                     pos->x.val = subtile_coord_center(x);
                     pos->y.val = subtile_coord_center(y);
-                    pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                    pos->z.val = get_thing_height_at_xy_with_radius(thing, pos, nav_sizexy);
                     if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
                         return true;
                     }
@@ -2798,7 +2815,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                     {
                         pos->x.val = subtile_coord_center(astl_x);
                         pos->y.val = subtile_coord_center(astl_y);
-                        pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                        pos->z.val = get_thing_height_at_xy_with_radius(thing, pos, nav_sizexy);
                         if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
                             SYNCLOG("Thorough check succeeded where random check failed.");
                             return true;
@@ -3683,7 +3700,7 @@ void instruct_creature_to_damage_wall(struct Thing *creatng, MapSubtlCoord wall_
             struct Coord3d pos;
             pos.x.val = subtile_coord_center(stand_x);
             pos.y.val = subtile_coord_center(stand_y);
-            pos.z.val = get_thing_height_at(creatng, &pos);
+            pos.z.val = get_thing_height_at_xy(creatng, &pos);
             if (creature_can_navigate_to_with_storage(creatng, &pos, 0)) {
                 if ( setup_person_move_to_position(creatng, stand_x, stand_y, 0) )
                 {
@@ -4278,7 +4295,7 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints 
 {
     if ((thing->health >= 0) && (delta > 0))
     {
-        thing->creature.health_bar_turns = 8;
+        thing->creature.health_bar_turns = HEALTH_BAR_FLASH_TURNS;
         thing->health -= delta;
     }
 }
@@ -5003,7 +5020,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     struct CreatureStateConfig* next_stati = get_thing_state_info_num(next_state);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        if ((next_stati->state_type != CrStTyp_Idle) && (next_state != CrSt_CreatureSlapCowers))
+        if ((next_stati->state_type != CrStTyp_Idle) && (next_state != CrSt_CreatureSlapCowers) && (next_state != CrSt_InPowerHand))
         {
             return false;
         }

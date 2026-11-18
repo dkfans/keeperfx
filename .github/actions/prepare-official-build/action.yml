@@ -1,0 +1,14 @@
+name: Prepare official build
+description: Remove unofficial branding when building from the official repository
+runs:
+  using: composite
+  steps:
+    - name: Remove unofficial branding
+      if: github.repository == 'dkfans/keeperfx'
+      shell: bash
+      run: |
+        set -eu
+        sed -i -e '/^#define PROGRAM_NAME /s/ - Unofficial"$/"/' \
+               -e '/^#define PROGRAM_FULL_NAME /s/ - Unofficial"$/"/' src/version.h
+        grep -Eq '^#define PROGRAM_NAME[[:space:]]+"Dungeon Keeper FX"$' src/version.h
+        grep -Eq '^#define PROGRAM_FULL_NAME[[:space:]]+"KeeperFX"$' src/version.h

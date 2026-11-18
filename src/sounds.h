@@ -76,6 +76,8 @@ void process_3d_sounds(void);
 void thing_play_sample(struct Thing *, SoundSmplTblID, SoundPitch, char repeats, unsigned char ctype, unsigned char flags, long priority, SoundVolume);
 void play_player_sample(PlayerNumber plyr_idx, SoundSmplTblID smptbl_idx);
 void play_user_sample(int user, SoundSmplTblID smptbl_idx);
+TbBool is_local_action(PlayerNumber plyr_idx, int user);
+void play_action_sample(PlayerNumber plyr_idx, int user, SoundSmplTblID smptbl_idx);
 void play_sound_if_close_to_receiver(struct Coord3d*, SoundSmplTblID);
 void stop_thing_playing_sample(struct Thing *, SoundSmplTblID smpl_idx);
 void play_creature_footstep(struct Thing *thing, SoundVolume loudness);

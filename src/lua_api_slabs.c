@@ -104,7 +104,7 @@ static const struct luaL_Reg slab_methods[] = {
         place_slab_type_on_map(luaL_checkNamedCommand(L, 3, slab_desc), slab_subtile_center(slb_x), slab_subtile_center(slb_y), slabmap_owner(slb), 0);
     } else if (strcmp(key, "style") == 0) {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-        game.slab_ext_data[slb_num] = luaL_checkNamedCommand(L, 3, texture_pack_desc);
+        game.slab_ext_data[slb_num] = luaL_checkTexturePack(L, 3);
     }
     return 0;
  }
@@ -133,7 +133,12 @@ static const struct luaL_Reg slab_methods[] = {
         lua_pushstring(L, get_conf_parameter_text(slab_desc,slb->kind));
     } else if (strcmp(key, "style") == 0) {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-        lua_pushstring(L, get_conf_parameter_text(texture_pack_desc,game.slab_ext_data[slb_num]));
+        unsigned char slot = game.slab_ext_data[slb_num];
+        const char *name = get_conf_parameter_text(texture_pack_desc, slot);
+        if (name[0] != '\0')
+            lua_pushstring(L, name);
+        else
+            lua_pushinteger(L, (int)slot - 1);
     } else if (strcmp(key, "centerpos") == 0) {
         struct Coord3d centerpos;
         centerpos.x.val = subtile_coord_center(slab_subtile_center(slb_x));

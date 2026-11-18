@@ -1651,9 +1651,9 @@ TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
             slbkind = roomst->assigned_slab;
         } else {
             if (strcasecmp(pr1str, "Earth") == 0) {
-                slbkind = rand() % (4 - 2) + 2;
+                slbkind = GAME_RANDOM(4 - 2) + 2;
             } else if ((strcasecmp(pr1str, "Reinforced") == 0) || (strcasecmp(pr1str, "Fortified") == 0)) {
-                slbkind = rand() % (9 - 4) + 4;
+                slbkind = GAME_RANDOM(9 - 4) + 4;
             } else if (strcasecmp(pr1str, "Claimed") == 0) {
                 slbkind = SlbT_CLAIMED;
             } else if ((strcasecmp(pr1str, "Rock") == 0) || (strcasecmp(pr1str, "Impenetrable") == 0)) {
@@ -2778,6 +2778,18 @@ static const struct ConsoleCommand console_commands[] = {
    { "zoomto.subtilecoord", cmd_zoom_to_subtilecoord, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired }
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
+
+TbBool cmd_is_synced(const char *msg)
+{
+    msg += strspn(msg, " ");
+    size_t name_length = strcspn(msg, " ");
+    for (int i = 0; i < console_command_count; ++i) {
+        if ((strncasecmp(msg, console_commands[i].name, name_length) == 0) && (console_commands[i].name[name_length] == '\0')) {
+            return console_commands[i].scope != CmdS_Personal;
+        }
+    }
+    return false;
+}
 
 static const char *console_command_refusal(PlayerNumber plyr_idx, const struct ConsoleCommand *entry)
 {

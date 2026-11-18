@@ -18,7 +18,9 @@
 #        cmake --build build --target package
 #
 #
-# Output: pkg/keeperfx-<maj>_<min>_<rel>_<build>[-<suffix>]-patch.7z
+# Output: pkg/keeperfx-<maj>_<min>_<rel>_<build>[-<suffix>]-patch.7z (Windows)
+#         pkg/keeperfx-linux_<arch>-<maj>_<min>_<rel>_<build>[-<suffix>]-patch.tar.gz (Linux;
+#         configure with -DKFX_DECK_BUNDLE=ON so the archive carries its libraries)
 # ---------------------------------------------------------------------------
 
 set(CPACK_PACKAGE_NAME      "keeperfx")
@@ -29,13 +31,20 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${VER_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${VER_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${VER_RELEASE}")
 
-# Archive filename keeperfx-<maj>_<min>_<rel>_<build>[-<suffix>]-patch
+# Archive filename keeperfx[-linux_<arch>]-<maj>_<min>_<rel>_<build>[-<suffix>]-patch
+# Linux archives carry the platform in the name so they never collide with the
+# Windows .7z of the same build.
+if(WIN32 OR MINGW OR CMAKE_CROSSCOMPILING OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(_kfx_pkg_prefix "keeperfx")
+else()
+    set(_kfx_pkg_prefix "keeperfx-linux_${CMAKE_SYSTEM_PROCESSOR}")
+endif()
 if(PACKAGE_SUFFIX AND NOT "${PACKAGE_SUFFIX}" STREQUAL "")
     set(CPACK_PACKAGE_FILE_NAME
-        "keeperfx-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}-${PACKAGE_SUFFIX}-patch")
+        "${_kfx_pkg_prefix}-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}-${PACKAGE_SUFFIX}-patch")
 else()
     set(CPACK_PACKAGE_FILE_NAME
-        "keeperfx-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}-patch")
+        "${_kfx_pkg_prefix}-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}-patch")
 endif()
 
 # Place generated archives in the source-tree pkg/ directory

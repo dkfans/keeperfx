@@ -37,6 +37,9 @@
 #include "front_landview.h"
 #include "frontmenu_ingame_evnt.h"
 #include "thing_data.h"
+#include "thing_effects.h"
+#include "thing_creature.h"
+#include "config_textures.h"
 #include "thing_list.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
@@ -78,8 +81,9 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
-    if (thing_is_invalid(thing))
+    if ((thing == NULL) || (thing == INVALID_THING)) {
         return;
+    }
 
     // Apply sound volume setting to current sound's loudness level
     SoundVolume volume_scale = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
@@ -130,6 +134,21 @@ void play_user_sample(int user, SoundSmplTblID smptbl_idx)
     play_non_3d_sample(smptbl_idx);
 }
 
+TbBool is_local_action(PlayerNumber plyr_idx, int user)
+{
+    if (user == NO_USER) {
+        return is_my_player_number(plyr_idx);
+    }
+    return is_local_user(user);
+}
+
+void play_action_sample(PlayerNumber plyr_idx, int user, SoundSmplTblID smptbl_idx)
+{
+    if (is_local_action(plyr_idx, user)) {
+        play_non_3d_sample(smptbl_idx);
+    }
+}
+
 void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID smptbl_idx)
 {
     if (SoundDisabled)
@@ -154,9 +173,13 @@ void play_creature_footstep(struct Thing *thing, SoundVolume loudness)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     const int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
+    unsigned char tileset = path_tileset_id(thing);
     SoundSmplTblID smpl_idx;
-    if (flag_is_set(thing->movement_flags, TMvF_IsOnSnow)) {
-        smpl_idx = snd_foot_snow + smpl_variant;
+    unsigned short foot_snd = tileset_footstep_snd[tileset];
+    if ((tileset != 0) && (foot_snd != 0)) {
+        int count = tileset_footstep_cnt[tileset];
+        int variant = (count > 1) ? smpl_variant % count : 0;
+        smpl_idx = foot_snd + variant;
     } else {
         smpl_idx = creature_sound_unified_id(crsound, smpl_variant);
     }

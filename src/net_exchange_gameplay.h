@@ -33,9 +33,11 @@ extern int32_t multiplayer_speed_adjustment_ns;
 // PACKET_HISTORY_SIZE affects how far apart two users' turns can be (if they divert too far then there's no easy recovering). It should be set as high as possible while still being safe to send, so less than 1300 bytes at once.
 #define PACKET_HISTORY_SIZE 40
 #define GAMEPLAY_CHAT_QUEUE_LEN 16
+#define GAMEPLAY_CHAT_HISTORY_SIZE 64
 
 struct QueuedGameplayChat {
     NetUserId user;
+    GameTurn turn;
     MapCoord cursor_x;
     MapCoord cursor_y;
     char message[PLAYER_MP_MESSAGE_LEN];
@@ -55,6 +57,9 @@ TbError process_network_unpause_message(NetUserId source, size_t buffer_size);
 TbError process_network_turn_sync_message(NetUserId source, const char *buffer, size_t buffer_size);
 void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
 void queue_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
+TbBool send_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
+void receive_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y, GameTurn turn);
+const struct QueuedGameplayChat *find_gameplay_chat(NetUserId user, GameTurn turn);
 void load_gameplay_chat_messages(const struct QueuedGameplayChat *messages, int32_t count);
 void process_queued_chat_messages(void);
 TbBool is_waiting_on_user_packets(NetUserId user);

@@ -121,6 +121,10 @@ long border_tags_to_current(int32_t *border_pt, long border_len)
 
 TbBool is_current_tag(long tag_id)
 {
+    // Triangle edges without a neighbour have tag -1; treat them as visited
+    // instead of reading the byte before the array
+    if (tag_id < 0)
+        return true;
     return (tag_current == Tags[tag_id]);
 }
 

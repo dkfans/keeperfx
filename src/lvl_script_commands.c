@@ -437,26 +437,6 @@ const struct NamedCommand orientation_desc[] = {
   {NULL, 0}
 };
 
-const struct NamedCommand texture_pack_desc[] = {
-  {"NONE",         0},
-  {"STANDARD",     1},
-  {"ANCIENT",      2},
-  {"WINTER",       3},
-  {"SNAKE_KEY",    4},
-  {"STONE_FACE",   5},
-  {"VOLUPTUOUS",   6},
-  {"BIG_BREASTS",  6},
-  {"ROUGH_ANCIENT",7},
-  {"SKULL_RELIEF", 8},
-  {"DESERT_TOMB",  9},
-  {"GYPSUM",       10},
-  {"LILAC_STONE",  11},
-  {"SWAMP_SERPENT",12},
-  {"LAVA_CAVERN",  13},
-  {"LATERITE_CAVERN",14},
-  {NULL,           0},
-};
-
 ThingModel parse_creature_name(const char *creature_name)
 {
     ThingModel ret = get_rid(creature_desc, creature_name);
@@ -4408,6 +4388,7 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     PlayerNumber caster_player = scline->np[2];
     const char* pwr_name = scline->tp[3];
     short pwr_id = get_rid(power_desc, pwr_name);
+    struct PowerConfigStats* powerst = get_power_model_stats(pwr_id);
     KeepPwrLevel power_level = scline->np[4];
     short free = scline->np[5];
     if (free == -1)
@@ -4431,38 +4412,21 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
         SCRPTERRLOG("Invalid power: %s", pwr_name);
         DEALLOCATE_SCRIPT_VALUE
     }
-    switch (pwr_id)
+    if ((powerst->can_cast_flags & PwCast_AllCrtrs) == 0)
     {
-    case PwrK_HEALCRTR:
-    case PwrK_SPEEDCRTR:
-    case PwrK_PROTECT:
-    case PwrK_REBOUND:
-    case PwrK_CONCEAL:
-    case PwrK_DISEASE:
-    case PwrK_CHICKEN:
-    case PwrK_FREEZE:
-    case PwrK_SLOW:
-    case PwrK_FLIGHT:
-    case PwrK_VISION:
-    case PwrK_CALL2ARMS:
-    case PwrK_LIGHTNING:
-    case PwrK_CAVEIN:
-    case PwrK_SIGHT:
-    case PwrK_TIMEBOMB:
+        SCRPTERRLOG("Power %s cannot be cast on a Creature", power_code_name(pwr_id));
+        DEALLOCATE_SCRIPT_VALUE
+    }
+    if (powerst->overcharge_check_idx != OcC_do_not_expand)
+    {
         if ((power_level < 1) || (power_level > MAGIC_OVERCHARGE_LEVELS))
         {
             SCRPTERRLOG("Power %s level %d out of range. Acceptible values are %d~%d", pwr_name, power_level, 1, MAGIC_OVERCHARGE_LEVELS);
             DEALLOCATE_SCRIPT_VALUE
         }
         power_level--; // transform human 1~9 range into computer 0~8 range
-        break;
-    case PwrK_SLAP:
-    case PwrK_MKDIGGER:
-        break;
-    default:
-        SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwr_id));
-        DEALLOCATE_SCRIPT_VALUE
     }
+
     value->shorts[1] = crtr_id;
     value->shorts[2] = pwr_id;
     value->shorts[3] = power_level;

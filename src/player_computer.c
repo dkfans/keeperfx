@@ -1422,7 +1422,7 @@ TbBool process_checks(struct Computer2 *comp)
             break;
         if ((ccheck->flags & ComChk_Unkn0001) == 0)
         {
-            long delta = (get_gameturn() - ccheck->last_run_turn);
+            GameTurnDelta delta = (GameTurnDelta)get_gameturn() - (GameTurnDelta)ccheck->last_run_turn;
             if ((delta > ccheck->turns_interval) && (computer_check_func_list[ccheck->func] != NULL))
             {
                 SYNCDBG(8,"Executing check %ld, \"%s\"",i,ccheck->name);

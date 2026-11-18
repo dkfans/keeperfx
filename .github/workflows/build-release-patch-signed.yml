@@ -11,6 +11,14 @@ jobs:
     if: github.repository == 'dkfans/keeperfx'
     uses: ./.github/workflows/build-release-patch-unsigned.yml
 
+  call-release-linux-patch-build:
+
+    name: Trigger Release Linux Patch Build
+    if: github.repository == 'dkfans/keeperfx'
+    uses: ./.github/workflows/build-linux-patch.yml
+    with:
+      package-suffix: ''
+
   sign-release-patch-artifact:
 
     name: "Sign Release Patch"

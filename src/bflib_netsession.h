@@ -34,7 +34,7 @@ extern "C" {
 #define SESSION_NAME_MAX_LEN     128
 #define SESSION_LOBBY_ID_MAX_LEN  64
 #define NETSP_PLAYER_NAME_MAX_LEN  32
-#define SESSION_HUMANS_MAX 4
+#define SESSION_HUMANS_MAX 8
 #define SESSION_METADATA_MAX 2048
 
 enum NetJoinRejection {

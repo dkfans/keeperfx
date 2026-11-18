@@ -17,6 +17,8 @@ jobs:
       with:
         fetch-depth: 0
 
+    - uses: ./.github/actions/prepare-official-build
+
     - uses: dkfans/setup-cpp@master
 
     - name: Update system
@@ -74,6 +76,8 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
+    - uses: ./.github/actions/prepare-official-build
 
     - name: Update system
       run: |

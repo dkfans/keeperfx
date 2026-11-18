@@ -23,8 +23,11 @@ if(KFX_DECK_BUNDLE)
         message(FATAL_ERROR "KFX_DECK_BUNDLE requires 'patchelf' (apt install patchelf)")
     endif()
 
-    # The installed binary finds its bundled libraries in ./lib next to itself.
+    # The installed binaries find their bundled libraries in ./lib next to them.
     set_target_properties(keeperfx PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
+    if(TARGET keeperfx_hvlog)
+        set_target_properties(keeperfx_hvlog PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
+    endif()
 
     # The heavy lifting (dependency resolution + copy + rpath) runs at install
     # time, when the built binary exists, via a configured script.

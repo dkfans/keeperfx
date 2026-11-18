@@ -74,6 +74,7 @@ TbBool load_stats_files(void)
     load_config(&keeper_objects_file_data,      CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_trapdoor_file_data,     CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_effects_file_data,      CnfLd_Standard|CnfLd_PreListed);
+    load_config(&keeper_tileset_file_data,      CnfLd_Standard);
     load_config(&keeper_lenses_file_data,       CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_magic_file_data,        CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_creaturetp_file_data,   CnfLd_Standard|CnfLd_PreListed);
@@ -234,7 +235,10 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     {
         manage_efficiency += 40 * compute_dungeon_creature_tactics_score(dungeon->battles_won, dungeon->battles_lost,
             dungeon->creatures_scavenge_gain, dungeon->creatures_scavenge_lost);
-        max_manage_efficiency += 40 * compute_dungeon_creature_tactics_score(INT32_MAX, INT32_MAX, INT32_MAX, INT32_MAX);
+        // The tactics score adds nothing to the maximum. It used to be computed from INT32_MAX
+        // arguments: their differences are 0 and their sum overflowed where long is 32 bits,
+        // but not where it is 64 bits, so the maximum (and from it the entrance generation
+        // speed) differed between platforms. Keep the value the 32-bit builds always had.
     }
     {
         // Compute amount of different types of rooms built

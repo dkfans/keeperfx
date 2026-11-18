@@ -472,7 +472,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
         return CProcRet_Wait;
     }
     int trn_mul = cproc->process_configuration_value_2;
-    long turns = get_gameturn() - (GameTurnDelta)cproc->process_parameter_2;
+    GameTurnDelta turns = (GameTurnDelta)get_gameturn() - (GameTurnDelta)cproc->process_parameter_2;
     if (turns >= trn_mul)
         turns = trn_mul;
     int trn_div = neutral_entrances - entr_count;

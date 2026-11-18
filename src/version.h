@@ -30,8 +30,9 @@
 /* Version definitions */
 #include "ver_defs.h"
 /* Program name, copyrights and file names */
-#define PROGRAM_NAME      "Dungeon Keeper FX"
-#define PROGRAM_FULL_NAME "KeeperFX"
+/* These are marked as unofficial by default, if built from the dkfans repository, the tag will be removed by the build system */
+#define PROGRAM_NAME      "Dungeon Keeper FX - Unofficial"
+#define PROGRAM_FULL_NAME "KeeperFX - Unofficial"
 #define COMPANY_NAME      "Fan community"
 #define INTERNAL_NAME     "keeperfx"
 #define LEGAL_COPYRIGHT   "Open Source"

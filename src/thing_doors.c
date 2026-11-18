@@ -813,7 +813,7 @@ void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord s
                 return;
             }
         }
-        success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
+        success = player_place_door_without_check_at(stl_x, stl_y, plyridx, NO_USER, doorkind, free);
         if (success)
         {
             delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
