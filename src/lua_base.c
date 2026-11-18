@@ -25,6 +25,7 @@
 #include "config_objects.h"
 #include "config_trapdoor.h"
 #include "config_crtrstates.h"
+#include "config_textures.h"
 
 #include "post_inc.h"
 
@@ -743,9 +744,10 @@ void generate_lua_types_file()
             if (desc[i].name[0] != '\0') ++count;       \
         }                                               \
         fprintf(out, "---@alias %s ", alias_name);      \
-        if (count >= 90) {                              \
+        if (strcmp(alias_name, "texture_pack") == 0)    \
+            fprintf(out, "integer|");                   \
+        else if (count >= 90)                           \
             fprintf(out, "string|");                    \
-        }                                               \
         int written = 0;                                \
         for (int i = 0; desc[i].name != NULL; ++i) {    \
             if (desc[i].name[0] == '\0') continue;      \
@@ -778,6 +780,7 @@ void generate_lua_types_file()
     GENERATE_ALIAS("effect_type", effect_desc);
     GENERATE_ALIAS("spell_type", spell_desc);
     GENERATE_ALIAS("slab_type", slab_desc);
+    GENERATE_ALIAS("texture_pack", texture_pack_desc);
     GENERATE_ALIAS("creature_state", creatrstate_desc);
     GENERATE_ALIAS("shot_type", shot_desc);
     fprintf(out, "\n");

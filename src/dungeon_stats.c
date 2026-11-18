@@ -74,6 +74,7 @@ TbBool load_stats_files(void)
     load_config(&keeper_objects_file_data,      CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_trapdoor_file_data,     CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_effects_file_data,      CnfLd_Standard|CnfLd_PreListed);
+    load_config(&keeper_tileset_file_data,      CnfLd_Standard);
     load_config(&keeper_lenses_file_data,       CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_magic_file_data,        CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_creaturetp_file_data,   CnfLd_Standard|CnfLd_PreListed);

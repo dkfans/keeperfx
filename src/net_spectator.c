@@ -4,6 +4,8 @@
 
 #include "bflib_datetm.h"
 #include "bflib_inputctrl.h"
+#include "bflib_sound.h"
+#include "config_sounds.h"
 #include "config_strings.h"
 #include "game_legacy.h"
 #include "front_network.h"
@@ -145,6 +147,12 @@ static void spectator_message_add(int32_t icon, const char *text)
     message_add(MsgType_Spectator, sprite, text);
 }
 
+void show_spectator_chat_message(NetUserId sender, int32_t icon, const char *message)
+{
+    spectator_message_add(icon, message);
+    play_non_3d_sample(snd_chat_message[sender == netstate.my_id]);
+}
+
 TbError process_network_spectator_notice(NetUserId source, const char *buffer, size_t size)
 {
     if (source != SERVER_ID || size < 4 || size > 2 + sizeof(netstate.users[0].name)
@@ -209,7 +217,7 @@ TbError process_network_spectator_chat(NetUserId source, const char *buffer, siz
         }
         icon = netstate.users[source].spectator_icon;
         netstate.msg_buffer[2] = icon;
-        uint64_t recipients = ALL_NET_CONNECTIONS_MASK & ~ALL_NET_USERS_MASK;
+        uint64_t recipients = ALL_NET_CONNECTIONS_MASK & ~ALL_NET_USERS_MASK & ~(UINT64_C(1) << source);
         if (net_config_info.spectator_chat) {
             recipients |= ALL_NET_USERS_MASK;
         }
@@ -221,7 +229,7 @@ TbError process_network_spectator_chat(NetUserId source, const char *buffer, siz
         return Lb_OK;
     }
     if (!network_is_host() || net_config_info.spectator_chat) {
-        spectator_message_add(icon, message);
+        show_spectator_chat_message(sender, icon, message);
     }
     return Lb_OK;
 }
@@ -465,6 +473,7 @@ TbError process_network_spectator_ready(NetUserId source, const char *buffer, si
         user->spectator_state = NetSpectator_SnapshotPending;
         memcpy(user->seat_prefs, buffer, sizeof(user->seat_prefs));
         assign_spectator_icon(source);
+        SendUserUpdate(source, source);
         user->seat_user = find_reconnecting_user(user);
         user->seat_requested = user->seat_user != INVALID_USER_ID;
     }

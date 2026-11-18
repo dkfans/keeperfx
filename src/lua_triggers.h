@@ -27,7 +27,7 @@ extern "C" {
 struct Thing;
 struct Room;
 
-void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg);
+void lua_on_chatmsg(PlayerNumber plyr_idx, const char *msg);
 void lua_on_game_start();
 void lua_on_game_tick();
 void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing);

@@ -174,6 +174,71 @@ TbError process_network_unpause_message(NetUserId source, size_t buffer_size)
 
 static struct QueuedGameplayChat gameplay_chat_queue[GAMEPLAY_CHAT_QUEUE_LEN];
 static int32_t gameplay_chat_queue_count;
+static struct QueuedGameplayChat gameplay_chat_history[MAX_NET_USERS][GAMEPLAY_CHAT_HISTORY_SIZE];
+
+static void show_gameplay_chat_message(NetUserId user, const char *text, TbBool local)
+{
+    char message_type = MsgType_Local;
+    if (!local && (network_is_active() || (game.game_kind == GKind_MultiGame))) {
+        message_type = MsgType_Player;
+    }
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
+    message_add(message_type, plyr_idx, text);
+    if (count_player_users(plyr_idx) > 1) {
+        game.messages[0].archon_digit = min(get_user_archon_index(user) + 1, 9);
+    }
+    play_non_3d_sample(snd_chat_message[user == get_local_user()]);
+}
+
+static TbBool run_chat_command(NetUserId user, const char *text, MapCoord cursor_x, MapCoord cursor_y, TbBool issued_here)
+{
+    char command[PLAYER_MP_MESSAGE_LEN];
+    copy_chat_message(command, text);
+    const enum ConsoleCommandResult result = cmd_exec(get_net_user_player_number(user), command + 1, cursor_x, cursor_y, issued_here);
+    if (((result == CmdR_Succeeded) || (result == CmdR_SucceededLocally)) && network_is_active()) {
+        show_gameplay_chat_message(user, text, result == CmdR_SucceededLocally);
+    }
+    return result != CmdR_Unrecognised;
+}
+
+const struct QueuedGameplayChat *find_gameplay_chat(NetUserId user, GameTurn turn)
+{
+    const struct QueuedGameplayChat *chat = &gameplay_chat_history[user][turn % GAMEPLAY_CHAT_HISTORY_SIZE];
+    if ((chat->turn != turn) || (chat->message[0] == '\0')) {
+        return NULL;
+    }
+    return chat;
+}
+
+void receive_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y, GameTurn turn)
+{
+    if ((user < 0) || (user >= MAX_NET_USERS)) {
+        return;
+    }
+    struct QueuedGameplayChat *chat = &gameplay_chat_history[user][turn % GAMEPLAY_CHAT_HISTORY_SIZE];
+    *chat = (struct QueuedGameplayChat){.user = user, .turn = turn, .cursor_x = cursor_x, .cursor_y = cursor_y};
+    copy_chat_message(chat->message, message);
+    if ((message[0] != cmd_char) || !cmd_is_synced(message + 1)) {
+        show_gameplay_chat_message(user, chat->message, false);
+    }
+}
+
+TbBool send_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y)
+{
+    if ((message[0] == '\0') || ((message[0] == cmd_char) && !cmd_is_synced(message + 1) && run_chat_command(user, message, cursor_x, cursor_y, true))) {
+        return true;
+    }
+    GameTurn turn = get_gameturn();
+    while ((find_gameplay_chat(user, turn) != NULL) || (get_history_packet(user, turn) != NULL)) {
+        turn++;
+    }
+    if ((GameTurnDelta)(turn - get_gameturn()) >= GAMEPLAY_CHAT_HISTORY_SIZE - 2 * MAXIMUM_INPUT_LAG_TURNS) {
+        return false;
+    }
+    send_network_chat_message_at(user, message, cursor_x, cursor_y, turn);
+    receive_gameplay_chat_message(user, message, cursor_x, cursor_y, turn);
+    return true;
+}
 
 void queue_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y)
 {
@@ -210,37 +275,13 @@ void process_queued_chat_messages(void)
 
 void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y)
 {
-    if (message[0] != '\0')
-        replay_record_chat_message(user, message, cursor_x, cursor_y);
-    PlayerNumber plyr_idx = get_net_user_player_number(user);
-    struct UserState *ustate = get_user_state(user);
-    if (!user_state_invalid(ustate))
-        ustate->init_flags &= ~UsrIF_NewMPMessage;
-    if (message[0] != '\0') {
-        char text[PLAYER_MP_MESSAGE_LEN];
-        copy_chat_message(text, message);
-        lua_on_chatmsg(plyr_idx, text);
-        TbBool shown = true;
-        char message_type = MsgType_Local;
-        if (network_is_active() || (game.game_kind == GKind_MultiGame)) {
-            message_type = MsgType_Player;
-        }
-        if (text[0] == cmd_char) {
-            const TbBool issued_here = (user == get_local_user()) && !replay.load_enable;
-            const enum ConsoleCommandResult result = cmd_exec(plyr_idx, text + 1, cursor_x, cursor_y, issued_here);
-            const TbBool succeeded = (result == CmdR_Succeeded) || (result == CmdR_SucceededLocally);
-            shown = (result == CmdR_Unrecognised) || (succeeded && network_is_active());
-            if (result == CmdR_SucceededLocally) {
-                message_type = MsgType_Local;
-            }
-        }
-        if (shown) {
-            message_add(message_type, plyr_idx, text);
-            if (count_player_users(plyr_idx) > 1) {
-                game.messages[0].archon_digit = min(get_user_archon_index(user) + 1, 9);
-            }
-            play_non_3d_sample(snd_chat_message[user == get_local_user()]);
-        }
+    replay_record_chat_message(user, message, cursor_x, cursor_y);
+    lua_on_chatmsg(get_net_user_player_number(user), message);
+    if ((message[0] == cmd_char) && run_chat_command(user, message, cursor_x, cursor_y, (user == get_local_user()) && !replay.load_enable)) {
+        return;
+    }
+    if (!network_is_active() || network_user_is_spectator(netstate.my_id)) {
+        show_gameplay_chat_message(user, message, false);
     }
 }
 
@@ -269,7 +310,7 @@ TbError process_network_turn_sync_message(NetUserId source, const char *buffer, 
 
 void store_packet_history(NetUserId user, const struct Packet *packet)
 {
-    if (user < 0 || user >= MAX_NET_USERS || is_packet_empty(packet)) {
+    if (user < 0 || user >= MAX_NET_USERS || is_packet_empty(packet) || (flag_is_set(packet->control_flags, PCtr_ChatMessage) && (find_gameplay_chat(user, packet->turn) == NULL))) {
         return;
     }
     struct Packet *entry = &packet_history[user].entries[packet->turn % PACKET_HISTORY_SIZE];
@@ -368,6 +409,7 @@ TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t b
 void initialize_packet_history(void)
 {
     gameplay_chat_queue_count = 0;
+    memset(gameplay_chat_history, 0, sizeof(gameplay_chat_history));
     memset(packet_history, 0, sizeof(packet_history));
     server_turn_received_at = 0;
     server_turn_position_ns = 0;

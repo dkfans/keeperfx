@@ -337,7 +337,7 @@ extern const struct NamedCommand variable_desc[];
 extern const struct NamedCommand dk1_variable_desc[];
 extern const struct NamedCommand fill_desc[];
 extern const struct NamedCommand set_door_desc[];
-extern const struct NamedCommand texture_pack_desc[];
+extern struct NamedCommand texture_pack_desc[];
 extern const struct NamedCommand locked_desc[];
 
 ThingModel parse_creature_name(const char *creature_name);
