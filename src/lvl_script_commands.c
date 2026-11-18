@@ -3663,17 +3663,17 @@ static void set_creature_property_check(const struct ScriptLine* scline)
 }
 static void set_creature_property_process(struct ScriptContext* context)
 {
-    ThingModel param1 = context->value->shorts[1];
-    int32_t param2 = context->value->longs[1];
-    TbBool param3 = context->value->chars[1];
-    struct CreatureModelConfig* crconf = creature_stats_get(param1);
-    switch (param2)
+    ThingModel creature = context->value->shorts[1];
+    int32_t Property = context->value->longs[1];
+    TbBool enable = context->value->chars[1];
+    struct CreatureModelConfig* crconf = creature_stats_get(creature);
+    switch (Property)
     {
     case 1: // BLEEDS
-        crconf->bleeds = param3;
+        crconf->bleeds = enable;
         break;
     case 2: // UNAFFECTED_BY_WIND
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->immunity_flags, CSAfF_Wind);
         }
@@ -3683,7 +3683,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 3: // IMMUNE_TO_GAS
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
         }
@@ -3693,22 +3693,22 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 4: // HUMANOID_SKELETON
-        crconf->humanoid_creature = param3;
+        crconf->humanoid_creature = enable;
         break;
     case 5: // PISS_ON_DEAD
-        crconf->piss_on_dead = param3;
+        crconf->piss_on_dead = enable;
         break;
     case 7: // FLYING
-        crconf->flying = param3;
+        crconf->flying = enable;
         break;
     case 8: // SEE_INVISIBLE
-        crconf->can_see_invisible = param3;
+        crconf->can_see_invisible = enable;
         break;
     case 9: // PASS_LOCKED_DOORS
-        crconf->can_go_locked_doors = param3;
+        crconf->can_go_locked_doors = enable;
         break;
     case 10: // SPECIAL_DIGGER
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_IsSpecDigger);
         }
@@ -3720,7 +3720,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         update_creatr_model_activities_list(1);
         break;
     case 11: // ARACHNID
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_IsArachnid);
         }
@@ -3730,7 +3730,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 12: // DIPTERA
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_IsDiptera);
         }
@@ -3740,7 +3740,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 13: // LORD
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_IsLordOfLand);
         }
@@ -3750,7 +3750,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 14: // SPECTATOR
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_IsSpectator);
         }
@@ -3760,7 +3760,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 15: // EVIL
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_IsEvil);
         }
@@ -3770,7 +3770,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 16: // NEVER_CHICKENS
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->immunity_flags, CSAfF_Chicken);
         }
@@ -3780,7 +3780,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 17: // IMMUNE_TO_BOULDER
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_ImmuneToBoulder);
         }
@@ -3790,7 +3790,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 18: // NO_CORPSE_ROTTING
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_NoCorpseRotting);
         }
@@ -3800,7 +3800,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 19: // NO_ENMHEART_ATTCK
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_NoEnmHeartAttack);
         }
@@ -3810,7 +3810,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 20: // TREMBLING_FAT
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_Trembling);
             set_flag(crconf->model_flags, CMF_Fat);
@@ -3822,7 +3822,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 21: // FEMALE
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_Female);
         }
@@ -3832,7 +3832,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 22: // INSECT
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_Insect);
         }
@@ -3842,7 +3842,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 23: // ONE_OF_KIND
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_OneOfKind);
         }
@@ -3852,7 +3852,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 24: // NO_IMPRISONMENT
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_NoImprisonment);
         }
@@ -3862,7 +3862,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 25: // NEVER_SICK
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->immunity_flags, CSAfF_Disease);
         }
@@ -3872,13 +3872,13 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 26: // ILLUMINATED
-        crconf->illuminated = param3;
+        crconf->illuminated = enable;
         break;
     case 27: // ALLURING_SCVNGR
-        crconf->entrance_force = param3;
+        crconf->entrance_force = enable;
         break;
     case 28: // NO_RESURRECT
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_NoResurrect);
         }
@@ -3888,7 +3888,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 29: // NO_TRANSFER
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_NoTransfer);
         }
@@ -3898,7 +3898,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 30: // TREMBLING
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_Trembling);
         }
@@ -3908,7 +3908,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 31: // FAT
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_Fat);
         }
@@ -3918,7 +3918,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 32: // NO_STEAL_HERO
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_NoStealHero);
         }
@@ -3928,7 +3928,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 33: // PREFER_STEAL
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_PreferSteal);
         }
@@ -3938,7 +3938,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 34: // EVENTFUL_DEATH
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_EventfulDeath);
         }
@@ -3948,7 +3948,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 35: // DIGGING_CREATURE
-        if (param3 >= 1)
+        if (enable)
         {
             set_flag(crconf->model_flags, CMF_IsDiggingCreature);
         }
@@ -3960,7 +3960,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         update_creatr_model_activities_list(1);
         break;
     case 36: // NO_HEALTH_FLOWER
-        if (param3 >= 1) {
+        if (enable) {
             set_flag(crconf->model_flags, CMF_NoHealthFlower);
         }
         else {
@@ -3968,7 +3968,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 37: // CANNOT_PICK_UP
-        if (param3 >= 1) {
+        if (enable) {
             set_flag(crconf->model_flags, CMF_CannotPickUp);
         }
         else {
@@ -3976,7 +3976,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 38: // DROP_ON_PATH
-        if (param3 >= 1) {
+        if (enable) {
             set_flag(crconf->model_flags, CMF_DropOnPath);
         }
         else {
@@ -3984,7 +3984,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     case 39: // CANNOT_POSSESS
-        if (param3 >= 1) {
+        if (enable) {
             set_flag(crconf->model_flags, CMF_CannotPossess);
         }
         else {
@@ -3992,7 +3992,7 @@ static void set_creature_property_process(struct ScriptContext* context)
         }
         break;
     default:
-        SCRPTERRLOG("Unknown creature property '%d'", param2);
+        SCRPTERRLOG("Unknown creature property '%d'", Property);
         break;
     }
 }
