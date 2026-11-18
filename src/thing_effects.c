@@ -1142,6 +1142,11 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
         ERRORLOG("%s is trying to damage %s which is not a door",thing_model_name(tngsrc),thing_model_name(tngdst));
         return false;
     }
+    struct DoorConfigStats* doorst = get_door_model_stats(tngdst->model);
+    if (flag_is_set(doorst->model_flags, DoMF_Indestructible)) {
+        return false;
+    }
+
     if (line_of_sight_3d_ignoring_specific_door(&tngsrc->mappos, &tngdst->mappos,tngdst))
     {
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);

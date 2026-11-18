@@ -633,6 +633,12 @@ void set_creature_combat_door_state(struct Thing *creatng, struct Thing *obthing
 TbBool set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
 {
     SYNCDBG(8,"Starting");
+
+    struct DoorConfigStats* doorst = get_door_model_stats(obthing->model);
+    if (flag_is_set(doorst->model_flags,DoMF_Indestructible)) {
+        return false;
+    }
+
     if (!external_set_thing_state(creatng, CrSt_CreatureDoorCombat)) {
         SYNCDBG(8,"Cannot enter door combat");
         return false;
