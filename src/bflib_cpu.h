@@ -135,7 +135,8 @@ struct CPU_INFO {
   TbBool timeStampCounter;
   char vendor[17];
   TbBool BrandString;
-  char brand[48]; // 4 bytes * 4 register * 3 calls = 48
+  char brand[49]; // 48 CPUID bytes plus a NUL terminator
+  char architecture[17];
 };
 
 /******************************************************************************/

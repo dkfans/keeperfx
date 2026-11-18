@@ -58,6 +58,28 @@ void cpu_detect(struct CPU_INFO *cpu)
   cpu->timeStampCounter = 0;
   cpu->feature_intl = 0;
   cpu->feature_edx = 0;
+  cpu->BrandString = 0;
+  memset(cpu->brand, 0, sizeof(cpu->brand));
+  const char *arch =
+  #if (defined(__i386__))
+    "x86";
+  #elif defined(__x86_64__)
+    "x86_64";
+  #elif defined(__aarch64__) || defined(_M_ARM64)
+    "ARM64";
+  #elif defined(__arm__) || defined(_M_ARM)
+    "ARM";
+  #elif defined(__wasm__) || defined(__EMSCRIPTEN__)
+    "WebAssembly";
+  #elif defined(__riscv)
+    "RISC-V";
+  #elif defined(__powerpc64__) || defined(__powerpc__)
+    "PowerPC";
+  #else
+    "Unknown";
+  #endif
+  snprintf(cpu->architecture, sizeof(cpu->architecture), "%s", arch);
+  
   #if defined(__i386__) || defined(__x86_64__)
   {
     uint32_t where[4];
