@@ -258,6 +258,7 @@ void throw_out_gold(struct Thing* thing, long amount);
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 ThingModel get_random_appropriate_creature_kind(ThingModel original_model);
 struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level);
+unsigned char path_tileset_id(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
