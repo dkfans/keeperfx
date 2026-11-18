@@ -3645,6 +3645,358 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     check_and_auto_fix_stats();
 }
 
+static void set_creature_property_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    int32_t prop_id = get_rid(creatmodel_properties_commands, scline->tp[1]);
+    if (prop_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature property kind, \"%s\"", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[1] = scline->np[0];
+    value->longs[1] = prop_id;
+    value->chars[1] = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+static void set_creature_property_process(struct ScriptContext* context)
+{
+    ThingModel param1 = context->value->shorts[1];
+    int32_t param2 = context->value->longs[1];
+    TbBool param3 = context->value->chars[1];
+    struct CreatureModelConfig* crconf = creature_stats_get(param1);
+    switch (param2)
+    {
+    case 1: // BLEEDS
+        crconf->bleeds = param3;
+        break;
+    case 2: // UNAFFECTED_BY_WIND
+        if (param3 >= 1)
+        {
+            set_flag(crconf->immunity_flags, CSAfF_Wind);
+        }
+        else
+        {
+            clear_flag(crconf->immunity_flags, CSAfF_Wind);
+        }
+        break;
+    case 3: // IMMUNE_TO_GAS
+        if (param3 >= 1)
+        {
+            set_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
+        }
+        else
+        {
+            clear_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
+        }
+        break;
+    case 4: // HUMANOID_SKELETON
+        crconf->humanoid_creature = param3;
+        break;
+    case 5: // PISS_ON_DEAD
+        crconf->piss_on_dead = param3;
+        break;
+    case 7: // FLYING
+        crconf->flying = param3;
+        break;
+    case 8: // SEE_INVISIBLE
+        crconf->can_see_invisible = param3;
+        break;
+    case 9: // PASS_LOCKED_DOORS
+        crconf->can_go_locked_doors = param3;
+        break;
+    case 10: // SPECIAL_DIGGER
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_IsSpecDigger);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsSpecDigger);
+        }
+        recalculate_all_creature_digger_lists();
+        update_creatr_model_activities_list(1);
+        break;
+    case 11: // ARACHNID
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_IsArachnid);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsArachnid);
+        }
+        break;
+    case 12: // DIPTERA
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_IsDiptera);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsDiptera);
+        }
+        break;
+    case 13: // LORD
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_IsLordOfLand);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsLordOfLand);
+        }
+        break;
+    case 14: // SPECTATOR
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_IsSpectator);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsSpectator);
+        }
+        break;
+    case 15: // EVIL
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_IsEvil);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsEvil);
+        }
+        break;
+    case 16: // NEVER_CHICKENS
+        if (param3 >= 1)
+        {
+            set_flag(crconf->immunity_flags, CSAfF_Chicken);
+        }
+        else
+        {
+            clear_flag(crconf->immunity_flags, CSAfF_Chicken);
+        }
+        break;
+    case 17: // IMMUNE_TO_BOULDER
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_ImmuneToBoulder);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_ImmuneToBoulder);
+        }
+        break;
+    case 18: // NO_CORPSE_ROTTING
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_NoCorpseRotting);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoCorpseRotting);
+        }
+        break;
+    case 19: // NO_ENMHEART_ATTCK
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_NoEnmHeartAttack);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoEnmHeartAttack);
+        }
+        break;
+    case 20: // TREMBLING_FAT
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_Trembling);
+            set_flag(crconf->model_flags, CMF_Fat);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Trembling);
+            clear_flag(crconf->model_flags, CMF_Fat);
+        }
+        break;
+    case 21: // FEMALE
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_Female);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Female);
+        }
+        break;
+    case 22: // INSECT
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_Insect);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Insect);
+        }
+        break;
+    case 23: // ONE_OF_KIND
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_OneOfKind);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_OneOfKind);
+        }
+        break;
+    case 24: // NO_IMPRISONMENT
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_NoImprisonment);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoImprisonment);
+        }
+        break;
+    case 25: // NEVER_SICK
+        if (param3 >= 1)
+        {
+            set_flag(crconf->immunity_flags, CSAfF_Disease);
+        }
+        else
+        {
+            clear_flag(crconf->immunity_flags, CSAfF_Disease);
+        }
+        break;
+    case 26: // ILLUMINATED
+        crconf->illuminated = param3;
+        break;
+    case 27: // ALLURING_SCVNGR
+        crconf->entrance_force = param3;
+        break;
+    case 28: // NO_RESURRECT
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_NoResurrect);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoResurrect);
+        }
+        break;
+    case 29: // NO_TRANSFER
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_NoTransfer);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoTransfer);
+        }
+        break;
+    case 30: // TREMBLING
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_Trembling);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Trembling);
+        }
+        break;
+    case 31: // FAT
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_Fat);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Fat);
+        }
+        break;
+    case 32: // NO_STEAL_HERO
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_NoStealHero);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoStealHero);
+        }
+        break;
+    case 33: // PREFER_STEAL
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_PreferSteal);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_PreferSteal);
+        }
+        break;
+    case 34: // EVENTFUL_DEATH
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_EventfulDeath);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_EventfulDeath);
+        }
+        break;
+    case 35: // DIGGING_CREATURE
+        if (param3 >= 1)
+        {
+            set_flag(crconf->model_flags, CMF_IsDiggingCreature);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsDiggingCreature);
+        }
+        recalculate_all_creature_digger_lists();
+        update_creatr_model_activities_list(1);
+        break;
+    case 36: // NO_HEALTH_FLOWER
+        if (param3 >= 1) {
+            set_flag(crconf->model_flags, CMF_NoHealthFlower);
+        }
+        else {
+            clear_flag(crconf->model_flags, CMF_NoHealthFlower);
+        }
+        break;
+    case 37: // CANNOT_PICK_UP
+        if (param3 >= 1) {
+            set_flag(crconf->model_flags, CMF_CannotPickUp);
+        }
+        else {
+            clear_flag(crconf->model_flags, CMF_CannotPickUp);
+        }
+        break;
+    case 38: // DROP_ON_PATH
+        if (param3 >= 1) {
+            set_flag(crconf->model_flags, CMF_DropOnPath);
+        }
+        else {
+            clear_flag(crconf->model_flags, CMF_DropOnPath);
+        }
+        break;
+    case 39: // CANNOT_POSSESS
+        if (param3 >= 1) {
+            set_flag(crconf->model_flags, CMF_CannotPossess);
+        }
+        else {
+            clear_flag(crconf->model_flags, CMF_CannotPossess);
+        }
+        break;
+    default:
+        SCRPTERRLOG("Unknown creature property '%d'", param2);
+        break;
+    }
+}
+
 static void set_object_configuration_process(struct ScriptContext *context)
 {
     set_config_process(&objects_named_fields_set, context,"SET_OBJECT_CONFIGURATION");
@@ -7063,7 +7415,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_FEAR_WOUNDED",         "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
   {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER, NULL, NULL},
   {"SET_CREATURE_FEARSOME_FACTOR",      "CN      ", Cmd_SET_CREATURE_FEARSOME_FACTOR, NULL, NULL},
-  {"SET_CREATURE_PROPERTY",             "CAB     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
+  {"SET_CREATURE_PROPERTY",             "CAB     ", Cmd_SET_CREATURE_PROPERTY, &set_creature_property_check, &set_creature_property_process},
   {"IF_AVAILABLE",                      "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"IF_CONTROLS",                       "PAOAa   ", Cmd_IF_CONTROLS,  &if_controls_check, NULL},
   {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
