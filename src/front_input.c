@@ -457,13 +457,13 @@ static short get_players_message_inputs(void)
             if (text[0] != '\0') {
                 message_add(MsgType_Local, player->id_number, text);
             }
-        } else {
-            if (network_is_active()) {
-                send_network_chat_message_at(get_local_user(), text, cursor_x, cursor_y);
-            }
-            if (!observer_is_active()) {
-                queue_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y);
-            }
+        } else if (!network_is_active() && (text[0] != '\0')) {
+            queue_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y);
+        } else if (observer_is_active() && (text[0] != '\0')) {
+            send_network_chat_message(get_local_user(), text);
+            show_spectator_chat_message(get_local_user(), netstate.users[get_local_user()].spectator_icon, text);
+        } else if (!send_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y)) {
+            return result;
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
         memset(local_state.mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);

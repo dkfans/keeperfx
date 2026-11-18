@@ -112,6 +112,8 @@ void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     write_pos += strlen(netstate.users[updated_user].name) + 1;
     memcpy(write_pos, &netstate.users[updated_user].version, sizeof(netstate.users[updated_user].version));
     write_pos += sizeof(netstate.users[updated_user].version);
+    *write_pos = netstate.users[updated_user].spectator_icon;
+    write_pos += 1;
     send_message_buffer(dest, write_pos);
 }
 

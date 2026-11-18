@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 #define INPUT_LAG_SETTLE_TURNS 50
-#define INPUT_LAG_UNDROPPABLE_CONTROLS (PCtr_LBtnClick | PCtr_RBtnClick | PCtr_LBtnRelease | PCtr_RBtnRelease | PCtr_ViewTiltReset)
+#define INPUT_LAG_UNDROPPABLE_CONTROLS (PCtr_LBtnClick | PCtr_RBtnClick | PCtr_LBtnRelease | PCtr_RBtnRelease | PCtr_ViewTiltReset | PCtr_ChatMessage)
 
 static GameTurn input_lag_sent_turns[PACKET_HISTORY_SIZE];
 static TbClockMSec input_lag_sent_times[PACKET_HISTORY_SIZE];

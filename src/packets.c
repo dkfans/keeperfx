@@ -1553,6 +1553,10 @@ static void load_old_packets(void)
         const struct Packet *packet = get_history_packet(i, historical_turn);
         if (packet != NULL) {
             game.packets[i] = *packet;
+            const struct QueuedGameplayChat *chat = find_gameplay_chat(i, packet->turn);
+            if (flag_is_set(packet->control_flags, PCtr_ChatMessage) && (chat != NULL)) {
+                queue_gameplay_chat_message(chat->user, chat->message, chat->cursor_x, chat->cursor_y);
+            }
             if (i <= 1) {
                 if (is_packet_empty(&game.packets[i])) {
                     MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] is EMPTY", player_name);
@@ -1608,6 +1612,7 @@ enum PacketExchangeResult exchange_packets(void)
     update_dig_tag_input();
     if (!replay.load_enable && !spectator) {
         set_pending_timestamp_packet_action(get_local_packet());
+        set_flag_value(my_packet->control_flags, PCtr_ChatMessage, find_gameplay_chat(local_user, my_packet->turn) != NULL);
         camera_packet_set_state(get_local_packet());
         set_packet_possession_target(get_local_packet());
         observer_set_packet_cursor(get_local_packet());
