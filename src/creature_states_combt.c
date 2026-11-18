@@ -3346,7 +3346,8 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
             {
                 //Dropping a creature next to the door, means the player saw it. Call to Arms uses this too.
                 reveal_secret_door_to_player(doortng, thing->owner);
-                return doortng;
+                if (!flag_is_set(get_door_model_stats(doortng->model)->model_flags, DoMF_Indestructible))
+                    return doortng;
             }
         }
         m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
