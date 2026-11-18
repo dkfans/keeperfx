@@ -136,6 +136,7 @@ struct CPU_INFO {
   char vendor[17];
   TbBool BrandString;
   char brand[48]; // 4 bytes * 4 register * 3 calls = 48
+  char architecture[17];
 };
 
 /******************************************************************************/
