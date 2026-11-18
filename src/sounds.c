@@ -178,7 +178,7 @@ void play_creature_footstep(struct Thing *thing, SoundVolume loudness)
     unsigned short foot_snd = tileset_footstep_snd[tileset];
     if ((tileset != 0) && (foot_snd != 0)) {
         int count = tileset_footstep_cnt[tileset];
-        int variant = (count > 1) ? smpl_variant % count : smpl_variant;
+        int variant = (count > 1) ? smpl_variant % count : 0;
         smpl_idx = foot_snd + variant;
     } else {
         smpl_idx = creature_sound_unified_id(crsound, smpl_variant);
