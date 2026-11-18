@@ -463,7 +463,7 @@ TbBool init_sound(void)
     snd_settng->dir3 = sound_dir;
     snd_settng->sound_buffer_enable = 1;
     snd_settng->stereo = 1;
-    snd_settng->max_number_of_samples = 100;
+    snd_settng->max_number_of_samples = (unsigned char)get_max_sound_voices();
     snd_settng->danger_music = 0;
     snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;

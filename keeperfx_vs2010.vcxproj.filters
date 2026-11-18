@@ -638,6 +638,7 @@
     <ClInclude Include="src\kfx\audio\AudioLog.h" />
     <ClInclude Include="src\kfx\audio\Commands.h" />
     <ClInclude Include="src\kfx\audio\SoundInternal.h" />
+    <ClInclude Include="src\kfx\audio\SoftLimiter.h" />
     <ClInclude Include="src\kfx\audio\SpscRing.h" />
     <ClInclude Include="src\kfx\audio\StreamConfig.h" />
     <ClInclude Include="src\kfx\audio\StreamConverter.h" />

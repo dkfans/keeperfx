@@ -4,6 +4,7 @@
 #include "bflib_basics.h"
 #include "AudioLog.h"
 #include "StreamConfig.h"
+#include "SoftLimiter.h"
 #include "sounds.h" // FULL_LOUDNESS, NORMAL_PITCH
 #include <algorithm>
 #include <cmath>
@@ -250,10 +251,11 @@ void AudioCallback::render(SDL_AudioStream * stream, int additional_amount) {
             scratch_.resize(samples);
         }
         render_samples_(loopback_device_, scratch_.data(), static_cast<ALCsizei>(frames));
-        if (streams_ && streams_->mix_into(scratch_.data(), frames)) {
-            for (size_t i = 0; i < samples; ++i) {
-                scratch_[i] = std::clamp(scratch_[i], -1.0f, 1.0f);
-            }
+        if (streams_) {
+            streams_->mix_into(scratch_.data(), frames);
+        }
+        for (size_t i = 0; i < samples; ++i) {
+            scratch_[i] = soft_limit(scratch_[i]);
         }
         SDL_PutAudioStreamData(stream, scratch_.data(), static_cast<int>(samples * sizeof(float)));
     }

@@ -205,7 +205,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		}
 		g_sdl_audio_subsystem_held = true;
 		// Makes the loopback context process-current; nothing else may change it.
-		if (!g_audio_callback.init(settings->max_number_of_samples, g_command_ring, g_event_ring, &kfx::audio::stream_pool())) {
+		if (!g_audio_callback.init(size_t(settings->max_number_of_samples) + kfx::audio::VOICE_SPARE, g_command_ring, g_event_ring, &kfx::audio::stream_pool())) {
 			throw std::runtime_error("Cannot open audio output");
 		}
 		kfx::audio::audio_stream_bind(&g_audio_callback);
@@ -222,7 +222,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			}
 		}
 #endif
-		g_voice_mirror.init(settings->max_number_of_samples);
+		g_voice_mirror.init(size_t(settings->max_number_of_samples) + kfx::audio::VOICE_SPARE);
 		g_voice_mirror.set_stack_policy_lookup(lookup_stack_policy);
 		g_voice_mirror.set_bb_king_mode(g_bb_king_mode);
 		// Must run after g_audio_callback.init(): buffers must live on the loopback context.

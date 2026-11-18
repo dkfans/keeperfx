@@ -28,6 +28,18 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define SOUNDS_MAX_COUNT  128
+#define SOUNDS_MIN_COUNT  16
+#define SOUNDS_DEFAULT_COUNT  100
+
+/** Clamps a requested simultaneous sound count to the supported range. */
+static inline long clamp_sound_count(long requested)
+{
+    if (requested < SOUNDS_MIN_COUNT)
+        return SOUNDS_MIN_COUNT;
+    if (requested > SOUNDS_MAX_COUNT)
+        return SOUNDS_MAX_COUNT;
+    return requested;
+}
 #define SOUND_EMITTERS_MAX 128
 /******************************************************************************/
 #pragma pack(1)

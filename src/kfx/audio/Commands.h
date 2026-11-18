@@ -31,8 +31,11 @@ constexpr size_t COMMAND_RING_CAPACITY = 1024;
 // At most one finish event per voice is outstanding, so this only has to exceed the voice count.
 constexpr size_t EVENT_RING_CAPACITY = 256;
 
-// Must match SOUNDS_MAX_COUNT in bflib_sound.h (the hard cap on voices).
-constexpr size_t MAX_VOICES = 128;
+// Extra voices beyond the game-layer limit. A sound the game layer evicts keeps its voice until its
+// fade-out finishes, so without spares the sound that replaced it would find the pool full and be dropped.
+constexpr size_t VOICE_SPARE = 8;
+// Game-layer cap (SOUNDS_MAX_COUNT in bflib_sound.h) plus the spares.
+constexpr size_t MAX_VOICES = 128 + VOICE_SPARE;
 static_assert(EVENT_RING_CAPACITY > MAX_VOICES, "event ring must exceed the voice cap");
 static_assert(COMMAND_RING_CAPACITY >= MAX_VOICES * 4, "command ring must hold start, volume, pan and pitch per voice");
 
