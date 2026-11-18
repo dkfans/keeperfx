@@ -183,7 +183,7 @@ long check_out_hero_has_money_for_treasure_room(struct Thing* thing)
         return 0;
     }
     // Find a treasure room to drop the money
-    room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
+    room = find_nearest_room_of_role_for_thing_with_spare_gold_capacity(thing, thing->owner, RoRoF_GoldStorage, NavRtF_Default);
     if (room_is_invalid(room))
     {
         return 0;

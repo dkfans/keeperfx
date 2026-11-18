@@ -55,11 +55,6 @@ void count_gold_slabs_full(struct Room *room)
     room->total_capacity = room->slabs_count * get_wealth_size_types_count();
 }
 
-void count_gold_slabs_div2(struct Room* room)
-{
-    room->total_capacity = room->slabs_count * get_wealth_size_types_count() / 2;
-}
-
 struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
@@ -147,6 +142,11 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
         drop_gold_pile(gold_gathered, &pos);
     }
     return hoardtng;
+}
+
+GoldAmount max_gold_amount_in_room(struct Room* room)
+{
+    return (room->total_capacity * game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count());
 }
 
 void count_gold_hoardes_in_room(struct Room *room)
