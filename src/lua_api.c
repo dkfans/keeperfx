@@ -764,7 +764,7 @@ static int lua_Display_message(lua_State *L)
     return 0;
 }
 
-static int lua_get_game_timestamp(lua_State *L)
+static int lua_Get_game_timestamp(lua_State *L)
 {
     struct TbDate date;
     struct TbTime time;
@@ -948,7 +948,7 @@ static int lua_Display_variable(lua_State *L)
 }
 
 
-static int lua_DISPLAY_VARIABLE_WITH_LABEL(lua_State *L)
+static int lua_Display_variable_with_label(lua_State *L)
 {
     PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
     int32_t varib_id, varib_type;
@@ -2694,7 +2694,7 @@ static long custom_buff_icon_arg(lua_State *L, int index)
     return id;
 }
 
-static int lua_set_custom_buff_icons(lua_State *L)
+static int lua_Set_custom_buff_icons(lua_State *L)
 {
     const char *name = luaL_checkstring(L, 1);
     long icons[32];
@@ -2779,9 +2779,9 @@ static const luaL_Reg global_methods[] = {
    {"QuickPlayerInformation"                ,lua_Quick_player_information               },
    {"QuickPlayerInformationWithPos"         ,lua_Quick_player_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
-   {"SetCustomBuffIcons"                    ,lua_set_custom_buff_icons           },
+   {"SetCustomBuffIcons"                    ,lua_Set_custom_buff_icons           },
    {"QuickMessage"                          ,lua_Quick_message                   },
-   {"GetGameTimestamp"                      ,lua_get_game_timestamp              },
+   {"GetGameTimestamp"                      ,lua_Get_game_timestamp              },
    {"ClearMessage"                          ,lua_Clear_message                   },
    {"HeartLostObjective"                    ,lua_Heart_lost_objective            },
    {"HeartLostQuickObjective"               ,lua_Heart_lost_quick_objective      },
@@ -2789,7 +2789,7 @@ static const luaL_Reg global_methods[] = {
    {"TutorialFlashButton"                   ,lua_Tutorial_flash_button           },
    {"DisplayCountdown"                      ,lua_Display_countdown               },
    {"DisplayVariable"                       ,lua_Display_variable                },
-   {"DisplayVariableWithLabel"              ,lua_DISPLAY_VARIABLE_WITH_LABEL     },
+   {"DisplayVariableWithLabel"              ,lua_Display_variable_with_label     },
    {"HideVariable"                          ,lua_Hide_variable                   },
 
 //Manipulating Map
