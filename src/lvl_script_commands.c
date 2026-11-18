@@ -2035,6 +2035,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
 {
     set_config_process(&trapdoor_door_named_fields_set, context, "SET_DOOR_CONFIGURATION");
     create_manufacture_array_from_trapdoor_data();
+    update_navigation_around_all_doors();
 }
 
 static void create_effect_at_pos_process(struct ScriptContext* context)
