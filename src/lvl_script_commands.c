@@ -2450,9 +2450,28 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     long config_value_primary = 0, config_value_secondary = 0, config_value_tertiary = 0, config_value_quaternary = 0, config_value_quinary = 0, config_value_senary = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
+        //  HEROVSKEEPERCOST || CREATURELOYALTY  || LOYALTYLEVEL
+        if ((creatvar == 22) || (creatvar == 24) || (creatvar == 25))
+        {
+            SCRPTERRLOG("Attribute %s(%d) not supported.", creatmodel_attributes_commands[creatvar - 1].name, creatvar);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
         if (creatvar == 20) // ATTACKPREFERENCE
         {
             config_value_primary = get_id(attackpref_desc, scline->tp[2]);
+        }
+        else if (creatvar == 28) // PROPERTIES
+        {
+            config_value_primary = get_rid(creatmodel_properties_commands, scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                config_value_secondary = atoi(scline->tp[3]);
+            }
+            else
+            {
+                config_value_secondary = 1;
+            }
         }
         else if (creatvar == 34) // LAIROBJECT
         {
@@ -3053,15 +3072,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 21: // PAY
             crconf->pay = value;
             break;
-        case 22: // HEROVSKEEPERCOST
-            break;
         case 23: // SLAPSTOKILL
             crconf->slaps_to_kill = value;
-            break;
-        case 24: // CREATURELOYALTY
-        case 25: // LOYALTYLEVEL
-        case 28: // PROPERTIES
-            CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 26: // DAMAGETOBOULDER
             crconf->damage_to_boulder = value;
@@ -3069,6 +3081,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 27: // THINGSIZE
             crconf->thing_size_xy = value;
             crconf->thing_size_z = config_value_secondary;
+            break;
+        case 28: // PROPERTIES
+            set_creature_property(creatid, value, (config_value_secondary != 0));
             break;
         case 29: // NAMETEXTID
             crconf->namestr_idx = value;
@@ -3623,6 +3638,31 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         ERRORLOG("Trying to configure unsupported creature block (%d)",block);
     }
     check_and_auto_fix_stats();
+}
+
+static void set_creature_property_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    int32_t prop_id = get_rid(creatmodel_properties_commands, scline->tp[1]);
+    if (prop_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature property kind, \"%s\"", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[1] = scline->np[0];
+    value->longs[1] = prop_id;
+    value->chars[1] = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+static void set_creature_property_process(struct ScriptContext* context)
+{
+    ThingModel creature = context->value->shorts[1];
+    int32_t property = context->value->longs[1];
+    TbBool enable = context->value->chars[1];
+
+    set_creature_property(creature, property, enable);
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)
@@ -7043,7 +7083,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_FEAR_WOUNDED",         "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
   {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER, NULL, NULL},
   {"SET_CREATURE_FEARSOME_FACTOR",      "CN      ", Cmd_SET_CREATURE_FEARSOME_FACTOR, NULL, NULL},
-  {"SET_CREATURE_PROPERTY",             "CAB     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
+  {"SET_CREATURE_PROPERTY",             "CAB     ", Cmd_SET_CREATURE_PROPERTY, &set_creature_property_check, &set_creature_property_process},
   {"IF_AVAILABLE",                      "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"IF_CONTROLS",                       "PAOAa   ", Cmd_IF_CONTROLS,  &if_controls_check, NULL},
   {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
