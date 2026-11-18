@@ -87,6 +87,7 @@ TbBool update_controlled_creature_movement(const struct Thing *thing, struct Cre
 void slow_down_controlled_creature(struct CreatureControl *cctrl);
 struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
+TbBool creature_counts_in_dungeon_stats(const struct Thing *creatng);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 
@@ -257,6 +258,7 @@ void throw_out_gold(struct Thing* thing, long amount);
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 ThingModel get_random_appropriate_creature_kind(ThingModel original_model);
 struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level);
+unsigned char path_tileset_id(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

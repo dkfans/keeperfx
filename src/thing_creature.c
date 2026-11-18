@@ -36,6 +36,7 @@
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
+#include "config_textures.h"
 #include "config_lenses.h"
 #include "config_magic.h"
 #include "config_terrain.h"
@@ -2383,21 +2384,22 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
     }
 }
 
+TbBool creature_counts_in_dungeon_stats(const struct Thing *creatng)
+{
+    if (is_hero_thing(creatng) || is_neutral_thing(creatng)) {
+        return false;
+    }
+    if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
+        return false;
+    }
+    const struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    return !flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature);
+}
+
 void update_creature_count(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl;
-    if (!thing_exists(creatng)) {
-        return;
-    }
-    if (is_hero_thing(creatng) || is_neutral_thing(creatng)) {
-        return;
-    }
-    if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
-        return;
-    }
-    cctrl = creature_control_get_from_thing(creatng);
-    if (flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature)){
+    if (!thing_exists(creatng) || !creature_counts_in_dungeon_stats(creatng)) {
         return;
     }
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
@@ -6180,32 +6182,16 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
-/**
- * Get's an effect element for a footstep.
- */
-ThingModel get_footstep_effect_element(struct Thing* thing)
+unsigned char path_tileset_id(struct Thing *thing)
 {
-    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] =
-    { TngEffElm_None,       TngEffElm_None,         TngEffElm_IceMelt3,     TngEffElm_None,
-      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None,
-      TngEffElm_StepSand,   TngEffElm_StepGypsum,   TngEffElm_None,         TngEffElm_None,
-      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None
-    };
-
-    short texture;
-        unsigned char ext_txtr = game.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
-    if (ext_txtr == 0)
-    {
-        // Default map texture
-        texture = game.texture_id;
-    }
-    else
-    {
-        // Slab specific texture
-        texture = ext_txtr - 1;
-    }
-
-    return tileset_footstep_textures[texture];
+    struct SlabMap *slb = get_slabmap_thing_is_on(thing);
+    if (slb->kind != SlbT_PATH)
+        return 0;
+    unsigned char ext_txtr = game.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    int texture = ext_txtr ? ext_txtr : game.texture_id + 1;
+    if ((texture <= 0) || (texture >= TEXTURE_VARIATIONS_COUNT))
+        return 0;
+    return (unsigned char)texture;
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
@@ -6233,17 +6219,11 @@ void process_creature_leave_footsteps(struct Thing *thing)
         }
     } else
     {
-        // Tileset footprints, formerly Snow footprints.
-        ThingModel footprint = get_footstep_effect_element(thing);
+        ThingModel footprint = tileset_footprint[path_tileset_id(thing)];
         if (footprint != TngEffElm_None)
         {
-            struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            if (slb->kind == SlbT_PATH)
-            {
-                set_flag(thing->movement_flags,TMvF_IsOnSnow);
-                nfoot = get_foot_creature_has_down(thing, cctrl);
-                footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, footprint, thing->owner);
-            }
+            nfoot = get_foot_creature_has_down(thing, cctrl);
+            footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, footprint, thing->owner);
         }
     }
 }
@@ -6267,7 +6247,7 @@ HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoint
         cdamage = 0;
     }
     if (cdamage > 0) {
-        thing->creature.health_bar_turns = 8;
+        thing->creature.health_bar_turns = HEALTH_BAR_FLASH_TURNS;
     }
     return cdamage;
 }
@@ -6295,7 +6275,6 @@ void process_landscape_affecting_creature(struct Thing *thing)
     SYNCDBG(18,"Starting");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
-    thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {

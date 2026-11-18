@@ -25,6 +25,7 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
 TbError process_network_spectator_ready(NetUserId source, const char *buffer, size_t size);
 void network_spectator_request_resync(void);
 TbError process_network_spectator_chat(NetUserId source, const char *buffer, size_t size);
+void show_spectator_chat_message(NetUserId sender, int32_t icon, const char *message);
 TbError process_network_spectator_notice(NetUserId source, const char *buffer, size_t size);
 void network_spectator_notify(NetUserId user, TbBool joined);
 void network_spectator_service(void);

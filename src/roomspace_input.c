@@ -14,6 +14,7 @@
 #include "engine_render.h"
 #include "frontmenu_ingame_evnt.h"
 #include "player_data.h"
+#include "local_hand.h"
 #include "power_hand.h"
 #include "slab_data.h"
 #include "tasks_list.h"
@@ -114,7 +115,7 @@ static TbBool update_dig_highlight(const struct Packet *pckt, MapSubtlCoord stl_
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     TbBool cursor_is_locked = dig_cursor.cursor_button_down && dig_cursor.cursor_locked && ((pckt->control_flags & PCtr_LBtnClick) == 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
     if ((cursor_context != CSt_PickAxe) && !cursor_is_locked) {
-        if ((cursor_context != CSt_PowerHand) || power_hand_is_empty(get_local_user()) ||!can_dig_here(stl_x, stl_y, my_player_number, true)) {
+        if ((cursor_context != CSt_PowerHand) || (ustate->num_things_in_hand == 0) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
             return false;
         }
     }
@@ -128,7 +129,7 @@ static TbBool update_dig_highlight(const struct Packet *pckt, MapSubtlCoord stl_
         ustate->render_roomspace.drag_start_y = dig_cursor.drag_start_slb_y;
         ustate->render_roomspace.untag_mode = dig_cursor.untag_mode;
     }
-    get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, get_local_user(), pckt, stl_x, stl_y, &dig_tags);
+    get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, ustate, pckt, stl_x, stl_y, &dig_tags);
     tag_cursor_blocks_dig(player, get_local_user(), pckt, &ustate->render_roomspace, stl_x, stl_y, true);
     return true;
 }
@@ -174,6 +175,7 @@ static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta p
     if ((pckt != NULL) && (pending_turns >= 0)) {
         apply_packet_prediction(user, pckt);
     }
+    apply_local_hand_prediction(ustate);
     if (has_roomspace) {
         *direct_packet = *pckt;
         MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
@@ -188,7 +190,7 @@ static TbBool get_predicted_roomspace(const struct Packet *pckt, GameTurnDelta p
             tag_cursor_blocks_for_work_state(user, stl_x, stl_y);
         } else {
             has_roomspace = update_dig_highlight(pckt, stl_x, stl_y);
-            TbBool holding_thing = !power_hand_is_empty(get_local_user());
+            TbBool holding_thing = (ustate->num_things_in_hand > 0);
             TbBool chosen_subtile_is_high = has_roomspace && holding_thing;
             set_flag_value(ustate->additional_flags, UsrAF_ChosenSubTileIsHigh, chosen_subtile_is_high);
             if (chosen_subtile_is_high) {

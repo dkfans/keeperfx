@@ -68,7 +68,7 @@ struct StartupSyncPacket {
     UserPreferences user_prefs;
     uint8_t initial_input_lag_turns;
     uint32_t initial_action_seed;
-    char frontend_alliances;
+    int32_t frontend_alliances;
     int8_t player_slots[MAX_NET_USERS];
     struct LoadedFileChecksums loaded_file_checksums;
 };
@@ -80,7 +80,7 @@ struct StartupSyncPacket {
 short setup_network_service(enum FrontendNetService service)
 {
   struct ServiceInitData *init_data = NULL;
-  SYNCMSG("Initializing 4-players type %d network", service);
+  SYNCMSG("Initializing %d-players type %d network", MAX_NET_USERS, service);
   memset(net_user_info, 0, sizeof(net_user_info));
   network_lobby_ping = 0;
   if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
@@ -341,7 +341,7 @@ static TbBool verify_loaded_file_checksums(const struct TbNetworkUserInfo users[
 static TbBool spectator_startup_accepted(void)
 {
     char differing_files[TEXT_BUFFER_LENGTH];
-    const char *my_name = network_user_name(netstate.my_id);
+    const char *my_name = netstate.users[netstate.my_id].name;
     if (list_files_differing_from_host(get_loaded_file_checksums(), &s_startup_sync_packets[SERVER_ID].loaded_file_checksums, my_name, differing_files, sizeof(differing_files))) {
         return reject_differing_files(my_name, differing_files);
     }
@@ -479,8 +479,10 @@ static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USE
             ERRORLOG("Network user %d has invalid player slot %d", (int)i, (int)player_slots[i]);
             return false;
         }
-        set_net_user_player_number(i, player_slots[i]);
         netstate.users[i].spectator_conversion_requested = (player_slots[i] == PLAYER_NONE);
+        if (player_slots[i] != PLAYER_NONE) {
+            set_net_user_player_number(i, net_seat_players[player_slots[i]]);
+        }
     }
     my_player_number = PLAYER_NEUTRAL;
     if (user_present(netstate.my_id)) {
@@ -522,7 +524,7 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         initial_replay_seed = host_sync->initial_action_seed;
     }
     frontend_alliances = host_sync->frontend_alliances;
-    net_store_lobby_empty_seats(host_sync->player_slots);
+    net_apply_lobby_seats(host_sync->player_slots);
     if (!setup_network_player_numbers(host_sync->player_slots)) {
         return false;
     }

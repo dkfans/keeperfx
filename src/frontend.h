@@ -294,7 +294,7 @@ extern long scrolling_index;
 extern float scrolling_offset;
 extern long packet_left_button_double_clicked[6];
 extern long packet_left_button_click_space_count[6];
-extern char frontend_alliances;
+extern int32_t frontend_alliances;
 extern char busy_doing_gui;
 extern long gui_last_left_button_pressed_id;
 extern long gui_last_right_button_pressed_id;
@@ -314,7 +314,6 @@ extern char gui_message_text[];
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
 extern int status_panel_width;
-extern const unsigned long alliance_grid[4][4];
 
 #if (BFDEBUG_LEVEL > 0)
 #define TESTFONTS_COUNT 12
@@ -467,7 +466,7 @@ void init_save_menu(struct GuiMenu *gmnu);
 void init_video_menu(struct GuiMenu *gmnu);
 void init_audio_menu(struct GuiMenu *gmnu);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
-TbBool frontend_is_player_allied(long idx1, long idx2);
+int32_t frontend_alliance_flag(int32_t seat1, int32_t seat2);
 char update_menu_fade_level(struct GuiMenu *gmnu);
 void draw_menu_buttons(struct GuiMenu *gmnu);
 MenuNumber create_menu(struct GuiMenu *mnu);

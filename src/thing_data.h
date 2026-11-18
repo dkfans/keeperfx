@@ -24,6 +24,7 @@
 
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       1024
+#define HEALTH_BAR_FLASH_TURNS 8
 
 
 #ifdef __cplusplus
@@ -108,7 +109,6 @@ enum ThingMovementFlags {
     TMvF_GoThroughWalls     = 0x010,
     TMvF_Flying             = 0x020, // The creature is flying and can navigate in the air.
     TMvF_Immobile           = 0x040, // The creature cannot move.
-    TMvF_IsOnSnow           = 0x080, // The creature leaves footprints on snow path.
     TMvF_MagicFall          = 0x100, // The creature does a free fall with magical effect, ie. it was just created with some initial velocity.
     TMvF_Grounded           = 0x200, // For creature which are normally flying, this informs that its grounded due to spells or its condition.
 };

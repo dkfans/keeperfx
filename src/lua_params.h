@@ -39,6 +39,7 @@ TbBool luaL_isPlayer(lua_State *L, int index);
 long luaL_optCheckinteger(lua_State* L, int index);
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
+long luaL_checkTexturePack(lua_State *L, int index);
 TbMapLocation luaL_checkLocation(lua_State *L, int index);
 TbMapLocation luaL_optLocation(lua_State *L, int index);
 TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index);

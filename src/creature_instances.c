@@ -739,7 +739,7 @@ long instf_destroy(struct Thing *creatng, int32_t *param)
             {
                 volume = FULL_LOUDNESS;
             }
-            thing_play_sample(creatng, snd_foot_spur + SOUND_RANDOM(2), 200, 0, 3, 0, 2, volume);
+            thing_play_sample(creatng, snd_steal_room_hit + SOUND_RANDOM(snd_steal_room_hit_count), 200, 0, 3, 0, 2, volume);
             return 0;
         }
         clear_dig_on_room_slabs(room, creatng->owner);

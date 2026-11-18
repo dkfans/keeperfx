@@ -169,6 +169,7 @@ struct Dungeon {
     uint32_t cta_start_turn;
     TbBool cta_free;
     uint32_t must_obey_turn;
+    PowerKind must_obey_idx;
     int hold_audience_cast_turn;
     int scavenge_counters_turn;
     /** Counter of creatures scavenging of each kind, zeroized and recomputed each game turn. */

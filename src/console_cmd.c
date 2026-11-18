@@ -2786,6 +2786,18 @@ static const struct ConsoleCommand console_commands[] = {
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 
+TbBool cmd_is_synced(const char *msg)
+{
+    msg += strspn(msg, " ");
+    size_t name_length = strcspn(msg, " ");
+    for (int i = 0; i < console_command_count; ++i) {
+        if ((strncasecmp(msg, console_commands[i].name, name_length) == 0) && (console_commands[i].name[name_length] == '\0')) {
+            return console_commands[i].scope != CmdS_Personal;
+        }
+    }
+    return false;
+}
+
 static const char *console_command_refusal(PlayerNumber plyr_idx, const struct ConsoleCommand *entry)
 {
     TbBool is_multiplayer = network_is_active() || (game.game_kind == GKind_MultiGame);

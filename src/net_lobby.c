@@ -367,6 +367,9 @@ TbError process_user_update_message(NetUserId source, char *read_pos, const char
     if (read_pos + sizeof(user->version) <= end_pos) {
         memcpy(&user->version, read_pos, sizeof(user->version));
     }
+    if (read_pos + sizeof(user->version) < end_pos) {
+        user->spectator_icon = (uint8_t)read_pos[sizeof(user->version)];
+    }
     UpdateLocalPlayerInfo(user_id);
     return Lb_OK;
 }

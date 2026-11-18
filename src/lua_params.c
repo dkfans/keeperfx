@@ -17,6 +17,7 @@
 #include "thing_effects.h"
 #include "keeperfx.hpp"
 #include "lua_base.h"
+#include "engine_textures.h"
 #include "lvl_script_lib.h"
 #include "map_data.h"
 #include "player_utils.h"
@@ -119,6 +120,21 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
     }
     luaL_argerror(L,index,"unrecognized command");
     return 0;
+}
+
+long luaL_checkTexturePack(lua_State *L, int index)
+{
+    if (lua_isnumber(L, index))
+    {
+        long tmap_idx = lua_tointeger(L, index);
+        if (tmap_idx < 0)
+            return 0;
+        luaL_argcheck(L, tmap_idx < TEXTURE_VARIATIONS_COUNT - 1, index, "texture index out of range");
+        return tmap_idx + 1;
+    }
+    long slot = get_rid(texture_pack_desc, luaL_checkstring(L, index));
+    luaL_argcheck(L, slot != -1, index, "unrecognized texture");
+    return slot;
 }
 
 long luaL_optCheckinteger(lua_State* L, int index)

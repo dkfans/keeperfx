@@ -997,6 +997,9 @@ void init_players(void)
             else
                 player->allocflags &= ~PlaF_CompCtrl;
             set_flag_value(player->allocflags, PlaF_Seat, flag_is_set(replay.head.players_seat, to_flag(i)));
+            if (player_is_seat(player) && player_is_roaming(i)) {
+                player->player_type = PT_Keeper;
+            }
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
               game.human_players_count++;

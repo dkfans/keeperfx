@@ -408,6 +408,11 @@ static int matchmaking_connect_thread(void *request)
             heartbeat_attempts = 0;
             result = 0;
         } else {
+            const char *error = value_string(value_dict_get(&response, "error"));
+            if (!error) {
+                error = "no response";
+            }
+            LbNetLog("Matchmaking: create lobby failed (%s)\n", error);
             websocket_cleanup();
         }
         value_fini(&response);

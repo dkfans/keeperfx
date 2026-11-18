@@ -387,13 +387,6 @@ struct EventTypeInfo event_button_info[] = {
   {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
 };
 
-const unsigned long alliance_grid[4][4] = {
-  {0x00, 0x01, 0x02, 0x04,},
-  {0x01, 0x00, 0x08, 0x10,},
-  {0x02, 0x08, 0x00, 0x20,},
-  {0x04, 0x10, 0x20, 0x00,},
-};
-
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
 struct TbSpriteSheet *testfont[TESTFONTS_COUNT];
@@ -468,7 +461,7 @@ long scrolling_index;
 float scrolling_offset;
 long packet_left_button_double_clicked[6];
 long packet_left_button_click_space_count[6];
-char frontend_alliances;
+int32_t frontend_alliances;
 char busy_doing_gui;
 long gui_last_left_button_pressed_id;
 long gui_last_right_button_pressed_id;
@@ -920,15 +913,11 @@ void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
     gbtn->flags |= LbBtnF_Enabled;
 }
 
-TbBool frontend_is_player_allied(long idx1, long idx2)
+int32_t frontend_alliance_flag(int32_t seat1, int32_t seat2)
 {
-    if (idx1 == idx2)
-      return true;
-    if ((idx1 < 0) || (idx1 >= PLAYER_GOOD))
-      return false;
-    if ((idx2 < 0) || (idx2 >= PLAYER_GOOD))
-      return false;
-    return ((frontend_alliances & alliance_grid[idx1][idx2]) != 0);
+    int32_t low_seat = min(seat1, seat2);
+    int32_t high_seat = max(seat1, seat2);
+    return 1 << (high_seat * (high_seat - 1) / 2 + low_seat);
 }
 
 TbResult frontend_load_data(void)

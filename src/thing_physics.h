@@ -41,6 +41,7 @@ struct ComponentVector;
 void destroy_thing(struct Thing* thing);
 TbBool thing_touching_floor(const struct Thing *thing);
 TbBool thing_touching_flight_altitude(const struct Thing *thing);
+TbBool thing_has_landed(const struct Thing *thing);
 TbBool thing_above_flight_altitude(const struct Thing* thing);
 
 TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos, const struct Thing *sectng);
