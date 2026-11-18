@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "config.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -196,9 +197,19 @@ ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFname
   return newfunc;
 }
 
+/**
+ * Data file names such as "data/bluepal.dat" are in the game folder, or in the user's data folder where players can
+ * add files the game lacks (the original game's files for a read only install). Names starting with '*' or '!'
+ * are not files, and absolute paths stay as they are.
+ */
 const char * defaultModifyDataLoadFilename(const char * input)
 {
-     return input;
+    static char fname[FULLPATH_SIZE];
+    if ((input == NULL) || (input[0] == '*') || (input[0] == '!') || (input[0] == '\0') || (input[0] == '/')
+        || (input[0] == '\\') || (input[1] == ':'))
+        return input;
+    prepare_file_path_buf(fname, sizeof(fname), FGrp_Main, input);
+    return (fname[0] != '\0') ? fname : input;
 }
 
 /******************************************************************************/

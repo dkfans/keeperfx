@@ -5,7 +5,7 @@
  *     Run-time configurable renderer knobs.
  *
  * @par Persistence:
- *     Read/written from renderer_prefs.ini in PlatformManager_GetUserPrefDir().
+ *     Read/written from renderer_prefs.ini in the user's config folder (see UserDirs.h).
  *
  */
 #pragma once
@@ -293,14 +293,14 @@ void RendererSettings_Reset(void);
 void RendererSettings_Sanitize(void);
 
 /** Load renderer preferences from the platform user-pref directory.
- *  File: <PlatformManager_GetUserPrefDir()>/renderer_prefs.ini
+ *  File: <config folder>/renderer_prefs.ini
  *  Missing file is silently ignored (first run). Only fields present in the
  *  file are updated; absent fields retain whatever value Reset() left them
  *  at. Calls RendererApplySettings() on success. */
 void RendererSettings_Load(void);
 
 /** Save the current g_renderer_settings to the platform user-pref directory.
- *  File: <PlatformManager_GetUserPrefDir()>/renderer_prefs.ini */
+ *  File: <config folder>/renderer_prefs.ini */
 void RendererSettings_Save(void);
 
 #ifdef __cplusplus

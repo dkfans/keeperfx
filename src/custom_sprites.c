@@ -308,20 +308,18 @@ static int load_file_sprites(const char *path, const char *file_desc, unsigned i
     return add_flag;
 }
 
-static void load_dir_sprites(const char *dir_path, const char *dir_desc, unsigned int load_flags)
+/** Loads the sprite zips of a group's folder (of a mod, when mod_dir isn't NULL): those in the user's data
+ *  folder and those of the game. */
+static void load_dir_sprites(const char *mod_dir, short fgroup, const char *dir_desc, unsigned int load_flags)
 {
     SYNCDBG(8, "Starting");
-    if (dir_path == NULL || dir_path[0] == 0) {
-        return;
-    }
-    char full_path[1024] = {0};
-    sprintf(full_path, "%s/%s", dir_path, "*.zip");
+    char full_path[FULLPATH_SIZE] = {0};
     struct TbFileEntry fe;
-    struct TbFileFind *ff = LbFileFindFirst(full_path, &fe);
+    struct TbFileFind *ff = find_first_file_in_group(mod_dir, fgroup, "*.zip", &fe);
     int cnt_zip = 0, cnt_sprite = 0, cnt_icon = 0, cnt_ensign = 0;
     if (ff) {
         do {
-            sprintf(full_path, "%s/%s", dir_path, fe.Filename);
+            prepare_file_path_buf_mod(full_path, sizeof(full_path), mod_dir, fgroup, fe.Filename);
             int add_flag = load_file_sprites(full_path, NULL, load_flags);
             if (add_flag & CLF_Sprites) {
                 cnt_sprite++;
@@ -397,7 +395,7 @@ static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *
         if (strlen(dname) > 0)
         {
             sprintf(desc, "Mod[%s] FxData dir", mod_item->name);
-            load_dir_sprites(dname, desc, load_flags);
+            load_dir_sprites(mod_dir, FGrp_FxData, desc, load_flags);
         }
     }
 
@@ -407,7 +405,7 @@ static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *
         if (strlen(dname) > 0)
         {
             sprintf(desc, "Mod[%s] CmpgConfig dir", mod_item->name);
-            load_dir_sprites(dname, desc, load_flags);
+            load_dir_sprites(mod_dir, FGrp_CmpgConfig, desc, load_flags);
         }
     }
 
@@ -456,10 +454,10 @@ static void clear_custom_ensigns(void)
     memset(custom_ensign_data, 0, sizeof(custom_ensign_data));
 }
 
-void init_custom_campaign_sprites(const char *dir_path, const char *dir_desc)
+void init_custom_campaign_sprites(const char *dir_desc)
 {    
     clear_custom_ensigns();
-    load_dir_sprites(dir_path, dir_desc, campaign_load_flags);
+    load_dir_sprites(NULL, FGrp_CmpgConfig, dir_desc, campaign_load_flags);
     if (mods_conf.after_campaign_cnt > 0)
     {
         load_sprites_for_mod_list(-1, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt, campaign_load_flags);
@@ -561,8 +559,7 @@ void init_custom_sprites(LevelNumber lvnum)
         load_sprites_for_mod_list(lvnum, mods_conf.after_base_item, mods_conf.after_base_cnt, normal_load_flags);
     }
 
-    dname = prepare_file_path(FGrp_CmpgConfig, NULL);
-    load_dir_sprites(dname, "Main CmpgConfig dir", normal_load_flags);
+    load_dir_sprites(NULL, FGrp_CmpgConfig, "Main CmpgConfig dir", normal_load_flags);
 
     if (mods_conf.after_campaign_cnt > 0)
     {

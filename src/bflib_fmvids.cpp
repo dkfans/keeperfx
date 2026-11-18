@@ -6,6 +6,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_fileio.h"
 #include "kjm_input.h"
+#include "config.h"
 
 // See: https://trac.ffmpeg.org/ticket/3626
 extern "C" {
@@ -1280,14 +1281,17 @@ extern "C" TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *pal
 extern "C" short anim_record()
 {
 	SYNCDBG(7,"Starting");
-	char finalname[255] = "";
+	char finalname[FULLPATH_SIZE] = "";
 	if (LbGraphicsScreenBPP() != 8) {
 		ERRORLOG("Cannot record movie in non-8bit screen mode");
 		return 0;
 	}
 	int idx;
 	for (idx=0; idx < 10000; idx++) {
-		snprintf(finalname, sizeof(finalname), "%s/game%04d.flc","scrshots",idx);
+		snprintf(finalname, sizeof(finalname), "%s", prepare_file_fmtpath(FGrp_SShots, "game%04d.flc", idx));
+		if (finalname[0] == '\0') {
+			break;
+		}
 		if (LbFileExists(finalname)) {
 			continue;
 		}

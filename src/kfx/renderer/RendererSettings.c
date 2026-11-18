@@ -10,7 +10,7 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererSettings.h"
 #include "kfx/renderer/RendererManager.h"
-#include "kfx/platform/PlatformManager.h"
+#include "kfx/platform/UserDirs.h"
 #include "thing_list.h" // TCls_* enum values for outline class mask default
 #include <stdio.h>
 #include <string.h>
@@ -137,13 +137,12 @@ void RendererSettings_Sanitize(void)
 
 static void build_prefs_path(char* buf, size_t buflen)
 {
-    snprintf(buf, buflen, "%s/" RENDERER_PREFS_FILENAME,
-             PlatformManager_GetUserPrefDir());
+    userdirs_path(buf, buflen, UsrDir_Config, RENDERER_PREFS_FILENAME);
 }
 
 void RendererSettings_Load(void)
 {
-    char path[600];
+    char path[FULLPATH_SIZE];
     build_prefs_path(path, sizeof(path));
 
     FILE* f = fopen(path, "r");
@@ -205,7 +204,7 @@ void RendererSettings_Load(void)
 
 void RendererSettings_Save(void)
 {
-    char path[600];
+    char path[FULLPATH_SIZE];
     build_prefs_path(path, sizeof(path));
 
     FILE* f = fopen(path, "w");
