@@ -1154,7 +1154,6 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
         {
             HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
 
-            const struct DoorConfigStats* doorst = get_door_model_stats(tngdst->model);
             if (flag_is_set(doorst->model_flags, DoMF_Midas))
             {
                 HitPoints absorbed = reduce_damage_for_midas(tngdst->owner, damage, doorst->health);
