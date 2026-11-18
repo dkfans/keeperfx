@@ -17,10 +17,10 @@
 #include "config_creature.h"
 #include "creature_states_pray.h"
 #include "custom_sprites.h"
+#include "keeperfx.hpp"
 #include "sprites.h"
 #include "dungeon_data.h"
 #include "gui_msgs.h"
-#include "lvl_filesdk1.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "room_util.h"
@@ -343,6 +343,339 @@ long get_players_range_single_f(long plr_range_id, const char *func_name, long l
         return plr_range_id;
     }
     return -2;
+}
+
+void set_creature_property(ThingModel creature, int32_t property, TbBool enable)
+{
+    struct CreatureModelConfig* crconf = creature_stats_get(creature);
+    switch (property)
+    {
+    case 1: // BLEEDS
+        crconf->bleeds = enable;
+        break;
+    case 2: // UNAFFECTED_BY_WIND
+        if (enable)
+        {
+            set_flag(crconf->immunity_flags, CSAfF_Wind);
+        }
+        else
+        {
+            clear_flag(crconf->immunity_flags, CSAfF_Wind);
+        }
+        break;
+    case 3: // IMMUNE_TO_GAS
+        if (enable)
+        {
+            set_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
+        }
+        else
+        {
+            clear_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
+        }
+        break;
+    case 4: // HUMANOID_SKELETON
+        crconf->humanoid_creature = enable;
+        break;
+    case 5: // PISS_ON_DEAD
+        crconf->piss_on_dead = enable;
+        break;
+    case 7: // FLYING
+        crconf->flying = enable;
+        break;
+    case 8: // SEE_INVISIBLE
+        crconf->can_see_invisible = enable;
+        break;
+    case 9: // PASS_LOCKED_DOORS
+        crconf->can_go_locked_doors = enable;
+        break;
+    case 10: // SPECIAL_DIGGER
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_IsSpecDigger);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsSpecDigger);
+        }
+        recalculate_all_creature_digger_lists();
+        update_creatr_model_activities_list(1);
+        break;
+    case 11: // ARACHNID
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_IsArachnid);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsArachnid);
+        }
+        break;
+    case 12: // DIPTERA
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_IsDiptera);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsDiptera);
+        }
+        break;
+    case 13: // LORD
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_IsLordOfLand);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsLordOfLand);
+        }
+        break;
+    case 14: // SPECTATOR
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_IsSpectator);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsSpectator);
+        }
+        break;
+    case 15: // EVIL
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_IsEvil);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsEvil);
+        }
+        break;
+    case 16: // NEVER_CHICKENS
+        if (enable)
+        {
+            set_flag(crconf->immunity_flags, CSAfF_Chicken);
+        }
+        else
+        {
+            clear_flag(crconf->immunity_flags, CSAfF_Chicken);
+        }
+        break;
+    case 17: // IMMUNE_TO_BOULDER
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_ImmuneToBoulder);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_ImmuneToBoulder);
+        }
+        break;
+    case 18: // NO_CORPSE_ROTTING
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_NoCorpseRotting);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoCorpseRotting);
+        }
+        break;
+    case 19: // NO_ENMHEART_ATTCK
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_NoEnmHeartAttack);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoEnmHeartAttack);
+        }
+        break;
+    case 20: // TREMBLING_FAT
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_Trembling);
+            set_flag(crconf->model_flags, CMF_Fat);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Trembling);
+            clear_flag(crconf->model_flags, CMF_Fat);
+        }
+        break;
+    case 21: // FEMALE
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_Female);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Female);
+        }
+        break;
+    case 22: // INSECT
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_Insect);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Insect);
+        }
+        break;
+    case 23: // ONE_OF_KIND
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_OneOfKind);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_OneOfKind);
+        }
+        break;
+    case 24: // NO_IMPRISONMENT
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_NoImprisonment);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoImprisonment);
+        }
+        break;
+    case 25: // NEVER_SICK
+        if (enable)
+        {
+            set_flag(crconf->immunity_flags, CSAfF_Disease);
+        }
+        else
+        {
+            clear_flag(crconf->immunity_flags, CSAfF_Disease);
+        }
+        break;
+    case 26: // ILLUMINATED
+        crconf->illuminated = enable;
+        break;
+    case 27: // ALLURING_SCVNGR
+        crconf->entrance_force = enable;
+        break;
+    case 28: // NO_RESURRECT
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_NoResurrect);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoResurrect);
+        }
+        break;
+    case 29: // NO_TRANSFER
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_NoTransfer);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoTransfer);
+        }
+        break;
+    case 30: // TREMBLING
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_Trembling);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Trembling);
+        }
+        break;
+    case 31: // FAT
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_Fat);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_Fat);
+        }
+        break;
+    case 32: // NO_STEAL_HERO
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_NoStealHero);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_NoStealHero);
+        }
+        break;
+    case 33: // PREFER_STEAL
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_PreferSteal);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_PreferSteal);
+        }
+        break;
+    case 34: // EVENTFUL_DEATH
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_EventfulDeath);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_EventfulDeath);
+        }
+        break;
+    case 35: // DIGGING_CREATURE
+        if (enable)
+        {
+            set_flag(crconf->model_flags, CMF_IsDiggingCreature);
+        }
+        else
+        {
+            clear_flag(crconf->model_flags, CMF_IsDiggingCreature);
+        }
+        recalculate_all_creature_digger_lists();
+        update_creatr_model_activities_list(1);
+        break;
+    case 36: // NO_HEALTH_FLOWER
+        if (enable) {
+            set_flag(crconf->model_flags, CMF_NoHealthFlower);
+        }
+        else {
+            clear_flag(crconf->model_flags, CMF_NoHealthFlower);
+        }
+        break;
+    case 37: // CANNOT_PICK_UP
+        if (enable) {
+            set_flag(crconf->model_flags, CMF_CannotPickUp);
+        }
+        else {
+            clear_flag(crconf->model_flags, CMF_CannotPickUp);
+        }
+        break;
+    case 38: // DROP_ON_PATH
+        if (enable) {
+            set_flag(crconf->model_flags, CMF_DropOnPath);
+        }
+        else {
+            clear_flag(crconf->model_flags, CMF_DropOnPath);
+        }
+        break;
+    case 39: // CANNOT_POSSESS
+        if (enable) {
+            set_flag(crconf->model_flags, CMF_CannotPossess);
+        }
+        else {
+            clear_flag(crconf->model_flags, CMF_CannotPossess);
+        }
+        break;
+    default:
+        SCRPTERRLOG("Unknown creature property '%d'", property);
+        break;
+    }
 }
 
 short get_chat_icon_sprite_idx_from_id(short id, char type)

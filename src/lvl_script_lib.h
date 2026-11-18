@@ -345,6 +345,7 @@ struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle);
 struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
 struct Thing* script_process_new_corpse(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, CrtrExpLevel exp_level, TbBool dying);
+void set_creature_property(ThingModel creature, int32_t property, TbBool enable);
 TbBool script_new_creature_type(const char* name);
 TbBool script_copy_creature_type(ThingModel source_id,const char* name);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
