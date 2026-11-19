@@ -2466,7 +2466,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             config_value_primary = get_rid(creatmodel_properties_commands, scline->tp[2]);
             if (scline->tp[3][0] != '\0')
             {
-                config_value_secondary = atoi(scline->tp[3]);
+                config_value_secondary = get_rid(script_boolean_desc, scline->tp[3]);
             }
             else
             {
@@ -2514,7 +2514,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                config_value_secondary = atoi(scline->tp[3]);
+                config_value_secondary = get_rid(script_boolean_desc, scline->tp[3]);
             }
             else
             {
@@ -2584,7 +2584,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                config_value_secondary = atoi(scline->tp[3]);
+                config_value_secondary = get_rid(script_boolean_desc, scline->tp[3]);
             }
             else
             {
@@ -2726,7 +2726,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                config_value_secondary = atoi(scline->tp[3]);
+                config_value_secondary = get_rid(script_boolean_desc, scline->tp[3]);
             }
             else
             {
