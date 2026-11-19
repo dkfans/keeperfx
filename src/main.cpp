@@ -329,6 +329,9 @@ short setup_game(void)
   short result;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
+  
+  SYNCMSG("CPU architecture: %s", cpu_info.architecture);
+#if defined(__i386__) || defined(__x86_64__)
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08lx",cpu_info.vendor,
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
@@ -336,6 +339,7 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
+#endif
   SYNCMSG("Build image base: %p", PlatformManager_GetImageBase());
   SYNCMSG("Operating System: %s", PlatformManager_GetOSVersion());
 

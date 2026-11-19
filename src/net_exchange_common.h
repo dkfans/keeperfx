@@ -19,7 +19,7 @@
 #ifndef DK_NET_EXCHANGE_COMMON_H
 #define DK_NET_EXCHANGE_COMMON_H
 
-#include "bflib_basics.h"
+#include "globals.h"
 #include "net_main.h"
 
 #ifdef __cplusplus

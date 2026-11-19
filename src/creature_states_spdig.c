@@ -22,7 +22,6 @@
 
 #include "bflib_sound.h"
 #include "config_sounds.h"
-#include "bflib_math.h"
 #include "bflib_planar.h"
 #include "creature_states.h"
 #include "thing_list.h"
@@ -41,11 +40,11 @@
 #include "thing_traps.h"
 #include "room_data.h"
 #include "room_lair.h"
-#include "room_jobs.h"
 #include "room_workshop.h"
 #include "room_library.h"
 #include "room_graveyard.h"
 #include "room_util.h"
+#include "room_treasure.h"
 #include "map_utils.h"
 #include "spdigger_stack.h"
 #include "tasks_list.h"
@@ -53,11 +52,11 @@
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
-#include "keeperfx.hpp"
 #include "player_instances.h"
 #include "packets.h"
-#include "post_inc.h"
 #include "creature_states_lair.h"
+
+#include "post_inc.h"
 
 const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 
@@ -1272,7 +1271,7 @@ short imp_drops_gold(struct Thing *spdigtng)
             return 1;
         }
     }
-    if ((spdigtng->creature.gold_carried > 0) && (room->used_capacity < room->total_capacity))
+    if ((spdigtng->creature.gold_carried > 0) && (room->capacity_used_for_storage < max_gold_amount_in_room(room)))
     {
         if ((spdigtng->alloc_flags & TAlF_IsControlled) == 0)
         {
