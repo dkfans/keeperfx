@@ -208,46 +208,50 @@ SoundMilesID VoiceMirror::allocate(SoundEmitterID emit_id, uint32_t buffer_id, S
             }
         }
     }
-    for (size_t i = 0; i < slots_.size(); ++i) {
-        auto & slot = slots_[i];
-        if (slot.emit_id == 0 && !slot.pending_free) {
-            slot.base_gain = volume;
-            SoundPitch start_pitch = pitch;
-            if (bb_king_mode_) {
-                // ben enjoyed dofi's stream so much I made random pitch an easter egg
-                if (SOUND_RANDOM(10000) <= 3) { // ~0.03% of the time
-                    slot.flags |= VOICE_FLAG_BB_KING;
-                    start_pitch = (NORMAL_PITCH / 2) + SOUND_RANDOM(NORMAL_PITCH);
-                } else {
-                    slot.flags &= ~VOICE_FLAG_BB_KING;
+    for (int attempt = 0; attempt < 2; ++attempt) {
+        for (size_t i = 0; i < slots_.size(); ++i) {
+            auto & slot = slots_[i];
+            if (slot.emit_id == 0 && !slot.pending_free) {
+                slot.base_gain = volume;
+                SoundPitch start_pitch = pitch;
+                if (bb_king_mode_) {
+                    // ben enjoyed dofi's stream so much I made random pitch an easter egg
+                    if (SOUND_RANDOM(10000) <= 3) { // ~0.03% of the time
+                        slot.flags |= VOICE_FLAG_BB_KING;
+                        start_pitch = (NORMAL_PITCH / 2) + SOUND_RANDOM(NORMAL_PITCH);
+                    } else {
+                        slot.flags &= ~VOICE_FLAG_BB_KING;
+                    }
                 }
+                Command start = make_command(CommandType::Start, i);
+                start.buffer_id = buffer_id;
+                start.volume = volume;
+                start.pan = pan;
+                start.pitch = start_pitch;
+                start.repeat = (repeats == -1);
+                start.spatialize = is_positional;
+                if (!push_start(i, start, commands)) {
+                    return 0;
+                }
+                slot.emit_id = emit_id;
+                slot.smptbl_id = smptbl_id;
+                slot.priority = priority;
+                slot.tick_started = tick_counter_;
+                if (!has_explicit_stack_policy) {
+                    // Mark the tick only once a voice is secured, so a failed start doesn't block retries.
+                    tick_samples_last_tick_[smptbl_id] = tick_counter_;
+                }
+                if (has_explicit_stack_policy && stack_policy.mode == SStack_Duck) {
+                    apply_duck_gain(smptbl_id, commands);
+                }
+                return slot.mss_id;
             }
-            Command start = make_command(CommandType::Start, i);
-            start.buffer_id = buffer_id;
-            start.volume = volume;
-            start.pan = pan;
-            start.pitch = start_pitch;
-            start.repeat = (repeats == -1);
-            start.spatialize = is_positional;
-            if (!push_start(i, start, commands)) {
-                return 0;
-            }
-            slot.emit_id = emit_id;
-            slot.smptbl_id = smptbl_id;
-            slot.priority = priority;
-            slot.tick_started = tick_counter_;
-            if (!has_explicit_stack_policy) {
-                // Mark the tick only once a voice is secured, so a failed start doesn't block retries.
-                tick_samples_last_tick_[smptbl_id] = tick_counter_;
-            }
-            if (has_explicit_stack_policy && stack_policy.mode == SStack_Duck) {
-                apply_duck_gain(smptbl_id, commands);
-            }
-            return slot.mss_id;
         }
-    }
-    {
-        // Pool full: silence a lower-priority voice and free it after a fade, to avoid a click.
+        // Pool full: replace the lowest-priority voice (needs a priority gap and a grace period),
+        // then start the new sound in its slot on the second pass.
+        if (attempt == 1) {
+            break;
+        }
         VoiceSlot * steal_candidate = nullptr;
         SoundVolume steal_candidate_gain = 0;
         for (auto & slot : slots_) {
@@ -267,12 +271,15 @@ SoundMilesID VoiceMirror::allocate(SoundEmitterID emit_id, uint32_t buffer_id, S
                 steal_candidate_gain = slot.base_gain;
             }
         }
-        if (steal_candidate != nullptr) {
-            push_volume(size_t(steal_candidate - slots_.data()), 0, commands);
-            steal_candidate->pending_free = true;
-            steal_candidate->steal_tick = tick_counter_;
-            ++voices_stolen_;
+        if (steal_candidate == nullptr) {
+            break;
         }
+        const size_t victim = size_t(steal_candidate - slots_.data());
+        if (!push_command(commands, make_command(CommandType::Stop, victim))) {
+            break;
+        }
+        free_slot(victim, commands);
+        ++voices_stolen_;
     }
     ++drops_no_voice_;
     if (local_state.fast_forward < 2) {
@@ -402,6 +409,13 @@ bool VoiceMirror::is_playing(SoundMilesID mss_id) const {
     }
     const auto & slot = slots_[size_t(mss_id) - 1];
     return slot.emit_id != 0 && !slot.pending_free;
+}
+
+uint32_t VoiceMirror::generation_of(SoundMilesID mss_id) const {
+    if (mss_id < 1 || size_t(mss_id) > slots_.size()) {
+        return 0;
+    }
+    return slots_[size_t(mss_id) - 1].generation;
 }
 
 } // namespace kfx::audio

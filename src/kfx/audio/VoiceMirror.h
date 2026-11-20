@@ -60,6 +60,8 @@ public:
     // Call advance_tick() first.
     void process_events(EventRing & events, CommandRing & commands);
     bool is_playing(SoundMilesID mss_id) const;
+    // Start counter of the slot behind mss_id (0 if invalid); a new sound in the slot changes it.
+    uint32_t generation_of(SoundMilesID mss_id) const;
     void advance_tick() { ++tick_counter_; }
     // Forgets which samples started this tick (custom bank cleared, audio freed).
     void clear_tick_gate() { tick_samples_last_tick_.clear(); }
