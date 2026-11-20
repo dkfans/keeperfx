@@ -128,6 +128,10 @@ struct movie_t {
 	uint64_t m_last_consumed = 0;
 	uint32_t m_last_underruns = 0;
 	time_point m_last_progress;
+	// Converted audio the stream ring has not accepted yet, so video decoding is not held up by a full ring.
+	std::vector<uint8_t> m_pending_audio;
+	size_t m_pending_offset = 0; // bytes of m_pending_audio already written
+	size_t m_pending_frame_bytes = 0;
 
 	int m_audio_index = -1;
 	int m_video_index;
@@ -360,28 +364,67 @@ struct movie_t {
 			av_freep(&buffer);
 			return;
 		}
-		const uint32_t total_frames = uint32_t(converted);
 		const size_t frame_bytes = size_t(m_output_audio_channels) * sample_size;
-		uint32_t offset = 0;
+		m_pending_frame_bytes = frame_bytes;
+		m_pending_audio.insert(m_pending_audio.end(), buffer, buffer + size_t(converted) * frame_bytes);
+		av_freep(&buffer);
+		pump_audio();
+		// Bound the backlog (a demuxer can deliver audio far ahead of the video); wait only past this.
+		const size_t max_pending_bytes = size_t(m_output_audio_frequency) * 4 * frame_bytes;
 		auto last_progress = clock::now();
-		while (offset < total_frames && m_audio_handle != 0) {
-			const uint32_t accepted = kfx::audio::audio_stream_write(
-				m_audio_handle, buffer + size_t(offset) * frame_bytes, total_frames - offset);
-			if (accepted > 0) {
-				offset += accepted;
+		while (pending_audio_bytes() > max_pending_bytes && m_audio_handle != 0) {
+			kfx::audio::audio_stream_start(m_audio_handle);
+			if (pump_audio()) {
 				last_progress = clock::now();
 				continue;
 			}
-			kfx::audio::audio_stream_start(m_audio_handle);
-			if (clock::now() - last_progress > std::chrono::seconds(2)) {
-				m_use_wall_clock = true;
-				kfx::audio::audio_stream_close(m_audio_handle);
-				m_audio_handle = 0;
-				break;
-			}
+			stop_audio_if_stalled(last_progress);
 			std::this_thread::sleep_for(std::chrono::milliseconds(2));
 		}
-		av_freep(&buffer);
+	}
+
+	size_t pending_audio_bytes() const {
+		return m_pending_audio.size() - m_pending_offset;
+	}
+
+	// Writes as much pending audio as the ring takes; true if any was accepted.
+	bool pump_audio() {
+		if (m_audio_handle == 0 || m_pending_frame_bytes == 0 || pending_audio_bytes() == 0) {
+			return false;
+		}
+		const uint32_t frames_left = uint32_t(pending_audio_bytes() / m_pending_frame_bytes);
+		const uint32_t accepted = kfx::audio::audio_stream_write(
+			m_audio_handle, m_pending_audio.data() + m_pending_offset, frames_left);
+		m_pending_offset += size_t(accepted) * m_pending_frame_bytes;
+		if (m_pending_offset >= m_pending_audio.size()) {
+			m_pending_audio.clear();
+			m_pending_offset = 0;
+		}
+		return accepted > 0;
+	}
+
+	// Gives up on the audio clock if the ring has not moved for 2 seconds.
+	void stop_audio_if_stalled(time_point last_progress) {
+		if (clock::now() - last_progress > std::chrono::seconds(2)) {
+			m_use_wall_clock = true;
+			kfx::audio::audio_stream_close(m_audio_handle);
+			m_audio_handle = 0;
+			m_pending_audio.clear();
+			m_pending_offset = 0;
+		}
+	}
+
+	void drain_pending_audio() {
+		auto last_progress = clock::now();
+		while (pending_audio_bytes() > 0 && m_audio_handle != 0) {
+			kfx::audio::audio_stream_start(m_audio_handle);
+			if (pump_audio()) {
+				last_progress = clock::now();
+				continue;
+			}
+			stop_audio_if_stalled(last_progress);
+			std::this_thread::sleep_for(std::chrono::milliseconds(2));
+		}
 	}
 
 	void output_video_frame() {
@@ -444,6 +487,7 @@ struct movie_t {
 			constexpr std::chrono::milliseconds kClockStallTimeout(500);
 			const double rate = double(kfx::audio::audio_stream_output_rate());
 			while (true) {
+				pump_audio();
 				const uint64_t consumed = kfx::audio::audio_stream_frames_consumed(m_audio_handle);
 				const duration audio_time = std::chrono::duration_cast<duration>(
 					std::chrono::duration<double>(double(consumed) / rate)) - kAudioClockLag;
@@ -541,6 +585,7 @@ struct movie_t {
 			flush_audio();
 		}
 		flush_video();
+		drain_pending_audio();
 		if (m_audio_handle != 0 && !m_skipped) {
 			kfx::audio::audio_stream_finish(m_audio_handle);
 			kfx::audio::audio_stream_start(m_audio_handle);
