@@ -33,7 +33,7 @@ AudioFormat audio_format_from_path(const char * path) {
         return AudioFormat::None;
     }
     if (equals_ignore_case(dot, ".wav")) return AudioFormat::Wav;
-    if (equals_ignore_case(dot, ".mp3")) return AudioFormat::Mp3;
+    if (equals_ignore_case(dot, ".mp3") || equals_ignore_case(dot, ".bmu")) return AudioFormat::Mp3;
     if (equals_ignore_case(dot, ".flac")) return AudioFormat::Flac;
     if (equals_ignore_case(dot, ".ogg")) return AudioFormat::Ogg;
     return AudioFormat::None;
