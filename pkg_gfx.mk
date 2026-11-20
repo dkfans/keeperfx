@@ -102,6 +102,7 @@ pkg/data/tmapa010.dat \
 pkg/data/tmapa011.dat \
 pkg/data/tmapa012.dat \
 pkg/data/tmapa013.dat \
+pkg/data/tmapa014.dat \
 pkg/data/tmapb000.dat \
 pkg/data/tmapb001.dat \
 pkg/data/tmapb002.dat \
@@ -116,6 +117,7 @@ pkg/data/tmapb010.dat \
 pkg/data/tmapb011.dat \
 pkg/data/tmapb012.dat \
 pkg/data/tmapb013.dat \
+pkg/data/tmapb014.dat \
 pkg/data/swipe01.dat \
 pkg/data/swipe02.dat \
 pkg/data/swipe03.dat \
@@ -252,6 +254,7 @@ pkg/data/tmapa010.dat: gfx/enginefx/textures-32/filelist_tmapa010.txt pkg/data/p
 pkg/data/tmapa011.dat: gfx/enginefx/textures-32/filelist_tmapa011.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapa012.dat: gfx/enginefx/textures-32/filelist_tmapa012.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapa013.dat: gfx/enginefx/textures-32/filelist_tmapa013.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa014.dat: gfx/enginefx/textures-32/filelist_tmapa014.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/tmapb000.dat: gfx/enginefx/textures-32/filelist_tmapb000.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapb001.dat: gfx/enginefx/textures-32/filelist_tmapb001.txt pkg/data/palette.dat $(PNGTORAW)
@@ -267,6 +270,7 @@ pkg/data/tmapb010.dat: gfx/enginefx/textures-32/filelist_tmapb010.txt pkg/data/p
 pkg/data/tmapb011.dat: gfx/enginefx/textures-32/filelist_tmapb011.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapb012.dat: gfx/enginefx/textures-32/filelist_tmapb012.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapb013.dat: gfx/enginefx/textures-32/filelist_tmapb013.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb014.dat: gfx/enginefx/textures-32/filelist_tmapb014.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/gmap32.raw:    gfx/enginefx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW)
 pkg/data/gmap64.raw:    gfx/enginefx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW)
