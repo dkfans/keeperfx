@@ -16,6 +16,14 @@ extern "C" TbBool IsSamplePlaying(SoundMilesID mss_id) {
 	return g_voice_mirror.is_playing(mss_id);
 }
 
+extern "C" unsigned long GetSampleGeneration(SoundMilesID mss_id) {
+	return g_voice_mirror.generation_of(mss_id);
+}
+
+extern "C" TbBool IsSamplePlayingGeneration(SoundMilesID mss_id, unsigned long generation) {
+	return g_voice_mirror.is_playing(mss_id) && g_voice_mirror.generation_of(mss_id) == generation;
+}
+
 extern "C" void SetSampleVolume(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundVolume volume) {
 	g_voice_mirror.set_volume(emit_id, smptbl_id, volume, g_command_ring);
 }
@@ -43,14 +51,13 @@ extern "C" SoundMilesID play_sample(
 	SoundPitch pitch,
 	char repeats, // possible values: -1, 0
 	unsigned char ctype, // possible values: 2, 3
-	long priority // higher = more important; matches bflib_sound.c's find_slot() convention
+	long priority, // higher = more important; matches bflib_sound.c's find_slot() convention
+	TbBool is_positional // false for ambient loops, UI sounds and speech
 ) {
 	if (emit_id <= 0) {
 		AUDIOERR("Can't play sample %d, invalid emitter ID", smptbl_id);
 		return 0;
 	}
-	// Only positional (S3D) emitters are spatialised, not ambient loops or speech.
-	const bool is_positional = (emit_id != Non3DEmitter) && (emit_id != SpeechEmitter);
 	// Apply raw-ID redirect before bank dispatch (only for effect-bank IDs)
 	if (smptbl_id > 0 && smptbl_id < g_speech_offset) {
 		auto redir = g_id_redirects.find(smptbl_id);

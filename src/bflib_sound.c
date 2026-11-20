@@ -778,7 +778,7 @@ TbBool process_sound_samples(void)
                 ERRORLOG("Attempt to query invalid sample");
                 continue;
             }
-            if (!IsSamplePlaying(sample->mss_id))
+            if (!IsSamplePlayingGeneration(sample->mss_id, sample->voice_generation))
             {
                 sample->is_playing = 0;
             }
@@ -882,7 +882,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     volume = (volume * loudness) / 256;
     if (smpl_idx < 0)
         return 0;
-    SoundMilesID mss_id = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, priority);
+    SoundMilesID mss_id = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, priority, (emit->emitter_flags & 0x08) == 0);
     if (mss_id <= 0) {
         return 0;
     }
@@ -896,6 +896,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->base_pitch = smpitch;
     sample->is_playing = 1;
     sample->mss_id = mss_id;
+    sample->voice_generation = GetSampleGeneration(mss_id);
     sample->flags = flags;
     sample->time_turn = 0;
     sample->emit_idx = emit->index;

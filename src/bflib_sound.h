@@ -109,6 +109,7 @@ struct S3DSample { // sizeof = 37
   unsigned short pan;
   unsigned short volume;
   SoundMilesID mss_id;
+  unsigned long voice_generation;
   struct SoundEmitter *emit_ptr;
   long emit_idx;
   char repeat_count; // signed
@@ -159,7 +160,7 @@ void play_non_3d_sample(SoundSmplTblID);
 void play_non_3d_sample_no_overlap(SoundSmplTblID);
 void play_atmos_sound(SoundSmplTblID);
 short sound_emitter_in_use(SoundEmitterID);
-SoundMilesID play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char repeats, unsigned char ctype, long priority);
+SoundMilesID play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char repeats, unsigned char ctype, long priority, TbBool positional);
 void stop_sample(SoundEmitterID, SoundSmplTblID);
 long speech_sample_playing(void);
 long play_speech_sample(SoundSmplTblID);

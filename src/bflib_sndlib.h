@@ -40,6 +40,10 @@ void * GetSoundDriver(void);
 void StopAllSamples(void);
 TbBool InitAudio(const struct SoundSettings *);
 TbBool IsSamplePlaying(SoundMilesID);
+/** Start counter of the voice behind mss_id; changes when the voice starts a new sound. */
+unsigned long GetSampleGeneration(SoundMilesID);
+/** True only while the voice still plays the sound that had this generation. */
+TbBool IsSamplePlayingGeneration(SoundMilesID, unsigned long generation);
 SoundVolume GetCurrentSoundMasterVolume(void);
 void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
 void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
