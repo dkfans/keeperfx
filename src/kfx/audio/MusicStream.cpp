@@ -12,6 +12,7 @@
 #include "kfx/audio/SoundInternal.h"
 #include "kfx/audio/StreamPlayer.h"
 #include <SDL3/SDL.h>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -248,6 +249,43 @@ extern "C" void stop_music(TbBool fade_out) {
 	}
 }
 
+// With KFX_AUDIO_STATS=1 set, logs the sample drop counts summed over each second (only when non-zero).
+static void log_drop_totals(uint32_t stolen, uint32_t tick_gate, uint32_t stack_cap, uint32_t no_voice,
+	uint32_t commands_dropped, bool events_overflowed)
+{
+	static const bool enabled = (getenv("KFX_AUDIO_STATS") != nullptr);
+	if (!enabled) {
+		return;
+	}
+	static uint64_t totals[10] = {};
+	static auto window_start = std::chrono::steady_clock::now();
+	const uint64_t add[10] = {stolen, tick_gate, stack_cap, no_voice, commands_dropped, events_overflowed ? 1u : 0u,
+		S3DDropsPriority, S3DDropsEviction, S3DDropsVolumeZero, S3DDropsOutOfRange};
+	for (int i = 0; i < 10; ++i) {
+		totals[i] += add[i];
+	}
+	const auto now = std::chrono::steady_clock::now();
+	if (now - window_start < std::chrono::seconds(1)) {
+		return;
+	}
+	window_start = now;
+	uint64_t sum = 0;
+	for (uint64_t t : totals) {
+		sum += t;
+	}
+	if (sum != 0) {
+		AUDIOLOG("drops/s: S3D list full %llu, S3D evicted %llu, silent %llu, out of range %llu | tick gate %llu, "
+			"stack cap %llu, no voice %llu, stolen %llu, command ring full %llu, event ring overflow %llu",
+			(unsigned long long)totals[6], (unsigned long long)totals[7], (unsigned long long)totals[8],
+			(unsigned long long)totals[9], (unsigned long long)totals[1], (unsigned long long)totals[2],
+			(unsigned long long)totals[3], (unsigned long long)totals[0], (unsigned long long)totals[4],
+			(unsigned long long)totals[5]);
+	}
+	for (uint64_t & t : totals) {
+		t = 0;
+	}
+}
+
 // This function gets called every tick, both during active gameplay and while navigating
 // the frontend/main menu, this should probably be buffer based and not tick based..
 extern "C" void MonitorStreamedSoundTrack() {
@@ -282,6 +320,7 @@ extern "C" void MonitorStreamedSoundTrack() {
 			commands_dropped, events_overflowed ? 1 : 0,
 			S3DDropsPriority, S3DDropsEviction, S3DDropsVolumeZero, S3DDropsOutOfRange);
 	}
+	log_drop_totals(voices_stolen, drops_tick_gate, drops_stack_cap, drops_no_voice, commands_dropped, events_overflowed);
 	S3DDropsPriority = 0;
 	S3DDropsEviction = 0;
 	S3DDropsVolumeZero = 0;
