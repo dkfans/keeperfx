@@ -877,6 +877,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     if (!kfx_audio_path_supported(fname))
     {
         WARNLOG("unsupported audio format '%s', supported: %s", fname, kfx_audio_format_list_text());
+        playing_speech_lvnum = lvnum;
         return false;
     }
     if (play_good)
