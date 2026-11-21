@@ -13,6 +13,7 @@
 #define KFX_COLOR_AI           0xDDCC00u
 #define KFX_COLOR_SCRIPT       0x00BBCCu
 #define KFX_COLOR_LIGHTING     0xFFEE66u
+#define KFX_COLOR_AUDIO        0x33DD99u
 
 #ifdef TRACY_ENABLE
 #  include <tracy/Tracy.hpp>

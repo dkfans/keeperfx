@@ -163,6 +163,7 @@ TbBool use_relative_mouse_mode(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 unsigned char get_parchment_map_fade_turns(void);
+long get_max_sound_voices(void);
 /******************************************************************************/
 const char *get_language_lwrstr(int lang_id);
 /******************************************************************************/

@@ -1218,7 +1218,6 @@ void game_loop(void)
     if ((local_system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
     }
-    ShutDownSDLAudio();
     SYNCDBG(7,"Done");
 }
 

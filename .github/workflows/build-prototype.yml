@@ -84,7 +84,7 @@ jobs:
         set -eux
         sudo apt update
         # SDL3 is not in Ubuntu 24.04 apt, so Dependencies.cmake builds it from
-        # source (FetchContent). The libx11/gl/audio and image/mixer decoder
+        # source (FetchContent). The libx11/gl/audio and image decoder
         # packages below are SDL3's build deps. SDL_net is gone (native sockets).
         sudo apt install -y \
           build-essential \
@@ -120,11 +120,6 @@ jobs:
           libudev-dev \
           libpng-dev \
           libjpeg-dev \
-          libogg-dev \
-          libvorbis-dev \
-          libflac-dev \
-          libmpg123-dev \
-          libopusfile-dev \
           libminiupnpc-dev \
           libssl-dev \
           libzstd-dev \

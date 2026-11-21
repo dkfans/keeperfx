@@ -391,6 +391,7 @@ void setup_default_settings(void)
     settings.video_cluedo_mode             = 0;
     settings.sound_volume                  = 127;
     settings.music_volume                  = 90;
+    settings.movie_volume                  = 127;
     settings.roomflags_on                  = 1;
     settings.gamma_correction              = 0;
     settings.switching_vidmodes_index      = Lb_SCREEN_MODE_INVALID;
@@ -467,6 +468,8 @@ TbBool load_settings(void)
         if (val && value_type(val) == VALUE_INT32) settings.sound_volume = (unsigned char)value_int32(val);
         val = value_dict_get(vsec, "music_volume");
         if (val && value_type(val) == VALUE_INT32) settings.music_volume = (unsigned char)value_int32(val);
+        val = value_dict_get(vsec, "movie_volume");
+        if (val && value_type(val) == VALUE_INT32) settings.movie_volume = (unsigned char)value_int32(val);
         val = value_dict_get(vsec, "mentor_volume");
         if (val && value_type(val) == VALUE_INT32) settings.mentor_volume = (long)value_int32(val);
     }
@@ -609,6 +612,7 @@ short save_settings(void)
     TOSAVE("\n[audio]\n");
     TOSAVE("sound_volume = %d\n", (int)settings.sound_volume);
     TOSAVE("music_volume = %d\n", (int)settings.music_volume);
+    TOSAVE("movie_volume = %d\n", (int)settings.movie_volume);
     TOSAVE("mentor_volume = %ld\n", settings.mentor_volume);
     TOSAVE("\n[display]\n");
     TOSAVE("minimap_zoom = %u\n", settings.minimap_zoom);

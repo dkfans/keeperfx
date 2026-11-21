@@ -27,7 +27,19 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define SOUNDS_MAX_COUNT  16
+#define SOUNDS_MAX_COUNT  128
+#define SOUNDS_MIN_COUNT  16
+#define SOUNDS_DEFAULT_COUNT  100
+
+/** Clamps a requested simultaneous sound count to the supported range. */
+static inline long clamp_sound_count(long requested)
+{
+    if (requested < SOUNDS_MIN_COUNT)
+        return SOUNDS_MIN_COUNT;
+    if (requested > SOUNDS_MAX_COUNT)
+        return SOUNDS_MAX_COUNT;
+    return requested;
+}
 #define SOUND_EMITTERS_MAX 128
 /******************************************************************************/
 #pragma pack(1)
@@ -97,6 +109,7 @@ struct S3DSample { // sizeof = 37
   unsigned short pan;
   unsigned short volume;
   SoundMilesID mss_id;
+  unsigned long voice_generation;
   struct SoundEmitter *emit_ptr;
   long emit_idx;
   char repeat_count; // signed
@@ -114,6 +127,12 @@ extern long MaxSoundDistance;
 extern struct SoundReceiver Receiver;
 extern long Non3DEmitter;
 extern long SpeechEmitter;
+// S3D-level sample drops (observability only; read and reset once per tick by
+// MonitorStreamedSoundTrack in bflib_sndlib.cpp).
+extern unsigned long S3DDropsPriority;
+extern unsigned long S3DDropsEviction;
+extern unsigned long S3DDropsVolumeZero;
+extern unsigned long S3DDropsOutOfRange;
 #pragma pack()
 /******************************************************************************/
 // Exported functions
@@ -141,7 +160,7 @@ void play_non_3d_sample(SoundSmplTblID);
 void play_non_3d_sample_no_overlap(SoundSmplTblID);
 void play_atmos_sound(SoundSmplTblID);
 short sound_emitter_in_use(SoundEmitterID);
-SoundMilesID play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char repeats, unsigned char ctype);
+SoundMilesID play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char repeats, unsigned char ctype, long priority, TbBool positional);
 void stop_sample(SoundEmitterID, SoundSmplTblID);
 long speech_sample_playing(void);
 long play_speech_sample(SoundSmplTblID);

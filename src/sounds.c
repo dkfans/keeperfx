@@ -58,6 +58,7 @@
 
 #include "keeperfx.hpp"
 #include "game_heap.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -73,7 +74,6 @@ const char foot_down_sound_sample_variant[] = {
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
-int sdl_flags = 0;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char repeats, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
 {
@@ -442,9 +442,13 @@ void update_player_sounds(void)
 void process_3d_sounds(void)
 {
     SYNCDBG(9,"Starting");
+    KFX_C_ZONE_BEGIN_COLOR(ctx_3d_sounds, "process_3d_sounds", KFX_COLOR_AUDIO);
+    begin_sample_updates();
     increment_sample_times();
     process_sound_samples();
     process_sound_emitters();
+    end_sample_updates();
+    KFX_C_ZONE_END(ctx_3d_sounds);
 }
 
 TbBool init_sound(void)
@@ -459,7 +463,7 @@ TbBool init_sound(void)
     snd_settng->dir3 = sound_dir;
     snd_settng->sound_buffer_enable = 1;
     snd_settng->stereo = 1;
-    snd_settng->max_number_of_samples = 100;
+    snd_settng->max_number_of_samples = (unsigned char)get_max_sound_voices();
     snd_settng->danger_music = 0;
     snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
@@ -468,7 +472,6 @@ TbBool init_sound(void)
     snd_settng->redbook_enable = ((features_enabled & Ft_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
-    sdl_flags = InitialiseSDLAudio();
     if (!GetSoundInstalled())
     {
       SoundDisabled = 1;
