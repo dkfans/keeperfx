@@ -568,8 +568,10 @@ long stop_emitter_samples(struct SoundEmitter *emit)
     return num_stopped;
 }
 
-short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax)
+// Returns a free or restartable slot; if it must evict, *evict_id is the slot to stop once the new sound has started.
+short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax, short *evict_id)
 {
+    *evict_id = -1;
     struct S3DSample *sample;
     long i;
     int32_t spcval = INT32_MAX;
@@ -603,8 +605,7 @@ short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax)
         S3DDropsPriority++;
         return -1;
     }
-    S3DDropsEviction++;
-    kick_out_sample(min_sample_id);
+    *evict_id = min_sample_id;
     return min_sample_id;
 }
 
@@ -878,13 +879,23 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     int32_t volume;
     int32_t pitch;
     get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
-    long smpl_idx = find_slot(smptbl_id, emit, ctype, priority);
+    short evict_id;
+    long smpl_idx = find_slot(smptbl_id, emit, ctype, priority, &evict_id);
     volume = (volume * loudness) / 256;
     if (smpl_idx < 0)
         return 0;
     SoundMilesID mss_id = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, priority, (emit->emitter_flags & 0x08) == 0);
     if (mss_id <= 0) {
+        // Nothing was stopped, so the sound that would have been evicted keeps playing.
         return 0;
+    }
+    if (evict_id >= 0) {
+        S3DDropsEviction++;
+        struct S3DSample* victim = &SampleList[evict_id];
+        if (victim->emit_ptr == emit && victim->smptbl_id == smptbl_id)
+            victim->is_playing = 0; // stop_sample would also stop the new sound
+        else
+            kick_out_sample(evict_id);
     }
     struct S3DSample* sample = &SampleList[smpl_idx];
     sample->priority = priority;
