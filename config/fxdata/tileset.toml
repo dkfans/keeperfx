@@ -52,5 +52,5 @@ Name = "LATERITE_CAVERN"
 
 [texture14]
 Name = "FLESH"
-Footprint = "EFFECTELEMENT_BLOOD_SPLAT"
+Footprint = "EFFECTELEMENT_STEP_FLESH"
 FootstepSound = [1069, 4]
