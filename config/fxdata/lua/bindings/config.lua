@@ -46,6 +46,13 @@ function SetObjectConfiguration(objectname,property,value) end
 function Set_creature_configuration(creature_type,property,value,value2) end
 --]]
 
+---Reads a [sprites] or [sounds] property from a unit cfg.
+---@param creature creature_type|Creature
+---@param property string
+---@return integer value
+---@return integer? count Sample count for a sound.
+function GetCreatureConfiguration(creature,property) end
+
 ---Allows you to make changes to effect generator values set in effects.toml. Look in that file for the possible properties.
 ---@param effectgeneratorname effect_generator_type
 ---@param property any

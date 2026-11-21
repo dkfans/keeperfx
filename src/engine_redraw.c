@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "observer.h"
 #include <stdlib.h>
+#include <string.h>
 #include "kfx/renderer/RendererManager.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
@@ -126,6 +127,46 @@ static void ensure_map_fade_buffers(int width, int height)
         map_fade_ghost_table = (unsigned char*)malloc(PALETTE_COLORS * PALETTE_COLORS);
 }
 /******************************************************************************/
+enum { CUSTOM_BUFF_SLOTS = 4, CUSTOM_BUFF_ICONS = 32 };
+struct CustomBuffSlot {
+    char name[COMMAND_WORD_LEN];
+    long icons[CUSTOM_BUFF_ICONS];
+    short dy[CUSTOM_BUFF_ICONS];
+    int count;
+};
+static struct CustomBuffSlot custom_buff_slots[CUSTOM_BUFF_SLOTS];
+
+void clear_custom_buff_icons(void)
+{
+    memset(custom_buff_slots, 0, sizeof(custom_buff_slots));
+}
+
+void set_custom_buff_icon_slot(const char *name, const long *icons, const short *dy, int count)
+{
+    struct CustomBuffSlot *slot = NULL;
+    struct CustomBuffSlot *blank = NULL;
+    for (int i = 0; i < CUSTOM_BUFF_SLOTS; i++)
+    {
+        if (strcasecmp(custom_buff_slots[i].name, name) == 0)
+            slot = &custom_buff_slots[i];
+        else if ((blank == NULL) && (custom_buff_slots[i].name[0] == 0))
+            blank = &custom_buff_slots[i];
+    }
+    if (slot == NULL)
+        slot = (count > 0) ? blank : NULL;
+    if (slot == NULL)
+        return;
+    if (count <= 0)
+    {
+        memset(slot, 0, sizeof(*slot));
+        return;
+    }
+    snprintf(slot->name, sizeof(slot->name), "%s", name);
+    slot->count = min(count, CUSTOM_BUFF_ICONS);
+    memcpy(slot->icons, icons, (size_t)slot->count * sizeof(long));
+    memcpy(slot->dy, dy, (size_t)slot->count * sizeof(short));
+}
+
 static void draw_creature_view_icons(struct Thing* creatng)
 {
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
@@ -177,6 +218,15 @@ static void draw_creature_view_icons(struct Thing* creatng)
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
         x += scale_ui_value_lofi(spr->SWidth);
+    }
+    int drawn = 0;
+    for (int slot = 0; slot < CUSTOM_BUFF_SLOTS; slot++)
+    {
+        for (int i = 0; (i < custom_buff_slots[slot].count) && (drawn < CUSTOM_BUFF_ICONS); i++, drawn++)
+        {
+            draw_gui_panel_sprite_left(x, y + custom_buff_slots[slot].dy[i] * ps_units_per_px / 16, ps_units_per_px, custom_buff_slots[slot].icons[i]);
+            x += scale_ui_value_lofi(spr->SWidth);
+        }
     }
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
     {
