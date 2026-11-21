@@ -140,7 +140,6 @@ struct IntralevelData {
     long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
     LevelNumber next_level;
     struct LevelEnsignOverride ensign_overrides[ENSIGN_OVERRIDES_COUNT];
-    int ap_last_processed_item_index;
 };
 
 

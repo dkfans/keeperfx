@@ -108,6 +108,7 @@ void ap_slot_connected(){
     g_ap_state.teamID = AP_GetPlayerTeam();
     snprintf(g_ap_state.save_id, sizeof(g_ap_state.save_id), "save/%s_%d_%d", g_ap_state.seed, g_ap_state.teamID, g_ap_state.slotID);
     g_ap_state.connected = true;
+    load_meta_vault_config_file();
     frontend_archipelago_connected();
     //callback once connected to AP server, send scounts for all locations not checked yet, so that ap_location_info_callback will be triggered. 
     ap_refresh_missing();

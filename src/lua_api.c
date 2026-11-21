@@ -217,13 +217,77 @@ static int lua_Room_available_id(lua_State *L)
 
 static int lua_ap_get_last_processed_item_index(lua_State *L)
 {
-    lua_pushinteger(L, intralvl.ap_last_processed_item_index);
+    int16_t value = 0;
+    meta_vault_read_value(0, &value);
+    lua_pushinteger(L, value);
     return 1;
 }
 
 static int lua_ap_set_last_processed_item_index(lua_State *L)
 {
-    intralvl.ap_last_processed_item_index = luaL_checkinteger(L, 1);
+    if (lua_gettop(L) < 1)
+    {
+        return luaL_error(L, "Not enough arguments! (Expected: number(0-%d) )", AP_RECEIVED_ITEM_NO_PRINT);
+    }
+    if (!lua_isnumber(L, 1))
+    {
+        return luaL_argerror(L, 1, lua_pushfstring(L, "Must be a number between 0 to %d", AP_RECEIVED_ITEM_NO_PRINT));
+    }
+    lua_Integer value = luaL_checkinteger(L, 1);
+    if (value < 0 || value > AP_RECEIVED_ITEM_NO_PRINT)
+    {
+        return luaL_argerror(L, 1, lua_pushfstring(L, "Invalid value '%s', must be between 0 to %d", lua_tostring(L, 1), AP_RECEIVED_ITEM_NO_PRINT));
+    }
+    meta_vault_write_value(0, (int16_t)value);
+    return 0;
+}
+
+static int lua_ap_get_meta_value(lua_State* L)
+{
+    if (lua_gettop(L) < 1)
+    {
+        return luaL_error(L, "Not enough arguments! (Expected: number(1-%d) )", META_VAULT_NO_PRINT);
+    }
+    if (!lua_isnumber(L, 1))
+    {
+        return luaL_argerror(L, 1, lua_pushfstring(L, "Must be a number between 1 to %d", META_VAULT_NO_PRINT));
+    }
+    lua_Integer index = luaL_checkinteger(L, 1);
+    if (index < 1 || index > META_VAULT_NO_PRINT)
+    {
+        return luaL_argerror(L, 1, lua_pushfstring(L, "Invalid value '%s', must be between 1 to %d", lua_tostring(L, 1), META_VAULT_NO_PRINT));
+    }
+    int16_t value = 0;
+    meta_vault_read_value((uint16_t)index, &value);
+    lua_pushinteger(L, value);
+    return 1;
+}
+
+static int lua_ap_set_meta_value(lua_State* L)
+{
+    if (lua_gettop(L) < 2)
+    {
+        return luaL_error(L, "Not enough arguments! (Expected: number(1-%d), number(%d-%d) )", META_VAULT_NO_PRINT, INT16_MIN, INT16_MAX);
+    }
+    if (!lua_isnumber(L, 1))
+    {
+        return luaL_argerror(L, 1, lua_pushfstring(L, "Must be a number between 1 to %d", META_VAULT_NO_PRINT));
+    }
+    if (!lua_isnumber(L, 2))
+    {
+        return luaL_argerror(L, 2, lua_pushfstring(L, "Must be a number between %d to %d", INT16_MIN, INT16_MAX));
+    }
+    lua_Integer index = luaL_checkinteger(L, 1);
+    if (index < 1 || index > META_VAULT_NO_PRINT)
+    {
+        return luaL_argerror(L, 1, lua_pushfstring(L, "Invalid value '%s' must be between 1 to %d", lua_tostring(L, 1), META_VAULT_NO_PRINT));
+    }
+    lua_Integer value = luaL_checkinteger(L, 2);
+    if (value < INT16_MIN || value > INT16_MAX)
+    {
+        return luaL_argerror(L, 2, lua_pushfstring(L, "Invalid value '%s' must be a number between %d to %d", lua_tostring(L, 2), INT16_MIN, INT16_MAX));
+    }
+    meta_vault_write_value((uint16_t)index, (int16_t)value);
     return 0;
 }
 
@@ -3001,6 +3065,8 @@ static const luaL_Reg global_methods[] = {
     {"SendAPMessage",                    lua_ap_send_message},
     {"GetAPLastProcessedItemIndex",      lua_ap_get_last_processed_item_index},
     {"SetAPLastProcessedItemIndex",      lua_ap_set_last_processed_item_index},
+    {"GetMetaValue",                     lua_ap_get_meta_value },
+    {"SetMetaValue",                     lua_ap_set_meta_value },
     {"GetAPSlotData",                    lua_ap_get_slot_data},
     {"APGoalComplete",                   lua_ap_goal},
     

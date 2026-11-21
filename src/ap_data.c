@@ -3,11 +3,15 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "post_inc.h"
+#include "config.h"
+#include "bflib_fileio.h"
 
 struct APState g_ap_state;
 static struct AP_LocationInfo ap_location_info[AP_LOCATION_NO];
 static int ap_location_info_count = 0;
 static int ap_current_lvl_remaining_box = 0;
+static int16_t meta_vault[META_VAULT_NO] = {0}; // '0' is reserved for ap_last_index.
+const char* meta_vault_file = "metavault.sav";
 void ap_state_init(struct APState* ap)
 {
     if (!ap) return;
@@ -184,4 +188,52 @@ void ap_decrease_current_lvl_box_remaining(void)
 int ap_get_current_lvl_box_remaining(void)
 {
     return ap_current_lvl_remaining_box;
+}
+
+void write_meta_vault_config_file(void)
+{
+    char* fname = prepare_file_path(FGrp_APSave, meta_vault_file);
+    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+    if (handle)
+    {
+        LbFileWrite(handle, &meta_vault, sizeof(meta_vault));
+        LbFileClose(handle);
+    }
+}
+
+void load_meta_vault_config_file(void)
+{
+    char* fname = prepare_file_path(FGrp_APSave, meta_vault_file);
+    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    int16_t tmp_meta_vault[META_VAULT_NO];
+    if (handle)
+    {
+        if (LbFileRead(handle, &tmp_meta_vault, sizeof(tmp_meta_vault)) == sizeof(tmp_meta_vault))
+            memcpy(meta_vault, tmp_meta_vault, sizeof(tmp_meta_vault));
+        else
+            WARNLOG("Metavault data size mismatch!!");
+        LbFileClose(handle);
+    }
+}
+
+void meta_vault_write_value(uint16_t index, int16_t value)
+{
+    if (index > META_VAULT_NO_PRINT)
+    {
+        ERRORLOG("Attempted to write out-of-index. (Range 0 - %d, received %d)", META_VAULT_NO_PRINT, index);
+        return;
+    }
+    meta_vault[index] = value;
+    write_meta_vault_config_file();
+}
+
+bool meta_vault_read_value(uint16_t index, int16_t *value)
+{
+    if (index > META_VAULT_NO_PRINT)
+    {
+        ERRORLOG("Attempted to read out-of-index. (Range 0 - %d, received %d)", META_VAULT_NO_PRINT, index);
+        return false;
+    }
+    *value = meta_vault[index];
+    return true;
 }
