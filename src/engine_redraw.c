@@ -135,29 +135,36 @@ struct CustomBuffSlot {
     int count;
 };
 static struct CustomBuffSlot custom_buff_slots[CUSTOM_BUFF_SLOTS];
-static int custom_buff_slot_count;
 
 void clear_custom_buff_icons(void)
 {
-    custom_buff_slot_count = 0;
+    memset(custom_buff_slots, 0, sizeof(custom_buff_slots));
 }
 
 void set_custom_buff_icon_slot(const char *name, const long *icons, const short *dy, int count)
 {
-    int i = 0;
-    while ((i < custom_buff_slot_count) && (strcasecmp(custom_buff_slots[i].name, name) != 0))
-        i++;
-    if (i >= CUSTOM_BUFF_SLOTS)
-        return;
-    if (i == custom_buff_slot_count)
+    struct CustomBuffSlot *slot = NULL;
+    struct CustomBuffSlot *blank = NULL;
+    for (int i = 0; i < CUSTOM_BUFF_SLOTS; i++)
     {
-        snprintf(custom_buff_slots[i].name, sizeof(custom_buff_slots[i].name), "%s", name);
-        custom_buff_slot_count++;
+        if (strcasecmp(custom_buff_slots[i].name, name) == 0)
+            slot = &custom_buff_slots[i];
+        else if ((blank == NULL) && (custom_buff_slots[i].name[0] == 0))
+            blank = &custom_buff_slots[i];
     }
-    count = min(count, CUSTOM_BUFF_ICONS);
-    memcpy(custom_buff_slots[i].icons, icons, (size_t)count * sizeof(long));
-    memcpy(custom_buff_slots[i].dy, dy, (size_t)count * sizeof(short));
-    custom_buff_slots[i].count = count;
+    if (slot == NULL)
+        slot = (count > 0) ? blank : NULL;
+    if (slot == NULL)
+        return;
+    if (count <= 0)
+    {
+        memset(slot, 0, sizeof(*slot));
+        return;
+    }
+    snprintf(slot->name, sizeof(slot->name), "%s", name);
+    slot->count = min(count, CUSTOM_BUFF_ICONS);
+    memcpy(slot->icons, icons, (size_t)slot->count * sizeof(long));
+    memcpy(slot->dy, dy, (size_t)slot->count * sizeof(short));
 }
 
 static void draw_creature_view_icons(struct Thing* creatng)
@@ -213,7 +220,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
         x += scale_ui_value_lofi(spr->SWidth);
     }
     int drawn = 0;
-    for (int slot = 0; slot < custom_buff_slot_count; slot++)
+    for (int slot = 0; slot < CUSTOM_BUFF_SLOTS; slot++)
     {
         for (int i = 0; (i < custom_buff_slots[slot].count) && (drawn < CUSTOM_BUFF_ICONS); i++, drawn++)
         {

@@ -34,7 +34,6 @@
 #include "lua_params.h"
 #include "lua_api_sound.h"
 #include "engine_redraw.h"
-#include "custom_sprites.h"
 #include "creature_graphics.h"
 #include "lvl_script_commands.h"
 
@@ -2686,17 +2685,11 @@ static int lua_Pay_for_power(lua_State *L)
     return 1;
 }
 
-static long custom_buff_icon_arg(lua_State *L, int index)
-{
-    long id = (lua_type(L, index) == LUA_TNUMBER) ? lua_tointeger(L, index) : get_icon_id(luaL_checkstring(L, index));
-    if ((id <= 0) || (id == bad_icon_id))
-        return luaL_argerror(L, index, "unrecognized icon");
-    return id;
-}
-
 static int lua_Set_custom_buff_icons(lua_State *L)
 {
     const char *name = luaL_checkstring(L, 1);
+    if (strlen(name) > COMMAND_WORD_LEN - 1)
+        return luaL_argerror(L, 1, "slot name too long");
     long icons[32];
     short dy[32] = {0};
     int count = 0;
@@ -2713,12 +2706,12 @@ static int lua_Set_custom_buff_icons(lua_State *L)
                 dy[count] = (short)lua_tointeger(L, -1);
                 lua_pop(L, 1);
             }
-            icons[count++] = custom_buff_icon_arg(L, -1);
+            icons[count++] = luaL_checkIcon(L, -1);
             lua_pop(L, fields + 1);
         }
     }
     else if (!lua_isnoneornil(L, 2))
-        icons[count++] = custom_buff_icon_arg(L, 2);
+        icons[count++] = luaL_checkIcon(L, 2);
     set_custom_buff_icon_slot(name, icons, dy, count);
     return 0;
 }
