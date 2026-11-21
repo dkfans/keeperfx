@@ -84,6 +84,7 @@ struct EffectElementConfigStats {
     unsigned char unanimated;
     short lifespan;
     short lifespan_random;
+    short start_frame;
     unsigned short sprite_idx;
     short sprite_size_min;
     short sprite_size_max;
