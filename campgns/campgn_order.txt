@@ -2,6 +2,7 @@
 keeporig.cfg
 origplus.cfg
 burdnimp.cfg
+hjourney.cfg
 undedkpr.cfg
 pstunded.cfg
 lqizgood.cfg
