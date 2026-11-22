@@ -9,12 +9,6 @@
       "kind": "artifact",
       "location": "https://github.com/microsoft/vcpkg-ce-catalog/archive/refs/heads/main.zip",
       "name": "microsoft"
-    },
-    {
-      "kind": "git",
-      "repository": "https://github.com/cerwym/keeperfx-vcpkg-registry",
-      "baseline": "0bfdffae71df9880ef0d6b594cc3a88753d40b29",
-      "packages": ["sdl3-mixer"]
     }
   ]
 }

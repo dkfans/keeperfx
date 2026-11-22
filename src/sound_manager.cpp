@@ -7,6 +7,7 @@
 #include "config_mods.h"
 #include "game_legacy.h"
 #include "custom_zip.h"
+#include "kfx/audio/AudioFormats.h"
 #include <cstdio>
 #include <fstream>
 #include <cstring>
@@ -53,7 +54,7 @@ bool SoundManager::initialize() {
 
     // If init_sound() was already called (e.g. from main()), adopt that state
     // rather than calling it again — a second call would try to re-open the
-    // audio device and corrupt the SDL_mixer / OpenAL state.
+    // audio device and corrupt the OpenAL / SDL3 audio state.
     if (GetSoundInstalled()) {
         initialized_ = true;
         return true;
@@ -519,6 +520,10 @@ void sound_manager_stop_music(void) {
 }
 
 SoundSmplTblID sound_manager_load_custom_sound(const char* name, const char* filepath) {
+    if (kfx_audio_path_has_extension(filepath) && !kfx_audio_path_supported(filepath)) {
+        WARNLOG("unsupported audio format '%s', supported: %s", filepath, kfx_audio_format_list_text());
+        return -1;
+    }
     return KeeperFX::SoundManager::getInstance().loadCustomSound(name, filepath);
 }
 
@@ -575,6 +580,13 @@ SoundEmitterID sound_manager_play_effect_named(const char* name, long priority, 
     return KeeperFX::SoundManager::getInstance().playEffectNamed(name, priority, volume);
 }
 
+// Suffixes to try: none when the path has an extension, otherwise each supported extension.
+static const char* const* candidate_suffixes(const char* path)
+{
+    static const char* const as_given[] = { "", NULL };
+    return kfx::audio::audio_path_has_extension(path) ? as_given : kfx::audio::audio_format_extensions();
+}
+
 // Attempt to find a sound file candidate in the sound/ subdir of every mod in a list.
 // Returns true and fills out_path on first match (list iterated in reverse so higher-priority
 // mods — those loaded later — win).
@@ -607,18 +619,9 @@ static bool find_in_mod_sound_dirs(const char* candidate, char* out_path, size_t
 // Returns true and fills out_path (size 2048) on success.
 static bool resolve_creature_sound_path(const char* path_in, char* out_path, size_t out_size)
 {
-    static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
-
-    const char* dot   = strrchr(path_in, '.');
-    const char* slash = strrchr(path_in, '/');
-    bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
-
-    for (int ei = 0; exts[ei] != NULL; ei++) {
-        if (has_ext && ei > 0) break;
-        if (!has_ext && ei == 0) continue;
-
+    for (const char* const* ext = candidate_suffixes(path_in); *ext != NULL; ext++) {
         char candidate[2048];
-        snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
+        snprintf(candidate, sizeof(candidate), "%s%s", path_in, *ext);
 
         // after_map mods override everything, then map-level game dirs
         if (find_in_mod_sound_dirs(candidate, out_path, out_size,
@@ -661,20 +664,11 @@ static bool resolve_creature_sound_path(const char* path_in, char* out_path, siz
 // Returns true and fills out_path (size 2048) on success.
 static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, size_t out_size)
 {
-    static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
+    SYNCDBG(7,"Sound path search for '%s' (has_ext=%d)", path_in, kfx_audio_path_has_extension(path_in));
 
-    const char* dot   = strrchr(path_in, '.');
-    const char* slash = strrchr(path_in, '/');
-    bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
-
-    SYNCDBG(7,"Sound path search for '%s' (has_ext=%d)", path_in, (int)has_ext);
-
-    for (int ei = 0; exts[ei] != NULL; ei++) {
-        if (has_ext && ei > 0) break;
-        if (!has_ext && ei == 0) continue;
-
+    for (const char* const* ext = candidate_suffixes(path_in); *ext != NULL; ext++) {
         char candidate[2048];
-        snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
+        snprintf(candidate, sizeof(candidate), "%s%s", path_in, *ext);
 
         // after_map mods override everything, then the map-level game dir
         if (find_in_mod_sound_dirs(candidate, out_path, out_size,
@@ -707,19 +701,12 @@ static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, s
 // Anything after that will work, but sound/ is a mandatory root.
 static bool resolve_sound_path_in_map_zip(const char* path_in, unsigned char** out_data, size_t* out_size)
 {
-    static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
     if (strncasecmp(path_in, "sound/", 6) == 0) {
         path_in += 6;
     }
-    const char* dot   = strrchr(path_in, '.');
-    const char* slash = strrchr(path_in, '/');
-    bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
-
-    for (int ei = 0; exts[ei] != NULL; ei++) {
-        if (has_ext && ei > 0) break;
-        if (!has_ext && ei == 0) continue;
+    for (const char* const* ext = candidate_suffixes(path_in); *ext != NULL; ext++) {
         char candidate[2048];
-        snprintf(candidate, sizeof(candidate), "sound/%s%s", path_in, exts[ei]);
+        snprintf(candidate, sizeof(candidate), "sound/%s%s", path_in, *ext);
         if (read_map_zip_entry(game.last_level, candidate, out_data, out_size)) {
             return true;
         }

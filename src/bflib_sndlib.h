@@ -40,10 +40,17 @@ void * GetSoundDriver(void);
 void StopAllSamples(void);
 TbBool InitAudio(const struct SoundSettings *);
 TbBool IsSamplePlaying(SoundMilesID);
+/** Start counter of the voice behind mss_id; changes when the voice starts a new sound. */
+unsigned long GetSampleGeneration(SoundMilesID);
+/** True only while the voice still plays the sound that had this generation. */
+TbBool IsSamplePlayingGeneration(SoundMilesID, unsigned long generation);
 SoundVolume GetCurrentSoundMasterVolume(void);
 void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
 void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
 void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
+/** No-ops, kept for callers: sample updates are queued for the audio thread and applied there. */
+void begin_sample_updates(void);
+void end_sample_updates(void);
 void toggle_bbking_mode(void);
 
 /**
@@ -102,7 +109,7 @@ enum SoundStackMode {
  *
  * If a sample ID has no registered policy, it does NOT use this Limit/Duck struct at all —
  * it instead falls back to a separate once-per-tick gate in play_sample() (see
- * g_tick_samples_last_tick in bflib_sndlib.cpp), which reproduces the OG behaviour (at most
+ * VoiceMirror::tick_samples_last_tick_, cleared via clear_tick_gate()), which reproduces the OG behaviour (at most
  * one instance of a given sample plays at a time, regardless of how many emitters trigger
  * it). The gate is keyed by an internal tick counter advanced in MonitorStreamedSoundTrack()
  * rather than the in-game turn counter, so it still works correctly for UI/menu sounds

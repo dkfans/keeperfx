@@ -35,6 +35,7 @@
 #include "bflib_math.h"
 #include "bflib_sndlib.h"
 #include "bflib_sound.h"
+#include "kfx/audio/AudioFormats.h"
 #include "sprites.h"
 #include "gui_draw.h"
 #include "bflib_vidraw.h"
@@ -856,7 +857,6 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       {
           fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_before);
       }
-      playing_good_descriptive_speech = 1;
     } else
     {
       if (lvinfo->speech_after[0] == '\0')
@@ -873,8 +873,17 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       {
           fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_after);
       }
-      playing_bad_descriptive_speech = 1;
     }
+    if (!kfx_audio_path_supported(fname))
+    {
+        WARNLOG("unsupported audio format '%s', supported: %s", fname, kfx_audio_format_list_text());
+        playing_speech_lvnum = lvnum;
+        return false;
+    }
+    if (play_good)
+      playing_good_descriptive_speech = 1;
+    else
+      playing_bad_descriptive_speech = 1;
     playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
     //volume is overwritten in update_frontmap_ambient_sound
@@ -1162,8 +1171,8 @@ TbBool frontmap_load(void)
     {
         // don't use play_non_3d_sample; we want looping, fading, and volume control
         SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
-        play_sample(emit_id, campaign.ambient_good, 0, 0x40, NORMAL_PITCH, -1, 2);
-        play_sample(emit_id, campaign.ambient_bad, 0, 0x40, NORMAL_PITCH, -1, 2);
+        play_sample(emit_id, campaign.ambient_good, 0, 0x40, NORMAL_PITCH, -1, 2, 2147483646, false);
+        play_sample(emit_id, campaign.ambient_bad, 0, 0x40, NORMAL_PITCH, -1, 2, 2147483646, false);
     }
     set_music_volume(settings.music_volume);
     frontmap_start_music();

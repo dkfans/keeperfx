@@ -25,6 +25,7 @@
 #include "sound_manager.h"
 #include "bflib_sndlib.h"
 #include "gui_soundmsgs.h"
+#include "kfx/audio/AudioFormats.h"
 #include "globals.h"
 #include "game_legacy.h"
 #include <ctype.h>
@@ -1130,13 +1131,16 @@ TbBool cache_common_sound_ids(void)
 
 static TbBool value_is_sound_filepath(const char* text)
 {
-    const char* dot = strrchr(text, '.');
-    if (dot == NULL) return false;
-    char ext[8]; int i;
-    for (i = 0; i < 7 && dot[i]; i++)
-        ext[i] = (char)tolower((unsigned char)dot[i]);
-    ext[i] = '\0';
-    return strcmp(ext, ".wav") == 0 || strcmp(ext, ".mp3") == 0 || strcmp(ext, ".flac") == 0 || strcmp(ext, ".ogg") == 0;
+    return kfx_audio_path_supported(text) != 0;
+}
+
+/** Warns when text has a file extension that is not a supported audio format. */
+static TbBool warn_unsupported_audio_format(const char* text)
+{
+    if (!kfx_audio_path_has_extension(text))
+        return false;
+    WARNLOG("unsupported audio format '%s', supported: %s", text, kfx_audio_format_list_text());
+    return true;
 }
 
 int sound_id_from_text(const char* text)
@@ -1168,7 +1172,8 @@ int64_t value_sound_id(const struct NamedField* named_field, const char* value_t
     }
     if (!value_is_sound_filepath(value_text))
     {
-        NAMFIELDWRNLOG("Unrecognized sound name for field '%s', got '%s'", named_field->name, value_text);
+        if (!warn_unsupported_audio_format(value_text))
+            NAMFIELDWRNLOG("Unrecognized sound name for field '%s', got '%s'", named_field->name, value_text);
     }
     return 0;
 }
@@ -1208,7 +1213,8 @@ void speech_ref_parse(SpeechRef* ref, const char* text)
         return;
     }
     if (!value_is_sound_filepath(text)) {
-        WARNLOG("Unrecognized speech value '%s': not a number, known name, or audio file path", text);
+        if (!warn_unsupported_audio_format(text))
+            WARNLOG("Unrecognized speech value '%s': not a number, known name, or audio file path", text);
         return;
     }
     snprintf(ref->path, sizeof(ref->path), "%s", text);
@@ -1237,8 +1243,9 @@ int64_t value_speech_ref(const struct NamedField* named_field, const char* value
     if (smsg > 0)
         return (int64_t)smsg;
     if (!value_is_sound_filepath(value_text)) {
-        NAMFIELDWRNLOG("Unrecognized speech value '%s' for field '%s': not a number, known name, or audio file path",
-                       value_text, named_field->name);
+        if (!warn_unsupported_audio_format(value_text))
+            NAMFIELDWRNLOG("Unrecognized speech value '%s' for field '%s': not a number, known name, or audio file path",
+                           value_text, named_field->name);
         return 0;
     }
     snprintf(s_speech_ref_pending_path, sizeof(s_speech_ref_pending_path), "%s", value_text);
