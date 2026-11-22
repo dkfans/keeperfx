@@ -10,6 +10,9 @@ extern "C" {
 
 #define AP_LOCATION_NO 179
 #define AP_RECEIVED_ITEM_NO 512
+#define AP_RECEIVED_ITEM_NO_PRINT (AP_RECEIVED_ITEM_NO - 1)
+#define META_VAULT_NO 257
+#define META_VAULT_NO_PRINT (META_VAULT_NO - 1)
 extern struct APState g_ap_state;
 
 struct AP_ReceivedItem
@@ -98,6 +101,10 @@ void ap_location_info_clear(void);
 void ap_update_current_lvl_box_remaining(int cnt);
 void ap_decrease_current_lvl_box_remaining(void);
 int ap_get_current_lvl_box_remaining(void);
+void write_meta_vault_config_file(void);
+void load_meta_vault_config_file(void);
+void meta_vault_write_value(uint16_t index, int16_t value);
+bool meta_vault_read_value(uint16_t index, int16_t* value);
 
 #ifdef __cplusplus
 }
