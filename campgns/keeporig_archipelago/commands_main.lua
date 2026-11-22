@@ -49,7 +49,7 @@ function CommandsMain.WriteToMetaBitmask(meta_index, index, value)
       assert(index > 0 and index <= 15 and math.floor(index) == index, "index must be a whole-number within 1 - 15")
       assert(type(value) == "boolean", "value must be true or false")
       local result = GetMetaValue(meta_index)
-      assert(IsValid15BitMask(result), "attempted to use index which is NOT a valid bitmask")
+      assert(IsValid15BitMask(result), "attempted to use meta_index which is NOT a valid bitmask")
       local mask = 2 ^ (index - 1)
       local mask_value = (math.floor(result / mask) % 2) == 1
       if mask_value == value then
