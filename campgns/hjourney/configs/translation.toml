@@ -1028,3 +1028,320 @@ GER = "Ein Gemälde unserer Heimat, erobert vom Keeper Sapphire. Ein gefährlich
 [FULL_MOON_CAT_INFO]
 ENG = "Missing your pet cat? Don't worry. She stayed safely outside the painted world, waiting for your return."
 GER = "Vermisst Ihr Eure Katze? Keine Angst. Sie ist sicher außerhalb der Welt im Gemälde geblieben, und wartet auf Eure Rückkehr."
+
+# Strings from old text_eng.pot format
+
+# guitext:1
+[CANDLE_OF_REFLECTION]
+ENG = "Candle of Reflection"
+GER = "Kerze des Abpralls"
+
+# guitext:2
+[CANDLE_OF_REFLECTION_TOOLTIP]
+ENG = "Candle of Reflection: A magical candle, which buffs an allied creature with the power to reflect projectiles."
+GER = "Kerze des Abpralls: Eine magische Kerze die Verbündeten einen magischen Schild gibt, der Projektile reflektiert."
+
+# guitext:3
+[CANDLE_OF_SPEED]
+ENG = "Candle of Speed"
+GER = "Kerze der Beschleunigung"
+
+# guitext:4
+[CANDLE_OF_SPEED_TOOLTIP]
+ENG = "Candle of Speed: A magical candle, which buffs an allied creature with speed."
+GER = "Kerze der Beschleunigung: Eine magische Kerze, die Verbündete schneller macht."
+
+# guitext:5
+[CANDLE_OF_HEALING]
+ENG = "Candle of Healing"
+GER = "Kerze der Heilung"
+
+# guitext:6
+[CANDLE_OF_HEALING_TOOLTIP]
+ENG = "Candle of Healing: A magical candle, which heals hurt allied creatures."
+GER = "Kerze der Heilung: Eine magische Kerze, die Verbündete heilt."
+
+# guitext:7
+[CANDLE_OF_FLIGHT]
+ENG = "Candle of Flight"
+GER = "Kerze des Flugs"
+
+# guitext:8
+[CANDLE_OF_FLIGHT_TOOLTIP]
+ENG = "Candle of Flight: A magical candle, which temporarily buffs all nearby allied creatures with the power to fly."
+GER = "Kerze des Flugs: Eine magische Kerze, die alle Verbündeten im Umkreis kurzzeitig fliegen lässt."
+
+# guitext:9
+[HIVE_GUARDPOST]
+ENG = "Hive Guardpost"
+GER = "Insekten-Wachposten"
+
+# guitext:10
+[HIVE_GUARDPOST_TOOLTIP]
+ENG = "Hive Guardpost: Spawns a Firefly to guard the area until the hive is destroyed."
+GER = "Insekten-Wachposten: Ein Glühwürmchen bewacht die Umgebung, bis das Versteck zerstört ist."
+
+# guitext:11
+[BERSERK_TRAP]
+ENG = "Berserk Trap"
+GER = "Berserker Falle"
+
+# guitext:12
+[BERSERK_TRAP_TOOLTIP]
+ENG = "Berserk Trap: Causes creatures that step on it to fly into an uncontrollable rage and attack anyone nearby."
+GER = "Berserker Falle: Eine Kreatur, die auf diese Falle tritt verfällt in einen Wutanfall und greift jeden im Umkreis an."
+
+# guitext:13
+[DRAGONBLOOD_BLESSING]
+ENG = "Dragonblood Blessing"
+GER = "Segen des Drachenbluts"
+
+# guitext:14
+[DRAGONBLOOD_BLESSING_TOOLTIP]
+ENG = "Dragonblood Blessing: Permanently transforms the selected magical creature into a Dragon."
+GER = "Segen des Drachenbluts: Verwandelt die ausgewählte magische Kreatur permanent in einen Drachen."
+
+# guitext:15
+[GAS_EXPLOSION]
+ENG = "Gas Explosion"
+GER = "Gas Explosion"
+
+# guitext:16
+[GAS_EXPLOSION_TOOLTIP]
+ENG = "Gas Explosion: Conjures a cloud of Bile Demon gas to harm all creatures in the area. Can be charged for greater area of effect."
+GER = "Gas Explosion: Eine Wolke von Teufler-Gas, welche allen Kreaturen Schaden zufügt. Kann aufgeladen werden um ein größeres Gebiet zu treffen."
+
+# guitext:17
+[CAVE_IN_RESTORED_TOOLTIP]
+ENG = "Cave In: Collapses ceilings to create natural bridges over water and lava and harms nearby creatures."
+GER = "Einsturz: Lässt die Decke einstürzen, und erzeugt natürliche Brücken über Wasser und Lava. Fügt allen Kreaturen in der Nähe Schaden zu."
+
+# guitext:18
+[CONJURE_EARTH]
+ENG = "Conjure Earth"
+GER = "Erde Beschwören"
+
+# guitext:19
+[CONJURE_EARTH_TOOLTIP]
+ENG = "Conjure Earth: Raises a pillar of earth from the ground to create walls. Only usable on path and claimed floor."
+GER = "Erde Beschwören: Hebt eine Erdsäule aus dem Boden um eine Wand zu erzeugen. Kann auf leerem Pfad verwendet werden."
+
+# guitext:20
+[TOUCH_OF_MIDAS]
+ENG = "Touch of Midas"
+GER = "Hand des Midas"
+
+# guitext:21
+[TOUCH_OF_MIDAS_TOOLTIP]
+ENG = "Touch of Midas: Kills target creature and turns it into gold. Free to cast on allied creatures and prisoners."
+GER = "Hand des Midas: Tötet die gewählte Kreatur und verwandelt sie in Gold. Kostenlos, wenn es auf Verbündete oder Gefangene angewendet wird."
+
+# guitext:22
+[WORD_OF_FROST_TOOLTIP]
+ENG = "Word of Frost: A blast of freezing cold magical energy, which damages and briefly stuns enemies."
+GER = "Wort der Kälte: Eine Explosion von kältester magischer Energie, die Schaden macht und Gegner kurz einfriert."
+
+# guitext:23
+[SUMMON_GHOSTS_TOOLTIP]
+ENG = "Summon Ghosts: Conjure Ghosts to help in battle."
+GER = "Geister Beschwören: Beschwört Geister, die für euch kämpfen."
+
+# guitext:24
+[SLAM_TOOLTIP]
+ENG = "Slam: Hits the ground with such force that all nearby enemies take damage."
+GER = "Zerschmettern: Schlägt den Boden mit so viel Wucht, dass alle Gegner im Umkreis Schaden nehmen."
+
+# guitext:25
+[PORTAL_CANDLE]
+ENG = "Portal Candle"
+GER = "Heldentor Kerze"
+
+# guitext:26
+[PORTAL_CANDLE_TOOLTIP]
+ENG = "Portal Candle: A candlestick, used to open a portal to the overworld."
+GER = "Heldentor Kerze: Eine Kerze, die ein Tor zur Oberwelt öffnen kann."
+
+# guitext:27
+[BLOOD_METEOR_TOOLTIP]
+ENG = "Blood Meteor: A Meteor that leaves behind a trail of blood. Stronger than the regular Meteor."
+GER = "Blutiger Meteor: Meteor, der eine Spur von Blut hinterlässt. Stärker als ein normaler Meteor."
+
+# guitext:28
+[KNIGHT_PROMOTION]
+ENG = "Knight Promotion"
+GER = "Ritter Beförderung"
+
+# guitext:29
+[KNIGHT_PROMOTION_TOOLTIP]
+ENG = "Knight Promotion: Promotes a Thief to a Knight. Can only be used once."
+GER = "Ritter Beförderung: Befördert einen Dieb zu einem Ritter. Kann nur einmal verwendet werden."
+
+# guitext:30
+[FIREFLY]
+ENG = "Firefly"
+GER = "Glühwürmchen"
+
+# guitext:31
+[SINISTER_AVATAR]
+ENG = "Sinister Avatar"
+GER = "Finsterer Avatar"
+
+# guitext:32
+[SAMURAI_PROMOTION]
+ENG = "Samurai Promotion"
+GER = "Samurai Beförderung"
+
+# guitext:33
+[SAMURAI_PROMOTION_TOOLTIP]
+ENG = "Samurai Promotion: Turns a Thief into a Samurai. Can only be used once."
+GER = "Samurai Beförderung: Befördert einen Dieb zu einem Samurai. Kann nur einmal verwendet werden."
+
+# guitext:34
+[PORTAL_INVASION]
+ENG = "Portal Invasion"
+GER = "Heldentor Invasion"
+
+# guitext:35
+[PORTAL_INVASION_TOOLTIP]
+ENG = "Portal Invasion: Recruits a party of Heroes from the overworld. Can be charged to recruit stronger parties."
+GER = "Heldentor Invasion: Rekrutiert eine Gruppe von Helden aus der Oberwelt. Kann aufgeladen um stärkere Gruppen zu rekrutieren."
+
+# guitext:36
+[APPOINT_AVATAR]
+ENG = "Appoint Avatar"
+GER = "Avatar Ernennen"
+
+# guitext:37
+[APPOINT_AVATAR_TOOLTIP]
+ENG = "Appoint Avatar: Turns the selected creature you own into the Avatar!"
+GER = "Avatar Ernennen: Verwandelt die gewählte Kreatur in den Avatar!"
+
+# guitext:38
+[ENFEEBLE_TRAP]
+ENG = "Enfeeble Trap"
+GER = "Schwächende Falle"
+
+# guitext:39
+[ENFEEBLE_TRAP_TOOLTIP]
+ENG = "Enfeeble Trap: Causes creatures that step on it to lose power and level down."
+GER = "Schwächende Falle: Kreaturen die auf diese Falle treten verlieren Kraft und ihr Level sinkt um 1."
+
+# guitext:40
+[THIEVING_TRAP]
+ENG = "Thieving Trap"
+GER = "Stehlende Falle"
+
+# guitext:41
+[THIEVING_TRAP_TOOLTIP]
+ENG = "Thieving Trap: Steals gold from creatures that step on it and deals damage relative to gold dropped."
+GER = "Stehlende Falle: Stiehlt Gold von Kreaturen die drauf treten und fügt Schaden relativ zum verlorenen Gold zu."
+
+# guitext:42
+[HEROES_JOURNEY]
+ENG = "Heroes' Journey"
+GER = "Heroes' Journey"
+
+# guitext:43
+[LEVEL_NAME_1]
+ENG = "Chapter 1 - Into Darkness"
+GER = "Kapitel 1 - In die Dunkelheit"
+
+# guitext:44
+[LEVEL_NAME_2]
+ENG = "Chapter 2 - Fairy Village"
+GER = "Kapitel 2 - Dorf der Feen"
+
+# guitext:45
+[LEVEL_NAME_3]
+ENG = "Chapter 3 - Aurum Passage"
+GER = "Kapitel 3 - Goldene Passage"
+
+# guitext:46
+[LEVEL_NAME_4]
+ENG = "Chapter 4 - Eye of the Swarm"
+GER = "Kapitel 4 - Auge des Bösen"
+
+# guitext:47
+[LEVEL_NAME_5]
+ENG = "Chapter 5 - Crystal Lake"
+GER = "Kapitel 5 - Kristallsee"
+
+# guitext:48
+[LEVEL_NAME_6]
+ENG = "Chapter 6 - Desolate Plain"
+GER = "Kapitel 6 - Verwüstete Ebene"
+
+# guitext:49
+[LEVEL_NAME_7]
+ENG = "Chapter 7 - Chamber of Sacrilege"
+GER = "Kapitel 7 - Kammer des Sakrilegium"
+
+# guitext:50
+[LEVEL_NAME_8]
+ENG = "Chapter 8 - Infernal Trail"
+GER = "Kapitel 8 - Höllischer Pfad"
+
+# guitext:51
+[LEVEL_NAME_9]
+ENG = "Chapter 9 - Scarlet Oubliette"
+GER = "Kapitel 9 - Blutverschmierter Kerker"
+
+# guitext:52
+[LEVEL_NAME_10]
+ENG = "Final Chapter - The Deepest Point"
+GER = "Letztes Kapitel - Der tiefste Punkt"
+
+# guitext:53
+[DIVINE_SIGHT]
+ENG = "Divine Sight"
+GER = "Göttliche Sicht"
+
+# guitext:54
+[DIVINE_SIGHT_TOOLTIP]
+ENG = "Divine Sight: Uses divine power to temporarily reveal a part of the map."
+GER = "Göttliche Sicht: Benutzt göttliche Macht um kurzzeitig den Nebel des Krieges zu lüften."
+
+# guitext:55
+[EVIL_GATE_TOOLTIP]
+ENG = "Evil Gate: A hero gate that has been manipulated to spawn enemy creatures by a Keeper. Be careful around these."
+GER = "Manipuliertes Portal: Ein Heldentor, welches durch einen einen Keeper manipuliert wurde, um feindliche Kreaturen zu beschwören."
+
+# guitext:56
+[HERO_GATE_TOOLTIP]
+ENG = "Hero Gate: Allied heroes can come through this gate."
+GER = "Heldentor: Verbündete Helden können durch diese Portale kommen."
+
+# guitext:57
+[INACTIVE_GATE_TOOLTIP]
+ENG = "Inactive Gate: A gate that is currently inactive. No creatures can come through it at the moment."
+GER = "Inaktives Portal: Ein Tor, das nicht aktiv ist. Kreaturen können es momentan nicht benutzen."
+
+# guitext:59
+[LEVEL_NAME_INTERLUDE_1]
+ENG = "Interlude 1 - Freezing Descent"
+GER = "Zwischenstück 1 - Eiskalter Abstieg"
+
+# guitext:60
+[LEVEL_NAME_INTERLUDE_2]
+ENG = "Interlude 2 - Prison Break"
+GER = "Zwischenstück 2 - Flucht aus dem Kerker"
+
+# guitext:61
+[LEVEL_NAME_ENDING]
+ENG = "Epilogue - Out of Darkness"
+GER = "Epilog - Aus der Dunkelheit"
+
+# guitext:62
+[BLACK_CAT]
+ENG = "Black Cat"
+GER = "Schwarze Katze"
+
+# guitext:63
+[ARACHNOMANCER]
+ENG = "Arachnomancer"
+GER = "Arachnozauberer"
+
+# guitext:64
+[EXPIRED_CURSE]
+ENG = "Expired Curse"
+GER = "Erloschener Fluch"
