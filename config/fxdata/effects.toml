@@ -1615,6 +1615,8 @@ MoveType = 0
 Unanimated = 0
 Lifespan = [0,0]
 AnimationId = 0
+# start frame of the animation. Default is 0. -1 is random, -2 is last frame only.
+StartFrame = 0
 SpriteSize = [0,0]
 AnimateOnce = 0
 SpriteSpeed = [0,0]
