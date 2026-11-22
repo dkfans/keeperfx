@@ -1,0 +1,35 @@
+[effect210]
+Name = "EFFECT_EXPLOSION_SILENT"
+Health = 10
+GenerationType = 1
+GenerationAccelXYRange = [172,172]
+GenerationAccelZRange = [-172,172]
+GenerationKindRange = [1,1]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 10
+LightIntensity = 45
+LightFlags = 1
+ElementsCount = 6
+AlwaysGenerate = 0
+
+[effect33]
+Name = "EFFECT_GOLD_RUBBLE_ABYSS"
+Health = 5
+GenerationType = 1
+GenerationAccelXYRange = [64,64]
+GenerationAccelZRange = [-96,96]
+GenerationKindRange = [49,51]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 3
+AlwaysGenerate = 0
