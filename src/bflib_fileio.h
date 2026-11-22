@@ -57,11 +57,16 @@ long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long le
 long LbFileLength(const char *fname);
 long LbFileLengthHandle(TbFileHandle handle);
 struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry);
+/** Lists the files matching any of the specs, each name once: a name that more than one spec matches is listed
+ *  where the first of them found it. Names are in the order of the specs. */
+struct TbFileFind * LbFileFindFirstInAll(const char * const * filespecs, int count, struct TbFileEntry * fentry);
 int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry);
 void LbFileFindEnd(struct TbFileFind * ffind);
 int LbFileDelete(const char *filename);
 int LbFileRename(const char *oldname, const char *newname);
 short LbFileFlush(TbFileHandle handle);
+/** Creates the missing folders of a file's path. Returns 1 when they exist. */
+int create_directory_for_file(const char * fname);
 int LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len);
 

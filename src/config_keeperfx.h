@@ -108,7 +108,7 @@ enum StartupFlags {
 /******************************************************************************/
 
 struct InstallInfo {
-  char inst_path[150];
+  char inst_path[FULLPATH_SIZE];
   int lang_id;
 };
 
@@ -120,7 +120,7 @@ extern TbBool AssignCpuKeepers;
 extern unsigned int vid_scale_flags;
 /******************************************************************************/
 extern struct InstallInfo install_info;
-extern char keeper_runtime_directory[152];
+extern char keeper_runtime_directory[FULLPATH_SIZE];
 
 #pragma pack()
 /******************************************************************************/

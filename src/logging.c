@@ -232,6 +232,7 @@ int LbJustLog(const char *format, ...)
     return result;
 }
 
+/** Sets up the log in directory/filename, or in filename when it is an absolute path. */
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
 {
     if (error_log_initialised) {
@@ -240,8 +241,15 @@ int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
     if (filename == NULL || strlen(filename) == 0) {
         filename = "error.log";
     }
-    char log_filename[DISKPATH_SIZE];
-    if (LbFileMakeFullPath(1, directory, filename, log_filename, DISKPATH_SIZE) != 1) {
+    char log_filename[FULLPATH_SIZE];
+    TbBool absolute = (filename[0] == '/') || (filename[0] == '\\') || ((filename[0] != '\0') && (filename[1] == ':'));
+    int len;
+    if (absolute || directory == NULL || directory[0] == '\0') {
+        len = snprintf(log_filename, sizeof(log_filename), "%s", filename);
+    } else {
+        len = snprintf(log_filename, sizeof(log_filename), "%s/%s", directory, filename);
+    }
+    if (len < 0 || len >= (int)sizeof(log_filename)) {
         return -1;
     }
     ulong flags = (flag == 0) + 1;
@@ -255,6 +263,8 @@ int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
     if (LbLogSetup(&error_log, log_filename, flags) != 1) {
         return -1;
     }
+    // Error messages tell players where to look.
+    log_file_name = error_log.filename;
     error_log_initialised = 1;
     return 1;
 }
@@ -435,14 +445,14 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
 int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
 {
     log->Initialised = false;
-    memset(log->filename, 0, DISKPATH_SIZE);
+    memset(log->filename, 0, sizeof(log->filename));
     memset(log->prefix, 0, LOG_PREFIX_LEN);
     log->Created = false;
     log->Suspended = false;
-    if (strlen(filename) >= DISKPATH_SIZE || strlen(filename) == 0) {
+    if (strlen(filename) >= sizeof(log->filename) || strlen(filename) == 0) {
         return -1;
     }
-    snprintf(log->filename, DISKPATH_SIZE, "%s", filename);
+    snprintf(log->filename, sizeof(log->filename), "%s", filename);
     log->flags = flags;
     log->Initialised = true;
     log->position = 0;
@@ -456,7 +466,7 @@ int LbLogClose(struct TbLog *log)
         SDL_UnlockMutex(log_mutex);
         return -1;
     }
-    memset(log->filename, 0, DISKPATH_SIZE);
+    memset(log->filename, 0, sizeof(log->filename));
     memset(log->prefix, 0, LOG_PREFIX_LEN);
     log->flags = 0;
     log->Initialised = false;

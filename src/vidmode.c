@@ -514,12 +514,12 @@ void unload_pointer_file(short hi_res)
 TbBool init_fades_table(void)
 {
     static const TbPixel abyss_colours[] = {160, 1, 253};
-    char* fname = prepare_file_path(FGrp_StdData, "tables.dat");
+    const char *fname = "tables.dat";
     SYNCDBG(0,"Reading fade table file \"%s\".",fname);
-    if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
+    if (!load_cached_file(FGrp_StdData, fname, &pixmap, sizeof(struct TbColorTables)))
     {
         compute_fade_tables(&pixmap,engine_palette,engine_palette);
-        LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
+        save_cached_file(FGrp_StdData, fname, &pixmap, sizeof(struct TbColorTables));
     }
     lbDisplay.FadeTable = pixmap.fade_tables;
     TbPixel cblack = 144;
@@ -539,52 +539,52 @@ TbBool init_fades_table(void)
 
 TbBool init_alpha_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "alpha.col");
+    const char *fname = "alpha.col";
     SYNCDBG(0,"Reading alpha color table file \"%s\".",fname);
     // Loading file data
-    if (LbFileLoadAt(fname, &alpha_sprite_table) != sizeof(struct TbAlphaTables))
+    if (!load_cached_file(FGrp_StdData, fname, &alpha_sprite_table, sizeof(struct TbAlphaTables)))
     {
         compute_alpha_tables(&alpha_sprite_table,engine_palette,engine_palette);
-        LbFileSaveAt(fname, &alpha_sprite_table, sizeof(struct TbAlphaTables));
+        save_cached_file(FGrp_StdData, fname, &alpha_sprite_table, sizeof(struct TbAlphaTables));
     }
     return true;
 }
 
 TbBool init_rgb2idx_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "colours.col");
+    const char *fname = "colours.col";
     SYNCDBG(0,"Reading rgb-to-index color table file \"%s\".",fname);
     // Loading file data
-    if (LbFileLoadAt(fname, &colours) != sizeof(TbRGBColorTable))
+    if (!load_cached_file(FGrp_StdData, fname, &colours, sizeof(TbRGBColorTable)))
     {
         compute_rgb2idx_table(colours,engine_palette);
-        LbFileSaveAt(fname, &colours, sizeof(TbRGBColorTable));
+        save_cached_file(FGrp_StdData, fname, &colours, sizeof(TbRGBColorTable));
     }
     return true;
 }
 
 TbBool init_redpal_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "redpal.col");
+    const char *fname = "redpal.col";
     SYNCDBG(0,"Reading red-blended color table file \"%s\".",fname);
     // Loading file data
-    if (LbFileLoadAt(fname, &red_pal) != 256)
+    if (!load_cached_file(FGrp_StdData, fname, &red_pal, 256))
     {
         compute_shifted_palette_table(red_pal, engine_palette, engine_palette, 20, -10, -10);
-        LbFileSaveAt(fname, &red_pal, 256);
+        save_cached_file(FGrp_StdData, fname, &red_pal, 256);
     }
     return true;
 }
 
 TbBool init_whitepal_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "whitepal.col");
+    const char *fname = "whitepal.col";
     SYNCDBG(0,"Reading white-blended color table file \"%s\".",fname);
     // Loading file data
-    if (LbFileLoadAt(fname, &white_pal) != 256)
+    if (!load_cached_file(FGrp_StdData, fname, &white_pal, 256))
     {
         compute_shifted_palette_table(white_pal, engine_palette, engine_palette, 48, 48, 48);
-        LbFileSaveAt(fname, &white_pal, 256);
+        save_cached_file(FGrp_StdData, fname, &white_pal, 256);
     }
     return true;
 }

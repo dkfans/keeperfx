@@ -110,7 +110,7 @@ typedef short TbScreenPos;
 #define LOG_PREFIX_LEN 32
 
 struct TbLog {
-        char filename[DISKPATH_SIZE];
+        char filename[FULLPATH_SIZE];
         char prefix[LOG_PREFIX_LEN];
         ulong flags;
         TbBool Initialised;

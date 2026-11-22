@@ -34,6 +34,7 @@
 #include "config_strings.h"
 #include "thing_effects.h"
 #include "game_legacy.h"
+#include "kfx/platform/UserDirs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -159,8 +160,8 @@ static void load_effects(VALUE *value, unsigned short flags)
 
 static const char *config_path_for_log(const char *fname)
 {
-    const char *game_dirs[] = { keeper_runtime_directory, install_info.inst_path };
-    for (int32_t i = 0; i < 2; i++)
+    const char *game_dirs[] = { keeper_runtime_directory, install_info.inst_path, userdirs_get(UsrDir_Data) };
+    for (int32_t i = 0; i < (int32_t)(sizeof(game_dirs) / sizeof(game_dirs[0])); i++)
     {
         const size_t len = strlen(game_dirs[i]);
         if ((len > 0) && (strncmp(fname, game_dirs[i], len) == 0) && ((fname[len] == '/') || (fname[len] == '\\')))
