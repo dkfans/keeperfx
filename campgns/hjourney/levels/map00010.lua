@@ -493,7 +493,7 @@ function LastLevelWon()
     local creaturesToSerialize = {}
     for index, creature in ipairs(creatures) do
         -- Do not teleport the cat away
-        if (creature.model == "AWITCHCAT") then
+        if (creature.model == "CAT") then
             goto continue
         end
 

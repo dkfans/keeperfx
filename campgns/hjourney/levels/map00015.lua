@@ -82,7 +82,7 @@ function Setup()
     end
     RegisterOnConditionEvent(function ()
         RegisterOnActionPointEvent(function ()
-            QuickMessage(GetString("LEVEL_15_CAT_RESCUED"), "AWITCHCAT")
+            QuickMessage(GetString("LEVEL_15_CAT_RESCUED"), "CAT")
             Game.CatHasBeenRescued = true
         end, 2, "PLAYER4")
 
@@ -90,7 +90,7 @@ function Setup()
         local destination = {{stl_x = 13, stl_y = 94}}
         RegisterPatrol(leader, destination)
     end, function ()
-        return PLAYER4.AWITCHCAT > 0
+        return PLAYER4.CAT > 0
     end)
 
     -- Load the creatures from level 10
@@ -239,9 +239,9 @@ function Setup()
                         return
                     end
 
-                    QuickMessage(GetString("LEVEL_15_CAT_SACRIFICE"), "AWITCHCAT")
+                    QuickMessage(GetString("LEVEL_15_CAT_SACRIFICE"), "CAT")
                     RunDKScriptCommand("HIDE_HERO_GATE(3, 1)")
-                    local cat = GetCreatureByCriterion("PLAYER4", "AWITCHCAT", "ANYWHERE")
+                    local cat = GetCreatureByCriterion("PLAYER4", "CAT", "ANYWHERE")
                     cat:delete()
                 end, 3, "PLAYER4")
 

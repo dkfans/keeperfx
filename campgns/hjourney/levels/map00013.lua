@@ -95,10 +95,10 @@ function Setup()
     
     RegisterTimerEvent(function ()
         ClearMessage()
-        if (PLAYER0.AWITCHCAT > 0) then
-            local cat = GetCreatureByCriterion("PLAYER0", "AWITCHCAT", "ANYWHERE")
+        if (PLAYER0.CAT > 0) then
+            local cat = GetCreatureByCriterion("PLAYER0", "CAT", "ANYWHERE")
             QuickMessage(GetString("MEOW"), "NONE")
-            QuickMessage(GetString(62) .. " " .. cat.name .. ": ", "AWITCHCAT")
+            QuickMessage(GetString(62) .. " " .. cat.name .. ": ", "CAT")
             PlayMessage("PLAYER0", "SOUND", "meow_cute.mp3")
         end
     end, 1100, false)

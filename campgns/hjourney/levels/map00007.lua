@@ -203,7 +203,7 @@ function SetupTriggers()
 		PlayMessage("PLAYER0", "SPEECH", 75)
 	end, function ()
 		-- The cat shouldn't count here
-		if (PLAYER0.AWITCHCAT > 0) then
+		if (PLAYER0.CAT > 0) then
 			return PLAYER0.TOTAL_CREATURES > 1
 		end
 

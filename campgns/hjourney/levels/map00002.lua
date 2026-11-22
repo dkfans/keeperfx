@@ -222,7 +222,7 @@ function SetupTriggers()
     RegisterOnConditionEvent(function ()
         QuickInformation(149, GetString("LEVEL_2_CAT_SPAWNED"))
     end, function ()
-        return PLAYER0.AWITCHCAT > 0
+        return PLAYER0.CAT > 0
     end)
 
     -- Adds the curse special for this level
