@@ -211,7 +211,11 @@ void play_thing_walking(struct Thing *thing)
         // Spectators don't do sounds
         return;
     }
-    long loudness = ((get_user_view_type(get_my_user()) == PVT_CreatureContrl) || (get_user_view_type(get_my_user()) == PVT_CreaturePasngr)) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
+    const struct Thing* controlled = thing_get(get_user_state(get_my_user())->controlled_thing_idx);
+    const TbBool spectating = thing_exists(controlled) && flag_is_set(get_creature_model_flags(controlled), CMF_IsSpectator);
+    const unsigned char view_type = get_user_view_type(get_my_user());
+    const TbBool possessing = ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr)) && !spectating;
+    long loudness = possessing ? FULL_LOUDNESS : (FULL_LOUDNESS / 5);
     if (((thing->movement_flags & TMvF_Flying) != 0) && !thing_touching_floor(thing))
     {
         // Flying diptera has a buzzing noise sound
