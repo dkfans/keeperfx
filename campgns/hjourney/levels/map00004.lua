@@ -257,7 +257,7 @@ function RegisterAllEnemyWaves()
 
 	-- Loads of fireflies
 	CreateParty("PartyMiddle3")
-	HelperFunctions.AddMultipleToParty("PartyMiddle3", "GUARDPOST_SUMMON", 3, 0, "ATTACK_ENEMIES", 0, 15)
+	HelperFunctions.AddMultipleToParty("PartyMiddle3", "FIREFLY", 3, 0, "ATTACK_ENEMIES", 0, 15)
 	RegisterTimerEvent(function () SpawnSingleWave("PartyMiddle3", -2) end, 16000, false)
 
 	-- Loads of ghosts

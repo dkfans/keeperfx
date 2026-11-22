@@ -312,7 +312,7 @@ function BeginRegisteringWaves()
     RegisterTimerEvent(function ()
         CreateParty("TunnellersNorth")
         HelperFunctions.AddMultipleToParty("TunnellersNorth", "FLY", 3, 0, "ATTACK_DUNGEON_HEART", 0, 3)
-        HelperFunctions.AddMultipleToParty("TunnellersNorth", "GUARDPOST_SUMMON", 4, 0, "ATTACK_DUNGEON_HEART", 0, 3)
+        HelperFunctions.AddMultipleToParty("TunnellersNorth", "FIREFLY", 4, 0, "ATTACK_DUNGEON_HEART", 0, 3)
         AddTunnellerPartyToLevel("PLAYER_GOOD", "TunnellersNorth", -1, "DUNGEON_HEART", 0, 1, 500)
     end, 3500, false)
 
@@ -475,7 +475,7 @@ function PickRandomCreature(waveIndex)
         {CreatureName = "BIRD"},
         {CreatureName = "MAIDEN"},
         {CreatureName = "SPIDERLING"},
-        {CreatureName = "GUARDPOST_SUMMON"},
+        {CreatureName = "FIREFLY"},
         {CreatureName = "ARACHNOMANCER"}
     }
     local index = math.random(HelperFunctions.Tablelength(CreaturesList))

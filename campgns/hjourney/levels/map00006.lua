@@ -258,7 +258,7 @@ function RegisterAndSpawnWaves()
     HelperFunctions.AddMultipleToParty("FlyRush", "FLY", 1, 100, "ATTACK_DUNGEON_HEART", 0, 5)
 
     CreateParty("Fireflies")
-    HelperFunctions.AddMultipleToParty("Fireflies", "GUARDPOST_SUMMON", 4, 0, "ATTACK_DUNGEON_HEART", 0, 6)
+    HelperFunctions.AddMultipleToParty("Fireflies", "FIREFLY", 4, 0, "ATTACK_DUNGEON_HEART", 0, 6)
 
     -- Bugs early
     RegisterTimerEvent(function ()
@@ -457,10 +457,10 @@ function RegisterAndSpawnWaves()
     end, 34000, false)
 
     RegisterTimerEvent(function ()
-        HelperFunctions.AddMultipleToLevel("PLAYER6", "GUARDPOST_SUMMON", -1, 6, 0, "DEFAULT", 4)
+        HelperFunctions.AddMultipleToLevel("PLAYER6", "FIREFLY", -1, 6, 0, "DEFAULT", 4)
 
         if (Game.CurseActivated) then
-            HelperFunctions.AddMultipleToLevel("PLAYER6", "GUARDPOST_SUMMON", -1, 6, 0, "DEFAULT", 4)
+            HelperFunctions.AddMultipleToLevel("PLAYER6", "FIREFLY", -1, 6, 0, "DEFAULT", 4)
         end
     end, 35000, false)
 

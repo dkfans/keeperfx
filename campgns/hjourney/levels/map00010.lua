@@ -311,7 +311,7 @@ function SetupTriggers()
         return Game.LeftDoorSlab.kind == "PRETTY_PATH"
     end)
     RegisterOnConditionEvent(function ()
-        HelperFunctions.AddMultipleToLevel("PLAYER_GOOD", "GUARDPOST_SUMMON", 21, 10, 0, "FALL", 9)
+        HelperFunctions.AddMultipleToLevel("PLAYER_GOOD", "FIREFLY", 21, 10, 0, "FALL", 9)
     end, function ()
         return Game.RightDoorSlab.kind == "PRETTY_PATH"
     end)

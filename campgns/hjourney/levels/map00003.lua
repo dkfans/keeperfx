@@ -333,7 +333,7 @@ function DeclareWaves()
 	CreateParty("Party2")
 	AddToParty("Party2", "DRUID", 10, 4000, "ATTACK_ENEMIES", 0)
 	HelperFunctions.AddMultipleToParty("Party2", "FLY", 7, 750, "ATTACK_ENEMIES", 0, 7)
-	HelperFunctions.AddMultipleToParty("Party2", "GUARDPOST_SUMMON", 7, 500, "ATTACK_ENEMIES", 0, 7)
+	HelperFunctions.AddMultipleToParty("Party2", "FIREFLY", 7, 500, "ATTACK_ENEMIES", 0, 7)
 
 	-- Tentacles
 	CreateParty("Party3")
