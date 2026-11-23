@@ -361,6 +361,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
         create_effect_around_thing(thing, TngEff_Blood5); // TODO CONFIG: make this effect configurable?
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
+    lua_on_raise_undead(crthing);
     return !thing_is_invalid(crthing);
 }
 

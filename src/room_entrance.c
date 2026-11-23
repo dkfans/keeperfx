@@ -36,6 +36,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "post_inc.h"
+#include "lua_triggers.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -86,6 +87,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     {
         set_start_state(creatng);
     }
+    lua_on_creature_from_portal(creatng);
     return creatng;
 }
 

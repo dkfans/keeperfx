@@ -38,6 +38,7 @@
 #include "game_legacy.h"
 #include "api.h"
 #include "post_inc.h"
+#include "lua_triggers.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -462,6 +463,8 @@ void send_research_complete_event(struct ResearchVal *rsrchval, PlayerNumber ply
         {"kind_description", API_EVENT_DATA_STRING, {.string_value = kind_description}},
         {"level_number", API_EVENT_DATA_INT32, {.int32_value = get_loaded_level_number()}}
     };
+
+    lua_on_research_thing(plyr_idx, kind_description, rsrchval->rtyp);
 
     api_event_with_data("RESEARCH_COMPLETED",event_data,sizeof(event_data) / sizeof(event_data[0]));
 }

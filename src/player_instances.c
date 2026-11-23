@@ -1193,6 +1193,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
           }
       }
     }
+    lua_on_room_build(room);
     return room;
 }
 
