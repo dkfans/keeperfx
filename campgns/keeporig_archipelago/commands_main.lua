@@ -72,6 +72,55 @@ function CommandsMain.MainSetup()
       end
 end
 
+--[[
+Examples of new trigger functions
+
+function OnCreatureFromPortal(creature)
+    local owner = creature.owner ~= nil and creature.owner or "Unknown"
+    local msg = creature.name .. " arrives! owned by: " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+end
+
+function OnBuildRoom(room)
+    local owner = room.owner ~= nil and room.owner or "Unknown"
+    local msg = "Room built! owned by: " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+    --This is technically "per tile". Very spammy!
+end
+
+function OnResearchCompleted(player, research, research_type)
+    local thing = research_type == 1 and "Spell" or research_type == 2 and "Room" or research_type == 3 and "Creature" or "Unknown"
+    local msg = "Research of '" .. research .. "' which is type '" .. thing .. "' completed by PLAYER" .. player.playerId
+    print(msg)
+    QuickMessage(msg)
+end
+
+function OnItemManufactured(item, item_type)
+    local owner = item.owner ~= nil and item.owner or "Unknown"
+    local thing = item_type == 1 and "Trap" or item_type == 2 and "Door" or "Unknown/Special"
+    local msg = "A " .. thing .. " was manufactured owned by: " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+end
+
+function OnRaiseUndead(creature)
+    local owner = creature.owner ~= nil and creature.owner or "Unknown"
+    local msg = "A " .. creature.name .. " has risen owned by: " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+end
+
+function OnCreatureConverted(creature, old_owner, is_evil)
+    local owner = creature.owner ~= nil and creature.owner or "Unknown"
+    local alignment = is_evil and "evil" or "good"
+    local msg = "PLAYER" .. old_owner .. "'s " .. alignment .. " " .. creature.name .. " now belongs to " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+end
+]]
+
 function Setup()
       APSettings.CalculateTileset()
       QuickMessage("Map: " .. Map.map_number .. " (" .. Map.map_name .. ").", "ARCHIPELAGO_ICON")
