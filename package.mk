@@ -23,8 +23,20 @@ PKG_CAMPAIGN_FILES = \
 	$(patsubst %,pkg/campgns/campgn_order.txt,$(CAMPAIGNS)) \
 	$(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS)) \
 	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/*.txt))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/*.lua))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_cfgs/*.cfg))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_cfgs/*.toml))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_cfgs/lua/*.lua))) \
 	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_crtr/*.cfg))) \
-	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_lnd/*.txt)))
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_lnd/*.txt))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/configs/*.cfg))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/configs/*.toml))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/configs/lua/*.lua))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/creatures/*.cfg))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/levels/*.cfg))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/levels/*.lua))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/levels/*.txt))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/land/*.txt)))
 PKG_CAMPAIGN_DIRS = $(sort $(dir $(PKG_CAMPAIGN_FILES)))
 PKG_CREATURE_FILES = $(patsubst config/creatrs/%,pkg/creatrs/%,$(wildcard config/creatrs/*.cfg))
 PKG_FXDATA_FILES = \
