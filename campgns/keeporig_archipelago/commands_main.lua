@@ -3,6 +3,67 @@ TempleRecipes = require("temple_recipe_table")
 --Commands to be run and saved/loaded in every level.
 CommandsMain = {}
 
+-- BIT-MASK HELPER FUNCTIONS -------------------------------------------------------------------------------------------
+local max_bitmask_value = 256 -- Local area to reference, in case it's changed in C at a later date.
+
+---Basic validation that the variable fits within the mask range we can fit into our MetaVault value.
+---@param value number
+---@return boolean
+local function IsValid15BitMask(value)
+      if type(value) ~= "number" then
+            return false -- In case it's not a number (why did someone do this?)
+      end
+      if math.floor(value) ~= value then
+            return false -- In case it's a float and not an int (which is what we expect)
+      end
+      if value < 0 or value > 32767 then
+            return false -- A general 'bounds' check that we are in legal '15-bit' range.
+      end
+      return true
+end
+
+---Performs the function inside `callback` for each input in `entries`
+---@param bit_value number Variable to check against
+---@param entries table<any> Table of up to *15* entries, any more are dropped (less is fine)
+---@param callback fun(key: any, result: boolean)
+function CommandsMain.ForEachBitInMask(bit_value, entries, callback)
+      assert(IsValid15BitMask(bit_value) == true, "bit_value didn't appear to be a valid bitmask")
+      assert(type(entries) == "table", "Entries was not given a valid table")
+      assert(#entries > 0, "Entries MUST have at least one argument")
+      assert(type(callback) == "function", "Must provide function to handle each result")
+      local mask = 1
+      for index = 1, math.min(#entries, 15) do
+            callback(entries[index], math.floor(bit_value / mask) % 2 == 1)
+            mask = mask * 2
+      end
+end
+
+---Writes the calculated 15-Bitmask value to `meta_index`, after changing `index` to `value`
+---@param meta_index number which meta-index to save to
+---@param index number Position in it to write to
+---@param value boolean Value to assign to the mask
+function CommandsMain.WriteToMetaBitmask(meta_index, index, value)
+      assert(type(meta_index) == "number", "meta_index must be a number")
+      assert(meta_index > 0 and meta_index <= max_bitmask_value and math.floor(meta_index) == meta_index, "meta_index must be a whole-number within 1 - " .. max_bitmask_value)
+      assert(type(index) == "number", "index must be a number")
+      assert(index > 0 and index <= 15 and math.floor(index) == index, "index must be a whole-number within 1 - 15")
+      assert(type(value) == "boolean", "value must be true or false")
+      local result = GetMetaValue(meta_index)
+      assert(IsValid15BitMask(result), "attempted to use meta_index which is NOT a valid bitmask")
+      local mask = 2 ^ (index - 1)
+      local mask_value = (math.floor(result / mask) % 2) == 1
+      if mask_value == value then
+            return -- Not modifying. Don't need to do anything.
+      end
+      if value then
+            result = result + mask
+      else
+            result = result - mask
+      end
+      SetMetaValue(meta_index, result)
+end
+-- END OF BIT-MASK HELPER FUNCTIONS ------------------------------------------------------------------------------------
+
 function CommandsMain.MainSetup()
       RunDKScriptCommand("SET_NEXT_LEVEL(1000)")
       Setup()
@@ -11,9 +72,71 @@ function CommandsMain.MainSetup()
       end
 end
 
+--[[
+Examples of new trigger functions
+
+function OnCreatureFromPortal(creature)
+    local owner = creature.owner ~= nil and creature.owner or "Unknown"
+    local msg = creature.name .. " arrives! owned by: " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+end
+
+function OnBuildRoom(room)
+    local owner = room.owner ~= nil and room.owner or "Unknown"
+    local msg = "Room built! owned by: " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+    --This is technically "per tile". Very spammy!
+end
+
+function OnResearchCompleted(player, research, research_type)
+    local thing = research_type == 1 and "Spell" or research_type == 2 and "Room" or research_type == 3 and "Creature" or "Unknown"
+    local msg = "Research of '" .. research .. "' which is type '" .. thing .. "' completed by PLAYER" .. player.playerId
+    print(msg)
+    QuickMessage(msg)
+end
+
+function OnItemManufactured(item, item_type)
+    local owner = item.owner ~= nil and item.owner or "Unknown"
+    local thing = item_type == 1 and "Trap" or item_type == 2 and "Door" or "Unknown/Special"
+    local msg = "A " .. thing .. " was manufactured owned by: " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+end
+
+function OnRaiseUndead(creature)
+    local owner = creature.owner ~= nil and creature.owner or "Unknown"
+    local msg = "A " .. creature.name .. " has risen owned by: " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+end
+
+function OnCreatureConverted(creature, old_owner, is_evil)
+    local owner = creature.owner ~= nil and creature.owner or "Unknown"
+    local alignment = is_evil and "evil" or "good"
+    local msg = "PLAYER" .. old_owner .. "'s " .. alignment .. " " .. creature.name .. " now belongs to " .. tostring(owner)
+    print(msg)
+    QuickMessage(msg)
+end
+]]
+
 function Setup()
       APSettings.CalculateTileset()
       QuickMessage("Map: " .. Map.map_number .. " (" .. Map.map_name .. ").", "ARCHIPELAGO_ICON")
+      --BITMASK EXAMPLE BELOW
+      --(Value, {List,Of,Things}, Function() --TO THING end)
+      -- {List,Of,Things} can have AT MAXIMUM 15 things!! Anything extra gets dropped.
+      CommandsMain.ForEachBitInMask(GetMetaValue(1), {"FLY", "BUG", "SPIDER", "DEMONSPAWN"},
+            function(key, result) -- 'key' can be anything, "string", "number", or even a function() if you wanna get wild.
+                  -- You can pass in 'anything' ("string", number or even a function() if your crazy!!) so remember what you give it.
+                  -- result will ALWAYS be TRUE or FALSE, if it exists within the value.
+                  print("====EXAMPLE_BITMASK==== The flag for " .. key .. " was set to: " .. tostring(result))
+            end)
+      --EXAMPLE SETTING!!
+      --(MetaIndexNumber, SpotInsideIt, TRUE/FALSE)
+      --Using our above example, we ASSUME that '1' is 'FLY', and set it to 'TRUE'
+      CommandsMain.WriteToMetaBitmask(1, 1, true)
       ActivateItems()
       if Map.map_number ~= 1000 then
             IncreaseLevelCap()

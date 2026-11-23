@@ -40,6 +40,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
+#include "lua_triggers.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -141,6 +142,7 @@ TbBool create_vampire_in_room(struct Room *room)
     if (is_my_player_number(room->owner)) {
         output_message(SMsg_GraveyardMadeVampire, 0);
     }
+    lua_on_raise_undead(thing);
     return true;
 }
 

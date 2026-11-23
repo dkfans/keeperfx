@@ -38,6 +38,7 @@
 #include "creature_states.h"
 #include "keeperfx.hpp"
 #include "api.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -131,23 +132,28 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
         return false;
     }
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    int8_t crate_type;
     switch (tngclass)
     {
     case TCls_Trap:
         if ((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Built) == 0) {
             event_create_event(cratetng->mappos.x.val, cratetng->mappos.y.val, EvKind_NewTrap, plyr_idx, tngmodel);
         }
+        crate_type = 1;
         break;
     case TCls_Door:
         if ((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Built) == 0) {
           event_create_event(cratetng->mappos.x.val, cratetng->mappos.y.val, EvKind_NewDoor, plyr_idx, tngmodel);
         }
+        crate_type = 2;
         break;
     default:
+        crate_type = -1;
         break;
     }
     create_effect(&pos, TngEff_RoomSparkeLarge, cratetng->owner);
     thing_play_sample(cratetng, 89, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    lua_on_manufacture_thing(cratetng, crate_type);
     return true;
 }
 

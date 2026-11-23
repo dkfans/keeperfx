@@ -193,6 +193,39 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 	}
 }
 
+void lua_on_research_thing(PlayerNumber player, const char *research, int8_t type)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnResearchCompleted");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushPlayer(Lvl_script, player);
+        lua_pushstring(Lvl_script, research);
+        lua_pushinteger(Lvl_script, type);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0), "OnResearchCompleted");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
+}
+
+void lua_on_manufacture_thing(struct Thing *cratetng, int8_t type)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnItemManufactured");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushThing(Lvl_script, cratetng);
+        lua_pushinteger(Lvl_script, type);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0), "OnItemManufactured");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
+}
+
 void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
 {
 	SYNCDBG(6,"Starting");
@@ -225,6 +258,37 @@ void lua_on_trap_placed(struct Thing *traptng)
 	{
 		lua_pop(Lvl_script, 1);
 	}
+}
+
+void lua_on_raise_undead(struct Thing *crtng)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnRaiseUndead");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushThing(Lvl_script, crtng);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnRaiseUndead");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
+}
+
+void lua_on_creature_from_portal(struct Thing *crtng)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnCreatureFromPortal");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushThing(Lvl_script, crtng);
+
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnCreatureFromPortal");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
 }
 
 void lua_on_creature_death(struct Thing *crtng)
@@ -286,6 +350,20 @@ void lua_on_creature_fell_into_abyss(struct Thing *crtng)
     }
 }
 
+void lua_on_creature_convert(struct Thing *crtng, PlayerNumber old_owner, TbBool is_evil)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnCreatureConverted");
+    if (lua_isfunction(Lvl_script, -1)) {
+        lua_pushThing(Lvl_script, crtng);
+        lua_pushinteger(Lvl_script, old_owner);
+        lua_pushboolean(Lvl_script, is_evil);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0), "OnCreatureConverted");
+    }
+    else {
+        lua_pop(Lvl_script, 1);
+    }
+}
 
 void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
 {
@@ -384,6 +462,21 @@ void lua_on_slab_owner_change(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumb
 	{
 		lua_pop(Lvl_script, 1);
 	}
+}
+
+void lua_on_room_build(struct Room *room)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnBuildRoom");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushRoom(Lvl_script, room);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnBuildRoom");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
 }
 
 // Called once when an entire room changes owner

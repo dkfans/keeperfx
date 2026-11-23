@@ -223,6 +223,8 @@ void meta_vault_write_value(uint16_t index, int16_t value)
         ERRORLOG("Attempted to write out-of-index. (Range 0 - %d, received %d)", META_VAULT_NO_PRINT, index);
         return;
     }
+    if (meta_vault[index] == value)
+        return; // No operation needed, so let's save a io operation.
     meta_vault[index] = value;
     write_meta_vault_config_file();
 }

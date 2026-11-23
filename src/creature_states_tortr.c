@@ -41,6 +41,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "post_inc.h"
+#include "lua_triggers.h"
 
 /******************************************************************************/
 /** State triggered when creature reached torture chamber and is ready to start kinky torture action.
@@ -308,10 +309,12 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     if (is_my_player_number(room->owner)) {
         output_message(SMsg_TortureMadeGhost, 0);
     }
+    lua_on_raise_undead(newthing);
 }
 
 void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_owner)
 {
+    PlayerNumber original_owner = creatng->owner;
     if (is_my_player_number(new_owner))
     {
         output_message(SMsg_TortureConverted, 0);
@@ -331,10 +334,12 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
             if (get_creature_model_flags(creatng) & CMF_IsEvil)
             {
                 dungeon->evil_creatures_converted++;
+                lua_on_creature_convert(creatng, original_owner, true);
             }
             else
             {
                 dungeon->good_creatures_converted++;
+                lua_on_creature_convert(creatng, original_owner, false);
             }
         }
     }
