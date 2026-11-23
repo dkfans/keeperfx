@@ -2,7 +2,6 @@
     "dependencies": [
         "sdl3",
         "sdl3-image",
-        "sdl3-mixer",
         "openal-soft"
     ]
 }

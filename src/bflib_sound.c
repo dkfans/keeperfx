@@ -55,6 +55,10 @@ long MaxSoundDistance;
 struct SoundReceiver Receiver;
 long Non3DEmitter;
 long SpeechEmitter;
+unsigned long S3DDropsPriority = 0;
+unsigned long S3DDropsEviction = 0;
+unsigned long S3DDropsVolumeZero = 0;
+unsigned long S3DDropsOutOfRange = 0;
 /******************************************************************************/
 // Internal routines
 SoundEmitterID allocate_free_sound_emitter(void);
@@ -564,12 +568,14 @@ long stop_emitter_samples(struct SoundEmitter *emit)
     return num_stopped;
 }
 
-short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax)
+// Returns a free or restartable slot; if it must evict, *evict_id is the slot to stop once the new sound has started.
+short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax, short *evict_id)
 {
+    *evict_id = -1;
     struct S3DSample *sample;
     long i;
     int32_t spcval = INT32_MAX;
-    short min_sample_id = SOUNDS_MAX_COUNT;
+    short min_sample_id = -1;
     if ((ctype == 2) || (ctype == 3))
     {
         for (i=0; i < MaxNoSounds; i++)
@@ -596,9 +602,10 @@ short find_slot(long fild8, struct SoundEmitter *emit, long ctype, long spcmax)
     }
     if (spcval >= spcmax)
     {
+        S3DDropsPriority++;
         return -1;
     }
-    kick_out_sample(min_sample_id);
+    *evict_id = min_sample_id;
     return min_sample_id;
 }
 
@@ -772,15 +779,22 @@ TbBool process_sound_samples(void)
                 ERRORLOG("Attempt to query invalid sample");
                 continue;
             }
-            if (!IsSamplePlaying(sample->mss_id))
+            if (!IsSamplePlayingGeneration(sample->mss_id, sample->voice_generation))
             {
                 sample->is_playing = 0;
             }
             if (sample->emit_ptr != NULL)
             {
-              if ( (sample->volume == 0) ||
-                 ( ((sample->emit_ptr->emitter_flags & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
-                kick_out_sample(i);
+              if (sample->volume == 0)
+              {
+                  S3DDropsVolumeZero++;
+                  kick_out_sample(i);
+              }
+              else if ( ((sample->emit_ptr->emitter_flags & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) )
+              {
+                  S3DDropsOutOfRange++;
+                  kick_out_sample(i);
+              }
             }
         }
     }
@@ -865,13 +879,23 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     int32_t volume;
     int32_t pitch;
     get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
-    long smpl_idx = find_slot(smptbl_id, emit, ctype, priority);
+    short evict_id;
+    long smpl_idx = find_slot(smptbl_id, emit, ctype, priority, &evict_id);
     volume = (volume * loudness) / 256;
     if (smpl_idx < 0)
         return 0;
-    SoundMilesID mss_id = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype);
+    SoundMilesID mss_id = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, priority, (emit->emitter_flags & 0x08) == 0);
     if (mss_id <= 0) {
+        // Nothing was stopped, so the sound that would have been evicted keeps playing.
         return 0;
+    }
+    if (evict_id >= 0) {
+        S3DDropsEviction++;
+        struct S3DSample* victim = &SampleList[evict_id];
+        if (victim->emit_ptr == emit && victim->smptbl_id == smptbl_id)
+            victim->is_playing = 0; // stop_sample would also stop the new sound
+        else
+            kick_out_sample(evict_id);
     }
     struct S3DSample* sample = &SampleList[smpl_idx];
     sample->priority = priority;
@@ -883,6 +907,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->base_pitch = smpitch;
     sample->is_playing = 1;
     sample->mss_id = mss_id;
+    sample->voice_generation = GetSampleGeneration(mss_id);
     sample->flags = flags;
     sample->time_turn = 0;
     sample->emit_idx = emit->index;

@@ -10,4 +10,4 @@ Layout differences between builds no longer matter to saves, so nothing here com
 | `extract.sh` | Compiles a probe of the headers and writes every field's offset and size |
 | `walk.py` | gdb script used by `extract.sh` to walk the types |
 | `stub/ver_defs.h` | Stand-in for the header CMake generates |
-| `fetch_sdl_headers.sh` | Downloads the SDL3 and SDL3_mixer MinGW headers the headers need at compile time |
+| `fetch_sdl_headers.sh` | Downloads the SDL3 MinGW headers the headers need at compile time |

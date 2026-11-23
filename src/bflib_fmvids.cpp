@@ -6,6 +6,9 @@
 #include "bflib_keybrd.h"
 #include "bflib_fileio.h"
 #include "kjm_input.h"
+#include "kfx/audio/AudioStream.h"
+#include "kfx/audio/AudioLog.h"
+#include "config_settings.h"
 
 // See: https://trac.ffmpeg.org/ticket/3626
 extern "C" {
@@ -21,9 +24,9 @@ extern "C" {
 #include <memory>
 #include <stdexcept>
 #include <chrono>
+#include <algorithm>
 #include "thread.hpp"
 #include <vector>
-#include <SDL3/SDL.h>
 #include "post_inc.h"
 
 namespace {
@@ -118,11 +121,19 @@ struct movie_t {
 	SwrContext * m_resampler = nullptr;
 	time_point m_video_start;
 	AVRational m_time_base;
-	SDL_AudioDeviceID m_audio_device = 0;
-	// SDL3 pushes audio through an SDL_AudioStream rather than SDL_QueueAudio().
-	SDL_AudioStream* m_sdl_audio_stream = nullptr;
+	kfx::audio::AudioStreamHandle m_audio_handle = 0;
+	bool m_use_wall_clock = true;
+	bool m_skipped = false;
+	bool m_audio_started = false;
+	uint64_t m_last_consumed = 0;
+	uint32_t m_last_underruns = 0;
+	time_point m_last_progress;
+	// Converted audio the stream ring has not accepted yet, so video decoding is not held up by a full ring.
+	std::vector<uint8_t> m_pending_audio;
+	size_t m_pending_offset = 0; // bytes of m_pending_audio already written
+	size_t m_pending_frame_bytes = 0;
 
-	int m_audio_index;
+	int m_audio_index = -1;
 	int m_video_index;
 	int m_flags;
 
@@ -135,14 +146,25 @@ struct movie_t {
 		m_flags = flags;
 		m_video_start = time_point();
 		open_input(filename);
-		open_audio_device();
 		find_stream_info();
 		setup_audio();
 		setup_video();
 		make_packet();
 		make_frame();
 		if (m_audio_context) {
-			make_resampler();
+			open_audio_stream();
+		}
+		if (m_audio_context) {
+			try {
+				make_resampler();
+			} catch (const std::exception &) {
+				kfx::audio::audio_stream_close(m_audio_handle);
+				m_audio_handle = 0;
+				avcodec_free_context(&m_audio_context);
+				m_audio_index = -1;
+				m_use_wall_clock = true;
+				AUDIOWARN("Cannot convert movie audio, playing without sound");
+			}
 		}
 		m_time_base = m_format_context->streams[m_video_index]->time_base;
 	}
@@ -166,10 +188,9 @@ struct movie_t {
 		if (m_resampler) {
 			swr_free(&m_resampler);
 		}
-		if (m_audio_device > 0) {
-			SDL_CloseAudioDevice(m_audio_device); // also destroys bound streams
-			m_audio_device = 0;
-			m_sdl_audio_stream = nullptr;
+		if (m_audio_handle != 0) {
+			kfx::audio::audio_stream_close(m_audio_handle);
+			m_audio_handle = 0;
 		}
 	}
 
@@ -179,48 +200,22 @@ struct movie_t {
 		}
 	}
 
-	AVSampleFormat sdl_to_ffmpeg_format(SDL_AudioFormat format) {
-		switch (format) {
-			case SDL_AUDIO_S8:  return AV_SAMPLE_FMT_U8;
-			case SDL_AUDIO_S16: return AV_SAMPLE_FMT_S16;
-			case SDL_AUDIO_S32: return AV_SAMPLE_FMT_S32;
-			case SDL_AUDIO_F32: return AV_SAMPLE_FMT_FLT;
-			default: return AV_SAMPLE_FMT_NONE;
+	void open_audio_stream() {
+		const kfx::audio::AudioStreamFormat format{
+			kfx::audio::audio_stream_output_rate(), 2, kfx::audio::AudioSampleType::Float32};
+		m_audio_handle = kfx::audio::audio_stream_open(format);
+		if (m_audio_handle == 0) {
+			avcodec_free_context(&m_audio_context);
+			m_audio_context = nullptr;
+			m_audio_index = -1;
+			return;
 		}
-	}
-
-	AVChannelLayout channels_to_ffmpeg_layout(int channels) {
-		switch (channels) {
-			case 1: return AV_CHANNEL_LAYOUT_MONO;
-			case 2: return AV_CHANNEL_LAYOUT_STEREO;
-			case 3: return AV_CHANNEL_LAYOUT_SURROUND;
-			case 4: return AV_CHANNEL_LAYOUT_QUAD;
-			case 5: return AV_CHANNEL_LAYOUT_4POINT1;
-			case 6: return AV_CHANNEL_LAYOUT_5POINT1;
-			case 7: return AV_CHANNEL_LAYOUT_6POINT1;
-			case 8: return AV_CHANNEL_LAYOUT_7POINT1;
-			default: return {};
-		}
-	}
-
-	void open_audio_device() {
-        if (!flag_is_set(m_flags, SMK_NoSound))
-        {
-            SDL_AudioSpec desired;
-            desired.freq = 44100;
-            desired.format = SDL_AUDIO_F32;
-            desired.channels = 2;
-            m_sdl_audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, nullptr, nullptr);
-            if (!m_sdl_audio_stream) {
-                throw std::runtime_error("Cannot open audio device");
-            }
-            m_audio_device = SDL_GetAudioStreamDevice(m_sdl_audio_stream);
-            // We push data in the desired format, so configure FFmpeg to match it.
-            m_output_audio_channels = desired.channels;
-            m_output_audio_frequency = desired.freq;
-            m_output_audio_format = sdl_to_ffmpeg_format(desired.format);
-            m_output_audio_layout = channels_to_ffmpeg_layout(desired.channels);
-        }
+		kfx::audio::audio_stream_set_volume(m_audio_handle, std::min(1.0f, float(settings.movie_volume) / 127.0f));
+		m_output_audio_channels = 2;
+		m_output_audio_frequency = int(format.sample_rate);
+		m_output_audio_format = AV_SAMPLE_FMT_FLT;
+		m_output_audio_layout = AV_CHANNEL_LAYOUT_STEREO;
+		m_use_wall_clock = false;
 	}
 
 	void find_stream_info() {
@@ -265,9 +260,15 @@ struct movie_t {
                 m_audio_stream = m_format_context->streams[m_audio_index];
                 m_audio_codec = find_codec(m_audio_stream);
                 if (m_audio_codec) {
-                    m_audio_context = make_context(m_audio_codec);
-                    copy_parameters(m_audio_context, m_audio_stream);
-                    open_codec(m_audio_context, m_audio_codec);
+                    try {
+                        m_audio_context = make_context(m_audio_codec);
+                        copy_parameters(m_audio_context, m_audio_stream);
+                        open_codec(m_audio_context, m_audio_codec);
+                    } catch (const std::exception &) {
+                        avcodec_free_context(&m_audio_context);
+                        m_audio_index = -1;
+                        AUDIOWARN("Cannot open movie audio codec, playing without sound");
+                    }
                 }
             }
         }
@@ -330,6 +331,9 @@ struct movie_t {
 	}
 
 	void output_audio_frame() {
+		if (m_audio_handle == 0) {
+			return;
+		}
 		const auto sample_size = av_get_bytes_per_sample(m_output_audio_format);
 		const auto buffer_samples = swr_get_out_samples(m_resampler, m_frame->nb_samples);
 		uint8_t * buffer = nullptr;
@@ -341,7 +345,10 @@ struct movie_t {
 			m_output_audio_format,
 			1
 		);
-		const auto num_samples = m_output_audio_channels * swr_convert(
+		if (!buffer) {
+			return;
+		}
+		const int converted = swr_convert(
 			m_resampler,
 			&buffer,
 			buffer_samples,
@@ -353,10 +360,71 @@ struct movie_t {
 #endif
 			m_frame->nb_samples
 		);
-		// SDL3: SDL_QueueAudio -> SDL_PutAudioStreamData; devices start paused.
-		SDL_PutAudioStreamData(m_sdl_audio_stream, buffer, num_samples * sample_size);
-		SDL_ResumeAudioDevice(m_audio_device);
+		if (converted <= 0) {
+			av_freep(&buffer);
+			return;
+		}
+		const size_t frame_bytes = size_t(m_output_audio_channels) * sample_size;
+		m_pending_frame_bytes = frame_bytes;
+		m_pending_audio.insert(m_pending_audio.end(), buffer, buffer + size_t(converted) * frame_bytes);
 		av_freep(&buffer);
+		pump_audio();
+		// Bound the backlog (a demuxer can deliver audio far ahead of the video); wait only past this.
+		const size_t max_pending_bytes = size_t(m_output_audio_frequency) * 4 * frame_bytes;
+		auto last_progress = clock::now();
+		while (pending_audio_bytes() > max_pending_bytes && m_audio_handle != 0) {
+			kfx::audio::audio_stream_start(m_audio_handle);
+			if (pump_audio()) {
+				last_progress = clock::now();
+				continue;
+			}
+			stop_audio_if_stalled(last_progress);
+			std::this_thread::sleep_for(std::chrono::milliseconds(2));
+		}
+	}
+
+	size_t pending_audio_bytes() const {
+		return m_pending_audio.size() - m_pending_offset;
+	}
+
+	// Writes as much pending audio as the ring takes; true if any was accepted.
+	bool pump_audio() {
+		if (m_audio_handle == 0 || m_pending_frame_bytes == 0 || pending_audio_bytes() == 0) {
+			return false;
+		}
+		const uint32_t frames_left = uint32_t(pending_audio_bytes() / m_pending_frame_bytes);
+		const uint32_t accepted = kfx::audio::audio_stream_write(
+			m_audio_handle, m_pending_audio.data() + m_pending_offset, frames_left);
+		m_pending_offset += size_t(accepted) * m_pending_frame_bytes;
+		if (m_pending_offset >= m_pending_audio.size()) {
+			m_pending_audio.clear();
+			m_pending_offset = 0;
+		}
+		return accepted > 0;
+	}
+
+	// Gives up on the audio clock if the ring has not moved for 2 seconds.
+	void stop_audio_if_stalled(time_point last_progress) {
+		if (clock::now() - last_progress > std::chrono::seconds(2)) {
+			m_use_wall_clock = true;
+			kfx::audio::audio_stream_close(m_audio_handle);
+			m_audio_handle = 0;
+			m_pending_audio.clear();
+			m_pending_offset = 0;
+		}
+	}
+
+	void drain_pending_audio() {
+		auto last_progress = clock::now();
+		while (pending_audio_bytes() > 0 && m_audio_handle != 0) {
+			kfx::audio::audio_stream_start(m_audio_handle);
+			if (pump_audio()) {
+				last_progress = clock::now();
+				continue;
+			}
+			stop_audio_if_stalled(last_progress);
+			std::this_thread::sleep_for(std::chrono::milliseconds(2));
+		}
 	}
 
 	void output_video_frame() {
@@ -408,6 +476,41 @@ struct movie_t {
 
 	void wait_for_pts() {
 		const duration pts = nanoseconds((int64_t(m_frame->pts) * (1000000000 / m_time_base.den)) * m_time_base.num);
+		if (!m_use_wall_clock && m_audio_handle != 0) {
+			if (!m_audio_started) {
+				kfx::audio::audio_stream_start(m_audio_handle);
+				m_audio_started = true;
+				m_last_progress = clock::now();
+				m_last_underruns = kfx::audio::audio_stream_underruns(m_audio_handle);
+			}
+			constexpr std::chrono::milliseconds kAudioClockLag(15);
+			constexpr std::chrono::milliseconds kClockStallTimeout(500);
+			const double rate = double(kfx::audio::audio_stream_output_rate());
+			while (true) {
+				pump_audio();
+				const uint64_t consumed = kfx::audio::audio_stream_frames_consumed(m_audio_handle);
+				const duration audio_time = std::chrono::duration_cast<duration>(
+					std::chrono::duration<double>(double(consumed) / rate)) - kAudioClockLag;
+				if (audio_time >= pts) {
+					return;
+				}
+				if (kfx::audio::audio_stream_underruns(m_audio_handle) != m_last_underruns) {
+					m_use_wall_clock = true;
+					break;
+				}
+				if (consumed != m_last_consumed) {
+					m_last_consumed = consumed;
+					m_last_progress = clock::now();
+				} else if (clock::now() - m_last_progress > kClockStallTimeout) {
+					m_use_wall_clock = true;
+					break;
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+		}
+		if (m_video_start == time_point()) {
+			m_video_start = clock::now() - pts;
+		}
 		const auto now = time_since_video_start();
 		const auto delta = pts - now;
 		if (delta > duration()) {
@@ -428,11 +531,13 @@ struct movie_t {
 			wait_for_pts();
 			output_video_frame();
 			if (!poll_inputs()) {
+				m_skipped = true;
 				return false;
 			} else if (m_flags & SMK_NoStopOnUserInput) {
 				return true;
 			} else if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) {
 				clear_key_pressed(lbInkey);
+				m_skipped = true;
 				return false;
 			}
 		}
@@ -480,6 +585,16 @@ struct movie_t {
 			flush_audio();
 		}
 		flush_video();
+		drain_pending_audio();
+		if (m_audio_handle != 0 && !m_skipped) {
+			kfx::audio::audio_stream_finish(m_audio_handle);
+			kfx::audio::audio_stream_start(m_audio_handle);
+			const auto drain_start = clock::now();
+			while (!kfx::audio::audio_stream_is_finished(m_audio_handle)
+				&& clock::now() - drain_start < std::chrono::milliseconds(1500)) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
+			}
+		}
 	}
 };
 

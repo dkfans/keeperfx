@@ -135,7 +135,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     {
         i = UNSYNC_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
         long n = UNSYNC_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
-        set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
+        set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, eestat->start_frame, eestat->draw_class);
         set_flag_value(thing->rendering_flags, TRF_Unshaded, eestat->unshaded);
         thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparent)) & (TRF_Transpar_Flags);
         set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->animate_once);
@@ -163,7 +163,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
         }
         else
         {
-            thing->health = keepersprite_frames(thing->anim_sprite);
+            thing->health = keepersprite_frames(thing->anim_sprite) - max(eestat->start_frame, 0);
         }
     }
 

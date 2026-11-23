@@ -14,6 +14,8 @@ option(KEEPERFX_TRACY "Enable Tracy profiler instrumentation" OFF)
 
 option(KFX_SPLIT_DEBUG
     "Linux: move debug info out of the binaries into <binary>.debug files (always on for MinGW)" OFF)
+# ThreadSanitizer needs GCC or Clang on Linux; it has no effect elsewhere.
+option(KEEPERFX_TSAN "Enable ThreadSanitizer (Linux only)" OFF)
 
 # Static-linkage defines for the prebuilt Windows dependencies.
 if(WIN32)

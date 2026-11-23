@@ -381,6 +381,7 @@ short setup_game(void)
   // Start the sound system
   if (!init_sound())
     WARNMSG("Sound system disabled.");
+  load_settings();
   // Note: for some reason, signal handlers must be installed AFTER
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().

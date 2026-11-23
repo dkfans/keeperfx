@@ -220,6 +220,7 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {"ON_FRIENDLY_GROUND",   CSelCrit_OnFriendlyGround},
   {"ON_NEUTRAL_GROUND",    CSelCrit_OnNeutralGround},
   {"ANYWHERE",             CSelCrit_Any},
+  {"POSSESSED",            CSelCrit_Possessed},
   {NULL,                   0},
 };
 
@@ -444,6 +445,10 @@ ThingModel parse_creature_name(const char *creature_name)
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
             return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
+        }
+        if (0 == strcasecmp(creature_name, "ANY_DIGGER"))
+        {
+            return CREATURE_DIGGER;
         }
     }
     return ret;
@@ -2380,71 +2385,44 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     set_config_check(&objects_named_fields_set, scline, "SET_OBJECT_CONFIGURATION");
 }
 
-enum CreatureConfiguration
+TbBool get_creature_configuration_variable(const char *name, short *block, short *creatvar)
 {
-    CrtConf_NONE,
-    CrtConf_ATTRIBUTES,
-    CrtConf_ATTRACTION,
-    CrtConf_ANNOYANCE,
-    CrtConf_SENSES,
-    CrtConf_APPEARANCE,
-    CrtConf_EXPERIENCE,
-    CrtConf_JOBS,
-    CrtConf_SPRITES,
-    CrtConf_SOUNDS,
-    CrtConf_LISTEND
-};
+    static const struct {
+        short block;
+        const struct NamedCommand *desc;
+    } blocks[] = {
+        {CrtConf_ATTRIBUTES, creatmodel_attributes_commands},
+        {CrtConf_JOBS,       creatmodel_jobs_commands},
+        {CrtConf_ATTRACTION, creatmodel_attraction_commands},
+        {CrtConf_SOUNDS,     creatmodel_sounds_commands},
+        {CrtConf_SPRITES,    creature_graphics_desc},
+        {CrtConf_ANNOYANCE,  creatmodel_annoyance_commands},
+        {CrtConf_EXPERIENCE, creatmodel_experience_commands},
+        {CrtConf_APPEARANCE, creatmodel_appearance_commands},
+        {CrtConf_SENSES,     creatmodel_senses_commands},
+    };
+    for (int i = 0; i < (int)(sizeof(blocks) / sizeof(blocks[0])); i++)
+    {
+        *creatvar = get_id(blocks[i].desc, name);
+        if (*creatvar != -1)
+        {
+            *block = blocks[i].block;
+            return true;
+        }
+    }
+    return false;
+}
 
 static void set_creature_configuration_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    short creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
-    short block = CrtConf_ATTRIBUTES;
-    if (creatvar == -1)
+    short creatvar;
+    short block;
+    if (!get_creature_configuration_variable(scline->tp[1], &block, &creatvar))
     {
-        creatvar = get_id(creatmodel_jobs_commands, scline->tp[1]);
-        block = CrtConf_JOBS;
-        if (creatvar == -1)
-        {
-            block = CrtConf_ATTRACTION;
-            creatvar = get_id(creatmodel_attraction_commands, scline->tp[1]);
-            if (creatvar == -1)
-            {
-                block = CrtConf_SOUNDS;
-                creatvar = get_id(creatmodel_sounds_commands, scline->tp[1]);
-                if (creatvar == -1)
-                {
-                    block = CrtConf_SPRITES;
-                    creatvar = get_id(creature_graphics_desc, scline->tp[1]);
-                    if (creatvar == -1)
-                    {
-                        block = CrtConf_ANNOYANCE;
-                        creatvar = get_id(creatmodel_annoyance_commands, scline->tp[1]);
-                        if (creatvar == -1)
-                        {
-                            block = CrtConf_EXPERIENCE;
-                            creatvar = get_id(creatmodel_experience_commands, scline->tp[1]);
-                            if (creatvar == -1)
-                            {
-                                block = CrtConf_APPEARANCE;
-                                creatvar = get_id(creatmodel_appearance_commands, scline->tp[1]);
-                                if (creatvar == -1)
-                                {
-                                    block = CrtConf_SENSES;
-                                    creatvar = get_id(creatmodel_senses_commands, scline->tp[1]);
-                                    if (creatvar == -1)
-                                    {
-                                        SCRPTERRLOG("Unknown creature configuration variable");
-                                        DEALLOCATE_SCRIPT_VALUE
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        SCRPTERRLOG("Unknown creature configuration variable");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
     long config_value_primary = 0, config_value_secondary = 0, config_value_tertiary = 0, config_value_quaternary = 0, config_value_quinary = 0, config_value_senary = 0;
@@ -2466,7 +2444,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             config_value_primary = get_rid(creatmodel_properties_commands, scline->tp[2]);
             if (scline->tp[3][0] != '\0')
             {
-                config_value_secondary = atoi(scline->tp[3]);
+                config_value_secondary = get_rid(script_boolean_desc, scline->tp[3]);
             }
             else
             {
@@ -2514,7 +2492,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                config_value_secondary = atoi(scline->tp[3]);
+                config_value_secondary = get_rid(script_boolean_desc, scline->tp[3]);
             }
             else
             {
@@ -2584,7 +2562,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                config_value_secondary = atoi(scline->tp[3]);
+                config_value_secondary = get_rid(script_boolean_desc, scline->tp[3]);
             }
             else
             {
@@ -2726,7 +2704,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                config_value_secondary = atoi(scline->tp[3]);
+                config_value_secondary = get_rid(script_boolean_desc, scline->tp[3]);
             }
             else
             {

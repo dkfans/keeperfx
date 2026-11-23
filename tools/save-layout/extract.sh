@@ -4,7 +4,7 @@
 #   extract.sh <source root> <out.tsv> [extra compiler flags...]
 #
 # Needs: i686-w64-mingw32-gcc, i686-w64-mingw32-objcopy, gdb-multiarch.
-# SDL_INCLUDES must hold the -I flags for the SDL3 and SDL3_mixer MinGW
+# SDL_INCLUDES must hold the -I flags for the SDL3 MinGW
 # headers (see fetch_sdl_headers.sh). Only headers are compiled; no build
 # directory is needed.
 set -euo pipefail

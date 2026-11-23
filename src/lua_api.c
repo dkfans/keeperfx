@@ -19,6 +19,7 @@
 #include "game_merge.h"
 #include "bflib_datetm.h"
 #include "player_utils.h"
+#include "player_data.h"
 #include "lvl_script_lib.h"
 #include "room_library.h"
 #include "room_util.h"
@@ -32,6 +33,9 @@
 #include "lua_base.h"
 #include "lua_params.h"
 #include "lua_api_sound.h"
+#include "engine_redraw.h"
+#include "creature_graphics.h"
+#include "lvl_script_commands.h"
 
 
 #include <zlib.h>
@@ -759,7 +763,7 @@ static int lua_Display_message(lua_State *L)
     return 0;
 }
 
-static int lua_get_game_timestamp(lua_State *L)
+static int lua_Get_game_timestamp(lua_State *L)
 {
     struct TbDate date;
     struct TbTime time;
@@ -943,7 +947,7 @@ static int lua_Display_variable(lua_State *L)
 }
 
 
-static int lua_DISPLAY_VARIABLE_WITH_LABEL(lua_State *L)
+static int lua_Display_variable_with_label(lua_State *L)
 {
     PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
     int32_t varib_id, varib_type;
@@ -1365,6 +1369,30 @@ static int lua_Set_trap_configuration(lua_State *L)
 }
 
 //static int lua_Set_creature_configuration(lua_State *L)
+
+static int lua_Get_creature_configuration(lua_State *L)
+{
+    ThingModel crmodel = lua_istable(L, 1) ? luaL_checkCreature(L, 1)->model : luaL_checkNamedCommand(L, 1, creature_desc);
+    const char *property = luaL_checkstring(L, 2);
+    short block;
+    short creatvar;
+    if (!get_creature_configuration_variable(property, &block, &creatvar))
+        return luaL_argerror(L, 2, "unknown creature configuration property");
+    if (block == CrtConf_SPRITES)
+    {
+        lua_pushinteger(L, get_creature_model_graphics(crmodel, creatvar - 1));
+        return 1;
+    }
+    if (block == CrtConf_SOUNDS)
+    {
+        struct CreatureSound *crsound = get_creature_model_sound(crmodel, creatvar);
+        lua_pushinteger(L, crsound->index);
+        lua_pushinteger(L, crsound->count);
+        return 2;
+    }
+    return luaL_argerror(L, 2, "creature configuration property cannot be read yet");
+}
+
 static int lua_Set_effect_generator_configuration(lua_State *L)
 {
     set_configuration(L, &effects_effectgenerator_named_fields_set, "SET_EFFECT_GENERATOR_CONFIGURATION");
@@ -2657,6 +2685,37 @@ static int lua_Pay_for_power(lua_State *L)
     return 1;
 }
 
+static int lua_Set_custom_buff_icons(lua_State *L)
+{
+    const char *name = luaL_checkstring(L, 1);
+    if (strlen(name) > COMMAND_WORD_LEN - 1)
+        return luaL_argerror(L, 1, "slot name too long");
+    long icons[32];
+    short dy[32] = {0};
+    int count = 0;
+    if (lua_istable(L, 2))
+    {
+        for (int i = 1; (i <= (int)lua_objlen(L, 2)) && (count < 32); i++)
+        {
+            lua_rawgeti(L, 2, i);
+            int fields = lua_istable(L, -1);
+            if (fields)
+            {
+                lua_getfield(L, -1, "icon");
+                lua_getfield(L, -2, "y");
+                dy[count] = (short)lua_tointeger(L, -1);
+                lua_pop(L, 1);
+            }
+            icons[count++] = luaL_checkIcon(L, -1);
+            lua_pop(L, fields + 1);
+        }
+    }
+    else if (!lua_isnoneornil(L, 2))
+        icons[count++] = luaL_checkIcon(L, 2);
+    set_custom_buff_icon_slot(name, icons, dy, count);
+    return 0;
+}
+
 static const luaL_Reg global_methods[] = {
 //Setup Commands
    {"SetGenerateSpeed",                 lua_Set_generate_speed           },
@@ -2713,8 +2772,9 @@ static const luaL_Reg global_methods[] = {
    {"QuickPlayerInformation"                ,lua_Quick_player_information               },
    {"QuickPlayerInformationWithPos"         ,lua_Quick_player_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
+   {"SetCustomBuffIcons"                    ,lua_Set_custom_buff_icons           },
    {"QuickMessage"                          ,lua_Quick_message                   },
-   {"GetGameTimestamp"                      ,lua_get_game_timestamp              },
+   {"GetGameTimestamp"                      ,lua_Get_game_timestamp              },
    {"ClearMessage"                          ,lua_Clear_message                   },
    {"HeartLostObjective"                    ,lua_Heart_lost_objective            },
    {"HeartLostQuickObjective"               ,lua_Heart_lost_quick_objective      },
@@ -2722,7 +2782,7 @@ static const luaL_Reg global_methods[] = {
    {"TutorialFlashButton"                   ,lua_Tutorial_flash_button           },
    {"DisplayCountdown"                      ,lua_Display_countdown               },
    {"DisplayVariable"                       ,lua_Display_variable                },
-   {"DisplayVariableWithLabel"              ,lua_DISPLAY_VARIABLE_WITH_LABEL     },
+   {"DisplayVariableWithLabel"              ,lua_Display_variable_with_label     },
    {"HideVariable"                          ,lua_Hide_variable                   },
 
 //Manipulating Map
@@ -2753,6 +2813,7 @@ static const luaL_Reg global_methods[] = {
     {"SetObjectConfiguration",               lua_Set_object_configuration        },
     {"SetTrapConfiguration",                 lua_Set_trap_configuration          },
     //{"SetCreatureConfiguration",           lua_Set_creature_configuration      },
+    {"GetCreatureConfiguration",             lua_Get_creature_configuration      },
     {"SetEffectGeneratorConfiguration",      lua_Set_effect_generator_configuration},
     //{"SetPowerConfiguration",              lua_Set_power_configuration         },
     {"SetRoomConfiguration",                 lua_Set_room_configuration          },

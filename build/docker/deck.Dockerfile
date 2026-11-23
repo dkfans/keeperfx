@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------
 # Debian trixie == glibc 2.41, matching current SteamOS.
 #
-# SDL3 is built from source (trixie has no sdl3-mixer dev package).
+# SDL3 and SDL3_image are built from source.
 # Include the other shit we need for building the game, so we can build a bundle on the Deck itself.
 ## 1. Pair the Deck (once)
 
@@ -28,5 +28,5 @@ RUN apt-get update -qq && apt-get install -y -qq \
     libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxfixes-dev \
     libxss-dev libxtst-dev libxkbcommon-dev libgl1-mesa-dev libegl1-mesa-dev \
     libdrm-dev libgbm-dev libasound2-dev libpulse-dev libdbus-1-dev libudev-dev \
-    libpng-dev libjpeg-dev libogg-dev libvorbis-dev libflac-dev libmpg123-dev libopusfile-dev \
+    libpng-dev libjpeg-dev \
   && rm -rf /var/lib/apt/lists/*
