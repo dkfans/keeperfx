@@ -2,6 +2,9 @@
 # The launcher will ask if the user wants to remove these files.
 # These files should not be present anymore starting from a specific version.
 
+[1.4.0.5626]
+SDL3_mixer.dll
+
 [1.4.0.5584]
 save/fxconfig.net
 

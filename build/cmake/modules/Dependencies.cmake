@@ -65,33 +65,27 @@ if(WIN32)
     # SDL_net is intentionally absent: api.c now uses a native Winsock socket
     # layer (SDL3_net is not reliably packaged). See docs SDL3-MIGRATION notes.
     set(SDL3_VER      3.4.18)
-    set(SDL3_MIX_VER  3.2.4)
     set(SDL3_IMG_VER  3.4.6)
 
     kfx_fetch(sdl3       "https://github.com/libsdl-org/SDL/releases/download/release-${SDL3_VER}/SDL3-devel-${SDL3_VER}-mingw.tar.gz" SKIP_EXAMPLES)
-    kfx_fetch(sdl3_mixer "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL3_MIX_VER}/SDL3_mixer-devel-${SDL3_MIX_VER}-mingw.tar.gz" SKIP_EXAMPLES)
     kfx_fetch(sdl3_image "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL3_IMG_VER}/SDL3_image-devel-${SDL3_IMG_VER}-mingw.tar.gz" SKIP_EXAMPLES)
 
     set(SDL3_PREFIX      "${D}/sdl3/SDL3-${SDL3_VER}/i686-w64-mingw32")
-    set(SDL3_MIX_PREFIX  "${D}/sdl3_mixer/SDL3_mixer-${SDL3_MIX_VER}/i686-w64-mingw32")
     set(SDL3_IMG_PREFIX  "${D}/sdl3_image/SDL3_image-${SDL3_IMG_VER}/i686-w64-mingw32")
 
     add_library(kfx_sdl3 INTERFACE)
     # SDL3 headers live under include/SDL3/*.h; code uses <SDL3/SDL.h>,
-    # <SDL3_mixer/SDL_mixer.h>, <SDL3_image/SDL_image.h>.
+    # <SDL3_image/SDL_image.h>.
     target_include_directories(kfx_sdl3 INTERFACE
         "${SDL3_PREFIX}/include"
-        "${SDL3_MIX_PREFIX}/include"
         "${SDL3_IMG_PREFIX}/include")
     target_link_libraries(kfx_sdl3 INTERFACE
         "${SDL3_PREFIX}/lib/libSDL3.dll.a"
-        "${SDL3_MIX_PREFIX}/lib/libSDL3_mixer.dll.a"
         "${SDL3_IMG_PREFIX}/lib/libSDL3_image.dll.a")
 
     # SDL3 links dynamically, so ship its runtime DLLs (CPack picks these up).
     install(FILES
         "${SDL3_PREFIX}/bin/SDL3.dll"
-        "${SDL3_MIX_PREFIX}/bin/SDL3_mixer.dll"
         "${SDL3_IMG_PREFIX}/bin/SDL3_image.dll"
         DESTINATION .)
 
@@ -158,39 +152,30 @@ else()
     if(NOT SDL3_image_FOUND)
         pkg_check_modules(SDL3_image IMPORTED_TARGET SDL3_image)
     endif()
-    pkg_check_modules(SDL3_mixer IMPORTED_TARGET sdl3-mixer)
-    if(NOT SDL3_mixer_FOUND)
-        pkg_check_modules(SDL3_mixer IMPORTED_TARGET SDL3_mixer)
-    endif()
-    if(SDL3_FOUND AND SDL3_image_FOUND AND SDL3_mixer_FOUND)
+    if(SDL3_FOUND AND SDL3_image_FOUND)
         message(STATUS "SDL3: using system libraries (pkg-config)")
         target_link_libraries(kfx_sdl3 INTERFACE
-            PkgConfig::SDL3 PkgConfig::SDL3_image PkgConfig::SDL3_mixer)
+            PkgConfig::SDL3 PkgConfig::SDL3_image)
     else()
         message(STATUS "SDL3: system libraries not found; building from source (FetchContent)")
         include(FetchContent)
         set(SDL3_VER      3.4.18)
-        set(SDL3_MIX_VER  3.2.4)
         set(SDL3_IMG_VER  3.4.6)
         # Shared libs, no tests/examples. Use system decoder libraries rather than
         # vendored ones: the release source tarballs do not bundle the external/
         # decoder submodules, so VENDORED would fail. Distros that hit this path
-        # need libpng + the ogg/vorbis/flac/mpg123 -dev packages (see CI).
+        # need the libpng and libjpeg -dev packages (see CI).
         set(SDL_TEST_LIBRARY   OFF CACHE BOOL "" FORCE)
         set(SDL_EXAMPLES       OFF CACHE BOOL "" FORCE)
         set(SDLIMAGE_SAMPLES   OFF CACHE BOOL "" FORCE)
         set(SDLIMAGE_VENDORED  OFF CACHE BOOL "" FORCE)
-        set(SDLMIXER_SAMPLES   OFF CACHE BOOL "" FORCE)
-        set(SDLMIXER_VENDORED  OFF CACHE BOOL "" FORCE)
         FetchContent_Declare(SDL3
             URL "https://github.com/libsdl-org/SDL/releases/download/release-${SDL3_VER}/SDL3-${SDL3_VER}.tar.gz")
         FetchContent_Declare(SDL3_image
             URL "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL3_IMG_VER}/SDL3_image-${SDL3_IMG_VER}.tar.gz")
-        FetchContent_Declare(SDL3_mixer
-            URL "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL3_MIX_VER}/SDL3_mixer-${SDL3_MIX_VER}.tar.gz")
-        FetchContent_MakeAvailable(SDL3 SDL3_image SDL3_mixer)
+        FetchContent_MakeAvailable(SDL3 SDL3_image)
         target_link_libraries(kfx_sdl3 INTERFACE
-            SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer)
+            SDL3::SDL3 SDL3_image::SDL3_image)
     endif()
 
     pkg_check_modules(FFMPEG     REQUIRED IMPORTED_TARGET libavformat libavcodec libswresample libavutil)

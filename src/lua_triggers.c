@@ -20,6 +20,7 @@
 #include "room_data.h"
 #include "thing_data.h"
 #include "config_mods.h"
+#include "engine_redraw.h"
 
 #include "post_inc.h"
 
@@ -91,6 +92,7 @@ static void lua_on_start_for_mod_list(lua_State* L, const struct ModConfigItem *
 void lua_on_game_start()
 {
 	SYNCDBG(6,"Starting");
+	clear_custom_buff_icons();
 
 	if (mods_conf.after_base_cnt > 0)
 	{

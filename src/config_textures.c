@@ -139,9 +139,7 @@ static TbBool load_tileset_config_file(const char *fname, unsigned short flags)
         VALUE *name = value_dict_get(section, "Name");
         if (value_type(name) == VALUE_STRING)
             snprintf(tileset_name[slot], COMMAND_WORD_LEN, "%s", value_string(name));
-        int model = value_parse_model(TCls_EffectElem, value_dict_get(section, "Footprint"));
-        if (model > 0)
-            tileset_footprint[slot] = model;
+        tileset_footprint[slot] = value_parse_model(TCls_EffectElem, value_dict_get(section, "Footprint"));
         CONDITIONAL_ASSIGN_ARR2_SOUND(section, "FootstepSound", tileset_footstep_snd[slot], tileset_footstep_cnt[slot]);
     }
     value_fini(&file_root);

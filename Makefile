@@ -111,7 +111,7 @@ CU_OBJS := \
 	$(OBJDIR)/cu/TestRun.o \
 	$(OBJDIR)/cu/Util.o
 LINKLIB = -mwindows \
-	-L"sdl/lib" -lSDL3 -lSDL3_mixer -lSDL3_image \
+	-L"sdl/lib" -lSDL3 -lSDL3_image \
 	-L"deps/ffmpeg/libavformat" -lavformat \
 	-L"deps/ffmpeg/libavcodec" -lavcodec \
 	-L"deps/ffmpeg/libswresample" -lswresample \
@@ -368,7 +368,7 @@ src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
-src/bflib_sndlib.cpp: deps/openal/include/AL/al.h
+src/kfx/audio/SoundBank.cpp src/kfx/audio/AudioSystem.cpp src/kfx/audio/SoundEffects.cpp src/kfx/audio/MusicStream.cpp src/kfx/audio/AudioCallback.cpp src/kfx/audio/AudioStream.cpp: deps/openal/include/AL/al.h
 src/net_exchange_gameplay.c: deps/zlib/include/zlib.h
 src/net_resync.cpp: deps/zlib/include/zlib.h
 src/replay_rewind.c: deps/zlib/include/zlib.h

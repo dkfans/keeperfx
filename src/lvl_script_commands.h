@@ -22,7 +22,6 @@ extern "C" {
 
 
 #include "lvl_script_lib.h"
-#include <SDL3_mixer/SDL_mixer.h>
 
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
@@ -41,6 +40,23 @@ extern const struct NamedCommand gui_button_group_desc[];
 extern const struct NamedCommand campaign_flag_desc[];
 extern const struct NamedCommand script_operator_desc[];
 extern const struct NamedCommand script_boolean_desc[];
+
+enum CreatureConfiguration
+{
+    CrtConf_NONE,
+    CrtConf_ATTRIBUTES,
+    CrtConf_ATTRACTION,
+    CrtConf_ANNOYANCE,
+    CrtConf_SENSES,
+    CrtConf_APPEARANCE,
+    CrtConf_EXPERIENCE,
+    CrtConf_JOBS,
+    CrtConf_SPRITES,
+    CrtConf_SOUNDS,
+    CrtConf_LISTEND
+};
+
+TbBool get_creature_configuration_variable(const char *name, short *block, short *creatvar);
 
 #ifdef __cplusplus
 }
