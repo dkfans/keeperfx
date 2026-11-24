@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from Options import OptionGroup, ItemDict, Toggle, Choice, ItemSet, Range
+from Options import OptionGroup, ItemDict, Toggle, Choice, ItemSet, Range, Visibility
 from worlds.AutoWorld import PerGameCommonOptions
 from .items import CREATURES, ROOMS, SPELLS, LEVELS, POSITIVE_RECIPES
 from .enums import (KeeperLevelName, KeeperPowerName, KeeperRoomName, KeeperCreatureName, KeeperRecipe, TileMode,
@@ -234,6 +234,10 @@ class StartingRooms(ItemDict):
     }
     valid_keys = set(get_val(k) for k in ROOMS.keys())
 
+class VerboseDebug(Toggle):
+    """ONLY DO THIS IF YOU NEED TO GET INFO OUT"""
+    visibility = Visibility.none
+
 @dataclass
 class DungeonKeeperOptions(PerGameCommonOptions):
     secret_levels: secret_levels
@@ -264,6 +268,7 @@ class DungeonKeeperOptions(PerGameCommonOptions):
     remove_neutral_rooms: RemoveNeutralRooms
     cruelty_mode: CrueltyMode
     FlatTempleGuardPost: FlatTempleGuardPost
+    verbose_debug: VerboseDebug
 
 option_groups = [
     OptionGroup("Levels", [

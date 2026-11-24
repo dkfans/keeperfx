@@ -1,3 +1,39 @@
+--[[
+LOCATION_NAME_TO_ID[Attract Imp] = 12001
+LOCATION_NAME_TO_ID[Attract Tunneller] = 12002
+LOCATION_NAME_TO_ID[Attract Knight] = 12003
+LOCATION_NAME_TO_ID[Attract Avatar] = 12004
+LOCATION_NAME_TO_ID[Attract Fly] = 12005
+LOCATION_NAME_TO_ID[Attract Beetle] = 12006
+LOCATION_NAME_TO_ID[Attract Spider] = 12007
+LOCATION_NAME_TO_ID[Attract Demon Spawn] = 12008
+LOCATION_NAME_TO_ID[Attract Warlock] = 12009
+LOCATION_NAME_TO_ID[Attract Troll] = 12010
+LOCATION_NAME_TO_ID[Attract Bile Demon] = 12011
+LOCATION_NAME_TO_ID[Attract Orc] = 12012
+LOCATION_NAME_TO_ID[Attract Mistress] = 12013
+LOCATION_NAME_TO_ID[Attract Dragon] = 12014
+LOCATION_NAME_TO_ID[Attract Skeleton] = 12015
+LOCATION_NAME_TO_ID[Attract Ghost] = 12016
+LOCATION_NAME_TO_ID[Attract Tentacle] = 12017
+LOCATION_NAME_TO_ID[Attract Hound] = 12018
+LOCATION_NAME_TO_ID[Attract Horned Reaper] = 12019
+LOCATION_NAME_TO_ID[Attract Vampire] = 12020
+LOCATION_NAME_TO_ID[Attract Druid] = 12021
+LOCATION_NAME_TO_ID[Attract Maiden] = 12022
+LOCATION_NAME_TO_ID[Attract Thief] = 12023
+LOCATION_NAME_TO_ID[Attract Barbarian] = 12024
+LOCATION_NAME_TO_ID[Attract Giant] = 12025
+LOCATION_NAME_TO_ID[Attract Wizard] = 12026
+LOCATION_NAME_TO_ID[Attract Fairy] = 12027
+LOCATION_NAME_TO_ID[Attract Archer] = 12028
+LOCATION_NAME_TO_ID[Attract Mountain Dwarf] = 12029
+LOCATION_NAME_TO_ID[Attract Monk] = 12030
+LOCATION_NAME_TO_ID[Attract Samurai] = 12031
+LOCATION_NAME_TO_ID[Attract Priestess] = 12032
+LOCATION_NAME_TO_ID[Attract Time Mage] = 12033
+]]
+
 TempleRecipes = require("temple_recipe_table")
 
 --Commands to be run and saved/loaded in every level.

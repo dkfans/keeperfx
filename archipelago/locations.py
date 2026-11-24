@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 
 from BaseClasses import ItemClassification, Location
 
-from . import items, enums
+from . import enums
+from .world import get_val
 
 if TYPE_CHECKING:
     from .world import DungeonKeeperWorld
@@ -166,63 +167,47 @@ LOCATION_NAME_TO_ID = {
     f"{enums.KeeperSecretLevelName.LEVEL_105.value} Blue Library": 2607,
     f"{enums.KeeperSecretLevelName.LEVEL_105.value} Green Library": 2608,
     f"{enums.KeeperSecretLevelName.LEVEL_105.value} Yellow Library": 2609,
+}
 
-    #-----------------------------------------------------
+location_code = 10000
+for entry in (enums.KeeperLevelName, enums.KeeperSecretLevelName):
+    for level in entry:
+        location_code += 1
+        LOCATION_NAME_TO_ID[f"{get_val(level)} Beaten"] = location_code
 
-    f"{enums.KeeperLevelName.LEVEL_001.value} Beaten": 10001,
-    f"{enums.KeeperLevelName.LEVEL_002.value} Beaten": 10002,
-    f"{enums.KeeperLevelName.LEVEL_003.value} Beaten": 10003,
-    f"{enums.KeeperLevelName.LEVEL_004.value} Beaten": 10004,
-    f"{enums.KeeperLevelName.LEVEL_005.value} Beaten": 10005,
-    f"{enums.KeeperLevelName.LEVEL_006.value} Beaten": 10006,
-    f"{enums.KeeperLevelName.LEVEL_007.value} Beaten": 10007,
-    f"{enums.KeeperLevelName.LEVEL_008.value} Beaten": 10008,
-    f"{enums.KeeperLevelName.LEVEL_009.value} Beaten": 10009,
-    f"{enums.KeeperLevelName.LEVEL_010.value} Beaten": 10010,
-    f"{enums.KeeperLevelName.LEVEL_011.value} Beaten": 10011,
-    f"{enums.KeeperLevelName.LEVEL_012.value} Beaten": 10012,
-    f"{enums.KeeperLevelName.LEVEL_013.value} Beaten": 10013,
-    f"{enums.KeeperLevelName.LEVEL_014.value} Beaten": 10014,
-    f"{enums.KeeperLevelName.LEVEL_015.value} Beaten": 10015,
-    f"{enums.KeeperLevelName.LEVEL_016.value} Beaten": 10016,
-    f"{enums.KeeperLevelName.LEVEL_017.value} Beaten": 10017,
-    f"{enums.KeeperLevelName.LEVEL_018.value} Beaten": 10018,
-    f"{enums.KeeperLevelName.LEVEL_019.value} Beaten": 10019,
-    f"{enums.KeeperLevelName.LEVEL_020.value} Beaten": 10020,
-    f"{enums.KeeperSecretLevelName.LEVEL_100.value} Beaten": 10021,
-    f"{enums.KeeperSecretLevelName.LEVEL_101.value} Beaten": 10022,
-    f"{enums.KeeperSecretLevelName.LEVEL_102.value} Beaten": 10023,
-    f"{enums.KeeperSecretLevelName.LEVEL_103.value} Beaten": 10024,
-    f"{enums.KeeperSecretLevelName.LEVEL_104.value} Beaten": 10025,
-    f"{enums.KeeperSecretLevelName.LEVEL_105.value} Beaten": 10026,
+location_code = 11000
+for entry in (enums.KeeperGoodTempleLocations, enums.KeeperBadTempleLocations, enums.KeeperFXGoodTempleLocations, enums.KeeperFXBadTempleLocations):
+    for recipe in entry:
+        location_code += 1
+        LOCATION_NAME_TO_ID[get_val(recipe)] = location_code
 
-    #-----------------------------------------------------
+location_code = 12000
+for entry in ((enums.KeeperImpName, enums.KeeperTunnellerName, enums.KeeperKnightName, enums.KeeperAvatarName), enums.KeeperCreatureName, enums.KeeperFXCreatureName, enums.KeeperHeroName, enums.KeeperFXHeroName):
+    for creature in entry:
+        location_code += 1
+        LOCATION_NAME_TO_ID[f"{enums.ATTRACT}{creature}"] = location_code
 
-    enums.KeeperGoodTempleLocations.CHEAPER_IMPS.value:11001,
-    enums.KeeperGoodTempleLocations.MANUFACTURING.value:11002,
-    enums.KeeperGoodTempleLocations.RESEARCH.value:11003,
-    enums.KeeperGoodTempleLocations.BILE_DEMON.value:11004,
-    enums.KeeperGoodTempleLocations.WARLOCK.value:11005,
-    enums.KeeperGoodTempleLocations.MISTRESS.value:11006,
-    enums.KeeperGoodTempleLocations.HORNY.value:11007,
-    enums.KeeperGoodTempleLocations.WISHING_WELL.value:11008,
-    enums.KeeperBadTempleLocations.KILL_CHICKENS_1.value:11009,
-    enums.KeeperBadTempleLocations.KILL_CHICKENS_2.value:11010,
-    enums.KeeperBadTempleLocations.DISEASE_CREATURES.value:11011,
-    enums.KeeperBadTempleLocations.MAKE_ANGRY.value:11012,
-    enums.KeeperBadTempleLocations.CHICKEN_CREATURES.value:11013,
-    enums.KeeperGoodTempleLocations.EASTER_EGG.value:11014,
-    enums.KeeperFXBadTempleLocations.GOOD_SKELETON.value:11015,
-    enums.KeeperFXGoodTempleLocations.TENTACLE.value:11016,
-    enums.KeeperFXGoodTempleLocations.HELLHOUND.value:11017,
-    enums.KeeperFXGoodTempleLocations.SPEED.value:11018,
-    enums.KeeperFXGoodTempleLocations.CONCEAL.value:11019,
-    enums.KeeperFXGoodTempleLocations.HEAL.value:11020,
-    enums.KeeperFXGoodTempleLocations.REBOUND.value:11021,
-    enums.KeeperFXGoodTempleLocations.PROTECT.value:11022,
-    enums.KeeperFXGoodTempleLocations.FLIGHT.value:11023,
-    enums.KeeperFXBadTempleLocations.FREEZE.value:11024,
-    enums.KeeperFXBadTempleLocations.SLOW.value:11025,
+location_code = 13000
+for room in enums.KeeperRoomName:
+    location_code += 1
+    LOCATION_NAME_TO_ID[f"{enums.BUILD}{room}"] = location_code
+
+non_research_spells = {enums.KeeperPowerName.POWER_HAND, enums.KeeperPowerName.POWER_SLAP, enums.KeeperPowerName.POWER_POSSESS, enums.KeeperPowerName.POWER_IMP}
+location_code = 14000
+for entry in (enums.KeeperPowerName, enums.KeeperFXPowerName):
+    for power in entry:
+        if power in non_research_spells:
+            continue
+        location_code += 1
+        LOCATION_NAME_TO_ID[f"{enums.RESEARCH}{power}"] = location_code
+
+location_code = 15000
+for entry in (enums.KeeperTrapName, enums.KeeperDoorName, enums.KeeperFXTrapName, enums.KeeperFXDoorName):
+    for item in entry:
+        location_code += 1
+        LOCATION_NAME_TO_ID[f"{enums.MANUFACTURE}{item}"] = location_code
+
+
 
     #Other checks you can do anywhere
 
@@ -251,7 +236,8 @@ LOCATION_NAME_TO_ID = {
     #Manufacture X traps/doors
     #Research X spells/rooms
     #Place X room tiles (or one for each room if you're crazy)
-}
+
+
 
 
 # Each Location instance must correctly report the "game" it belongs to.
@@ -278,6 +264,9 @@ def create_all_locations(world: DungeonKeeperWorld) -> None:
 def create_regular_locations(world: DungeonKeeperWorld) -> None:
     # Finally, we need to put the Locations ("checks") into their regions.
     # Once again, before we do anything, we can grab our regions we created by using world.get_region()
+
+
+
     eversmile = world.get_region(enums.KeeperLevelName.LEVEL_001.value)
     cosyton = world.get_region(enums.KeeperLevelName.LEVEL_002.value)
     waterdreamwarm = world.get_region(enums.KeeperLevelName.LEVEL_003.value)
@@ -488,39 +477,55 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
     )
     skybirdtrill.add_locations(skybirdtrill_locations, DungeonKeeperLocation)
 
-    if world.options.TempleLocations:
-        create_temple_locations(world)
+    for room in enums.KeeperRoomName:
+        label = f"{enums.BUILD}{room}"
+        room_region = world.get_region(label)
+        region_list = [label]
+        if room == enums.KeeperRoomName.LAIR:
+            region_list.extend(f"{enums.ATTRACT}{creature.value}" for creature in enums.KeeperCreatureName if creature.value != enums.KeeperImpName)
+            region_list.extend(f"{enums.ATTRACT}{creature.value}" for creature in enums.KeeperHeroName if world.options.AddHeroes)
+            region_list.extend(f"{enums.ATTRACT}{creature.value}" for creature in enums.KeeperFXCreatureName if world.options.KeeperFXCreatures)
+            region_list.extend(f"{enums.ATTRACT}{creature.value}" for creature in enums.KeeperFXHeroName if world.options.KeeperFXHeroes)
+            if world.options.IncludeTunnellersInPool:
+                region_list.append(f"{enums.ATTRACT}{enums.KeeperTunnellerName}")
+            if world.options.IncludeKnightsInPool:
+                region_list.append(f"{enums.ATTRACT}{enums.KeeperKnightName}")
+            if world.options.IncludeAvatarsInPool:
+                region_list.append(f"{enums.ATTRACT}{enums.KeeperAvatarName}")
+        if room == enums.KeeperRoomName.RESEARCH:  # Spells are searched in library, so nest these locations in there.
+            region_list.extend(f"{enums.RESEARCH}{power.value}" for power in enums.KeeperPowerName if power.value not in non_research_spells)
+            region_list.extend(f"{enums.RESEARCH}{power.value}" for power in enums.KeeperFXPowerName if world.options.KeeperFXSpells)
+        if room == enums.KeeperRoomName.WORKSHOP:
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperDoorName)
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperTrapName)
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXDoorName if world.options.KeeperFXDoors)
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXTrapName if world.options.KeeperFXTraps)
+        if room == enums.KeeperRoomName.TEMPLE:
+            region_list.extend(get_temple_locations(world))
+        room_region.add_locations(get_location_names_with_ids(region_list), DungeonKeeperLocation)
+
+    if world.options.IncludeImpsInPool:
+        label = f"{enums.ATTRACT}{enums.KeeperImpName}"
+        creature_region = world.get_region(label)
+        creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
 
     if world.options.secret_levels:
         create_secret_locations(world)
 
-def create_temple_locations(world: DungeonKeeperWorld) -> None:
 
-    temple = world.get_region(enums.KeeperRoomName.TEMPLE.value)
-    temple_locations = get_location_names_with_ids(
-         [enums.KeeperGoodTempleLocations.CHEAPER_IMPS.value,
-          enums.KeeperGoodTempleLocations.MANUFACTURING.value,
-          enums.KeeperGoodTempleLocations.RESEARCH.value,
-          enums.KeeperGoodTempleLocations.BILE_DEMON.value,
-          enums.KeeperGoodTempleLocations.WARLOCK.value,
-          enums.KeeperGoodTempleLocations.MISTRESS.value,
-          enums.KeeperGoodTempleLocations.HORNY.value,
-          enums.KeeperBadTempleLocations.MAKE_ANGRY.value,
-          enums.KeeperBadTempleLocations.KILL_CHICKENS.value,
-          enums.KeeperBadTempleLocations.DISEASE_CREATURES.value,
-          enums.KeeperBadTempleLocations.CHICKEN_CREATURES.value,
-          enums.KeeperFXGoodTempleLocations.TENTACLE.value,
-          enums.KeeperFXGoodTempleLocations.HELLHOUND.value,
-          enums.KeeperFXGoodTempleLocations.SPEED.value,
-          enums.KeeperFXGoodTempleLocations.CONCEAL.value,
-          enums.KeeperFXGoodTempleLocations.HEAL.value,
-          enums.KeeperFXGoodTempleLocations.REBOUND.value,
-          enums.KeeperFXGoodTempleLocations.PROTECT.value,
-          enums.KeeperFXGoodTempleLocations.FLIGHT.value,
-          enums.KeeperFXBadTempleLocations.FREEZE.value,
-          enums.KeeperFXBadTempleLocations.SLOW.value]
-    )
-    temple.add_locations(temple_locations, DungeonKeeperLocation)
+def get_temple_locations(world: DungeonKeeperWorld) -> list:
+
+    included_recipes = []
+    if world.options.TempleLocations:
+        if world.options.PositiveRecipes > 0:
+            included_recipes.extend(recipe.value for recipe in enums.KeeperGoodTempleLocations)
+        if world.options.NegativeRecipes > 0:
+            included_recipes.extend(recipe.value for recipe in enums.KeeperBadTempleLocations)
+        if world.options.KeeperFXRecipes > 0:
+            included_recipes.extend(recipe.value for recipe in enums.KeeperFXGoodTempleLocations)
+            included_recipes.extend(recipe.value for recipe in enums.KeeperFXBadTempleLocations)
+    return included_recipes
+
 
 def create_secret_locations(world: DungeonKeeperWorld) -> None:
         
