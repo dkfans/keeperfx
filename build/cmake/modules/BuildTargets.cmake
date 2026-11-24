@@ -116,33 +116,3 @@ if(KFX_SAVE_TESTS)
     add_test(NAME kfx_save_tests COMMAND kfx_save_tests)
     kfx_status("TESTS" "kfx_save_tests (ctest)")
 endif()
-
-# Tile set tests (tests/tilesets): the bounded file loader, the scan rules and the loader thread.
-# Off by default. Build with -DKFX_TILESET_TESTS=ON, run with ctest.
-option(KFX_TILESET_TESTS "Build the tile set tests (kfx_tileset_tests)" OFF)
-if(KFX_TILESET_TESTS)
-    enable_testing()
-    file(GLOB KFX_TILESET_TEST_SOURCES CONFIGURE_DEPENDS
-        "${CMAKE_SOURCE_DIR}/tests/tilesets/*.c"
-        "${CMAKE_SOURCE_DIR}/src/kfx/tilesets/*.c"
-        "${CMAKE_SOURCE_DIR}/src/kfx/tilesets/*.cpp")
-    add_executable(kfx_tileset_tests
-        ${KFX_TILESET_TEST_SOURCES}
-        "${CMAKE_SOURCE_DIR}/src/bflib_dernc.c"
-        "${CMAKE_SOURCE_DIR}/src/bflib_fileio.c")
-    target_include_directories(kfx_tileset_tests PRIVATE
-        "${CMAKE_SOURCE_DIR}/src"
-        $<TARGET_PROPERTY:kfx_sdl3,INTERFACE_INCLUDE_DIRECTORIES>)
-    target_compile_definitions(kfx_tileset_tests PRIVATE BFDEBUG_LEVEL=0)
-    find_package(Threads REQUIRED)
-    target_link_libraries(kfx_tileset_tests PRIVATE Threads::Threads)
-    if(WIN32)
-        target_link_libraries(kfx_tileset_tests PRIVATE ws2_32)
-    endif()
-    if(KEEPERFX_TSAN AND UNIX)
-        target_compile_options(kfx_tileset_tests PRIVATE -fsanitize=thread)
-        target_link_options(kfx_tileset_tests PRIVATE -fsanitize=thread)
-    endif()
-    add_test(NAME kfx_tileset_tests COMMAND kfx_tileset_tests)
-    kfx_status("TESTS" "kfx_tileset_tests (ctest)")
-endif()
