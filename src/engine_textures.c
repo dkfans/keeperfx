@@ -72,6 +72,8 @@ static uint32_t texture_sets_level_serial;
 static uint32_t texture_sets_files_read;
 static uint32_t texture_sets_loaded_in_play;
 static TbBool texture_sets_loading_level;
+static TbBool texture_sets_accepting_requests;
+static unsigned long texture_set0_pack;
 
 static void point_set_at(int32_t set, unsigned char *buf)
 {
@@ -293,7 +295,11 @@ TbBool load_texture_map_file(unsigned long tmapidx, LevelNumber lvnum, short fgr
         load_letter_one_file(tmapidx, 'b', buf + TILE_SET_LETTER_BYTES, lvnum, fgroup);
     else
         TILESETWARN("The level's own tile set has no files, so the map draws as plain colour. (pack %lu)", tmapidx);
-    texture_sets[0].generation++;
+    texture_set0_pack = tmapidx;
+    // Every set without its own buffer shows set 0's tiles, so they all changed.
+    for (int32_t v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
+        if ((v == 0) || (texture_sets[v].buffer == NULL))
+            texture_sets[v].generation++;
     set_alias(tile_set_alias_index((uint32_t)tmapidx));
     return loaded;
 }
@@ -331,6 +337,7 @@ void texture_sets_release_level(void)
     texture_sets_level_serial++;
     texture_sets_files_read = 0;
     texture_sets_loaded_in_play = 0;
+    texture_sets_accepting_requests = false;
     level_textures_ready = 0;
 }
 
@@ -350,6 +357,7 @@ void texture_sets_load_for_level(void)
     texture_sets_release_level();
     load_texture_map_file(game.texture_id, lvnum, fgroup);
     uint32_t mask = scan_current_level();
+    texture_sets_accepting_requests = true;
     texture_sets_loading_level = true;
     for (int32_t v = 1; v < TEXTURE_VARIATIONS_COUNT; v++)
         if (mask & (1u << v))
@@ -373,6 +381,18 @@ void texture_sets_reload_level_set(void)
         texture_set_request(old_alias);
 }
 
+void texture_sets_reconcile(void)
+{
+    if (!texture_sets_accepting_requests)
+        return;
+    if (texture_set0_pack != game.texture_id)
+        texture_sets_reload_level_set();
+    uint32_t mask = scan_current_level();
+    for (int32_t v = 1; v < TEXTURE_VARIATIONS_COUNT; v++)
+        if (mask & (1u << v))
+            texture_set_request(v);
+}
+
 void texture_sets_shutdown(void)
 {
     TileSetLoader_Shutdown();
@@ -387,7 +407,7 @@ void texture_sets_shutdown(void)
 
 void texture_set_request(int32_t set)
 {
-    if (set <= 0 || set >= TEXTURE_VARIATIONS_COUNT)
+    if (set <= 0 || set >= TEXTURE_VARIATIONS_COUNT || !texture_sets_accepting_requests)
         return;
     struct TextureSetSlot *slot = &texture_sets[set];
     if (!tile_set_needs_request(set, slot->state, slot->alias_of_zero))

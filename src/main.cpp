@@ -1092,6 +1092,7 @@ void clear_game_for_summary(void)
 void clear_game(void)
 {
     SYNCDBG(6,"Starting");
+    texture_sets_release_level();
     clear_game_for_summary();
     game.music_track = 0;
     clear_map();

@@ -62,6 +62,7 @@ void texture_sets_shutdown(void);
 void texture_sets_release_level(void);
 void texture_sets_load_for_level(void);
 void texture_sets_reload_level_set(void);
+void texture_sets_reconcile(void);
 void texture_set_request(int32_t set);
 void texture_sets_publish_ready(void);
 void set_slab_texture_set(SlabCodedCoords slb_num, unsigned char value, TbBool also_initial);

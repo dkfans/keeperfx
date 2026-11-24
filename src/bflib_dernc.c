@@ -523,17 +523,26 @@ long LbFileLoadAt(const char *fname, void *buffer)
 long LbFileLoadAtMax(const char *fname, void *buffer, unsigned long max_len)
 {
     long filelength = LbFileLengthRnc(fname);
-    if (filelength < 0)
+    long disklength = LbFileLength(fname);
+    if ((filelength < 0) || (disklength < 0))
         return LbLoadAtMax_Missing;
-    if ((unsigned long)filelength > max_len)
+    if (((unsigned long)filelength > max_len) || ((unsigned long)disklength > max_len))
         return LbLoadAtMax_TooLarge;
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (!handle)
         return LbLoadAtMax_Missing;
-    int read_status = LbFileRead(handle, buffer, filelength);
+    int read_status = LbFileRead(handle, buffer, disklength);
     LbFileClose(handle);
     if (read_status == -1)
         return LbLoadAtMax_ReadError;
+    if (disklength >= (long)sizeof(rnc_header))
+    {
+        rnc_header header;
+        memcpy(&header, buffer, sizeof(header));
+        // The unpacker trusts the header's packed size; it must not reach past what was read.
+        if ((header.signature == RNC_SIGNATURE) && (ntohl(header.packed_size) > (unsigned long)(disklength - RNC_HEADER_LEN)))
+            return LbLoadAtMax_BadPack;
+    }
     long unp_length = UnpackM1(buffer, filelength);
     if (unp_length < 0)
         return LbLoadAtMax_BadPack;
