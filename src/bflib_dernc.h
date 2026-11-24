@@ -55,6 +55,16 @@ extern "C" {
 /******************************************************************************/
 long LbFileLengthRnc(const char *fname);
 long LbFileLoadAt(const char *fname, void *buffer);
+/** Results of LbFileLoadAtMax() below zero. */
+enum LbLoadAtMaxResult {
+    LbLoadAtMax_Missing   = -1, /**< File doesn't exist or can't be opened. */
+    LbLoadAtMax_TooLarge  = -2, /**< Unpacked size is over max_len; nothing was written. */
+    LbLoadAtMax_ReadError = -3, /**< Read failed part way. */
+    LbLoadAtMax_BadPack   = -4, /**< RNC data didn't unpack. */
+};
+/** Loads a file (unpacking RNC) into buffer, refusing files larger than max_len.
+ *  Never logs, so it's safe on worker threads. Returns the loaded length or a LbLoadAtMaxResult. */
+long LbFileLoadAtMax(const char *fname, void *buffer, unsigned long max_len);
 long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len);
 long UnpackM1(void *buffer, unsigned long bufsize);
 /******************************************************************************/

@@ -1105,6 +1105,7 @@ TbBool keeper_screen_redraw(void)
     RendererClearScreen(144);
     if (RendererBeginFrame())
     {
+        texture_sets_publish_ready();
         if (update_animating_texture_maps()) {
             RendererUpdateAnimatedTiles();
         }

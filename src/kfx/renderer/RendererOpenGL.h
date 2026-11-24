@@ -19,6 +19,7 @@ public:
     void SetDisplayPalette(const unsigned char* rgb8) override;
     void ClearScreen(unsigned char colour) override;
     void PresentFrame() override;
+    void WaitIdle() override;
 
     BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 1 }; }
     bool CanDraw() const override

@@ -14,22 +14,19 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "kfx_memory.h"
 #include "pre_inc.h"
+#include "kfx_memory.h"
+
 #include "config_textures.h"
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_fileio.h"
-#include "bflib_dernc.h"
 #include "value_util.h"
-#include "config_sounds.h"
 #include "thing_effects.h"
 #include "thing_list.h"
 
 #include <string.h>
 #include <toml.h>
-#include "config_strings.h"
 #include "game_legacy.h"
 #include "post_inc.h"
 
@@ -139,7 +136,9 @@ static TbBool load_tileset_config_file(const char *fname, unsigned short flags)
         VALUE *name = value_dict_get(section, "Name");
         if (value_type(name) == VALUE_STRING)
             snprintf(tileset_name[slot], COMMAND_WORD_LEN, "%s", value_string(name));
-        tileset_footprint[slot] = value_parse_model(TCls_EffectElem, value_dict_get(section, "Footprint"));
+        int model = value_parse_model(TCls_EffectElem, value_dict_get(section, "Footprint"));
+        if (model >= 0)
+            tileset_footprint[slot] = model;
         CONDITIONAL_ASSIGN_ARR2_SOUND(section, "FootstepSound", tileset_footstep_snd[slot], tileset_footstep_cnt[slot]);
     }
     value_fini(&file_root);

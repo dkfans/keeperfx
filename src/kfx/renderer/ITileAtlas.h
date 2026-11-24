@@ -26,7 +26,7 @@ public:
     virtual ~ITileAtlas() = default;
 
     /** Build all variation atlases from block_ptrs[] and lbPalette.
-     *  Must be called after setup_texture_block_mem() and lbPalette is set.
+     *  Must be called after texture_sets_init() and lbPalette is set.
      *  Returns false if texture allocation fails. */
     virtual bool Init() = 0;
 

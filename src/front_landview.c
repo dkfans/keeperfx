@@ -84,6 +84,7 @@ LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
 struct TbHugeSprite map_window;
 long map_window_len = 0;
+static unsigned char *map_window_buf;
 
 TbClockMSec play_desc_speech_time;
 unsigned long played_bad_descriptive_speech;
@@ -933,6 +934,12 @@ void unload_map_and_window(void)
     clear_rooms();
     clear_dungeons();
     memcpy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+    if (map_window_buf != NULL)
+    {
+        RendererWaitIdle();
+        free(map_window_buf);
+        map_window_buf = NULL;
+    }
     map_window_len = 0;
 }
 
@@ -988,11 +995,29 @@ TbBool load_map_and_window(LevelNumber lvnum)
         return false;
     }
     map_screen = &game.land_map_start;
-    // Texture blocks memory isn't used here, so reuse it instead of allocating
-    unsigned char* ptr = block_mem;
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
+    int32_t wlen = (int32_t)LbFileLengthRnc(fname);
+    if (wlen < (int32_t)(WINDOW_Y_SIZE*sizeof(int32_t)))
+    {
+        ERRORLOG("Unable to load Land Map Window \"%s.dat\"",land_window);
+        unload_map_and_window();
+        return false;
+    }
+    if (map_window_buf != NULL)
+    {
+        RendererWaitIdle();
+        free(map_window_buf);
+    }
+    map_window_buf = (unsigned char *)malloc(wlen);
+    if (map_window_buf == NULL)
+    {
+        ERRORLOG("Not enough memory for Land Map Window \"%s.dat\"",land_window);
+        unload_map_and_window();
+        return false;
+    }
+    unsigned char* ptr = map_window_buf;
     map_window_len = LbFileLoadAt(fname, ptr);
     if (map_window_len < (int32_t)(WINDOW_Y_SIZE*sizeof(int32_t)))
     {

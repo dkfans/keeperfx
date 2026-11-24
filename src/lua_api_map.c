@@ -95,13 +95,12 @@ static int map_set_field(lua_State *L) {
     const char *key = luaL_checkstring(L, 2);
 
     if (strcmp(key, "default_texture") == 0) {
-        LevelNumber lvnumb = get_loaded_level_number();
         // NONE, DEFAULT and a negative number are ignored: the .inf texture is always a file, so it has no Default of its own.
         long slot = luaL_checkTexturePack(L, 3);
         if (slot > 0)
         {
             game.texture_id = slot - 1;
-            load_texture_map_file(game.texture_id, lvnumb, get_level_fgroup(lvnumb));
+            texture_sets_reload_level_set();
         }
         return 0;
     }

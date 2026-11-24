@@ -17,6 +17,7 @@
 #include "lua_params.h"
 #include "lua_utils.h"
 
+#include "engine_textures.h"
 #include "post_inc.h"
 #include "game_merge.h"
 #include "lvl_script_lib.h"
@@ -104,7 +105,7 @@ static const struct luaL_Reg slab_methods[] = {
         place_slab_type_on_map(luaL_checkNamedCommand(L, 3, slab_desc), slab_subtile_center(slb_x), slab_subtile_center(slb_y), slabmap_owner(slb), 0);
     } else if (strcmp(key, "style") == 0) {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-        game.slab_ext_data[slb_num] = luaL_checkTexturePack(L, 3);
+        set_slab_texture_set(slb_num, luaL_checkTexturePack(L, 3), false);
     }
     return 0;
  }
