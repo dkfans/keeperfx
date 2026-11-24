@@ -35,9 +35,6 @@ def create_all_regions(world: DungeonKeeperWorld) -> None:
     if world.options.IncludeImpsInPool:
         world.multiworld.regions += [Region(f"{enums.ATTRACT}{enums.KeeperImpName}", world.player, world.multiworld)]
 
-    if world.options.TempleLocations:
-        world.multiworld.regions += [Region(get_val(enums.KeeperRoomName.TEMPLE), world.player, world.multiworld)]
-
     if world.options.secret_levels:
         for level in enums.KeeperSecretLevelName:
             world.multiworld.regions += [Region(level, world.player, world.multiworld)]
@@ -103,10 +100,6 @@ def connect_regions(world: DungeonKeeperWorld) -> None:
         label = f"{enums.ATTRACT}{enums.KeeperImpName}"
         creature_region = world.get_region(label)
         overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
-
-    if world.options.TempleLocations:
-        temple = world.get_region(get_val(enums.KeeperRoomName.TEMPLE.value))
-        overworld.connect(temple, f"{enums.OVERWORLD_CONNECT}{enums.KeeperRoomName.TEMPLE.value}", lambda state: state.has_all({enums.KeeperRoomName.TEMPLE.value, enums.KeeperRoomName.RESEARCH.value}, world.player))
 
     if world.options.secret_levels:
         secret1 = world.get_region(get_val(enums.KeeperSecretLevelName.LEVEL_100.value))

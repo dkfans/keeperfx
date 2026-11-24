@@ -498,6 +498,8 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
             region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperTrapName)
             region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXDoorName if world.options.KeeperFXDoors)
             region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXDoorName if world.options.KeeperFXTraps)
+        if room == enums.KeeperRoomName.TEMPLE:
+            region_list.extend(create_temple_locations(world))
         room_region.add_locations(get_location_names_with_ids(region_list), DungeonKeeperLocation)
 
     if world.options.IncludeImpsInPool:
@@ -505,26 +507,23 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
         creature_region = world.get_region(label)
         creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
 
-    if world.options.TempleLocations:
-        create_temple_locations(world)
-
     if world.options.secret_levels:
         create_secret_locations(world)
 
 
-def create_temple_locations(world: DungeonKeeperWorld) -> None:
+def create_temple_locations(world: DungeonKeeperWorld) -> dict[str, int | None]:
 
-    temple = world.get_region(get_val(enums.KeeperRoomName.TEMPLE))
     included_recipes = []
-    if world.options.PositiveRecipes > 0:
-        included_recipes.extend(recipe.value for recipe in enums.KeeperGoodTempleLocations)
-    if world.options.NegativeRecipes > 0:
-        included_recipes.extend(recipe.value for recipe in enums.KeeperBadTempleLocations)
-    if world.options.KeeperFXRecipes > 0:
-        included_recipes.extend(recipe.value for recipe in enums.KeeperFXGoodTempleLocations)
-        included_recipes.extend(recipe.value for recipe in enums.KeeperFXBadTempleLocations)
-    temple_locations = get_location_names_with_ids(included_recipes)
-    temple.add_locations(temple_locations, DungeonKeeperLocation)
+    if world.options.TempleLocations:
+        if world.options.PositiveRecipes > 0:
+            included_recipes.extend(recipe.value for recipe in enums.KeeperGoodTempleLocations)
+        if world.options.NegativeRecipes > 0:
+            included_recipes.extend(recipe.value for recipe in enums.KeeperBadTempleLocations)
+        if world.options.KeeperFXRecipes > 0:
+            included_recipes.extend(recipe.value for recipe in enums.KeeperFXGoodTempleLocations)
+            included_recipes.extend(recipe.value for recipe in enums.KeeperFXBadTempleLocations)
+    return included_recipes
+
 
 def create_secret_locations(world: DungeonKeeperWorld) -> None:
         
