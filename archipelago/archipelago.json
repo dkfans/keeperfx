@@ -1,6 +1,8 @@
 {
 	"game": "Dungeon Keeper",
+	"authors": ["Kitty", "Spatulade", "gibb3h"],
 	"minimum_ap_version": "0.6.7",
 	"world_version": "2.0.0",
-	"authors": ["Kitty", "Spatulade", "gibb3h"]
+	"version": 7,
+	"compatible_version": 7
 }
