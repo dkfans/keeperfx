@@ -198,14 +198,18 @@ static int lua_remove_creature_from_play(lua_State *L)
 {
     struct Thing *thing = luaL_checkCreature(L, 1);
     lua_Integer turns = luaL_checkinteger(L, 2);
-    luaL_argcheck(L, (turns > 0) && (turns <= INT32_MAX), 2, "turns must be between 1 and 2147483647");
+    luaL_argcheck(L, (turns >= 0) && (turns <= INT32_MAX), 2, "turns must be between 0 and 2147483647");
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (flag_is_set(cctrl->creature_state_flags, TF2_CreatureOutOfPlay)) {
+        cctrl->wait_to_turn = get_gameturn() + (GameTurn)turns;
+        return 0;
+    }
     if (thing_is_picked_up(thing)) {
         return luaL_error(L, "creature is already out of play");
     }
     if (user_controls_thing(ANY_USER, thing, UCT_Selected)) {
         prepare_to_controlled_creature_death(thing);
     }
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     initialise_thing_state(thing, CrSt_CreatureOutOfPlay);
     clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
     set_flag(cctrl->creature_state_flags, TF2_CreatureOutOfPlay);
