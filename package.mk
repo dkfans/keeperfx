@@ -70,7 +70,6 @@ PKG_DOCS = \
 	pkg/keeperfx_readme.txt \
 	pkg/launcher-auto-file-removal.txt
 PKG_DLL = \
-	pkg/SDL3_mixer.dll \
 	pkg/SDL3_image.dll \
 	pkg/SDL3.dll
 PKG_FILES = \
@@ -175,9 +174,6 @@ pkg/levels/%.toml: levels/%.toml | $(PKG_MAPPACK_DIRS)
 
 pkg/multiplayer/%: multiplayer/% | $(PKG_MP_MAPPACK_DIRS)
 	$(CP) $< $@
-
-pkg/SDL3_mixer.dll: sdl/for_final_package/SDL3_mixer.dll | pkg
-	$(CP) $^ $@
 
 pkg/SDL3_image.dll: sdl/for_final_package/SDL3_image.dll | pkg
 	$(CP) $^ $@
