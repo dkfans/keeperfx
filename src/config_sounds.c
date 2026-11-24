@@ -1143,18 +1143,23 @@ static TbBool warn_unsupported_audio_format(const char* text)
     return true;
 }
 
-int sound_id_from_text(const char* text)
+int sound_id_from_text_count(const char* text, int count)
 {
     int id = sound_manager_get_id(text);
     if (id > 0)
         return id;
     if (value_is_sound_filepath(text))
     {
-        SoundSmplTblID loaded_id = sound_manager_load_named_sound(text, text, 1);
+        SoundSmplTblID loaded_id = sound_manager_load_named_sound(text, text, count);
         if (loaded_id > 0)
             return (int)loaded_id;
     }
     return 0;
+}
+
+int sound_id_from_text(const char* text)
+{
+    return sound_id_from_text_count(text, 1);
 }
 
 int64_t value_sound_id(const struct NamedField* named_field, const char* value_text,

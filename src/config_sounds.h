@@ -327,6 +327,12 @@ extern int g_speech_queue_limit;
 int sound_id_from_text(const char* text);
 
 /**
+ * Like sound_id_from_text(), but a file path with count > 1 loads count numbered files
+ * (water1.ogg, water2.ogg, ...) at consecutive IDs and returns the first.
+ */
+int sound_id_from_text_count(const char* text, int count);
+
+/**
  * @brief NamedField parse function that resolves a sound name, numeric ID, or inline file path.
  *
  * Resolution order:
