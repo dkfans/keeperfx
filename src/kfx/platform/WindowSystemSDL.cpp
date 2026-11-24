@@ -452,7 +452,7 @@ bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h
         // GL context is fully created and current -- matches develop's
         // platform_create_gl_context() sequencing.
         sdl3_flags |= SDL_WINDOW_HIDDEN;
-        GLContextSDL::RequestWindowAttributes();
+        GLContextSDL::RequestWindowAttributes((flags & KFX_WF_GL_DEBUG) != 0);
     }
 
     m_window = SDL_CreateWindow(title, w, h, sdl3_flags);
@@ -476,6 +476,18 @@ void WindowSystemSDL::ShowWindow()
 {
     if (m_window != nullptr)
         SDL_ShowWindow(m_window);
+}
+
+void WindowSystemSDL::DestroyWindow()
+{
+    if (m_window == nullptr)
+        return;
+    SDL_SetWindowRelativeMouseMode(m_window, false);
+    SDL_SetWindowMouseGrab(m_window, false);
+    SDL_DestroyWindow(m_window);
+    m_window = nullptr;
+    m_keepComposited = false;
+    m_desktopFullscreenOnly = false;
 }
 
 std::unique_ptr<IGLContext> WindowSystemSDL::CreateGLContext()

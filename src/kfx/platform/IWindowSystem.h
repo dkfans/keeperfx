@@ -123,6 +123,8 @@ public:
      *  renderer capability flag" API: that need only existed because window
      *  creation used to be decided before the renderer type was known. */
     virtual bool CreateWindow(const char* /*title*/, int /*x*/, int /*y*/, int /*w*/, int /*h*/, unsigned int /*flags*/) { return false; }
+    /** Destroys the game window, if any. Used to rebuild it with other flags. */
+    virtual void DestroyWindow() {}
     virtual bool SetWindowTitle(const char* /*title*/) { return false; }
     virtual void ShowWindow() {}
 

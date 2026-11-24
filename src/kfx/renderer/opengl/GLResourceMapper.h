@@ -4,6 +4,7 @@
 #include "kfx/renderer/IGpuResourceMapper.h"
 #include "kfx/renderer/opengl/GLResourceTypes.h"
 #include <mutex>
+#include <string>
 #include <vector>
 #include <unordered_set>
 
@@ -32,6 +33,12 @@ public:
     void SetScreenFramebuffer(GLuint fbo) { m_screen_fbo = fbo; }
     GLuint GetScreenFramebuffer() const { return m_screen_fbo; }
 
+    /// @brief Logs once per handle that a draw was skipped because its resource is missing. Render thread only.
+    void ReportSkippedDraw(GpuResourceHandle handle, const char* what);
+
+    /// @brief Debug builds: the next texture created with this debug name fails for real.
+    void SetForceTextureFailure(const char* debug_name) { m_force_fail_texture = debug_name ? debug_name : ""; }
+
 private:
     enum class SlotState : uint8_t { Free, Pending, Realized, Failed };
 
@@ -42,6 +49,8 @@ private:
         uint32_t generation  = 0;
         Desc desc            = {};
         Realized realized    = {};
+        bool     has_previous = false; ///< A reload is pending; previous is still live.
+        Realized previous     = {};
     };
 
     std::vector<Slot<GpuTextureDesc, GLTexture>> m_textures;
@@ -66,6 +75,20 @@ private:
 
     std::mutex m_mutex;
     std::unordered_set<GpuResourceHandle> m_warned_stale;
+    std::unordered_set<GpuResourceHandle> m_warned_skipped;
+    std::string m_force_fail_texture;
+
+    /// @brief Queues the object a pending reload replaced for deferred destroy.
+    template <typename Desc, typename Realized>
+    void DeferPreviousDestroy(Slot<Desc, Realized>& slot, GpuResourceHandle handle, Realized PendingDestroy::* snapshot);
+
+    /// @brief True when handle has a release queued. Caller holds m_mutex.
+    bool IsReleasePending(GpuResourceHandle handle) const;
+
+    /// @brief Creates a pending slot's object; the object a reload replaced is freed either way.
+    template <typename Desc, typename Realized, typename RealizeFn>
+    const Realized* RealizePending(Slot<Desc, Realized>& slot, GpuResourceHandle handle,
+                                   RealizeFn realize, Realized PendingDestroy::* snapshot);
 
     /// @brief Issues the gl* calls to bring a texture into existence.
     /// @param desc Description to realize.

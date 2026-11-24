@@ -12,6 +12,7 @@
 #include "kfx/renderer/ITileAtlas.h"
 #include "kfx/renderer/opengl/GLShaders.h"
 #include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/opengl/GLLog.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "kfx/renderer/RendererSettings.h" // g_renderer_settings
 #include "kfx/renderer/RendererManager.h"  // RendererGetCurrentSpriteOwner/WantsOutline
@@ -1125,7 +1126,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
         m_kspr_sprite_array_handle = m_resource_mapper->RequestCreateTexture(array_desc);
         if (m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle) == nullptr)
         {
-            WARNLOG("GL_TEXTURE_2D_ARRAY alloc failed, sprite atlas disabled");
+            GLWARN("Could not create the creature sprite cache. Creatures still draw, but more slowly.");
             m_kspr_sprite_array_handle = kInvalidGpuResource;
             m_kspr_atlas_shader_handle = kInvalidGpuResource;
             m_kspr_atlas_glow_shader_handle = kInvalidGpuResource;
@@ -2020,9 +2021,10 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
     const GLTexture* kspr_sprite_tex = m_resource_mapper->ResolveTexture(m_kspr_sprite_tex_handle);
     const GLGeometryBuffer* kspr_geom = m_resource_mapper->ResolveGeometryBuffer(m_kspr_geom_handle);
     if (!kspr_prog || !kspr_sprite_tex || !kspr_geom || m_palette_tex_handle == kInvalidGpuResource) {
-        static int s_miss = 0;
-        if (s_miss++ < 5)
-            ERRORLOG("render_keepersprite_gpu: GL resources not ready -- sprite dropped");
+        m_resource_mapper->ReportSkippedDraw(!kspr_prog ? m_kspr_shader_handle
+                                             : !kspr_sprite_tex ? m_kspr_sprite_tex_handle
+                                             : !kspr_geom ? m_kspr_geom_handle
+                                             : m_palette_tex_handle, "creature sprite draws");
         return 1;
     }
     const GLProgram* kspr_glow_prog = m_resource_mapper->ResolveProgram(m_kspr_glow_shader_handle);

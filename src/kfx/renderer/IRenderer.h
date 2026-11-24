@@ -25,6 +25,8 @@ public:
     virtual bool Init() = 0;
     virtual void Shutdown() = 0;
     virtual const char* GetName() const = 0;
+    /** Plain reason the last Init() failed, safe to show the player. Null if none. */
+    virtual const char* GetInitFailureReason() const { return nullptr; }
     
     virtual void SetDisplayPalette(const unsigned char* rgb8) { (void)rgb8; }
 

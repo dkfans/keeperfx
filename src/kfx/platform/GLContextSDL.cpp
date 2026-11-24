@@ -13,11 +13,12 @@
 #include <SDL3/SDL.h>
 #include "post_inc.h"
 
-void GLContextSDL::RequestWindowAttributes()
+void GLContextSDL::RequestWindowAttributes(bool debug_context)
 {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, debug_context ? SDL_GL_CONTEXT_DEBUG_FLAG : 0);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     // World geometry depth-tests tile/flat-poly draws for correct
     // near/far ordering -- request a depth buffer explicitly rather than

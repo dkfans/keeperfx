@@ -810,19 +810,39 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
     {
         FlushPendingSlabUpload();
         const GLTexture* slab_tex = m_resource_mapper->ResolveTexture(m_slab_tex_handle);
-        if (!slab_tex) return;
+        if (!slab_tex)
+        {
+            if (m_slab_tex_handle != kInvalidGpuResource)
+                m_resource_mapper->ReportSkippedDraw(m_slab_tex_handle, "slab texture draws");
+            return;
+        }
         shader = ResolveShaderId(m_shader_sprite_handle); tex0 = slab_tex->id; bind_palette = true;
         break;
     }
     case PASS_MINIMAP:
     {
         const GLTexture* mm_tex = m_resource_mapper->ResolveTexture(m_minimap_tex_handle);
-        if (!mm_tex) return;
+        if (!mm_tex)
+        {
+            if (m_minimap_tex_handle != kInvalidGpuResource)
+                m_resource_mapper->ReportSkippedDraw(m_minimap_tex_handle, "minimap draws");
+            return;
+        }
         shader = ResolveShaderId(m_shader_sprite_handle); tex0 = mm_tex->id; bind_palette = true;
         break;
     }
     }
-    if (!shader) return;
+    if (!shader)
+    {
+        const GpuResourceHandle shader_handle =
+            pass == PASS_SOLID   ? m_shader_solid_handle
+          : pass == PASS_COLORED ? m_shader_sprite_colored_handle
+          : pass == PASS_REMAP   ? m_shader_remap_handle
+          : pass == PASS_CLUT    ? m_shader_clut_handle
+          :                        m_shader_sprite_handle;
+        m_resource_mapper->ReportSkippedDraw(shader_handle, "interface draws");
+        return;
+    }
 
     std::vector<float> verts;
     verts.reserve(run.size() * 6 * 9);
@@ -873,7 +893,11 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
         glUniform1f(glGetUniformLocation(shader, "u_clut_v"), clut_v);
     }
     const GLGeometryBuffer* batch_geom = m_resource_mapper->ResolveGeometryBuffer(m_batch_geom_handle);
-    if (!batch_geom) return;
+    if (!batch_geom)
+    {
+        m_resource_mapper->ReportSkippedDraw(m_batch_geom_handle, "interface draws");
+        return;
+    }
     glBindVertexArray(batch_geom->vao);
     glBindBuffer(GL_ARRAY_BUFFER, batch_geom->vbo);
     // Orphan + refill: avoids the driver stalling this frame's batch on last
