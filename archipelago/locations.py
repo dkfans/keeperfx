@@ -192,6 +192,21 @@ for room in enums.KeeperRoomName:
     location_code += 1
     LOCATION_NAME_TO_ID[f"{enums.BUILD}{room}"] = location_code
 
+non_research_spells = {enums.KeeperPowerName.POWER_HAND, enums.KeeperPowerName.POWER_SLAP, enums.KeeperPowerName.POWER_POSSESS, enums.KeeperPowerName.POWER_IMP}
+location_code = 14000
+for entry in (enums.KeeperPowerName, enums.KeeperFXPowerName):
+    for power in entry:
+        if power in non_research_spells:
+            continue
+        location_code += 1
+        LOCATION_NAME_TO_ID[f"{enums.RESEARCH}{power}"] = location_code
+
+location_code = 14000
+for entry in (enums.KeeperTrapName, enums.KeeperDoorName, enums.KeeperFXTrapName, enums.KeeperFXDoorName):
+    for item in entry:
+        location_code += 1
+        LOCATION_NAME_TO_ID[f"{enums.MANUFACTURE}{item}"] = location_code
+
     #Other checks you can do anywhere
 
     #First times:
@@ -463,48 +478,30 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
     for room in enums.KeeperRoomName:
         label = f"{enums.BUILD}{room}"
         room_region = world.get_region(label)
-        room_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
-
-    for creature in enums.KeeperCreatureName:
-        label = f"{enums.ATTRACT}{creature}"
-        creature_region = world.get_region(label)
-        creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
-
-    if world.options.AddHeroes:
-        for creature in enums.KeeperHeroName:
-            label = f"{enums.ATTRACT}{creature}"
-            creature_region = world.get_region(label)
-            creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
-
-    if world.options.KeeperFXCreatures:
-        for creature in enums.KeeperFXCreatureName:
-            label = f"{enums.ATTRACT}{creature}"
-            creature_region = world.get_region(label)
-            creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
-
-    if world.options.KeeperFXHeroes:
-        for creature in enums.KeeperFXHeroName:
-            label = f"{enums.ATTRACT}{creature}"
-            creature_region = world.get_region(label)
-            creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
+        region_list = [label]
+        if room == enums.KeeperRoomName.LAIR:
+            region_list.extend(f"{enums.ATTRACT}{creature.value}" for creature in enums.KeeperCreatureName if creature.value != enums.KeeperImpName)
+            region_list.extend(f"{enums.ATTRACT}{creature.value}" for creature in enums.KeeperHeroName if world.options.AddHeroes)
+            region_list.extend(f"{enums.ATTRACT}{creature.value}" for creature in enums.KeeperFXCreatureName if world.options.KeeperFXCreatures)
+            region_list.extend(f"{enums.ATTRACT}{creature.value}" for creature in enums.KeeperFXHeroName if world.options.KeeperFXHeroes)
+            if world.options.IncludeTunnellersInPool:
+                region_list.append(f"{enums.ATTRACT}{enums.KeeperTunnellerName}")
+            if world.options.IncludeKnightsInPool:
+                region_list.append(f"{enums.ATTRACT}{enums.KeeperKnightName}")
+            if world.options.IncludeAvatarsInPool:
+                region_list.append(f"{enums.ATTRACT}{enums.KeeperAvatarName}")
+        if room == enums.KeeperRoomName.RESEARCH:  # Spells are searched in library, so nest these locations in there.
+            region_list.extend(f"{enums.RESEARCH}{power.value}" for power in enums.KeeperPowerName if power.value not in non_research_spells)
+            region_list.extend(f"{enums.RESEARCH}{power.value}" for power in enums.KeeperFXPowerName if world.options.KeeperFXSpells)
+        if room == enums.KeeperRoomName.WORKSHOP:
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperDoorName)
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperTrapName)
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXDoorName if world.options.KeeperFXDoors)
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXDoorName if world.options.KeeperFXTraps)
+        room_region.add_locations(get_location_names_with_ids(region_list), DungeonKeeperLocation)
 
     if world.options.IncludeImpsInPool:
         label = f"{enums.ATTRACT}{enums.KeeperImpName}"
-        creature_region = world.get_region(label)
-        creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
-
-    if world.options.IncludeTunnellersInPool:
-        label = f"{enums.ATTRACT}{enums.KeeperTunnellerName}"
-        creature_region = world.get_region(label)
-        creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
-
-    if world.options.IncludeKnightsInPool:
-        label = f"{enums.ATTRACT}{enums.KeeperKnightName}"
-        creature_region = world.get_region(label)
-        creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
-
-    if world.options.IncludeAvatarsInPool:
-        label = f"{enums.ATTRACT}{enums.KeeperAvatarName}"
         creature_region = world.get_region(label)
         creature_region.add_locations(get_location_names_with_ids([label]), DungeonKeeperLocation)
 

@@ -6,8 +6,10 @@
 
 import random
 from typing import NamedTuple, Optional
+
 from BaseClasses import Item, ItemClassification
-from .enums import GAME_NAME, KeeperCreature, KeeperCreatureName, KeeperRoom, KeeperRoomName, KeeperTrap, \
+from .world import get_val
+from .enums import GAME_NAME, MANUFACTURABLE, KeeperCreature, KeeperCreatureName, KeeperRoom, KeeperRoomName, KeeperTrap, \
     KeeperTrapName, KeeperDoor, KeeperDoorName, KeeperPower, KeeperPowerName, KeeperLevel, KeeperLevelName, \
     KeeperRecipe, KeeperRecipeName, KeeperProgressive, KeeperProgressiveName, KeeperSecretLevel, KeeperSecretLevelName, \
     KeeperFXCreature, KeeperFXCreatureName, KeeperFXDoor, KeeperFXDoorName, KeeperFXPower, KeeperFXPowerName, \
@@ -95,19 +97,19 @@ ROOMS = {
 }
 
 TRAPS = {
-    KeeperTrapName.ALARM: KeeperItem(KeeperTrap.ALARM, ItemClassification.useful),  #"ALARM",
-    KeeperTrapName.POISON_GAS: KeeperItem(KeeperTrap.POISON_GAS, ItemClassification.useful),  #"POISON_GAS",
-    KeeperTrapName.LIGHTNING: KeeperItem(KeeperTrap.LIGHTNING, ItemClassification.useful),  #"LIGHTNING",
-    KeeperTrapName.LAVA: KeeperItem(KeeperTrap.LAVA, ItemClassification.useful),  #"LAVA",
-    KeeperTrapName.BOULDER: KeeperItem(KeeperTrap.BOULDER, ItemClassification.useful),  #"BOULDER",
-    KeeperTrapName.WORD_OF_POWER: KeeperItem(KeeperTrap.WORD_OF_POWER, ItemClassification.useful),  #"WORD_OF_POWER",
+    f"{KeeperTrapName.ALARM}{MANUFACTURABLE}": KeeperItem(KeeperTrap.ALARM, ItemClassification.useful),  #"ALARM",
+    f"{KeeperTrapName.POISON_GAS}{MANUFACTURABLE}": KeeperItem(KeeperTrap.POISON_GAS, ItemClassification.useful),  #"POISON_GAS",
+    f"{KeeperTrapName.LIGHTNING}{MANUFACTURABLE}": KeeperItem(KeeperTrap.LIGHTNING, ItemClassification.useful),  #"LIGHTNING",
+    f"{KeeperTrapName.LAVA}{MANUFACTURABLE}": KeeperItem(KeeperTrap.LAVA, ItemClassification.useful),  #"LAVA",
+    f"{KeeperTrapName.BOULDER}{MANUFACTURABLE}": KeeperItem(KeeperTrap.BOULDER, ItemClassification.useful),  #"BOULDER",
+    f"{KeeperTrapName.WORD_OF_POWER}{MANUFACTURABLE}": KeeperItem(KeeperTrap.WORD_OF_POWER, ItemClassification.useful),  #"WORD_OF_POWER",
 }
 
 DOORS = {
-    KeeperDoorName.WOOD: KeeperItem(KeeperDoor.WOOD, ItemClassification.useful),  #"WOOD",
-    KeeperDoorName.BRACED: KeeperItem(KeeperDoor.BRACED, ItemClassification.useful),  #"BRACED",
-    KeeperDoorName.STEEL: KeeperItem(KeeperDoor.STEEL, ItemClassification.useful),  #"STEEL",
-    KeeperDoorName.MAGIC: KeeperItem(KeeperDoor.MAGIC, ItemClassification.useful),  #"MAGIC",
+    f"{KeeperDoorName.WOOD}{MANUFACTURABLE}": KeeperItem(KeeperDoor.WOOD, ItemClassification.useful),  #"WOOD",
+    f"{KeeperDoorName.BRACED}{MANUFACTURABLE}": KeeperItem(KeeperDoor.BRACED, ItemClassification.useful),  #"BRACED",
+    f"{KeeperDoorName.STEEL}{MANUFACTURABLE}": KeeperItem(KeeperDoor.STEEL, ItemClassification.useful),  #"STEEL",
+    f"{KeeperDoorName.MAGIC}{MANUFACTURABLE}": KeeperItem(KeeperDoor.MAGIC, ItemClassification.useful),  #"MAGIC",
 }
 
 SPELLS = {
@@ -281,14 +283,14 @@ KEEPERFX_SPELLS = {
 }
 
 KEEPERFX_TRAPS = {
-    KeeperFXTrapName.TNT: KeeperItem(KeeperFXTrap.TNT, ItemClassification.useful),
-    KeeperFXTrapName.SENTRY: KeeperItem(KeeperFXTrap.SENTRY, ItemClassification.useful),
-    KeeperFXTrapName.BALLISTA: KeeperItem(KeeperFXTrap.BALLISTA, ItemClassification.useful),
+    f"{KeeperFXTrapName.TNT}{MANUFACTURABLE}": KeeperItem(KeeperFXTrap.TNT, ItemClassification.useful),
+    f"{KeeperFXTrapName.SENTRY}{MANUFACTURABLE}": KeeperItem(KeeperFXTrap.SENTRY, ItemClassification.useful),
+    f"{KeeperFXTrapName.BALLISTA}{MANUFACTURABLE}": KeeperItem(KeeperFXTrap.BALLISTA, ItemClassification.useful),
 }
 
 KEEPERFX_DOORS = {
-    KeeperFXDoorName.SECRET: KeeperItem(KeeperFXDoor.SECRET, ItemClassification.useful),
-    KeeperFXDoorName.MIDAS: KeeperItem(KeeperFXDoor.MIDAS, ItemClassification.useful),
+    f"{KeeperFXDoorName.SECRET}{MANUFACTURABLE}": KeeperItem(KeeperFXDoor.SECRET, ItemClassification.useful),
+    f"{KeeperFXDoorName.MIDAS}{MANUFACTURABLE}": KeeperItem(KeeperFXDoor.MIDAS, ItemClassification.useful),
 }
 
 KEEPERFX_RECIPES = {
@@ -323,15 +325,15 @@ ITEM_NAME_TO_ID = {}
 
 
 # Helper function for populating ITEM_NAME_TO_ID for world.py
-def populate_item_dict(name_enum, id_enum):
+def populate_item_dict(name_enum, id_enum, prefix="", suffix=""):
     for key, name_member in name_enum.__members__.items():
-        ITEM_NAME_TO_ID[name_member.value] = id_enum[key].value
+        ITEM_NAME_TO_ID[f"{prefix}{name_member.value}{suffix}"] = id_enum[key].value
 
 
 populate_item_dict(KeeperCreatureName, KeeperCreature)
 populate_item_dict(KeeperRoomName, KeeperRoom)
-populate_item_dict(KeeperTrapName, KeeperTrap)
-populate_item_dict(KeeperDoorName, KeeperDoor)
+populate_item_dict(KeeperTrapName, KeeperTrap, suffix=MANUFACTURABLE)
+populate_item_dict(KeeperDoorName, KeeperDoor, suffix=MANUFACTURABLE)
 populate_item_dict(KeeperLevelName, KeeperLevel)
 populate_item_dict(KeeperRecipeName, KeeperRecipe)
 populate_item_dict(KeeperPowerName, KeeperPower)
@@ -341,8 +343,8 @@ populate_item_dict(KeeperFillerName, KeeperFiller)
 populate_item_dict(KeeperSecretLevelName, KeeperSecretLevel)
 populate_item_dict(KeeperFXCreatureName, KeeperFXCreature)
 populate_item_dict(KeeperFXPowerName, KeeperFXPower)
-populate_item_dict(KeeperFXTrapName, KeeperFXTrap)
-populate_item_dict(KeeperFXDoorName, KeeperFXDoor)
+populate_item_dict(KeeperFXTrapName, KeeperFXTrap, suffix=MANUFACTURABLE)
+populate_item_dict(KeeperFXDoorName, KeeperFXDoor, suffix=MANUFACTURABLE)
 populate_item_dict(NegativeRecipeName, NegativeRecipe)
 populate_item_dict(KeeperFXRecipeName, KeeperFXRecipe)
 populate_item_dict(KeeperHeroName, KeeperHero)
@@ -462,7 +464,7 @@ all_category_dicts = {
     **KEEPERFX_HEROES,
 }
 
-item_table = {enum_key.value: item_data for enum_key, item_data in all_category_dicts.items()}
+item_table = {get_val(enum_key): item_data for enum_key, item_data in all_category_dicts.items()}
 item_table[KeeperImpName] = IMP
 item_table[KeeperTunnellerName] = TUNNELLER
 item_table[KeeperKnightName] = KNIGHT

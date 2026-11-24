@@ -29,34 +29,11 @@ def create_all_regions(world: DungeonKeeperWorld) -> None:
     for level in enums.KeeperLevelName:
         world.multiworld.regions += [Region(level, world.player, world.multiworld)]
 
-    for creature in enums.KeeperCreatureName:
-        world.multiworld.regions += [Region(f"{enums.ATTRACT}{creature}", world.player, world.multiworld)]
-
     for room in enums.KeeperRoomName:
         world.multiworld.regions += [Region(f"{enums.BUILD}{room}", world.player, world.multiworld)]
 
-    if world.options.AddHeroes:
-        for creature in enums.KeeperHeroName:
-            world.multiworld.regions += [Region(f"{enums.ATTRACT}{creature}", world.player, world.multiworld)]
-
-    if world.options.KeeperFXCreatures:
-        for creature in enums.KeeperFXCreatureName:
-            world.multiworld.regions += [Region(f"{enums.ATTRACT}{creature}", world.player, world.multiworld)]
-        if world.options.AddHeroes:
-            for creature in enums.KeeperFXHeroName:
-                world.multiworld.regions += [Region(f"{enums.ATTRACT}{creature}", world.player, world.multiworld)]
-
     if world.options.IncludeImpsInPool:
         world.multiworld.regions += [Region(f"{enums.ATTRACT}{enums.KeeperImpName}", world.player, world.multiworld)]
-
-    if world.options.IncludeTunnellersInPool:
-        world.multiworld.regions += [Region(f"{enums.ATTRACT}{enums.KeeperTunnellerName}", world.player, world.multiworld)]
-
-    if world.options.IncludeKnightsInPool:
-        world.multiworld.regions += [Region(f"{enums.ATTRACT}{enums.KeeperKnightName}", world.player, world.multiworld)]
-
-    if world.options.IncludeAvatarsInPool:
-        world.multiworld.regions += [Region(f"{enums.ATTRACT}{enums.KeeperAvatarName}", world.player, world.multiworld)]
 
     if world.options.TempleLocations:
         world.multiworld.regions += [Region(get_val(enums.KeeperRoomName.TEMPLE), world.player, world.multiworld)]
@@ -121,47 +98,9 @@ def connect_regions(world: DungeonKeeperWorld) -> None:
         label = f"{enums.BUILD}{room}"
         room_region = world.get_region(label)
         overworld.connect(room_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(room, world.player))
-    
-    for creature in enums.KeeperCreatureName:
-        label = f"{enums.ATTRACT}{creature}"
-        creature_region = world.get_region(label)
-        overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
-
-    if world.options.AddHeroes:
-        for creature in enums.KeeperHeroName:
-            label = f"{enums.ATTRACT}{creature}"
-            creature_region = world.get_region(label)
-            overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
-
-    if world.options.KeeperFXCreatures:
-        for creature in enums.KeeperFXCreatureName:
-            label = f"{enums.ATTRACT}{creature}"
-            creature_region = world.get_region(label)
-            overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
-
-    if world.options.KeeperFXHeroes:
-        for creature in enums.KeeperFXHeroName:
-            label = f"{enums.ATTRACT}{creature}"
-            creature_region = world.get_region(label)
-            overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
 
     if world.options.IncludeImpsInPool:
         label = f"{enums.ATTRACT}{enums.KeeperImpName}"
-        creature_region = world.get_region(label)
-        overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
-
-    if world.options.IncludeTunnellersInPool:
-        label = f"{enums.ATTRACT}{enums.KeeperTunnellerName}"
-        creature_region = world.get_region(label)
-        overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
-
-    if world.options.IncludeKnightsInPool:
-        label = f"{enums.ATTRACT}{enums.KeeperKnightName}"
-        creature_region = world.get_region(label)
-        overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
-
-    if world.options.IncludeAvatarsInPool:
-        label = f"{enums.ATTRACT}{enums.KeeperAvatarName}"
         creature_region = world.get_region(label)
         overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
 

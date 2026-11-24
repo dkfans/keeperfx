@@ -11,6 +11,10 @@ OVERWORLD = "Overworld"
 OVERWORLD_CONNECT = "Overworld to "
 ATTRACT = "Attract "
 BUILD = "Build "
+RESEARCH = "Research "
+MANUFACTURABLE = " Manufacturable"
+MANUFACTURE = "Manufacture "
+
 
 class KeeperCreatureName(StrEnum):
     FLY = "Fly"
@@ -98,12 +102,12 @@ class KeeperRoom(IntEnum):
 
 
 class KeeperTrapName(StrEnum):
-    ALARM = "Alarm Trap Manufacturable"
-    POISON_GAS = "Poison Gas Trap Manufacturable"
-    LIGHTNING = "Lightning Trap Manufacturable"
-    LAVA = "Lava Trap Manufacturable"
-    BOULDER = "Boulder Trap Manufacturable"
-    WORD_OF_POWER = "Word of Power Trap Manufacturable"
+    ALARM = "Alarm Trap"
+    POISON_GAS = "Poison Gas Trap"
+    LIGHTNING = "Lightning Trap"
+    LAVA = "Lava Trap"
+    BOULDER = "Boulder Trap"
+    WORD_OF_POWER = "Word of Power Trap"
 
 
 class KeeperTrap(IntEnum):
@@ -116,10 +120,10 @@ class KeeperTrap(IntEnum):
 
 
 class KeeperDoorName(StrEnum):
-    WOOD = "Wooden Door Manufacturable"
-    BRACED = "Braced Door Manufacturable"
-    STEEL = "Iron Door Manufacturable"
-    MAGIC = "Magic Door Manufacturable"
+    WOOD = "Wooden Door"
+    BRACED = "Braced Door"
+    STEEL = "Iron Door"
+    MAGIC = "Magic Door"
 
 
 class KeeperDoor(IntEnum):
@@ -130,8 +134,8 @@ class KeeperDoor(IntEnum):
 
 
 class KeeperFXDoorName(StrEnum):
-    SECRET = "Secret Door Manufacturable"
-    MIDAS = "Midas Door Manufacturable"
+    SECRET = "Secret Door"
+    MIDAS = "Midas Door"
 
 
 class KeeperFXDoor(IntEnum):
@@ -140,9 +144,9 @@ class KeeperFXDoor(IntEnum):
 
 
 class KeeperFXTrapName(StrEnum):
-    TNT = "Demolition Trap Manufacturable"
-    SENTRY = "Sentry Trap Manufacturable"
-    BALLISTA = "Ballista Trap Manufacturable"
+    TNT = "Demolition Trap"
+    SENTRY = "Sentry Trap"
+    BALLISTA = "Ballista Trap"
 
 
 class KeeperFXTrap(IntEnum):

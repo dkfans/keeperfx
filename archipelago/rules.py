@@ -6,10 +6,13 @@ from typing import TYPE_CHECKING, Literal
 from .world import get_val
 
 from .items import CREATURES, ROOMS, SPELLS, LEVELS, KEEPERFX_CREATURES
+from .locations import non_research_spells
 from .enums import (KeeperRoomName, KeeperLevelName, KeeperSecretLevelName, KeeperPowerName, KeeperFXPowerName,
-                    KeeperCreatureName, KeeperHeroName, KeeperImpName, KeeperTunnellerName, KeeperKnightName, KeeperAvatarName, KeeperFXCreatureName,
-                    KeeperFXCreature, KeeperRecipeName, NegativeRecipeName, KeeperFXRecipeName, ATTRACT,
-                    KeeperFXTrapName, KeeperGoodTempleLocations, KeeperBadTempleLocations, KeeperFXGoodTempleLocations, KeeperFXBadTempleLocations)
+                    KeeperCreatureName, KeeperHeroName, KeeperImpName, KeeperTunnellerName, KeeperKnightName,
+                    KeeperAvatarName, KeeperFXCreatureName, KeeperRecipeName, NegativeRecipeName, KeeperFXRecipeName,
+                    ATTRACT, BUILD, RESEARCH, MANUFACTURE,
+                    KeeperGoodTempleLocations, KeeperBadTempleLocations, KeeperFXGoodTempleLocations,
+                    KeeperFXBadTempleLocations, KeeperTrapName, KeeperDoorName, KeeperFXTrapName, KeeperFXDoorName)
 from .options import ChangeNeutrals, RemoveNeutralRooms, CrueltyMode
 
 from rule_builder.rules import (Rule, CanReachEntrance, CanReachLocation, Has, HasAll, HasAny, HasFromListUnique, HasGroupUnique, HasGroup,
@@ -198,6 +201,29 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
     if world.options.IncludeAvatarsInPool:
         location_rules[f"{ATTRACT}{KeeperAvatarName}"] = lambda state: (can_use_creature(state, world.player, creature))
 
+    for room in KeeperRoomName:
+        location_rules[f"{BUILD}{room}"] = Has(room)
+
+    for power in KeeperPowerName:
+        if power in non_research_spells:
+            continue
+        location_rules[f"{RESEARCH}{power}"] = HasAll(power, KeeperRoomName.RESEARCH)
+
+    if world.options.KeeperFXSpells:
+        for power in KeeperFXPowerName:
+            location_rules[f"{RESEARCH}{power}"] = HasAll(power, KeeperRoomName.RESEARCH)
+
+    for entry in (KeeperTrapName, KeeperDoorName):
+        for item in entry:
+            location_rules[f"{MANUFACTURE}{item}"] = HasAll(item, KeeperRoomName.WORKSHOP)
+
+    if world.options.KeeperFXTraps:
+        for item in KeeperFXTrapName:
+            location_rules[f"{MANUFACTURE}{item}"] = HasAll(item, KeeperRoomName.WORKSHOP)
+
+    if world.options.KeeperFXDoors:
+        for item in KeeperFXDoorName:
+            location_rules[f"{MANUFACTURE}{item}"] = HasAll(item, KeeperRoomName.WORKSHOP)
         #location_rules[f"{get_val(KeeperLevelName.LEVEL_016)} Beaten"] = Has("Progressive Level Cap",4)
 
 
