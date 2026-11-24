@@ -123,7 +123,7 @@ class DungeonKeeperWorld(World):
                     f.write(f"{key} -> {value}\n")
                 f.close()
         except Exception as error:
-            Warning(f"keeper_debug failed due to: {error}")
+            print(f"ERROR: keeper_debug failed due to: {error}")
 
     def generate_early(self) -> None:
 
