@@ -40,6 +40,7 @@ TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags);
 
 // Forward declaration — implemented in config_sounds.c
 int sound_id_from_text(const char* text);
+int sound_id_from_text_count(const char* text, int count);
 
 #define KEY_SIZE 64
 
@@ -168,11 +169,11 @@ int sound_id_from_text(const char* text);
     if (value_type(val_arr) == VALUE_ARRAY)\
     {\
         VALUE *v0 = value_array_get(val_arr, 0);\
+        field2 = value_int32(value_array_get(val_arr, 1));\
         if (value_type(v0) == VALUE_STRING)\
-            field1 = sound_id_from_text(value_string(v0));\
+            field1 = sound_id_from_text_count(value_string(v0), field2);\
         else\
             field1 = value_int32(v0);\
-        field2 = value_int32(value_array_get(val_arr, 1));\
     }\
     else if (value_type(val_arr) == VALUE_STRING)\
     {\

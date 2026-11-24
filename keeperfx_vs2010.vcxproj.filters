@@ -335,6 +335,8 @@
     <ClCompile Include="src\kfx\save\core\schema\schema_script.c" />
     <ClCompile Include="src\kfx\save\core\schema\schema_things.c" />
     <ClCompile Include="src\kfx\save\core\schema\schema_world.c" />
+    <ClCompile Include="src\kfx\tilesets\TileSetLoader.cpp" />
+    <ClCompile Include="src\kfx\tilesets\TileSetScan.c" />
     <ClCompile Include="src\kfx\renderer\RendererSoftware.cpp" />
     <ClCompile Include="src\kfx\renderer\RendererThread.cpp" />
     <ClCompile Include="src\kfx\renderer\TileAtlasPacker.cpp" />
@@ -699,6 +701,9 @@
     <ClInclude Include="src\kfx\save\core\save_schema.h" />
     <ClInclude Include="src\kfx\save\core\save_tables.h" />
     <ClInclude Include="src\kfx\save\core\schema\save_tables_decl.h" />
+    <ClInclude Include="src\kfx\tilesets\TileSetLoader.h" />
+    <ClInclude Include="src\kfx\tilesets\TileSetScan.h" />
+    <ClInclude Include="src\kfx\tilesets\TileSetsLog.h" />
     <ClInclude Include="src\kfx\renderer\RendererSoftware.h" />
     <ClInclude Include="src\kfx\renderer\RendererThread.h" />
     <ClInclude Include="src\kfx\renderer\SpriteHandle.h" />

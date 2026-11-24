@@ -57,6 +57,7 @@
 #include "thing_navigate.h"
 #include "thing_physics.h"
 
+#include "engine_textures.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -6171,8 +6172,7 @@ static void change_slab_texture_process(struct ScriptContext* context)
     else
     {
         SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
-        game.slab_ext_data[slb_num] = context->value->bytes[4];
-        game.slab_ext_data_initial[slb_num] = context->value->bytes[4];
+        set_slab_texture_set(slb_num, context->value->bytes[4], true);
     }
 }
 

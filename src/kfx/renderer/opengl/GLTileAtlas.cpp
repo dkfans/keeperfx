@@ -62,7 +62,10 @@ bool GLTileAtlas::Init()
     }
 
     for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
+    {
         BuildVariation(v);
+        m_built_generation[v] = texture_set_generation(v);
+    }
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
@@ -83,12 +86,21 @@ void GLTileAtlas::Free()
     m_initialized = false;
 }
 
-void GLTileAtlas::Rebuild()
+void GLTileAtlas::RebuildChanged()
 {
     if (!m_initialized || block_ptrs[0] == nullptr) return;
+    bool any = false;
     for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
+    {
+        const uint32_t gen = texture_set_generation(v);
+        if (gen == m_built_generation[v])
+            continue;
         BuildVariation(v);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+        m_built_generation[v] = gen;
+        any = true;
+    }
+    if (any)
+        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 void GLTileAtlas::UpdateAnimatedTiles()

@@ -36,6 +36,7 @@
 #include "replay.h"
 #include "thing_data.h"
 #include "thing_list.h"
+#include "engine_textures.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -602,6 +603,7 @@ void replay_rewind_step(void)
         return;
     }
     restore_snapshot(snapshot);
+    texture_sets_reconcile();
     observer_update_view();
     rederive_local_state();
     local_state.view_type = PVT_None;

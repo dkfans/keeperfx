@@ -117,6 +117,9 @@ struct S3DSample { // sizeof = 37
   unsigned char is_playing;
   unsigned char sfxid;
   unsigned long base_volume;
+  struct SoundCoord3d orphan_pos;
+  unsigned char is_orphan;
+  unsigned char orphan_is_global;
 };
 
 /******************************************************************************/
