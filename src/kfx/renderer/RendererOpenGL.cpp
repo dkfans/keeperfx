@@ -111,7 +111,6 @@ struct RendererOpenGL::Impl {
     GLPaletteIndexLookup palette_index_lookup;
 
     bool fade_tables_refreshed = false;
-    unsigned int world_atlas_generation = 0;
 
     RenderThreadManager thread_mgr;
     GLFrameData frames[2];
@@ -486,9 +485,8 @@ void RendererOpenGL::render_thread_work()
 
         if (!m_impl->world_atlas.IsInitialized() && block_ptrs[0] != nullptr)
             m_impl->world_atlas.Init();
-        else if (m_impl->world_atlas_generation != level_textures_generation)
-            m_impl->world_atlas.Rebuild();
-        m_impl->world_atlas_generation = level_textures_generation;
+        else
+            m_impl->world_atlas.RebuildChanged();
 
         if (!m_impl->fade_tables_refreshed && fade_tables_ready)
         {
@@ -809,6 +807,12 @@ void RendererOpenGL::PresentFrame()
     RendererFrameCounter_Advance();
 
     m_impl->thread_mgr.Signal();
+}
+
+void RendererOpenGL::WaitIdle()
+{
+    if (m_impl != nullptr)
+        m_impl->thread_mgr.WaitForCompletion();
 }
 
 bool RendererOpenGL::BeginFrame()

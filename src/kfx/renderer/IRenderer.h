@@ -33,6 +33,9 @@ public:
 
     // Present the drawn frame to the window (blit + flip). Default no-op.
     virtual void PresentFrame() {}
+    /** Blocks until the backend has stopped reading game-thread data for the
+     *  frame in flight. Game thread only. */
+    virtual void WaitIdle() {}
 
     struct BackendCapabilities {
         // True when the backend composites the minimap over the panel artwork

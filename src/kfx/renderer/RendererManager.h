@@ -66,6 +66,8 @@ void RendererSetPaletteForRenderers(const unsigned char *pal6);
 
 // Clear the whole display to a palette index.
 void RendererClearScreen(unsigned char colour);
+/** Waits until the renderer has finished reading game data for the frame in flight. Game thread only. */
+void RendererWaitIdle(void);
 
 // Present the drawn frame to the window (blit draw surface + flip).
 void RendererPresentFrame(void);

@@ -21,6 +21,7 @@
 #include "kfx/renderer/TileAtlasPacker.h"
 #include "kfx/renderer/ITileAtlas.h"
 #include "kfx/renderer/GpuResourceHandle.h"
+#include "engine_textures.h"
 
 class GLResourceMapper;
 
@@ -38,7 +39,8 @@ public:
     // ITileAtlas
     bool              Init() override;
     void              Free() override;
-    void              Rebuild();
+    /** Re-uploads every set whose tile data changed since it was last built. */
+    void              RebuildChanged();
     void              UpdateAnimatedTiles() override;
     GpuResourceHandle GetAtlasTextureArray() const override;
 
@@ -55,4 +57,5 @@ private:
     GLResourceMapper* m_resource_mapper = nullptr;
     GpuResourceHandle m_texture_handle = kInvalidGpuResource; // GL_TEXTURE_2D_ARRAY: 2048×1024×32 R8
     uint8_t* m_r8_scratch = nullptr;  // R8 (1 byte/pixel) CPU scratch; replaces m_rgba_scratch
+    uint32_t m_built_generation[TEXTURE_VARIATIONS_COUNT] = {}; // texture_set_generation() last uploaded
 };

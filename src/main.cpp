@@ -229,7 +229,7 @@ long double host_packet_received = 1;
 
 void setup_stuff(void)
 {
-    setup_texture_block_mem();
+    texture_sets_init();
     init_fades_table();
     init_alpha_table();
 }
@@ -300,8 +300,6 @@ TbBool initial_setup(void)
     SYNCDBG(6,"Starting");
     // setting this will force video mode change, even if previous one is same
     MinimalResolutionSetup = true;
-    // Set size of static textures buffer
-    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
     if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
@@ -867,7 +865,7 @@ void reinit_level_after_load(void)
     update_room_tab_to_config();
     update_powers_tab_to_config();
     update_trap_tab_to_config();
-    load_texture_map_file(game.texture_id, get_loaded_level_number(), get_level_fgroup(get_loaded_level_number()));
+    texture_sets_load_for_level();
     init_animating_texture_maps();
     init_gui();
     reset_gui_based_on_player_mode();
@@ -2151,6 +2149,7 @@ static short reset_game(void)
     LbMouseSuspend();
     LbIKeyboardClose();
     RendererResetScreen(false);
+    texture_sets_shutdown();
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     free_level_strings_data();

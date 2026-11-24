@@ -47,7 +47,6 @@ extern "C" {
 #define  TEXTURE_LAND_MARKED_GOLD     579
 /******************************************************************************/
 
-extern unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 extern unsigned char *block_ptrs[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT];
 extern long block_dimension;
 extern long block_count_per_row;
@@ -55,10 +54,19 @@ extern long block_count_per_row;
 extern TbBool level_textures_ready;
 extern volatile unsigned int level_textures_generation;
 /******************************************************************************/
-void setup_texture_block_mem(void);
 short init_animating_texture_maps(void);
 short update_animating_texture_maps(void);
 TbBool load_texture_map_file(unsigned long tmapidx, LevelNumber lvnum, short fgroup);
+void texture_sets_init(void);
+void texture_sets_shutdown(void);
+void texture_sets_release_level(void);
+void texture_sets_load_for_level(void);
+void texture_sets_reload_level_set(void);
+void texture_set_request(int32_t set);
+void texture_sets_publish_ready(void);
+void set_slab_texture_set(SlabCodedCoords slb_num, unsigned char value, TbBool also_initial);
+TbBool texture_set_is_resident(int32_t set);
+uint32_t texture_set_generation(int32_t set);
 
 /******************************************************************************/
 #ifdef __cplusplus

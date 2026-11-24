@@ -29,6 +29,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"
+#include "engine_textures.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -287,8 +288,7 @@ TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilt
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-        game.slab_ext_data[slb_num] = target_slab_texture;
-        game.slab_ext_data_initial[slb_num] = target_slab_texture;
+        set_slab_texture_set(slb_num, target_slab_texture, true);
         return true;
     }
     return false;

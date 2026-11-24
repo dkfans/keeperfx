@@ -520,6 +520,26 @@ long LbFileLoadAt(const char *fname, void *buffer)
   return result;
 }
 
+long LbFileLoadAtMax(const char *fname, void *buffer, unsigned long max_len)
+{
+    long filelength = LbFileLengthRnc(fname);
+    if (filelength < 0)
+        return LbLoadAtMax_Missing;
+    if ((unsigned long)filelength > max_len)
+        return LbLoadAtMax_TooLarge;
+    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if (!handle)
+        return LbLoadAtMax_Missing;
+    int read_status = LbFileRead(handle, buffer, filelength);
+    LbFileClose(handle);
+    if (read_status == -1)
+        return LbLoadAtMax_ReadError;
+    long unp_length = UnpackM1(buffer, filelength);
+    if (unp_length < 0)
+        return LbLoadAtMax_BadPack;
+    return (unp_length != 0) ? unp_length : filelength;
+}
+
 long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len)
 {
   TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
