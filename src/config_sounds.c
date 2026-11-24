@@ -1145,16 +1145,27 @@ static TbBool warn_unsupported_audio_format(const char* text)
 
 int sound_id_from_text_count(const char* text, int count)
 {
-    int id = sound_manager_get_id(text);
+    TbBool is_path = value_is_sound_filepath(text);
+    if (!is_path || count <= 1)
+    {
+        int id = sound_manager_get_id(text);
+        if (id > 0)
+            return id;
+    }
+    if (!is_path)
+        return 0;
+    if (count <= 1)
+    {
+        SoundSmplTblID loaded_id = sound_manager_load_named_sound(text, text, 1);
+        return (loaded_id > 0) ? (int)loaded_id : 0;
+    }
+    char key[512];
+    snprintf(key, sizeof(key), "%s#%d", text, count);
+    int id = sound_manager_get_id(key);
     if (id > 0)
         return id;
-    if (value_is_sound_filepath(text))
-    {
-        SoundSmplTblID loaded_id = sound_manager_load_named_sound(text, text, count);
-        if (loaded_id > 0)
-            return (int)loaded_id;
-    }
-    return 0;
+    SoundSmplTblID loaded_id = sound_manager_load_named_sound(key, text, count);
+    return (loaded_id > 0) ? (int)loaded_id : 0;
 }
 
 int sound_id_from_text(const char* text)

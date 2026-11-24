@@ -117,9 +117,9 @@ struct S3DSample { // sizeof = 37
   unsigned char is_playing;
   unsigned char sfxid;
   unsigned long base_volume;
-  struct SoundCoord3d orphan_pos; // emitter position when the emitter was destroyed but the sample kept playing
+  struct SoundCoord3d orphan_pos;
   unsigned char is_orphan;
-  unsigned char orphan_is_global; // emitter had the no-distance-limit flag
+  unsigned char orphan_is_global;
 };
 
 /******************************************************************************/

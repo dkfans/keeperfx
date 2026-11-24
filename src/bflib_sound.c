@@ -803,7 +803,7 @@ TbBool process_sound_samples(void)
                   kick_out_sample(i);
               }
             }
-            else if ((sample->is_orphan) && !sample->orphan_is_global
+            else if (sample->is_playing && sample->is_orphan && !sample->orphan_is_global
                   && (get_sound_distance(&sample->orphan_pos, &Receiver.pos) > MaxSoundDistance))
             {
                 S3DDropsOutOfRange++;
