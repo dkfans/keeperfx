@@ -1,8 +1,12 @@
-from collections.abc import Mapping
 from typing import Any
 
 # Imports of base Archipelago modules must be absolute.
 from worlds.AutoWorld import World
+
+
+def get_val(key):
+    return key.value if hasattr(key, "value") else str(key)
+
 
 # Imports of your world's files must be relative.
 from . import items, locations, regions, rules, web_world, enums
@@ -13,7 +17,6 @@ from . import options as dungeonkeeper_options  # rename due to a name conflict 
 # If you'd rather read one continuous document, or just like reading multiple sources,
 # we also have this document specifying the entire world api:
 # https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/world%20api.md
-
 
 # The world class is the heart and soul of an apworld implementation.
 # It holds all the data and functions required to build the world and submit it to the multiworld generator.
@@ -74,7 +77,7 @@ class DungeonKeeperWorld(World):
         }
     }
     item_name_groups["All Levels"] = item_name_groups["Levels"] | item_name_groups["Bonus Levels"]
-    item_name_groups["Creatures"].update(enums.KeeperImpName.IMP.value)
+    item_name_groups["Creatures"].update(enums.KeeperImpName)
 
     # Our world class must have certain functions ("steps") that get called during generation.
     # The main ones are: create_regions, set_rules, create_items.
@@ -95,19 +98,38 @@ class DungeonKeeperWorld(World):
     def create_item(self, name: str) -> items.DungeonKeeperItem:
 
         item_data = items.item_table[name]
-        
+        code = getattr(item_data.code, "value", item_data.code)
+
         return items.DungeonKeeperItem(
             name=name,
             classification=item_data.classification,
-            code=item_data.code.value,
+            code=code,
             player=self.player
         )
+
+    def pre_fill(self) -> None:
+        if not self.options.verbose_debug:
+            return
+        import Utils
+        Utils.visualize_regions(self.multiworld.get_region("Overworld", self.player), "output/keeper_region_layout.puml",
+                            show_entrance_rules=True, show_entrance_names=True, detail_other_regions=True)
+        try:
+            with open("output/keeper_debug.txt", 'w', encoding='utf-8') as f:
+                f.write("#####LOCATIONS#####\n")
+                for key, value in self.location_name_to_id.items():
+                    f.write(f"{key} -> {value}\n")
+                f.write("#####ITEMS#####\n")
+                for key, value in self.item_name_to_id.items():
+                    f.write(f"{key} -> {value}\n")
+                f.close()
+        except Exception as error:
+            Warning(f"keeper_debug failed due to: {error}")
 
     def generate_early(self) -> None:
 
         possible_start_levels = list(self.options.starting_levels.value)
         if not possible_start_levels:
-            possible_start_levels.append("Level 1")
+            possible_start_levels.append(enums.KeeperLevelName.LEVEL_001)
         number_of_levels = min(self.options.starting_level_count.value, len(possible_start_levels))
         starting_levels = self.random.sample(possible_start_levels, number_of_levels)
 
@@ -130,22 +152,17 @@ class DungeonKeeperWorld(World):
         precollected_names = {item.name for item in self.multiworld.precollected_items[self.player]}
 
         #creatures which require only base rooms
-        early_creatures = {"Attract Fly", "Attract Beetle", "Attract Spider",
-                           #"Attract Demon Spawn","Attract Warlock",
-                           "Attract Bile Demon","Attract Dragon",
-                           #"Attract Wizard","Attract Fairy",
-                           "Attract Thief",
-                           #"Attract Barbarian","Attract Knight","Attract Avatar",
-        }
+        early_creatures = {enums.KeeperCreatureName.FLY, enums.KeeperCreatureName.BUG, enums.KeeperCreatureName.SPIDER,
+                           enums.KeeperCreatureName.BILE_DEMON, enums.KeeperCreatureName.DRAGON,
+                           enums.KeeperHeroName.THIEF,
+                           }
         #partial protection - if player starts with no creatures that are unlocked with the base 3 rooms, put the Fly really early.
         if not early_creatures.intersection(precollected_names):
-            self.multiworld.early_items[self.player]["Attract Fly"] = 1
-        if "Library" not in precollected_names:
-            self.multiworld.early_items[self.player]["Library"] = 1
-        if "Training Room" not in precollected_names:
-            self.multiworld.early_items[self.player]["Training Room"] = 1
-        self.multiworld.early_items[self.player][enums.KeeperRoomName.RESEARCH] = 1
-        self.multiworld.early_items[self.player][enums.KeeperRoomName.TRAINING] = 1
+            self.multiworld.early_items[self.player][enums.KeeperCreatureName.FLY] = 1
+        if enums.KeeperRoomName.RESEARCH not in precollected_names:
+            self.multiworld.early_items[self.player][enums.KeeperRoomName.RESEARCH] = 1
+        if enums.KeeperRoomName.TRAINING not in precollected_names:
+            self.multiworld.early_items[self.player][enums.KeeperRoomName.TRAINING] = 1
 
     # For features such as item links and panic-method start inventory, AP may ask your world to create extra filler.
     # The way it does this is by calling get_filler_item_name.
@@ -161,10 +178,11 @@ class DungeonKeeperWorld(World):
         if self.options.tileset_mode.value == enums.TileMode.TILESET:
             selected_tiles = get_shuffled_slots(4, self.options.tileset_choice.value, self.random)
         elif self.options.tileset_mode.value == enums.TileMode.LEVEL:
-            selected_tiles = get_shuffled_slots(self.options.secret_levels == True and 26 or 20, self.options.tileset_choice.value, self.random)
-        elif self.options.tileset_mode.value == enums.TileMode.RANDOM: # Full random
-            min_tile, max_tile =  determine_tileset_values(self.options.tileset_choice.value)
-            selected_tiles = {0:min_tile, 1:max_tile}
+            selected_tiles = get_shuffled_slots(self.options.secret_levels == True and 26 or 20,
+                                                self.options.tileset_choice.value, self.random)
+        elif self.options.tileset_mode.value == enums.TileMode.RANDOM:  # Full random
+            min_tile, max_tile = determine_tileset_values(self.options.tileset_choice.value)
+            selected_tiles = {0: min_tile, 1: max_tile}
         return {
             "KeeperFXCreatures": self.options.KeeperFXCreatures.value,
             "KeeperFXDoors": self.options.KeeperFXDoors.value,
@@ -190,10 +208,10 @@ class DungeonKeeperWorld(World):
             "FlatTempleGuardPost": self.options.FlatTempleGuardPost.value,
         }
 
-
     # There may be data that the game client will need to modify the behavior of the game.
     # This is what slot_data exists for. Upon every client connection, the slot's slot_data is sent to the client.
     # slot_data is just a dictionary using basic types, that will be converted to json when sent to the client.
+
 
 def determine_tileset_values(tileset_option: int) -> tuple[int, int]:
     min_tileset = 0
@@ -204,10 +222,11 @@ def determine_tileset_values(tileset_option: int) -> tuple[int, int]:
         min_tileset = 4
         max_tileset = 7
     if tileset_option == enums.TileOption.OriginalAndDeeper:
-            max_tileset = 7
+        max_tileset = 7
     if tileset_option == enums.TileOption.NewOnly:
-            min_tileset = 8
+        min_tileset = 8
     return min_tileset, max_tileset
+
 
 def get_shuffled_slots(count: int, tileset: int, rand):
     result = {}

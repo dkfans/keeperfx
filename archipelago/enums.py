@@ -8,445 +8,483 @@ from enum import IntEnum, StrEnum
 
 GAME_NAME = "Dungeon Keeper"
 OVERWORLD = "Overworld"
+OVERWORLD_CONNECT = "Overworld to "
+ATTRACT = "Attract "
+BUILD = "Build "
 
 class KeeperCreatureName(StrEnum):
-        FLY = "Attract Fly"
-        BUG = "Attract Beetle"
-        SPIDER = "Attract Spider"
-        DEMONSPAWN = "Attract Demon Spawn"
-        SORCEROR = "Attract Warlock"
-        TROLL = "Attract Troll"
-        BILE_DEMON = "Attract Bile Demon"
-        ORC = "Attract Orc"
-        DARK_MISTRESS = "Attract Mistress"
-        DRAGON = "Attract Dragon"
-        SKELETON = "Attract Skeleton" #not usually attracted from Portal but I think that's fine and adds variety
-        GHOST = "Attract Ghost" #not usually attracted from Portal but I think that's fine and adds variety
-        TENTACLE = "Attract Tentacle"
-        HELL_HOUND = "Attract Hound"
-        HORNY = "Attract Horned Reaper" #not usually attracted from Portal but I think that's fine and adds variety
-        VAMPIRE = "Attract Vampire" #not usually attracted from Portal but I think that's fine and adds variety
+    FLY = "Fly"
+    BUG = "Beetle"
+    SPIDER = "Spider"
+    DEMONSPAWN = "Demon Spawn"
+    SORCEROR = "Warlock"
+    TROLL = "Troll"
+    BILE_DEMON = "Bile Demon"
+    ORC = "Orc"
+    DARK_MISTRESS = "Mistress"
+    DRAGON = "Dragon"
+    SKELETON = "Skeleton"  #not usually attracted from Portal but I think that's fine and adds variety
+    GHOST = "Ghost"  #not usually attracted from Portal but I think that's fine and adds variety
+    TENTACLE = "Tentacle"
+    HELL_HOUND = "Hound"
+    HORNY = "Horned Reaper"  #not usually attracted from Portal but I think that's fine and adds variety
+    VAMPIRE = "Vampire"  #not usually attracted from Portal but I think that's fine and adds variety
 
 class KeeperCreature(IntEnum):
-        FLY = 1
-        BUG = 2
-        SPIDER = 3
-        DEMONSPAWN = 4
-        SORCEROR = 5
-        TROLL = 6
-        BILE_DEMON = 7
-        ORC = 8
-        DARK_MISTRESS = 9
-        DRAGON = 10
-        SKELETON = 11
-        GHOST = 12
-        TENTACLE = 13
-        HELL_HOUND = 14
-        HORNY = 15
-        VAMPIRE = 16
+    FLY = 1
+    BUG = 2
+    SPIDER = 3
+    DEMONSPAWN = 4
+    SORCEROR = 5
+    TROLL = 6
+    BILE_DEMON = 7
+    ORC = 8
+    DARK_MISTRESS = 9
+    DRAGON = 10
+    SKELETON = 11
+    GHOST = 12
+    TENTACLE = 13
+    HELL_HOUND = 14
+    HORNY = 15
+    VAMPIRE = 16
 
-class KeeperImpName(StrEnum):
-        IMP = "Attract Imp" #allow attracting Imps through portal as an option
 
-class KeeperImp(IntEnum):
-        IMP = 100
+KeeperImpName = "Imp"
+KeeperImp = 100
+
 
 class KeeperFXCreatureName(StrEnum):
-        DRUID = "Attract Druid"
-        MAIDEN = "Attract Maiden"
+    DRUID = "Druid"
+    MAIDEN = "Maiden"
+
 
 class KeeperFXCreature(IntEnum):
-        DRUID = 17
-        MAIDEN = 18        
+    DRUID = 17
+    MAIDEN = 18
+
 
 class KeeperRoomName(StrEnum):
-        TREASURE = "Treasure Room"
-        LAIR = "Lair"
-        GARDEN = "Hatchery"
-        TRAINING = "Training Room"
-        RESEARCH = "Library"
-        BRIDGE = "Bridge"
-        GUARD_POST = "Guard Post"
-        WORKSHOP = "Workshop" #fine to allow trap/door creation if you somehow get one
-        PRISON = "Prison" #i.e. if you get one in a map you can't make Skeletons until you unlock this
-        TORTURE = "Torture Chamber" #i.e. if you get one in a map you can't make Ghosts until you unlock this
-        BARRACKS = "Barracks"
-        TEMPLE = "Temple" #fine to allow recipes if you somehow get one
-        GRAVEYARD = "Graveyard" #i.e. if you get one in a map you can't make Vampires until you unlock this
-        SCAVENGER = "Scavenger Room" #fine to allow scavenger room if you somehow get one
+    TREASURE = "Treasure Room"
+    LAIR = "Lair"
+    GARDEN = "Hatchery"
+    TRAINING = "Training Room"
+    RESEARCH = "Library"
+    BRIDGE = "Bridge"
+    GUARD_POST = "Guard Post"
+    WORKSHOP = "Workshop"  #fine to allow trap/door creation if you somehow get one
+    PRISON = "Prison"  #i.e. if you get one in a map you can't make Skeletons until you unlock this
+    TORTURE = "Torture Chamber"  #i.e. if you get one in a map you can't make Ghosts until you unlock this
+    BARRACKS = "Barracks"
+    TEMPLE = "Temple"  #fine to allow recipes if you somehow get one
+    GRAVEYARD = "Graveyard"  #i.e. if you get one in a map you can't make Vampires until you unlock this
+    SCAVENGER = "Scavenger Room"  #fine to allow scavenger room if you somehow get one
+
 
 class KeeperRoom(IntEnum):
-        TREASURE = 101
-        LAIR = 102
-        GARDEN = 103
-        TRAINING = 104
-        RESEARCH = 105
-        BRIDGE = 106
-        GUARD_POST = 107
-        WORKSHOP = 108 #fine to allow trap/door creation if you somehow get one 
-        PRISON = 109 #i.e. if you get one in a map you can't make Skeletons until you unlock this
-        TORTURE = 110 #i.e. if you get one in a map you can't make Ghosts until you unlock this
-        BARRACKS = 111
-        TEMPLE = 112
-        GRAVEYARD = 113
-        SCAVENGER = 114
+    TREASURE = 101
+    LAIR = 102
+    GARDEN = 103
+    TRAINING = 104
+    RESEARCH = 105
+    BRIDGE = 106
+    GUARD_POST = 107
+    WORKSHOP = 108  #fine to allow trap/door creation if you somehow get one
+    PRISON = 109  #i.e. if you get one in a map you can't make Skeletons until you unlock this
+    TORTURE = 110  #i.e. if you get one in a map you can't make Ghosts until you unlock this
+    BARRACKS = 111
+    TEMPLE = 112
+    GRAVEYARD = 113
+    SCAVENGER = 114
 
-class KeeperTrapName(StrEnum): 
-        ALARM = "Alarm Trap Manufacturable"
-        POISON_GAS = "Poison Gas Trap Manufacturable"
-        LIGHTNING = "Lightning Trap Manufacturable"
-        LAVA = "Lava Trap Manufacturable"
-        BOULDER = "Boulder Trap Manufacturable"
-        WORD_OF_POWER = "Word of Power Trap Manufacturable"
+
+class KeeperTrapName(StrEnum):
+    ALARM = "Alarm Trap Manufacturable"
+    POISON_GAS = "Poison Gas Trap Manufacturable"
+    LIGHTNING = "Lightning Trap Manufacturable"
+    LAVA = "Lava Trap Manufacturable"
+    BOULDER = "Boulder Trap Manufacturable"
+    WORD_OF_POWER = "Word of Power Trap Manufacturable"
+
 
 class KeeperTrap(IntEnum):
-        ALARM = 201
-        POISON_GAS = 202
-        LIGHTNING = 203
-        LAVA = 204
-        BOULDER = 205
-        WORD_OF_POWER = 206
+    ALARM = 201
+    POISON_GAS = 202
+    LIGHTNING = 203
+    LAVA = 204
+    BOULDER = 205
+    WORD_OF_POWER = 206
+
 
 class KeeperDoorName(StrEnum):
-        WOOD = "Wooden Door Manufacturable"
-        BRACED = "Braced Door Manufacturable"
-        STEEL = "Iron Door Manufacturable"
-        MAGIC = "Magic Door Manufacturable"
+    WOOD = "Wooden Door Manufacturable"
+    BRACED = "Braced Door Manufacturable"
+    STEEL = "Iron Door Manufacturable"
+    MAGIC = "Magic Door Manufacturable"
 
-class KeeperDoor(IntEnum):     
-        WOOD = 301
-        BRACED = 302
-        STEEL = 303
-        MAGIC = 304
+
+class KeeperDoor(IntEnum):
+    WOOD = 301
+    BRACED = 302
+    STEEL = 303
+    MAGIC = 304
+
 
 class KeeperFXDoorName(StrEnum):
-        SECRET = "Secret Door Manufacturable"
-        MIDAS = "Midas Door Manufacturable"
+    SECRET = "Secret Door Manufacturable"
+    MIDAS = "Midas Door Manufacturable"
 
-class KeeperFXDoor(IntEnum):               
-       SECRET = 305
-       MIDAS = 306   
+
+class KeeperFXDoor(IntEnum):
+    SECRET = 305
+    MIDAS = 306
+
 
 class KeeperFXTrapName(StrEnum):
-        TNT = "Demolition Trap Manufacturable"
-        SENTRY = "Sentry Trap Manufacturable"
-        BALLISTA = "Ballista Trap Manufacturable"
+    TNT = "Demolition Trap Manufacturable"
+    SENTRY = "Sentry Trap Manufacturable"
+    BALLISTA = "Ballista Trap Manufacturable"
+
 
 class KeeperFXTrap(IntEnum):
-        TNT = 207
-        SENTRY = 208
-        BALLISTA = 209
+    TNT = 207
+    SENTRY = 208
+    BALLISTA = 209
+
 
 class KeeperPowerName(StrEnum):
-        POWER_HAND = "Hand of Evil"
-        POWER_SLAP = "Slap"
-        POWER_POSSESS = "Possession"
-        POWER_IMP = "Create Imp"
-        POWER_SIGHT = "Sight of Evil"
-        POWER_SPEED = "Speed Monster"
-        POWER_OBEY = "Must Obey"
-        POWER_CALL_TO_ARMS = "Call to Arms"
-        POWER_CONCEAL = "Conceal Monster"
-        POWER_HOLD_AUDIENCE = "Hold Audience"
-        POWER_CAVE_IN = "Cave-In"
-        POWER_HEAL_CREATURE = "Heal"
-        POWER_LIGHTNING = "Lightning Strike"
-        POWER_PROTECT = "Protect Monster"
-        POWER_CHICKEN = "Chicken"
-        POWER_DISEASE = "Disease"
-        POWER_ARMAGEDDON = "Armageddon"
-        POWER_DESTROY_WALLS = "Destroy Walls"
+    POWER_HAND = "Hand of Evil"
+    POWER_SLAP = "Slap"
+    POWER_POSSESS = "Possession"
+    POWER_IMP = "Create Imp"
+    POWER_SIGHT = "Sight of Evil"
+    POWER_SPEED = "Speed Monster"
+    POWER_OBEY = "Must Obey"
+    POWER_CALL_TO_ARMS = "Call to Arms"
+    POWER_CONCEAL = "Conceal Monster"
+    POWER_HOLD_AUDIENCE = "Hold Audience"
+    POWER_CAVE_IN = "Cave-In"
+    POWER_HEAL_CREATURE = "Heal"
+    POWER_LIGHTNING = "Lightning Strike"
+    POWER_PROTECT = "Protect Monster"
+    POWER_CHICKEN = "Chicken"
+    POWER_DISEASE = "Disease"
+    POWER_ARMAGEDDON = "Armageddon"
+    POWER_DESTROY_WALLS = "Destroy Walls"
+
 
 class KeeperPower(IntEnum):
-        POWER_HAND = 401
-        POWER_SLAP = 402
-        POWER_POSSESS = 403
-        POWER_IMP = 404
-        POWER_SIGHT = 405
-        POWER_SPEED = 406
-        POWER_OBEY = 407
-        POWER_CALL_TO_ARMS = 408
-        POWER_CONCEAL = 409
-        POWER_HOLD_AUDIENCE = 410
-        POWER_CAVE_IN = 411
-        POWER_HEAL_CREATURE = 412
-        POWER_LIGHTNING = 413
-        POWER_PROTECT = 414
-        POWER_CHICKEN = 415
-        POWER_DISEASE = 416
-        POWER_ARMAGEDDON = 417
-        POWER_DESTROY_WALLS = 418
+    POWER_HAND = 401
+    POWER_SLAP = 402
+    POWER_POSSESS = 403
+    POWER_IMP = 404
+    POWER_SIGHT = 405
+    POWER_SPEED = 406
+    POWER_OBEY = 407
+    POWER_CALL_TO_ARMS = 408
+    POWER_CONCEAL = 409
+    POWER_HOLD_AUDIENCE = 410
+    POWER_CAVE_IN = 411
+    POWER_HEAL_CREATURE = 412
+    POWER_LIGHTNING = 413
+    POWER_PROTECT = 414
+    POWER_CHICKEN = 415
+    POWER_DISEASE = 416
+    POWER_ARMAGEDDON = 417
+    POWER_DESTROY_WALLS = 418
+
 
 class KeeperFXPowerName(StrEnum):
-        POWER_TIME_BOMB = "Time Bomb"
-        POWER_SLOW = "Slow"
-        POWER_FREEZE = "Freeze"
-        POWER_REBOUND = "Rebound"
-        POWER_FLIGHT = "Flight"
-        POWER_VISION = "Vision"
-        POWER_TUNNELLER = "Recruit Tunneller"
-        POWER_CLEANSE = "Cleanse"
+    POWER_TIME_BOMB = "Time Bomb"
+    POWER_SLOW = "Slow"
+    POWER_FREEZE = "Freeze"
+    POWER_REBOUND = "Rebound"
+    POWER_FLIGHT = "Flight"
+    POWER_VISION = "Vision"
+    POWER_TUNNELLER = "Recruit Tunneller"
+    POWER_CLEANSE = "Cleanse"
+
+
 #   could optionally split POWER_HAND up into POWER_PICKUP_CREATURE, POWER_PICKUP_GOLD, POWER_PICKUP_FOOD
 
-class KeeperFXPower(IntEnum):   
-        POWER_TIME_BOMB = 419
-        POWER_SLOW = 420
-        POWER_FREEZE = 421
-        POWER_REBOUND = 422
-        POWER_FLIGHT = 423
-        POWER_VISION = 424
-        POWER_TUNNELLER = 425
-        POWER_CLEANSE = 426
+
+class KeeperFXPower(IntEnum):
+    POWER_TIME_BOMB = 419
+    POWER_SLOW = 420
+    POWER_FREEZE = 421
+    POWER_REBOUND = 422
+    POWER_FLIGHT = 423
+    POWER_VISION = 424
+    POWER_TUNNELLER = 425
+    POWER_CLEANSE = 426
+
+
 #   could optionally split POWER_HAND up into POWER_PICKUP_CREATURE, POWER_PICKUP_GOLD, POWER_PICKUP_FOOD
+
 
 class KeeperLevelName(StrEnum):
-        LEVEL_001 = "Eversmile"
-        LEVEL_002 = "Cosyton"
-        LEVEL_003 = "Waterdream Warm"
-        LEVEL_004 = "Flowerhat"
-        LEVEL_005 = "Lushmeadow-on-Down"
-        LEVEL_006 = "Snuggledell"
-        LEVEL_007 = "Wishvale"
-        LEVEL_008 = "Tickle"
-        LEVEL_009 = "Moonbrush Wood"
-        LEVEL_010 = "Nevergrim"
-        LEVEL_011 = "Hearth"
-        LEVEL_012 = "Elf's Dance"
-        LEVEL_013 = "Buffy Oak"
-        LEVEL_014 = "Sleepiburgh"
-        LEVEL_015 = "Woodly Rhyme"
-        LEVEL_016 = "Tulipscent"
-        LEVEL_017 = "Mirthshire"
-        LEVEL_018 = "Blaise End"
-        LEVEL_019 = "Mistle"
-        LEVEL_020 = "Skybird Trill"
+    LEVEL_001 = "Eversmile"
+    LEVEL_002 = "Cosyton"
+    LEVEL_003 = "Waterdream Warm"
+    LEVEL_004 = "Flowerhat"
+    LEVEL_005 = "Lushmeadow-on-Down"
+    LEVEL_006 = "Snuggledell"
+    LEVEL_007 = "Wishvale"
+    LEVEL_008 = "Tickle"
+    LEVEL_009 = "Moonbrush Wood"
+    LEVEL_010 = "Nevergrim"
+    LEVEL_011 = "Hearth"
+    LEVEL_012 = "Elf's Dance"
+    LEVEL_013 = "Buffy Oak"
+    LEVEL_014 = "Sleepiburgh"
+    LEVEL_015 = "Woodly Rhyme"
+    LEVEL_016 = "Tulipscent"
+    LEVEL_017 = "Mirthshire"
+    LEVEL_018 = "Blaise End"
+    LEVEL_019 = "Mistle"
+    LEVEL_020 = "Skybird Trill"
+
 
 class KeeperLevel(IntEnum):
-        LEVEL_001 = 501
-        LEVEL_002 = 502
-        LEVEL_003 = 503
-        LEVEL_004 = 504
-        LEVEL_005 = 505
-        LEVEL_006 = 506
-        LEVEL_007 = 507
-        LEVEL_008 = 508
-        LEVEL_009 = 509
-        LEVEL_010 = 510
-        LEVEL_011 = 511
-        LEVEL_012 = 512
-        LEVEL_013 = 513
-        LEVEL_014 = 514
-        LEVEL_015 = 515
-        LEVEL_016 = 516
-        LEVEL_017 = 517
-        LEVEL_018 = 518
-        LEVEL_019 = 519
-        LEVEL_020 = 520
+    LEVEL_001 = 501
+    LEVEL_002 = 502
+    LEVEL_003 = 503
+    LEVEL_004 = 504
+    LEVEL_005 = 505
+    LEVEL_006 = 506
+    LEVEL_007 = 507
+    LEVEL_008 = 508
+    LEVEL_009 = 509
+    LEVEL_010 = 510
+    LEVEL_011 = 511
+    LEVEL_012 = 512
+    LEVEL_013 = 513
+    LEVEL_014 = 514
+    LEVEL_015 = 515
+    LEVEL_016 = 516
+    LEVEL_017 = 517
+    LEVEL_018 = 518
+    LEVEL_019 = 519
+    LEVEL_020 = 520
+
 
 class KeeperSecretLevel(IntEnum):
-        LEVEL_100 = 521
-        LEVEL_101 = 522
-        LEVEL_102 = 523
-        LEVEL_103 = 524
-        LEVEL_104 = 525
-        LEVEL_105 = 526
+    LEVEL_100 = 521
+    LEVEL_101 = 522
+    LEVEL_102 = 523
+    LEVEL_103 = 524
+    LEVEL_104 = 525
+    LEVEL_105 = 526
 
-class KeeperSecretLevelName(StrEnum):   
-        LEVEL_100 = "Secret 1"
-        LEVEL_101 = "Secret 2"
-        LEVEL_102 = "Secret 3"
-        LEVEL_103 = "Secret 4"
-        LEVEL_104 = "Secret 5"
-        LEVEL_105 = "Secret 6"     
+
+class KeeperSecretLevelName(StrEnum):
+    LEVEL_100 = "Secret 1"
+    LEVEL_101 = "Secret 2"
+    LEVEL_102 = "Secret 3"
+    LEVEL_103 = "Secret 4"
+    LEVEL_104 = "Secret 5"
+    LEVEL_105 = "Secret 6"
+
 
 class KeeperRecipeName(StrEnum):
-        RECIPE_CHEAPER_IMPS = "Cheaper Imps Recipe"
-        RECIPE_COMPLETE_MANUFACTURING = "Complete Manufacturing Recipe"
-        RECIPE_COMPLETE_RESEARCH = "Complete Research Recipe"
-        RECIPE_BILE_DEMON = "Bile Demon Recipe"
-        RECIPE_SORCEROR = "Warlock Recipe"
-        RECIPE_DARK_MISTRESS = "Mistress Recipe"
-        RECIPE_HORNY = "Horned Reaper Recipe"
-        RECIPE_SPIDER_EASTER_EGG = "Spider easter egg Recipe" #default, hardcoded easter egg and not really a recipe, would probably be stupid to include
+    RECIPE_CHEAPER_IMPS = "Cheaper Imps Recipe"
+    RECIPE_COMPLETE_MANUFACTURING = "Complete Manufacturing Recipe"
+    RECIPE_COMPLETE_RESEARCH = "Complete Research Recipe"
+    RECIPE_BILE_DEMON = "Bile Demon Recipe"
+    RECIPE_SORCEROR = "Warlock Recipe"
+    RECIPE_DARK_MISTRESS = "Mistress Recipe"
+    RECIPE_HORNY = "Horned Reaper Recipe"
+    RECIPE_SPIDER_EASTER_EGG = "Spider easter egg Recipe"  #default, hardcoded easter egg and not really a recipe, would probably be stupid to include
+
 
 class KeeperRecipe(IntEnum):
-        RECIPE_CHEAPER_IMPS = 601
-        RECIPE_COMPLETE_MANUFACTURING = 602
-        RECIPE_COMPLETE_RESEARCH = 603
-        RECIPE_BILE_DEMON = 604
-        RECIPE_SORCEROR = 605
-        RECIPE_DARK_MISTRESS = 606
-        RECIPE_HORNY = 607
-        RECIPE_SPIDER_EASTER_EGG = 614 #default, hardcoded easter egg and not really a recipe, would probably be stupid to include
+    RECIPE_CHEAPER_IMPS = 601
+    RECIPE_COMPLETE_MANUFACTURING = 602
+    RECIPE_COMPLETE_RESEARCH = 603
+    RECIPE_BILE_DEMON = 604
+    RECIPE_SORCEROR = 605
+    RECIPE_DARK_MISTRESS = 606
+    RECIPE_HORNY = 607
+    RECIPE_SPIDER_EASTER_EGG = 614  #default, hardcoded easter egg and not really a recipe, would probably be stupid to include
+
 
 class NegativeRecipeName(StrEnum):
-       RECIPE_WISHING_WELL = "Wishing Well Recipe" #default, might be hardcoded, would probably be stupid to include
-       RECIPE_KILL_CHICKENS_1 = "Kill Chickens Recipe 1" #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_KILL_CHICKENS_2 = "Kill Chickens Recipe 2" #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_DISEASE = "Disease Creatures Recipe" #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_ANGRY = "All Creatures angry Recipe" #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_CHICKEN = "Chicken Creatures Recipe" #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_WISHING_WELL = "Wishing Well Recipe"  #default, might be hardcoded, would probably be stupid to include
+    RECIPE_KILL_CHICKENS_1 = "Kill Chickens Recipe 1"  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_KILL_CHICKENS_2 = "Kill Chickens Recipe 2"  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_DISEASE = "Disease Creatures Recipe"  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_ANGRY = "All Creatures angry Recipe"  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_CHICKEN = "Chicken Creatures Recipe"  #default, unlock would probably be stupid to include outside of a Templesanity
+
 
 class NegativeRecipe(IntEnum):
-       RECIPE_WISHING_WELL = 608 #default, might be hardcoded, would probably be stupid to include
-       RECIPE_KILL_CHICKENS_1 = 609 #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_KILL_CHICKENS_2 = 610 #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_DISEASE = 611 #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_ANGRY = 612 #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_CHICKEN = 613 #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_WISHING_WELL = 608  #default, might be hardcoded, would probably be stupid to include
+    RECIPE_KILL_CHICKENS_1 = 609  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_KILL_CHICKENS_2 = 610  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_DISEASE = 611  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_ANGRY = 612  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_CHICKEN = 613  #default, unlock would probably be stupid to include outside of a Templesanity
+
 
 class KeeperFXRecipeName(StrEnum):
-       RECIPE_GOOD_SKELETON = "Good Skeleton Recipe" #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_TENTACLE = "Tentacle Recipe"
-       RECIPE_HOUND = "Hound Recipe"
-       RECIPE_SPEED = "Speed Creatures Recipe"
-       RECIPE_CONCEAL = "Conceal Creatures Recipe"
-       RECIPE_HEAL = "Heal Creatures Recipe"
-       RECIPE_REBOUND = "Rebound Creatures Recipe"
-       RECIPE_PROTECT = "Protect Creatures Recipe"
-       RECIPE_FLIGHT = "Flight Creatures Recipe"
-       RECIPE_FREEZE = "Freeze Creatures Recipe"
-       RECIPE_SLOW = "Slow Creatures Recipe"
+    RECIPE_GOOD_SKELETON = "Good Skeleton Recipe"  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_TENTACLE = "Tentacle Recipe"
+    RECIPE_HOUND = "Hound Recipe"
+    RECIPE_SPEED = "Speed Creatures Recipe"
+    RECIPE_CONCEAL = "Conceal Creatures Recipe"
+    RECIPE_HEAL = "Heal Creatures Recipe"
+    RECIPE_REBOUND = "Rebound Creatures Recipe"
+    RECIPE_PROTECT = "Protect Creatures Recipe"
+    RECIPE_FLIGHT = "Flight Creatures Recipe"
+    RECIPE_FREEZE = "Freeze Creatures Recipe"
+    RECIPE_SLOW = "Slow Creatures Recipe"
+
 
 class KeeperFXRecipe(IntEnum):
-       RECIPE_GOOD_SKELETON = 615 #default, unlock would probably be stupid to include outside of a Templesanity
-       RECIPE_TENTACLE = 616
-       RECIPE_HOUND = 617
-       RECIPE_SPEED = 618
-       RECIPE_CONCEAL = 619
-       RECIPE_HEAL = 620
-       RECIPE_REBOUND = 621
-       RECIPE_PROTECT = 622
-       RECIPE_FLIGHT = 623
-       RECIPE_FREEZE = 624
-       RECIPE_SLOW = 625
+    RECIPE_GOOD_SKELETON = 615  #default, unlock would probably be stupid to include outside of a Templesanity
+    RECIPE_TENTACLE = 616
+    RECIPE_HOUND = 617
+    RECIPE_SPEED = 618
+    RECIPE_CONCEAL = 619
+    RECIPE_HEAL = 620
+    RECIPE_REBOUND = 621
+    RECIPE_PROTECT = 622
+    RECIPE_FLIGHT = 623
+    RECIPE_FREEZE = 624
+    RECIPE_SLOW = 625
+
 
 class KeeperProgressiveName(StrEnum):
-        PROGRESSIVE_LEVEL_CAP = "Progressive Level Cap" #Increase max creature level by 1 (starts max level 3)
-        PROGRESSIVE_CREATURE_LIMIT = "Progressive Creature Limit" #Increase creature limit by 5 (starts at max 10)
-        PROGRESSIVE_STARTING_GOLD = "Progressive Starting Gold" #Increase starting gold by 1250 (starts at 2500)
-        PROGRESSIVE_PORTAL_SPEED = "Progressive Portal Speed" #Increases Portal speed (decreases wait) by 125 (starts at 750)
-        PROGRESSIVE_HAND_SIZE = "Progressive Hand Size" #Increases Hand size by 2 (starts at 4)
+    PROGRESSIVE_LEVEL_CAP = "Progressive Level Cap"  #Increase max creature level by 1 (starts max level 3)
+    PROGRESSIVE_CREATURE_LIMIT = "Progressive Creature Limit"  #Increase creature limit by 5 (starts at max 10)
+    PROGRESSIVE_STARTING_GOLD = "Progressive Starting Gold"  #Increase starting gold by 1250 (starts at 2500)
+    PROGRESSIVE_PORTAL_SPEED = "Progressive Portal Speed"  #Increases Portal speed (decreases wait) by 125 (starts at 750)
+    PROGRESSIVE_HAND_SIZE = "Progressive Hand Size"  #Increases Hand size by 2 (starts at 4)
+
+
 #    #Others e.g. progressive starting imps number/level, progressive auto-researched (e.g. at 1, bridge/guardpost and SOE are unlocked, at 2, workshop and speed are unlocked and so on (IF THOSE ARE UNLOCKED)),
 #    #progressive auto-manufacturing (at 1, you get an alarm/gas trap and wooden door at start, at 2 you get a lightning trap and braced door, at 3 you get WOP trap and iron door, at 4 you get lava/boulder and magic door (IF THOSE ARE UNLOCKED))
+
+
 class KeeperProgressive(IntEnum):
-        PROGRESSIVE_LEVEL_CAP = 701 #Increase max creature level by 1 (starts max level 3)
-        PROGRESSIVE_CREATURE_LIMIT = 702 #Increase creature limit by 5 (starts at max 10)
-        PROGRESSIVE_STARTING_GOLD = 703 #Increase starting gold by 1250 (starts at 2500)
-        PROGRESSIVE_PORTAL_SPEED = 704 #Increases Portal speed (decreases wait) by 125 (starts at 750)
-        PROGRESSIVE_HAND_SIZE = 705 #Increases hand size by 2 (starts at 4)
+    PROGRESSIVE_LEVEL_CAP = 701  #Increase max creature level by 1 (starts max level 3)
+    PROGRESSIVE_CREATURE_LIMIT = 702  #Increase creature limit by 5 (starts at max 10)
+    PROGRESSIVE_STARTING_GOLD = 703  #Increase starting gold by 1250 (starts at 2500)
+    PROGRESSIVE_PORTAL_SPEED = 704  #Increases Portal speed (decreases wait) by 125 (starts at 750)
+    PROGRESSIVE_HAND_SIZE = 705  #Increases hand size by 2 (starts at 4)
+
 
 class KeeperHeroName(StrEnum):
-        THIEF = "Attract Thief"
-        BARBARIAN = "Attract Barbarian"
-        GIANT = "Attract Giant"
-        WIZARD = "Attract Wizard"
-        FAIRY = "Attract Fairy"
-        ARCHER = "Attract Archer"
-        DWARFA = "Attract Mountain Dwarf"
-        MONK = "Attract Monk"
-        SAMURAI = "Attract Samurai"
-        WITCH = "Attract Priestess"
+    THIEF = "Thief"
+    BARBARIAN = "Barbarian"
+    GIANT = "Giant"
+    WIZARD = "Wizard"
+    FAIRY = "Fairy"
+    ARCHER = "Archer"
+    DWARFA = "Mountain Dwarf"
+    MONK = "Monk"
+    SAMURAI = "Samurai"
+    WITCH = "Priestess"
+
 
 class KeeperHero(IntEnum):
-        THIEF = 801
-        BARBARIAN = 802
-        GIANT = 803
-        WIZARD = 804
-        FAIRY = 805
-        ARCHER = 806
-        DWARFA = 807
-        MONK = 808
-        SAMURAI = 809
-        WITCH = 810
+    THIEF = 801
+    BARBARIAN = 802
+    GIANT = 803
+    WIZARD = 804
+    FAIRY = 805
+    ARCHER = 806
+    DWARFA = 807
+    MONK = 808
+    SAMURAI = 809
+    WITCH = 810
 
-class KeeperKnightName(StrEnum):
-        KNIGHT = "Attract Knight"
 
-class KeeperKnight(IntEnum):
-        KNIGHT = 811
+KeeperKnightName = "Knight"
+KeeperKnight = 811
+KeeperAvatarName = "Avatar"
+KeeperAvatar = 812
+KeeperTunnellerName = "Tunneller"
+KeeperTunneller = 813
 
-class KeeperAvatarName(StrEnum):
-        AVATAR = "Attract Avatar"
-
-class KeeperAvatar(IntEnum):
-        AVATAR = 812
-
-class KeeperTunnellerName(StrEnum):
-        TUNNELLER = "Attract Tunneller"
-
-class KeeperTunneller(IntEnum):
-        TUNNELLER = 813
 
 class KeeperFXHeroName(StrEnum):
-        TIME_MAGE = "Attract Time Mage"
+    TIME_MAGE = "Time Mage"
+
 
 class KeeperFXHero(IntEnum):
-        TIME_MAGE = 814
+    TIME_MAGE = 814
+
 
 class KeeperFillerName(StrEnum):
-        FILLER_INCREASE_LEVEL = "Increase Level"
-        FILLER_MULTIPLY_CREATURES = "Multiply Creatures"
-        FILLER_MAKE_SAFE = "Make Safe"
-        FILLER_STEAL_HERO = "Steal Hero"
-        FILLER_REVEAL_MAP = "Reveal Map"
-        FILLER_RECEIVE_GOLD = "Receive Gold"
-        FILLER_RECEIVE_IMPS = "Receive Imps"
-    
+    FILLER_INCREASE_LEVEL = "Increase Level"
+    FILLER_MULTIPLY_CREATURES = "Multiply Creatures"
+    FILLER_MAKE_SAFE = "Make Safe"
+    FILLER_STEAL_HERO = "Steal Hero"
+    FILLER_REVEAL_MAP = "Reveal Map"
+    FILLER_RECEIVE_GOLD = "Receive Gold"
+    FILLER_RECEIVE_IMPS = "Receive Imps"
+
+
 class KeeperFiller(IntEnum):
-        FILLER_INCREASE_LEVEL = 901
-        FILLER_MULTIPLY_CREATURES = 902
-        FILLER_MAKE_SAFE = 903
-        FILLER_STEAL_HERO = 904
-        FILLER_REVEAL_MAP = 905
-        FILLER_RECEIVE_GOLD = 906
-        FILLER_RECEIVE_IMPS = 907
+    FILLER_INCREASE_LEVEL = 901
+    FILLER_MULTIPLY_CREATURES = 902
+    FILLER_MAKE_SAFE = 903
+    FILLER_STEAL_HERO = 904
+    FILLER_REVEAL_MAP = 905
+    FILLER_RECEIVE_GOLD = 906
+    FILLER_RECEIVE_IMPS = 907
+
 
 class KeeperGoodTempleLocations(StrEnum):
-        CHEAPER_IMPS = "Temple: Cheaper Imps [1x Imp]"
-        MANUFACTURING = "Temple: Complete Manufacturing [2x Beetle]"
-        RESEARCH = "Temple: Complete Research [2x Fly]"
-        BILE_DEMON = "Temple: Receive Bile Demon [3x Spider]"
-        WARLOCK = "Temple: Receive Warlock [Fly, Spider]"
-        MISTRESS = "Temple: Receive Dark Mistress [Beetle, Spider]"
-        HORNY = "Temple: Receive Horned Reaper [Troll, Bile Demon, Dark Mistress]"
-        WISHING_WELL = "Temple: This is no wishing well [1x Gold]"
-        EASTER_EGG = "Temple: Spider Easter Egg [4x Imp, 4x Gold, 16x Chicken]"
+    CHEAPER_IMPS = "Temple: Cheaper Imps [1x Imp]"
+    MANUFACTURING = "Temple: Complete Manufacturing [2x Beetle]"
+    RESEARCH = "Temple: Complete Research [2x Fly]"
+    BILE_DEMON = "Temple: Receive Bile Demon [3x Spider]"
+    WARLOCK = "Temple: Receive Warlock [Fly, Spider]"
+    MISTRESS = "Temple: Receive Dark Mistress [Beetle, Spider]"
+    HORNY = "Temple: Receive Horned Reaper [Troll, Bile Demon, Dark Mistress]"
+    WISHING_WELL = "Temple: This is no wishing well [1x Gold]"
+    EASTER_EGG = "Temple: Spider Easter Egg [4x Imp, 4x Gold, 16x Chicken]"
+
 
 class KeeperBadTempleLocations(StrEnum):
-        KILL_CHICKENS_1 = "Temple: Kill friendly chickens [1x Ghost]"
-        KILL_CHICKENS_2 = "Temple: Kill friendly chickens [1x Chicken]"
-        DISEASE_CREATURES = "Temple: Disease friendly Creatures [2x Vampire]"
-        MAKE_ANGRY = "Temple: Make Creatures angry [1x Horned Reaper]"
-        CHICKEN_CREATURES = "Temple: Cast Chicken on friendly Creatures [2x Bile Demon]"
+    KILL_CHICKENS_1 = "Temple: Kill friendly chickens [1x Ghost]"
+    KILL_CHICKENS_2 = "Temple: Kill friendly chickens [1x Chicken]"
+    DISEASE_CREATURES = "Temple: Disease friendly Creatures [2x Vampire]"
+    MAKE_ANGRY = "Temple: Make Creatures angry [1x Horned Reaper]"
+    CHICKEN_CREATURES = "Temple: Cast Chicken on friendly Creatures [2x Bile Demon]"
+
 
 class KeeperFXGoodTempleLocations(StrEnum):
-        TENTACLE = "Temple: Receive Tentacle [Troll, Spider]"
-        HELLHOUND = "Temple: Receive Hellhound [Dragon, Fly]"
-        SPEED = "Temple: Cast Speed on friendly Creatures [Fly, Hellhound]"
-        CONCEAL = "Temple: Cast Conceal on friendly Creatures [Troll, Fly]"
-        HEAL = "Temple: Cast Heal on friendly Creatures [Orc, Spider]"
-        REBOUND = "Temple: Cast Rebound on friendly Creatures [Dark Mistress, Beetle]"
-        PROTECT = "Temple: Cast Protect on friendly Creatures [Bile Demon, Beetle]"
-        FLIGHT = "Temple: Cast Flight on friendly Creatures [Demon Spawn, Fly]"
+    TENTACLE = "Temple: Receive Tentacle [Troll, Spider]"
+    HELLHOUND = "Temple: Receive Hellhound [Dragon, Fly]"
+    SPEED = "Temple: Cast Speed on friendly Creatures [Fly, Hellhound]"
+    CONCEAL = "Temple: Cast Conceal on friendly Creatures [Troll, Fly]"
+    HEAL = "Temple: Cast Heal on friendly Creatures [Orc, Spider]"
+    REBOUND = "Temple: Cast Rebound on friendly Creatures [Dark Mistress, Beetle]"
+    PROTECT = "Temple: Cast Protect on friendly Creatures [Bile Demon, Beetle]"
+    FLIGHT = "Temple: Cast Flight on friendly Creatures [Demon Spawn, Fly]"
+
 
 class KeeperFXBadTempleLocations(StrEnum):
-        GOOD_SKELETON = "Temple: Create Good Skeleton [2x Skeleton]"
-        FREEZE = "Temple: Cast Freeze on friendly Creatures [Vampire, Spider]"
-        SLOW = "Temple: Cast Slow on friendly Creatures [Vampire, Demon Spawn]"
+    GOOD_SKELETON = "Temple: Create Good Skeleton [2x Skeleton]"
+    FREEZE = "Temple: Cast Freeze on friendly Creatures [Vampire, Spider]"
+    SLOW = "Temple: Cast Slow on friendly Creatures [Vampire, Demon Spawn]"
+
 
 class TileMode(IntEnum):
-        OFF = 0
-        TILESET = 1
-        LEVEL = 2
-        RANDOM = 3
+    OFF = 0
+    TILESET = 1
+    LEVEL = 2
+    RANDOM = 3
+
 
 class TileOption(IntEnum):
-        Original = 0
-        DeeperDungeon = 1
-        OriginalAndDeeper = 2
-        NewOnly = 3
-        ALL = 4
+    Original = 0
+    DeeperDungeon = 1
+    OriginalAndDeeper = 2
+    NewOnly = 3
+    ALL = 4
 
 #    #---------------------------------------------------------
 #    #Filler
@@ -477,7 +515,6 @@ class TileOption(IntEnum):
 
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
-
 
 
 #    #Others e.g. progressive starting imps number/level progressive auto-researched (e.g. at 1 bridge/guardpost and SOE are unlocked at 2 workshop and speed are unlocked and so on (IF THOSE ARE UNLOCKED))
