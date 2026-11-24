@@ -201,11 +201,13 @@ for entry in (enums.KeeperPowerName, enums.KeeperFXPowerName):
         location_code += 1
         LOCATION_NAME_TO_ID[f"{enums.RESEARCH}{power}"] = location_code
 
-location_code = 14000
+location_code = 15000
 for entry in (enums.KeeperTrapName, enums.KeeperDoorName, enums.KeeperFXTrapName, enums.KeeperFXDoorName):
     for item in entry:
         location_code += 1
         LOCATION_NAME_TO_ID[f"{enums.MANUFACTURE}{item}"] = location_code
+
+
 
     #Other checks you can do anywhere
 
@@ -499,7 +501,7 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
             region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXDoorName if world.options.KeeperFXDoors)
             region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXTrapName if world.options.KeeperFXTraps)
         if room == enums.KeeperRoomName.TEMPLE:
-            region_list.extend(create_temple_locations(world))
+            region_list.extend(get_temple_locations(world))
         room_region.add_locations(get_location_names_with_ids(region_list), DungeonKeeperLocation)
 
     if world.options.IncludeImpsInPool:
@@ -511,7 +513,7 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
         create_secret_locations(world)
 
 
-def create_temple_locations(world: DungeonKeeperWorld) -> dict[str, int | None]:
+def get_temple_locations(world: DungeonKeeperWorld) -> list:
 
     included_recipes = []
     if world.options.TempleLocations:

@@ -34,6 +34,7 @@ class KeeperCreatureName(StrEnum):
     HORNY = "Horned Reaper"  #not usually attracted from Portal but I think that's fine and adds variety
     VAMPIRE = "Vampire"  #not usually attracted from Portal but I think that's fine and adds variety
 
+
 class KeeperCreature(IntEnum):
     FLY = 1
     BUG = 2
