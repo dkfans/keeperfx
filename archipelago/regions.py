@@ -99,7 +99,7 @@ def connect_regions(world: DungeonKeeperWorld) -> None:
     if world.options.IncludeImpsInPool:
         label = f"{enums.ATTRACT}{enums.KeeperImpName}"
         creature_region = world.get_region(label)
-        overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(creature, world.player))
+        overworld.connect(creature_region, f"{enums.OVERWORLD_CONNECT}{label}", lambda state: state.has(enums.KeeperImpName, world.player))
 
     if world.options.secret_levels:
         secret1 = world.get_region(get_val(enums.KeeperSecretLevelName.LEVEL_100.value))

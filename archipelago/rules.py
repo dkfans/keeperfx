@@ -179,27 +179,27 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
     location_rules[f"{get_val(KeeperLevelName.LEVEL_020)} Hero Fortress West"] = Has(get_val(KeeperRoomName.TRAINING)) # would be awful having to fight level 10 Tentacles with level 1 creatures
 
     for creature in KeeperCreatureName:
-        location_rules[f"{ATTRACT}{get_val(creature)}"] = lambda state: (can_use_creature(state, world.player, creature))
+        location_rules[f"{ATTRACT}{get_val(creature)}"] = lambda state, thing = creature: (can_use_creature(state, world.player, thing))
 
     if world.options.KeeperFXCreatures:
         for creature in KeeperFXCreatureName:
-            location_rules[f"{ATTRACT}{get_val(creature)}"] = lambda state: (can_use_creature(state, world.player, creature))
+            location_rules[f"{ATTRACT}{get_val(creature)}"] = lambda state, thing = creature: (can_use_creature(state, world.player, thing))
 
     if world.options.AddHeroes:
         for creature in KeeperHeroName:
-            location_rules[f"{ATTRACT}{get_val(creature)}"] = lambda state: (can_use_creature(state, world.player, creature))
+            location_rules[f"{ATTRACT}{get_val(creature)}"] = lambda state, thing = creature: (can_use_creature(state, world.player, thing))
 
     if world.options.IncludeImpsInPool:
-        location_rules[f"{ATTRACT}{KeeperImpName}"] = lambda state: (can_use_creature(state, world.player, creature))
+        location_rules[f"{ATTRACT}{KeeperImpName}"] = lambda state: (can_use_creature(state, world.player, KeeperImpName))
 
     if world.options.IncludeTunnellersInPool:
-        location_rules[f"{ATTRACT}{KeeperTunnellerName}"] = lambda state: (can_use_creature(state, world.player, creature))
+        location_rules[f"{ATTRACT}{KeeperTunnellerName}"] = lambda state: (can_use_creature(state, world.player, KeeperTunnellerName))
 
     if world.options.IncludeKnightsInPool:
-        location_rules[f"{ATTRACT}{KeeperKnightName}"] = lambda state: (can_use_creature(state, world.player, creature))
+        location_rules[f"{ATTRACT}{KeeperKnightName}"] = lambda state: (can_use_creature(state, world.player, KeeperKnightName))
 
     if world.options.IncludeAvatarsInPool:
-        location_rules[f"{ATTRACT}{KeeperAvatarName}"] = lambda state: (can_use_creature(state, world.player, creature))
+        location_rules[f"{ATTRACT}{KeeperAvatarName}"] = lambda state: (can_use_creature(state, world.player, KeeperAvatarName))
 
     for room in KeeperRoomName:
         location_rules[f"{BUILD}{room}"] = Has(room)

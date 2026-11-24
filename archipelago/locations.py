@@ -497,7 +497,7 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
             region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperDoorName)
             region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperTrapName)
             region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXDoorName if world.options.KeeperFXDoors)
-            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXDoorName if world.options.KeeperFXTraps)
+            region_list.extend(f"{enums.MANUFACTURE}{item.value}" for item in enums.KeeperFXTrapName if world.options.KeeperFXTraps)
         if room == enums.KeeperRoomName.TEMPLE:
             region_list.extend(create_temple_locations(world))
         room_region.add_locations(get_location_names_with_ids(region_list), DungeonKeeperLocation)
