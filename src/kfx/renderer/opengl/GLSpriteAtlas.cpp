@@ -178,7 +178,7 @@ bool GLSpriteAtlas::alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const
             return true;
     }
 
-    compact();
+    compact(m_w, m_h);
 
     if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
         return true;
@@ -187,8 +187,9 @@ bool GLSpriteAtlas::alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const
 }
 
 // Caller already holds m_mutex.
-void GLSpriteAtlas::compact()
+void GLSpriteAtlas::compact(int32_t target_w, int32_t target_h)
 {
+    const int32_t src_pitch = m_w;
     struct Live { SpriteHandle handle; AtlasEntry entry; };
     std::vector<Live> live;
     live.reserve(m_entries.size());
@@ -208,6 +209,8 @@ void GLSpriteAtlas::compact()
 
     std::vector<uint8_t> old_pixels;
     old_pixels.swap(m_pixels);
+    m_w = target_w;
+    m_h = target_h;
     m_pixels.assign((size_t)m_w * m_h, 0u);
     m_entries.clear();
     m_cursor_x = 1; // reserve (0,0) as a safe fallback UV
@@ -228,7 +231,7 @@ void GLSpriteAtlas::compact()
         for (int row = 0; row < h; ++row)
         {
             std::memcpy(m_pixels.data() + (size_t)(y + row) * m_w + x,
-                        old_pixels.data() + (size_t)(item.entry.y + row) * m_w + item.entry.x,
+                        old_pixels.data() + (size_t)(item.entry.y + row) * src_pitch + item.entry.x,
                         (size_t)w);
         }
         AtlasEntry entry;
@@ -309,8 +312,7 @@ void GLSpriteAtlas::FlushPendingGL()
         {
             GLWARN("Interface sprite atlas could not grow; it makes room by dropping unused sprites instead.");
             m_grow_failed = true;
-            relayout(m_tex_w, m_tex_h);
-            compact();
+            compact(m_tex_w, m_tex_h); // repacks in-use sprites from the bigger layout into the texture's size
         }
         m_dirty_y_min = 0;
         m_dirty_y_max = m_h;

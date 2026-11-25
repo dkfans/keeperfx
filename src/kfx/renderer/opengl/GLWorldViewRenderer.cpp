@@ -1758,7 +1758,7 @@ bool GLWorldViewRenderer::grow_kspr_cache(int32_t layers)
     const int32_t old_layers = m_kspr_cache.Capacity();
     if (!m_resource_mapper->ReplaceTexture(m_kspr_sprite_array_handle, desc,
             [old_layers](const GLTexture& from, const GLTexture& to) {
-                GLResourceMapper::CopyArrayLayers(from, to, old_layers);
+                return GLResourceMapper::CopyArrayLayers(from, to, old_layers);
             }))
         return false;
     m_kspr_cache.SetCapacity(layers);

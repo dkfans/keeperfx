@@ -101,9 +101,10 @@ private:
      *  Caller already holds m_mutex. */
     bool relayout(int32_t new_w, int32_t new_h);
 
-    /** Repacks the live entries into a zeroed buffer, dropping the rest.
+    /** Repacks the live entries into a zeroed target_w x target_h buffer,
+     *  dropping the rest. Reads from the current layout, which may be larger.
      *  Caller already holds m_mutex. */
-    void compact();
+    void compact(int32_t target_w, int32_t target_h);
 
     /** Uploads the dirty region into the given (already-resolved) texture
      *  id. Caller already holds m_mutex. */

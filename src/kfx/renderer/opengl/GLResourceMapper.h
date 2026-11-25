@@ -37,13 +37,14 @@ public:
     /// @brief Render thread: makes a new texture from desc, lets copy fill it from
     /// the old one, then swaps it in under the same handle. The old texture is
     /// freed after this frame. Returns false and keeps the old texture if the
-    /// new one can't be created.
+    /// new one can't be created or copy returns false.
     bool ReplaceTexture(GpuResourceHandle handle, const GpuTextureDesc& desc,
-                        const std::function<void(const GLTexture& from, const GLTexture& to)>& copy);
+                        const std::function<bool(const GLTexture& from, const GLTexture& to)>& copy);
 
     /// @brief Copies the first `layers` layers of one array texture into another
-    /// of at least the same size, through two framebuffers. Render thread only.
-    static void CopyArrayLayers(const GLTexture& from, const GLTexture& to, int32_t layers);
+    /// of at least the same size, through two framebuffers. False if any layer
+    /// couldn't be copied. Render thread only.
+    static bool CopyArrayLayers(const GLTexture& from, const GLTexture& to, int32_t layers);
 
     /// @brief Logs once per handle that a draw was skipped because its resource is missing. Render thread only.
     void ReportSkippedDraw(GpuResourceHandle handle, const char* what);

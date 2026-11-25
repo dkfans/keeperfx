@@ -693,7 +693,7 @@ void GLResourceMapper::ProcessDeferredDestroys(uint64_t frame_being_rendered)
 }
 
 bool GLResourceMapper::ReplaceTexture(GpuResourceHandle handle, const GpuTextureDesc& desc,
-                                      const std::function<void(const GLTexture&, const GLTexture&)>& copy)
+                                      const std::function<bool(const GLTexture&, const GLTexture&)>& copy)
 {
     ASSERT_RENDER_THREAD();
     std::lock_guard<std::mutex> lock(m_mutex);
@@ -712,8 +712,13 @@ bool GLResourceMapper::ReplaceTexture(GpuResourceHandle handle, const GpuTexture
                std::max(1, (int)desc.array_layers));
         return false;
     }
-    if (copy)
-        copy(slot.realized, fresh);
+    if (copy && !copy(slot.realized, fresh))
+    {
+        DestroyTexture(fresh);
+        GLWARN("Could not copy '%s' into its grown texture; it keeps its current size.",
+               desc.debug_name ? desc.debug_name : "?");
+        return false;
+    }
 
     PendingDestroy pd;
     pd.handle = handle;
@@ -726,8 +731,10 @@ bool GLResourceMapper::ReplaceTexture(GpuResourceHandle handle, const GpuTexture
     return true;
 }
 
-void GLResourceMapper::CopyArrayLayers(const GLTexture& from, const GLTexture& to, int32_t layers)
+bool GLResourceMapper::CopyArrayLayers(const GLTexture& from, const GLTexture& to, int32_t layers)
 {
+    drain_earlier_gl_errors("texture layer copy");
+    bool ok = true;
     GLint prev_read = 0, prev_draw = 0;
     glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prev_read);
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prev_draw);
@@ -744,20 +751,20 @@ void GLResourceMapper::CopyArrayLayers(const GLTexture& from, const GLTexture& t
         if (layer == 0 && (glCheckFramebufferStatus(GL_READ_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE
                            || glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE))
         {
-            static bool s_logged = false;
-            if (!s_logged)
-                GLERR("Could not copy texture layers while growing; the grown texture starts empty and refills as it's used.");
-            s_logged = true;
+            ok = false;
             break;
         }
         glBlitFramebuffer(0, 0, from.width, from.height, 0, 0, from.width, from.height,
                           GL_COLOR_BUFFER_BIT, GL_NEAREST);
     }
+    if (ok && glGetError() != GL_NO_ERROR)
+        ok = false;
     if (scissor)
         glEnable(GL_SCISSOR_TEST);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, (GLuint)prev_read);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, (GLuint)prev_draw);
     glDeleteFramebuffers(2, fbos);
+    return ok;
 }
 
 bool GLResourceMapper::IsReleasePending(GpuResourceHandle handle) const

@@ -105,7 +105,7 @@ void GLTileAtlas::EnsureSets(uint32_t set_mask)
             const int32_t next = AtlasNextCapacity(m_layer_capacity, m_layer_count + 1, TEXTURE_VARIATIONS_COUNT);
             const int32_t old = m_layer_capacity;
             if (next <= old || !m_resource_mapper->ReplaceTexture(m_texture_handle, make_desc(next),
-                    [old](const GLTexture& from, const GLTexture& to) { GLResourceMapper::CopyArrayLayers(from, to, old); }))
+                    [old](const GLTexture& from, const GLTexture& to) { return GLResourceMapper::CopyArrayLayers(from, to, old); }))
             {
                 m_grow_failed = true; // logged once by ReplaceTexture; extra sets draw black
                 break;
