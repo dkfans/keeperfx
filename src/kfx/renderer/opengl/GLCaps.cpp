@@ -32,6 +32,14 @@ std::string GLCaps_CheckHard(const GLCaps& caps)
     return std::string();
 }
 
+int32_t AtlasNextCapacity(int32_t current, int32_t needed, int32_t limit)
+{
+    int32_t next = std::max<int32_t>(current, 1);
+    while (next < needed && next < limit)
+        next = (next > limit / 2) ? limit : next * 2;
+    return std::min(next, limit);
+}
+
 void GLCaps_ApplyLow(GLCaps& caps)
 {
     caps.max_texture_size = std::min<int32_t>(caps.max_texture_size, 2048);

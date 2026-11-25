@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "kfx/renderer/opengl/GLLog.h"
+#include "kfx/renderer/opengl/GLCaps.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -44,16 +45,12 @@ bool GLTileAtlas::Init()
         return false;
 
     for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
-    {
-        BuildVariation(v);
-        m_built_generation[v] = texture_set_generation(v);
-    }
+        m_set_layer[v] = -1;
+    m_layer_count = 0;
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
     m_initialized = true;
-    SYNCLOG("GLTileAtlas: loaded %d variations (%d×%d×%d R8 texture array)",
-            TEXTURE_VARIATIONS_COUNT, k_atlas_w, k_atlas_h, TEXTURE_VARIATIONS_COUNT);
     return true;
 }
 
@@ -67,16 +64,8 @@ bool GLTileAtlas::CreateTexture()
         return false;
     }
 
-    GpuTextureDesc desc;
-    desc.width = k_atlas_w;
-    desc.height = k_atlas_h;
-    desc.array_layers = TEXTURE_VARIATIONS_COUNT;
-    desc.format = GpuTextureFormat::R8;
-    desc.min_filter = GpuTextureFilter::Nearest;
-    desc.mag_filter = GpuTextureFilter::Nearest;
-    desc.wrap = GpuTextureWrap::Clamp;
-    desc.debug_name = "tile_atlas_array";
-    m_texture_handle = m_resource_mapper->RequestCreateTexture(desc);
+    m_layer_capacity = 2;
+    m_texture_handle = m_resource_mapper->RequestCreateTexture(make_desc(m_layer_capacity));
     if (m_resource_mapper->ResolveTexture(m_texture_handle) == nullptr)
     {
         GLERR("Could not create the tile atlas. Switching to software.");
@@ -86,6 +75,63 @@ bool GLTileAtlas::CreateTexture()
     return true;
 }
 
+GpuTextureDesc GLTileAtlas::make_desc(int32_t layers) const
+{
+    GpuTextureDesc desc;
+    desc.width = k_atlas_w;
+    desc.height = k_atlas_h;
+    desc.array_layers = layers;
+    desc.format = GpuTextureFormat::R8;
+    desc.min_filter = GpuTextureFilter::Nearest;
+    desc.mag_filter = GpuTextureFilter::Nearest;
+    desc.wrap = GpuTextureWrap::Clamp;
+    desc.debug_name = "tile_atlas_array";
+    return desc;
+}
+
+void GLTileAtlas::EnsureSets(uint32_t set_mask)
+{
+    if (!m_initialized || m_resource_mapper == nullptr || block_ptrs[0] == nullptr)
+        return;
+    bool any = false;
+    for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
+    {
+        if (!(set_mask & (1u << v)) || m_set_layer[v] >= 0)
+            continue;
+        if (m_layer_count == m_layer_capacity)
+        {
+            if (m_grow_failed)
+                break;
+            const int32_t next = AtlasNextCapacity(m_layer_capacity, m_layer_count + 1, TEXTURE_VARIATIONS_COUNT);
+            const int32_t old = m_layer_capacity;
+            if (next <= old || !m_resource_mapper->ReplaceTexture(m_texture_handle, make_desc(next),
+                    [old](const GLTexture& from, const GLTexture& to) { return GLResourceMapper::CopyArrayLayers(from, to, old); }))
+            {
+                m_grow_failed = true; // logged once by ReplaceTexture; extra sets draw black
+                break;
+            }
+            m_layer_capacity = next;
+        }
+        m_set_layer[v] = m_layer_count++;
+        if (m_layer_count > m_layer_peak)
+            m_layer_peak = m_layer_count;
+        BuildVariation(v);
+        m_built_generation[v] = texture_set_generation(v);
+        any = true;
+    }
+    if (any)
+        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
+void GLTileAtlas::ResetSets()
+{
+    if (m_layer_count > 0)
+        GLLOG("Tile sets: %d of %d layers used (peak %d).", (int)m_layer_count, (int)m_layer_capacity, (int)m_layer_peak);
+    for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
+        m_set_layer[v] = -1;
+    m_layer_count = 0;
+}
+
 void GLTileAtlas::Free()
 {
     if (m_r8_scratch)
@@ -93,7 +139,7 @@ void GLTileAtlas::Free()
         free(m_r8_scratch);
         m_r8_scratch = nullptr;
     }
-    
+    ResetSets(); // logs the layers used, as at level end
     m_initialized = false;
 }
 
@@ -103,6 +149,8 @@ void GLTileAtlas::RebuildChanged()
     bool any = false;
     for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
     {
+        if (m_set_layer[v] < 0)
+            continue;
         const uint32_t gen = texture_set_generation(v);
         if (gen == m_built_generation[v])
             continue;
@@ -118,7 +166,8 @@ void GLTileAtlas::UpdateAnimatedTiles()
 {
     if (!m_initialized) return;
     for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
-        BuildAnimatedStrip(v);
+        if (m_set_layer[v] >= 0)
+            BuildAnimatedStrip(v);
 }
 
 GpuResourceHandle GLTileAtlas::GetAtlasTextureArray() const
@@ -201,11 +250,11 @@ void GLTileAtlas::UploadFull(int variation)
 {
     if (m_resource_mapper == nullptr) return;
     const GLTexture* const tex = m_resource_mapper->ResolveTexture(m_texture_handle);
-    if (tex == nullptr) return;
+    if (tex == nullptr || m_set_layer[variation] < 0) return;
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, tex->id);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
-                    0, 0, variation,
+                    0, 0, m_set_layer[variation],
                     k_atlas_w, k_atlas_h, 1,
                     GL_RED, GL_UNSIGNED_BYTE,
                     m_r8_scratch);
@@ -215,11 +264,11 @@ void GLTileAtlas::UploadAnimatedStrip(int variation, int y_offset, int h_pixels)
 {
     if (m_resource_mapper == nullptr) return;
     const GLTexture* const tex = m_resource_mapper->ResolveTexture(m_texture_handle);
-    if (tex == nullptr) return;
+    if (tex == nullptr || m_set_layer[variation] < 0) return;
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, tex->id);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
-                    0, y_offset, variation,
+                    0, y_offset, m_set_layer[variation],
                     k_atlas_w, h_pixels, 1,
                     GL_RED, GL_UNSIGNED_BYTE,
                     m_r8_scratch);

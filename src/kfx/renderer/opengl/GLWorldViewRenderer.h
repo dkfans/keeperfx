@@ -13,6 +13,7 @@
 #include "kfx/renderer/ir/IRCommandBuffer.h"
 #include "kfx/renderer/GpuResourceHandle.h"
 #include "kfx/renderer/PaletteTransform.h"
+#include "kfx/renderer/opengl/SpriteCacheLayers.h"
 
 class GLResourceMapper;
 
@@ -23,7 +24,7 @@ class GLResourceMapper;
 struct PolyPoint;
 struct BucketKindTexturedQuad;
 struct BucketKindCreatureShadow;
-class ITileAtlas;
+class GLTileAtlas;
 
 /******************************************************************************/
 
@@ -35,7 +36,6 @@ public:
         enum Type {
             CMD_TILES,
             CMD_IR_KEEPER_SPRITES,
-            CMD_PRELOAD_KSPR_ATLAS,
             CMD_CLEAR_KSPR_ATLAS,
             CMD_UPDATE_ANIMATED_TILES,
         } type;
@@ -55,6 +55,7 @@ public:
         float    alpha;     // 1.0 / transpar4 / transpar8
         float    z_ndc;     // pre-computed NDC depth
         uint32_t flags;     // bit0 = flip_h, bit1 = glow, bit2 = darken pass
+        float    origin[2]; // sprite's top-left texel in its cache layer
     };
 
     /** Consecutive instances drawn with one blend: added, or subtracted for the darken pass. */
@@ -71,6 +72,7 @@ public:
         float z_ndc;        // sprite z + outline bias
         float flip;         // 0/1
         float color[4];     // owner colour + outline alpha
+        float origin[2];    // sprite's top-left texel in its cache layer
     };
 
     /** One creature-shadow quad captured at DrawIsometricView() time */
@@ -88,7 +90,7 @@ public:
 
     /** Tile atlas providing GL texture handles. Owned externally
      *  (RendererOpenGL); must outlive this. */
-    void SetAtlas(ITileAtlas* atlas) { m_atlas = atlas; }
+    void SetAtlas(GLTileAtlas* atlas) { m_atlas = atlas; }
     /** Re-upload the animated tile rows of the tile atlas. Queued as a
      *  render-thread command, same shape as ClearKeeperSpriteAtlas() below --
      *  call before drawing, after update_animating_texture_maps() reports changes. */
@@ -162,9 +164,8 @@ public:
     /** Clear the keeper-sprite atlas + CLUT caches (called between levels). */
     void ClearKeeperSpriteAtlas() override;
 
-    /** Queue a bulk decode+upload of every currently-RAM-resident keeper
-     *  sprite into the atlas, executed on the render thread. */
-    void PreloadKeeperSpriteAtlas() override;
+    /** Largest the creature sprite cache may grow: min(driver layers, budget). Before CompileShaders(). */
+    void SetKeeperSpriteCacheLimits(int32_t max_layers, int32_t budget_layers);
 
     // ── Possession lens  ─────────────────────────────────────────────
 
@@ -224,23 +225,25 @@ private:
     bool init_keeper_sprite_instancing();
     void free_keeper_sprite_resources();  // called from free_gl_resources()
 
-    /** Render-thread: bulk decode+upload of every currently-RAM-resident
-     *  keeper sprite, capped at k_kspr_atlas_preload_max. */
-    void execute_preload_atlas();
 
     void execute_clear_atlas();
+    void log_kspr_cache_stats();
 
     /** Rebuild CLUT row 0 (identity) when the palette has changed since the
      *  last check; invalidates every cached remap row (they bake in RGB
      *  values from the old palette). Called at the top of gpu_execute_passes(). */
     void ensure_clut_valid();
 
-    /** Look up (or decode + upload) the atlas layer for a sprite. Keyed by
-     *  @p sprite_id (stable across sprite-heap reload, unlike a raw data
-     *  pointer -- see the .cpp file header). Returns -1 when the atlas is
-     *  absent/full or sprite_id is unknown (< 0). */
-    int resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h,
-                            bool* darkens = nullptr);
+    /** Where a cached creature sprite frame lives. */
+    struct KsprCacheRef { int32_t layer; int32_t x, y; bool darkens; };
+
+    /** Finds a sprite frame in the cache, or decodes and packs it, growing or
+     *  evicting as needed. Keyed by @p sprite_id (stable across sprite-heap
+     *  reload). False means use the per-sprite path. */
+    bool resolve_kspr_cache(int32_t sprite_id, const unsigned char* data, int src_w, int src_h,
+                            KsprCacheRef* out);
+    /** Grows the cache texture to @p layers, keeping what's packed. */
+    bool grow_kspr_cache(int32_t layers);
     void push_keeper_sprite_instance(const KsprInstance& inst, bool darken);
 
     /** Look up (or lazily build) the CLUT row for a remap table. Returns the
@@ -272,7 +275,8 @@ private:
     GLuint ResolveFadeTexId() const;
 
     // Injected resources (not owned)
-    ITileAtlas* m_atlas       = nullptr;
+    GLTileAtlas* m_atlas      = nullptr;
+    uint32_t     m_rt_used_sets = 0;  // tile sets this frame draws (render thread)
     GLResourceMapper* m_resource_mapper = nullptr;
     GpuResourceHandle m_fade_tex_handle    = kInvalidGpuResource;
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
@@ -376,6 +380,7 @@ private:
     GLint  m_kspr_atlas_outline_loc_z_ndc    = -1;
     GLint  m_kspr_atlas_outline_loc_color    = -1;
     GLint  m_kspr_atlas_outline_loc_layer    = -1;
+    GLint  m_kspr_atlas_outline_loc_origin   = -1;
 
     GpuResourceHandle m_kspr_edge_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_edge_loc_viewport     = -1;
@@ -390,12 +395,14 @@ private:
     GLint  m_kspr_atlas_edge_loc_z_ndc    = -1;
     GLint  m_kspr_atlas_edge_loc_color    = -1;
     GLint  m_kspr_atlas_edge_loc_layer    = -1;
+    GLint  m_kspr_atlas_edge_loc_origin   = -1;
 
-    // Sprite decode atlas: GL_TEXTURE_2D_ARRAY where each layer holds one
-    // pre-decoded sprite (populated on first use, persists for the level).
-    // Fallback to m_kspr_sprite_tex_handle when atlas is full/absent/unsupported.
-    static const int k_kspr_atlas_layers = 2048;       // 2048x256x256 GL_RG8 = 256 MB
-    static const int k_kspr_atlas_preload_max = k_kspr_atlas_layers / 2;
+    // Creature sprite cache: GL_TEXTURE_2D_ARRAY, frames shelf-packed into layers
+    // on first use, grown and evicted by whole layer (see SpriteCacheLayers).
+    // Fallback to m_kspr_sprite_tex_handle when the cache is absent or has no room.
+    static constexpr int32_t k_kspr_layer_dim = 1024;    // RG8 layer, 2 MiB
+    static constexpr int32_t k_kspr_start_layers = 16;   // 32 MiB
+    static constexpr int32_t k_kspr_budget_layers = 128; // 256 MiB, the old fixed size
     GpuResourceHandle m_kspr_sprite_array_handle = kInvalidGpuResource;
     GpuResourceHandle m_kspr_atlas_shader_handle = kInvalidGpuResource;  // sampler2DArray variant
     GLint  m_kspr_atlas_loc_viewport = -1;
@@ -404,6 +411,8 @@ private:
     GLint  m_kspr_atlas_loc_alpha    = -1;
     GLint  m_kspr_atlas_loc_z_ndc    = -1;
     GLint  m_kspr_atlas_loc_layer    = -1;
+    GLint  m_loc_set_layer           = -1;
+    GLint  m_kspr_atlas_loc_origin   = -1;
     GLint  m_kspr_atlas_loc_clut_v   = -1;
 
     // Additive-glow variant of the atlas shader
@@ -412,16 +421,17 @@ private:
     GLint  m_kspr_atlas_glow_loc_sprite   = -1;
     GLint  m_kspr_atlas_glow_loc_z_ndc    = -1;
     GLint  m_kspr_atlas_glow_loc_layer    = -1;
+    GLint  m_kspr_atlas_glow_loc_origin   = -1;
     GLint  m_kspr_atlas_glow_loc_palette_xform = -1;
     GLint  m_kspr_atlas_glow_loc_darken = -1;
 
-    int    m_kspr_atlas_used    = 0;  // next free layer index
-    int    m_kspr_atlas_peak    = 0;  // high-water mark (diagnostic only)
-    int    m_kspr_atlas_hits    = 0;  // cache hits this frame (diagnostic only)
-    int    m_kspr_atlas_misses  = 0;  // cache misses this frame (diagnostic only)
-    struct AtlasEntry { int layer; int src_w; bool darkens; };
-
-    std::unordered_map<int32_t, AtlasEntry> m_kspr_atlas_map;
+    SpriteCacheLayers m_kspr_cache{ k_kspr_layer_dim, 1 };
+    int32_t  m_kspr_max_layers = k_kspr_budget_layers;
+    uint32_t m_kspr_grows = 0;
+    uint64_t m_kspr_hits = 0;
+    uint64_t m_kspr_misses = 0;
+    uint64_t m_kspr_frame = 0;        // render frames drawn; eviction never picks a layer used this frame
+    bool     m_kspr_full_logged = false;
 
     static const int k_clut_rows = 128;
     GpuResourceHandle m_kspr_clut_tex_handle = kInvalidGpuResource;

@@ -36,6 +36,10 @@ struct GLCaps {
  *  to show in a dialog. */
 std::string GLCaps_CheckHard(const GLCaps& caps);
 
+/** Smallest doubling of current that holds needed, capped at limit. A result
+ *  below needed means the limit is reached. */
+int32_t AtlasNextCapacity(int32_t current, int32_t needed, int32_t limit);
+
 /** Lowers the limits for -glcaps low. Never raises one. */
 void GLCaps_ApplyLow(GLCaps& caps);
 
