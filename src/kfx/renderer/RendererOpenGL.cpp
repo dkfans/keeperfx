@@ -133,6 +133,8 @@ struct RendererOpenGL::Impl {
     GpuResourceHandle screen_rt_handle = kInvalidGpuResource;
     int32_t           screen_rt_w = 0;
     int32_t           screen_rt_h = 0;
+    int32_t           warned_screen_w = 0; // last size reported as over the driver limit
+    int32_t           warned_screen_h = 0;
 
     void EnsureScreenTarget(int32_t w, int32_t h);
     void BindScreenTarget(const GLFrameData& fd);
@@ -146,6 +148,14 @@ void RendererOpenGL::Impl::EnsureScreenTarget(int32_t w, int32_t h)
         return;
     if (screen_rt_handle != kInvalidGpuResource && screen_rt_w == w && screen_rt_h == h)
         return;
+    const int32_t limit = GLCaps_MaxScreenSide(caps);
+    if ((w > limit || h > limit) && (w != warned_screen_w || h != warned_screen_h))
+    {
+        GLERR("The chosen resolution %dx%d is larger than this graphics driver can draw (limit %d); "
+              "the picture may be cut off. Choose a smaller resolution.", (int)w, (int)h, (int)limit);
+        warned_screen_w = w;
+        warned_screen_h = h;
+    }
     GpuRenderTargetDesc desc;
     desc.width = w;
     desc.height = h;
@@ -154,6 +164,7 @@ void RendererOpenGL::Impl::EnsureScreenTarget(int32_t w, int32_t h)
         { GpuTextureFormat::Depth24Stencil8, true },
     };
     desc.debug_name = "screen";
+    desc.screen_sized = true;
     if (screen_rt_handle == kInvalidGpuResource)
         screen_rt_handle = resource_mapper.RequestCreateRenderTarget(desc);
     else
@@ -390,6 +401,19 @@ void RendererOpenGL::render_thread_init()
         GLERR("OpenGL could not start: %s. Switching to the software renderer. (GL_VERSION \"%s\", max texture %d, layers %d)",
               hard.c_str(), caps.version.c_str(), (int)caps.max_texture_size, (int)caps.max_array_layers);
         fail_init(hard.c_str());
+        return;
+    }
+
+    const int32_t screen_w = (int32_t)RendererPhysicalWidth();
+    const int32_t screen_h = (int32_t)lbDisplay.PhysicalScreenHeight;
+    const int32_t max_side = GLCaps_MaxScreenSide(caps);
+    if (screen_w > max_side || screen_h > max_side)
+    {
+        char reason[160];
+        snprintf(reason, sizeof(reason), "the screen is larger than this graphics driver can draw (%dx%d, limit %d)",
+                 (int)screen_w, (int)screen_h, (int)max_side);
+        GLERR("OpenGL could not start: %s. Switching to the software renderer.", reason);
+        fail_init(reason);
         return;
     }
 
@@ -791,6 +815,7 @@ void RendererOpenGL::render_thread_cleanup()
 {
     if (m_impl->functions_loaded)
     {
+        m_impl->world.LogMemorySummary();
         m_impl->resource_mapper.ShutdownAll();
         m_impl->ui.Shutdown();
         m_impl->atlas.Free();
@@ -1011,6 +1036,17 @@ void RendererOpenGL::SubmitMapFadeStep(bool starting, float display_step, float 
 {
     if (m_impl == nullptr) return;
     m_impl->mapfade.SubmitStep(starting, display_step, warp_scale, ghost_table);
+}
+
+void RendererOpenGL::EndMapFade()
+{
+    if (m_impl != nullptr)
+        m_impl->mapfade.EndFade();
+}
+
+bool RendererOpenGL::MapFadeUnavailable() const
+{
+    return m_impl != nullptr && m_impl->mapfade.Unavailable();
 }
 
 void RendererOpenGL::BeginOverlayCapture(OverlayCaptureKind kind)

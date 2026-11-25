@@ -7,6 +7,7 @@
 #include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/profiling/KfxProfiling.h"
 #include <algorithm>
+#include <cstdio>
 #include <cstring>
 #include <vector>
 #include "post_inc.h"
@@ -121,20 +122,21 @@ bool GLKeeperSpriteCache::grow(int32_t layers)
     return true;
 }
 
-// Logged when a level ends and when the game closes.
-void GLKeeperSpriteCache::log_stats() const
+std::string GLKeeperSpriteCache::Summary() const
 {
     const uint64_t lookups = m_hits + m_misses;
-    if (lookups > 0)
-        GLLOG("Creature sprite cache: %d of %d layers used (peak %d), %u grows, %u evictions, %.1f%% hits.",
-              (int)m_layers.UsedLayers(), (int)m_layers.Capacity(), (int)m_layers.PeakLayers(),
-              (unsigned)m_grows, (unsigned)m_layers.Evictions(),
-              100.0 * (double)m_hits / (double)lookups);
+    if (lookups == 0)
+        return "Creature cache unused.";
+    char buf[160];
+    snprintf(buf, sizeof(buf), "Creature cache %d of %d layers (peak %d), %u grows, %u evictions, %.1f%% hits.",
+             (int)m_layers.UsedLayers(), (int)m_layers.Capacity(), (int)m_layers.PeakLayers(),
+             (unsigned)m_grows, (unsigned)m_layers.Evictions(),
+             100.0 * (double)m_hits / (double)lookups);
+    return buf;
 }
 
 void GLKeeperSpriteCache::Clear()
 {
-    log_stats();
     m_layers.Clear();
     m_hits = 0;
     m_misses = 0;

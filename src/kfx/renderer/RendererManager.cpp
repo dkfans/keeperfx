@@ -558,6 +558,17 @@ void RendererSubmitMapFadeStep(TbBool starting, float display_step, float warp_s
         s_active_renderer->SubmitMapFadeStep(starting != 0, display_step, warp_scale, ghost_table);
 }
 
+void RendererEndMapFade(void)
+{
+    if (s_active_renderer != nullptr)
+        s_active_renderer->EndMapFade();
+}
+
+TbBool RendererMapFadeUnavailable(void)
+{
+    return (s_active_renderer != nullptr && s_active_renderer->MapFadeUnavailable()) ? 1 : 0;
+}
+
 void RendererBeginOverlayCapture(OverlayCaptureKind kind)
 {
     if (s_active_renderer != nullptr)

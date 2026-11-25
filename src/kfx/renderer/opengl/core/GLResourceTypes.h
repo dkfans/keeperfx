@@ -12,6 +12,8 @@ struct GLTexture
     int32_t width        = 0;
     int32_t height       = 0;
     int32_t array_layers = 1;
+    uint64_t gpu_bytes   = 0;
+    bool screen_sized    = false;
 };
 
 /// A realized framebuffer with N attachments.
@@ -22,6 +24,8 @@ struct GLRenderTarget
     GLuint depth_stencil_attachment = 0; ///< Zero means none.
     int32_t width  = 0;
     int32_t height = 0;
+    uint64_t gpu_bytes = 0; ///< All attachments together.
+    bool screen_sized  = false;
 };
 
 /// A realized linked program.
@@ -38,6 +42,7 @@ struct GLGeometryBuffer
     GLuint ebo = 0; ///< Zero means no index buffer.
     size_t vertex_capacity = 0;
     size_t index_capacity  = 0;
+    uint64_t gpu_bytes     = 0; ///< At creation; later per-frame resizes aren't tracked.
 };
 
 #endif // RENDERER_OPENGL_GLRESOURCETYPES_H

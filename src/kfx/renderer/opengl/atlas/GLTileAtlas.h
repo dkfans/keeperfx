@@ -23,6 +23,7 @@
 #include "kfx/renderer/GpuResourceHandle.h"
 #include "engine_textures.h"
 #include "kfx/renderer/GpuResourceDesc.h"
+#include <string>
 
 class GLResourceMapper;
 
@@ -47,8 +48,10 @@ public:
     /** Gives every set in set_mask a layer, growing the texture as needed, and
      *  builds it. Render thread, before tiles are drawn. */
     void              EnsureSets(uint32_t set_mask);
-    /** Forgets which set has which layer (level change). Logs how many were used. */
+    /** Forgets which set has which layer (level change). */
     void              ResetSets();
+    /** One sentence with the layers used, for the video memory line. */
+    std::string       Summary() const;
     /** Layer of each set, -1 for none. TEXTURE_VARIATIONS_COUNT entries. */
     const int32_t*    SetLayerTable() const { return m_set_layer; }
     int32_t           LayerOf(int variation) const { return m_set_layer[variation]; }

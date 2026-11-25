@@ -83,6 +83,7 @@ const Realized* GLResourceMapper::RealizePending(Slot<Desc, Realized>& slot, Gpu
         DeferPreviousDestroy(slot, handle, snapshot);
         slot.realized = fresh;
         slot.state = SlotState::Realized;
+        account(slot.realized, true);
         return &slot.realized;
     }
     // Callers already sized their draws for the new object, so the old one is
@@ -712,6 +713,7 @@ bool GLResourceMapper::ReplaceTexture(GpuResourceHandle handle, const GpuTexture
                std::max(1, (int)desc.array_layers));
         return false;
     }
+    account(fresh, true);
     if (copy && !copy(slot.realized, fresh))
     {
         DestroyTexture(fresh);
@@ -933,6 +935,8 @@ bool GLResourceMapper::RealizeTexture(const GpuTextureDesc& desc, GLTexture& out
     out.width = desc.width;
     out.height = desc.height;
     out.array_layers = desc.array_layers;
+    out.gpu_bytes = TextureBytes(desc);
+    out.screen_sized = desc.screen_sized;
 
     return true;
 }
@@ -956,6 +960,7 @@ bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRe
     std::vector<GLuint> color_attachments;
     GLuint depth_stencil = 0;
     std::vector<GLenum> color_attachment_enums;
+    uint64_t gpu_bytes = 0;
 
     for (size_t i = 0; i < desc.attachments.size(); ++i)
     {
@@ -971,6 +976,7 @@ bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRe
         tex_desc.debug_name = desc.debug_name;
 
         GLTexture att_tex;
+        gpu_bytes += TextureBytes(tex_desc);
         if (!RealizeTexture(tex_desc, att_tex))
         {
             glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prev_fbo);
@@ -1024,6 +1030,8 @@ bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRe
     out.depth_stencil_attachment = depth_stencil;
     out.width = desc.width;
     out.height = desc.height;
+    out.gpu_bytes = gpu_bytes;
+    out.screen_sized = desc.screen_sized;
 
     return true;
 }
@@ -1170,6 +1178,7 @@ bool GLResourceMapper::RealizeGeometryBuffer(const GpuGeometryBufferDesc& desc, 
     out.ebo = ebo;
     out.vertex_capacity = desc.initial_vertex_capacity;
     out.index_capacity = desc.initial_index_capacity;
+    out.gpu_bytes = (uint64_t)desc.initial_vertex_capacity + (uint64_t)desc.initial_index_capacity;
 
     return true;
 }
@@ -1178,6 +1187,7 @@ void GLResourceMapper::DestroyTexture(GLTexture& texture)
 {
     if (texture.id != 0)
     {
+        account(texture, false);
         glDeleteTextures(1, &texture.id);
         texture.id = 0;
     }
@@ -1185,6 +1195,8 @@ void GLResourceMapper::DestroyTexture(GLTexture& texture)
 
 void GLResourceMapper::DestroyRenderTarget(GLRenderTarget& target)
 {
+    if (target.fbo != 0)
+        account(target, false);
     for (GLuint color_tex : target.color_attachments)
     {
         glDeleteTextures(1, &color_tex);
@@ -1214,6 +1226,8 @@ void GLResourceMapper::DestroyProgram(GLProgram& program)
 void GLResourceMapper::DestroyGeometryBuffer(GLGeometryBuffer& buffer)
 {
     if (buffer.vao != 0)
+        account(buffer, false);
+    if (buffer.vao != 0)
     {
         glDeleteVertexArrays(1, &buffer.vao);
         buffer.vao = 0;
@@ -1230,4 +1244,50 @@ void GLResourceMapper::DestroyGeometryBuffer(GLGeometryBuffer& buffer)
     }
     buffer.vertex_capacity = 0;
     buffer.index_capacity = 0;
+}
+
+static void add_or_subtract(uint64_t& total, uint64_t bytes, bool add)
+{
+    if (add)
+        total += bytes;
+    else
+        total -= std::min(total, bytes);
+}
+
+void GLResourceMapper::account(const GLTexture& texture, bool add)
+{
+    add_or_subtract(texture.screen_sized ? m_usage.screen_bytes : m_usage.asset_bytes, texture.gpu_bytes, add);
+}
+
+void GLResourceMapper::account(const GLRenderTarget& target, bool add)
+{
+    add_or_subtract(target.screen_sized ? m_usage.screen_bytes : m_usage.asset_bytes, target.gpu_bytes, add);
+}
+
+void GLResourceMapper::account(const GLGeometryBuffer& buffer, bool add)
+{
+    add_or_subtract(m_usage.buffer_bytes, buffer.gpu_bytes, add);
+}
+
+GLMemoryUsage GLResourceMapper::GetMemoryUsage()
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_usage;
+}
+
+uint64_t GLResourceMapper::TextureBytes(const GpuTextureDesc& desc)
+{
+    uint64_t per_pixel = 4;
+    switch (desc.format)
+    {
+        case GpuTextureFormat::R8:              per_pixel = 1; break;
+        case GpuTextureFormat::RG8:             per_pixel = 2; break;
+        case GpuTextureFormat::R16UI:           per_pixel = 2; break;
+        case GpuTextureFormat::RGBA8:           per_pixel = 4; break;
+        case GpuTextureFormat::RG16UI:          per_pixel = 4; break;
+        case GpuTextureFormat::Depth24Stencil8: per_pixel = 4; break;
+        case GpuTextureFormat::RGBA16F:         per_pixel = 8; break;
+    }
+    const uint64_t layers = (uint64_t)std::max<int32_t>(1, desc.array_layers);
+    return (uint64_t)std::max<int32_t>(0, desc.width) * (uint64_t)std::max<int32_t>(0, desc.height) * layers * per_pixel;
 }

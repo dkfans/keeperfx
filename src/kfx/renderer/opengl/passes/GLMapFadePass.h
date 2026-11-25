@@ -17,6 +17,7 @@
 #include "kfx/renderer/opengl/core/GLFunctions.h"
 #include "kfx/renderer/ir/WorldCommands.h"  // IRMapFadeCmd
 #include "kfx/renderer/GpuResourceHandle.h"
+#include <atomic>
 
 class GLResourceMapper;
 
@@ -54,6 +55,12 @@ public:
 
     void FlipBuffers();
 
+    /** Game thread: the fade is over; its targets are freed at the next flip. */
+    void EndFade() { m_end_requested = true; }
+
+    /** Any thread: the targets couldn't be made for this fade. */
+    bool Unavailable() const { return m_unavailable.load(std::memory_order_relaxed); }
+
 
     bool IsActiveRT() const { return m_rt_cmd.active; }
     bool IsCapturePendingRT() const { return m_rt_cmd.active && m_rt_cmd.capture_pending; }
@@ -75,6 +82,9 @@ private:
 
     void EnsureCaptureResources(int w, int h);
 
+    /** Game thread: frees the two screen-sized targets once a fade ends. */
+    void release_capture_resources();
+
     IRMapFadeCmd m_cmd;         // GT: written by SubmitStep(); reset after FlipBuffers()
     IRMapFadeCmd m_rt_cmd;      // RT: stable copy after FlipBuffers()
 
@@ -92,6 +102,9 @@ private:
     GpuResourceHandle m_fade_table_tex_handle = kInvalidGpuResource;
     GpuResourceHandle m_palette_index_tex_handle = kInvalidGpuResource;
     int    m_capture_gt_w = 0, m_capture_gt_h = 0;
+    bool   m_fail_logged = false;  // RT: one warning per fade
+    bool   m_end_requested = false; // GT
+    std::atomic<bool> m_unavailable{false};
 };
 
 /******************************************************************************/

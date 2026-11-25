@@ -11,6 +11,7 @@
 #include "kfx/renderer/GpuResourceHandle.h"
 #include "kfx/renderer/opengl/atlas/SpriteCacheLayers.h"
 #include <cstdint>
+#include <string>
 
 class GLResourceMapper;
 
@@ -37,8 +38,11 @@ public:
     /** Starts a render frame; layers used in it are never evicted. */
     void BeginFrame() { ++m_frame; }
 
-    /** Logs this level's numbers and empties the cache (the texture keeps its size). */
+    /** Empties the cache; the texture keeps its size. */
     void Clear();
+
+    /** One sentence with this level's numbers, for the video memory line. */
+    std::string Summary() const;
 
 private:
     GLResourceMapper* m_mapper = nullptr;
@@ -52,7 +56,6 @@ private:
     bool     m_full_logged = false;
 
     bool grow(int32_t layers);
-    void log_stats() const;
 };
 
 #endif

@@ -12,6 +12,7 @@
 #include "engine_textures.h"   // TEXTURE_VARIATIONS_COUNT
 #include "bflib_basics.h"      // SYNCLOG / ERRORLOG
 
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include "kfx/renderer/opengl/core/GLLog.h"
@@ -123,10 +124,16 @@ void GLTileAtlas::EnsureSets(uint32_t set_mask)
         glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
+std::string GLTileAtlas::Summary() const
+{
+    char buf[96];
+    snprintf(buf, sizeof(buf), "Tile sets %d of %d layers (peak %d).",
+             (int)m_layer_count, (int)m_layer_capacity, (int)m_layer_peak);
+    return buf;
+}
+
 void GLTileAtlas::ResetSets()
 {
-    if (m_layer_count > 0)
-        GLLOG("Tile sets: %d of %d layers used (peak %d).", (int)m_layer_count, (int)m_layer_capacity, (int)m_layer_peak);
     for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
         m_set_layer[v] = -1;
     m_layer_count = 0;
@@ -139,7 +146,7 @@ void GLTileAtlas::Free()
         free(m_r8_scratch);
         m_r8_scratch = nullptr;
     }
-    ResetSets(); // logs the layers used, as at level end
+    ResetSets();
     m_initialized = false;
 }
 

@@ -40,6 +40,12 @@ int32_t AtlasNextCapacity(int32_t current, int32_t needed, int32_t limit)
     return std::min(next, limit);
 }
 
+int32_t GLCaps_MaxScreenSide(const GLCaps& caps)
+{
+    return std::min({ caps.max_texture_size, caps.max_renderbuffer_size,
+                      caps.max_viewport_w, caps.max_viewport_h });
+}
+
 void GLCaps_ApplyLow(GLCaps& caps)
 {
     caps.max_texture_size = std::min<int32_t>(caps.max_texture_size, 2048);
