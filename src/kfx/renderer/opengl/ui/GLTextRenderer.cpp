@@ -1,7 +1,7 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLTextRenderer.h"
-#include "kfx/renderer/opengl/GLUIRenderer.h"
-#include "kfx/renderer/opengl/GLFunctions.h" // glScissor/GL_SCISSOR_TEST
+#include "kfx/renderer/opengl/ui/GLTextRenderer.h"
+#include "kfx/renderer/opengl/ui/GLUIRenderer.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h" // glScissor/GL_SCISSOR_TEST
 #ifdef DrawState
 #undef DrawState // winuser.h's DrawState[AW] macro, pulled in transitively via SDL3/SDL_opengl.h -> windows.h; collides with this file's own DrawState struct
 #endif

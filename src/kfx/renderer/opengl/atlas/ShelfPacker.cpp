@@ -1,5 +1,5 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/ShelfPacker.h"
+#include "kfx/renderer/opengl/atlas/ShelfPacker.h"
 #include "post_inc.h"
 
 ShelfPacker::ShelfPacker(int32_t width, int32_t height, int32_t margin)

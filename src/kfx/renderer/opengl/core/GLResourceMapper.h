@@ -2,7 +2,7 @@
 #define RENDERER_OPENGL_GLRESOURCEMAPPER_H
 
 #include "kfx/renderer/IGpuResourceMapper.h"
-#include "kfx/renderer/opengl/GLResourceTypes.h"
+#include "kfx/renderer/opengl/core/GLResourceTypes.h"
 #include <functional>
 #include <mutex>
 #include <string>

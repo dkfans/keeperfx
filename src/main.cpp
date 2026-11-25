@@ -18,8 +18,8 @@
 #include "kfx/renderer/RendererManager.h"
 #include "kfx/renderer/RendererSettings.h"
 #include "kfx/renderer/RendererThread.h"
-#include "kfx/renderer/opengl/GLCaps.h"
-#include "kfx/renderer/opengl/GLLog.h"
+#include "kfx/renderer/opengl/core/GLCaps.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"

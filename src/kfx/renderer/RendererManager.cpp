@@ -14,8 +14,8 @@
 #include "kfx/lense/LensManager.h"
 #include "kfx/renderer/RendererSettings.h"
 #include "kfx/platform/PlatformManager.h"
-#include "kfx/renderer/opengl/GLCaps.h"
-#include "kfx/renderer/opengl/GLLog.h"
+#include "kfx/renderer/opengl/core/GLCaps.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
 #include "vidmode.h"
 #include <cstdio>
 #include <cstring>          // memcpy (s_last_palette_rgb8 buffering)

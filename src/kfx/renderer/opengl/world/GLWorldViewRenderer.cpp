@@ -6,15 +6,15 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLWorldViewRenderer.h"
+#include "kfx/renderer/opengl/world/GLWorldViewRenderer.h"
 #include "kfx/renderer/SpriteScale.h"
 
 #include "kfx/renderer/ITileAtlas.h"
-#include "kfx/renderer/opengl/GLShaders.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
-#include "kfx/renderer/opengl/GLLog.h"
-#include "kfx/renderer/opengl/GLCaps.h"
-#include "kfx/renderer/opengl/GLTileAtlas.h"
+#include "kfx/renderer/opengl/shaders/GLShaders.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
+#include "kfx/renderer/opengl/core/GLCaps.h"
+#include "kfx/renderer/opengl/atlas/GLTileAtlas.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "kfx/renderer/RendererSettings.h" // g_renderer_settings
 #include "kfx/renderer/RendererManager.h"  // RendererGetCurrentSpriteOwner/WantsOutline

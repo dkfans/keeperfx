@@ -1,5 +1,5 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLCaps.h"
+#include "kfx/renderer/opengl/core/GLCaps.h"
 #include <algorithm>
 #include <cstdio>
 #include <strings.h>

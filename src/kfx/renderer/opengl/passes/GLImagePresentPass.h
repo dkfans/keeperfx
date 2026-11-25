@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
 #include "kfx/renderer/GpuResourceHandle.h"
 #include <vector>
 

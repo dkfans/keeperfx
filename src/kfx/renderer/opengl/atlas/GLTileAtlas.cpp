@@ -6,16 +6,16 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLTileAtlas.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/opengl/atlas/GLTileAtlas.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
 
 #include "engine_textures.h"   // TEXTURE_VARIATIONS_COUNT
 #include "bflib_basics.h"      // SYNCLOG / ERRORLOG
 
 #include <cstdlib>
 #include <cstring>
-#include "kfx/renderer/opengl/GLLog.h"
-#include "kfx/renderer/opengl/GLCaps.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
+#include "kfx/renderer/opengl/core/GLCaps.h"
 #include "post_inc.h"
 
 /******************************************************************************/

@@ -6,9 +6,9 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLPaletteIndexLookup.h"
-#include "kfx/renderer/opengl/GLFunctions.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/opengl/atlas/GLPaletteIndexLookup.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "bflib_video.h"   // LbPaletteFindColour
 #include <cstring>
 #include "post_inc.h"

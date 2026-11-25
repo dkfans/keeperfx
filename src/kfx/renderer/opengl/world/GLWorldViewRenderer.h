@@ -6,14 +6,14 @@
  */
 #pragma once
 
-#include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
 #include "kfx/renderer/IWorldViewRenderer.h"
 #include "kfx/renderer/WorldVertex.h"
 #include "kfx/renderer/ir/WorldCommands.h"
 #include "kfx/renderer/ir/IRCommandBuffer.h"
 #include "kfx/renderer/GpuResourceHandle.h"
 #include "kfx/renderer/PaletteTransform.h"
-#include "kfx/renderer/opengl/SpriteCacheLayers.h"
+#include "kfx/renderer/opengl/atlas/SpriteCacheLayers.h"
 
 class GLResourceMapper;
 

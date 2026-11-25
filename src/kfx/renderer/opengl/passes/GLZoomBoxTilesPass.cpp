@@ -6,10 +6,10 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLZoomBoxTilesPass.h"
-#include "kfx/renderer/opengl/GLShaders.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
-#include "kfx/renderer/opengl/GLTileAtlas.h"
+#include "kfx/renderer/opengl/passes/GLZoomBoxTilesPass.h"
+#include "kfx/renderer/opengl/shaders/GLShaders.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
+#include "kfx/renderer/opengl/atlas/GLTileAtlas.h"
 #include "kfx/renderer/TileAtlasPacker.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "engine_textures.h"                // TEXTURE_BLOCKS_COUNT
