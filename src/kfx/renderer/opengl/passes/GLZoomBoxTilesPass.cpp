@@ -7,7 +7,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/passes/GLZoomBoxTilesPass.h"
-#include "kfx/renderer/opengl/shaders/GLShaders.h"
+#include "kfx/renderer/opengl/shaders/PassShaders.h"
 #include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/renderer/opengl/atlas/GLTileAtlas.h"
 #include "kfx/renderer/TileAtlasPacker.h"

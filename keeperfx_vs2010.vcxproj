@@ -383,6 +383,8 @@
     <ClCompile Include="src\kfx\renderer\opengl\ui\GLTextRenderer.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\atlas\GLTileAtlas.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\ui\GLUIRenderer.cpp" />
+    <ClCompile Include="src\kfx\renderer\opengl\world\GLKeeperSpriteCache.cpp" />
+    <ClCompile Include="src\kfx\renderer\opengl\world\KeeperSpriteDecode.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\world\GLWorldViewRenderer.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\passes\GLZoomBoxTilesPass.cpp" />
     <ClCompile Include="src\kfx\renderer\software\SwDisplaySurface.c" />
@@ -754,6 +756,11 @@
     <ClInclude Include="src\kfx\renderer\opengl\atlas\GLPaletteIndexLookup.h" />
     <ClInclude Include="src\kfx\renderer\opengl\core\GLResourceMapper.h" />
     <ClInclude Include="src\kfx\renderer\opengl\core\GLResourceTypes.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\shaders\UIShaders.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\shaders\WorldShaders.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\shaders\SpriteShaders.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\shaders\LensShaders.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\shaders\PassShaders.h" />
     <ClInclude Include="src\kfx\renderer\opengl\shaders\GLShaders.h" />
     <ClInclude Include="src\kfx\renderer\opengl\atlas\ShelfPacker.h" />
     <ClInclude Include="src\kfx\renderer\opengl\atlas\GLSpriteAtlas.h" />
@@ -761,6 +768,8 @@
     <ClInclude Include="src\kfx\renderer\opengl\ui\GLTextRenderer.h" />
     <ClInclude Include="src\kfx\renderer\opengl\atlas\GLTileAtlas.h" />
     <ClInclude Include="src\kfx\renderer\opengl\ui\GLUIRenderer.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\world\GLKeeperSpriteCache.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\world\KeeperSpriteDecode.h" />
     <ClInclude Include="src\kfx\renderer\opengl\world\GLWorldViewRenderer.h" />
     <ClInclude Include="src\kfx\renderer\opengl\passes\GLZoomBoxTilesPass.h" />
     <ClInclude Include="src\kfx\renderer\software\SwDisplaySurface.h" />

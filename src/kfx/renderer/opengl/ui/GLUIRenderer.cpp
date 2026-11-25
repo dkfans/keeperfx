@@ -2,7 +2,7 @@
 #include "kfx/renderer/opengl/ui/GLUIRenderer.h"
 #include "kfx/renderer/opengl/atlas/GLSpriteAtlas.h"
 #include "kfx/renderer/opengl/ui/GLTextRenderer.h"
-#include "kfx/renderer/opengl/shaders/GLShaders.h"
+#include "kfx/renderer/opengl/shaders/UIShaders.h"
 #include "kfx/renderer/opengl/core/GLFunctions.h"
 #include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/renderer/ir/UICommands.h"

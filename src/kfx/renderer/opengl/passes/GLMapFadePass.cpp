@@ -7,7 +7,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/passes/GLMapFadePass.h"
-#include "kfx/renderer/opengl/shaders/GLShaders.h"
+#include "kfx/renderer/opengl/shaders/PassShaders.h"
 #include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "kfx/renderer/RendererManager.h"  // RendererPhysicalWidth

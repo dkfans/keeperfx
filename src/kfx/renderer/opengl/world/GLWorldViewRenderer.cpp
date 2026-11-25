@@ -7,10 +7,13 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/world/GLWorldViewRenderer.h"
+#include "kfx/renderer/opengl/world/KeeperSpriteDecode.h"
 #include "kfx/renderer/SpriteScale.h"
 
 #include "kfx/renderer/ITileAtlas.h"
-#include "kfx/renderer/opengl/shaders/GLShaders.h"
+#include "kfx/renderer/opengl/shaders/WorldShaders.h"
+#include "kfx/renderer/opengl/shaders/SpriteShaders.h"
+#include "kfx/renderer/opengl/shaders/LensShaders.h"
 #include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/renderer/opengl/core/GLLog.h"
 #include "kfx/renderer/opengl/core/GLCaps.h"
@@ -62,71 +65,6 @@ GLuint GLWorldViewRenderer::ResolveShaderId(GpuResourceHandle handle) const
 }
 
 
-/** Max dimension of a keeper-sprite decode buffer (stride for GL_UNPACK_ROW_LENGTH). */
-static constexpr int k_kspr_decode_dim = 256;
-
-/** Scratch buffer used to hold decoded RG pixels (palette index, coverage)
- *  before upload. Stride is always k_kspr_decode_dim pixels so glTexSubImage*()
- *  can use GL_UNPACK_ROW_LENGTH regardless of the sprite's actual width. */
-static uint8_t s_kspr_decode_buf[k_kspr_decode_dim * k_kspr_decode_dim * 2];
-
-/** True when the sprite just decoded into s_kspr_decode_buf has black glow
- *  pixels (codes 50-56), which a glow draw subtracts in a second pass. */
-static bool decoded_sprite_darkens(int w, int h)
-{
-    for (int y = 0; y < h; ++y)
-    {
-        const uint8_t* row = s_kspr_decode_buf + y * k_kspr_decode_dim * 2;
-        for (int x = 0; x < w; ++x)
-            if (row[x * 2 + 1] != 0 && row[x * 2] >= 50 && row[x * 2] <= 56)
-                return true;
-    }
-    return false;
-}
-
-/** Decode keeper-sprite RLE into a stride-k_kspr_decode_dim RG buffer.
- *  Format matches TbSprite.Data: negative cmd = transparent skip, positive
- *  cmd = run of palette-index bytes, 0 = end of row. Every pixel in a run is
- *  opaque, index 0 included, so coverage is stored separately from the index. */
-static void decode_keeper_rle(uint8_t* dst, const uint8_t* data, int w, int h)
-{
-    if (!data || w <= 0 || h <= 0) return;
-
-    for (int y = 0; y < h; ++y)
-        memset(dst + y * k_kspr_decode_dim * 2, 0, k_kspr_decode_dim * 2);
-
-    const signed char* sp     = reinterpret_cast<const signed char*>(data);
-    const signed char* sp_end = sp + (ptrdiff_t)w * h * 3 + h;  // generous worst-case bound
-    for (int y = 0; y < h; ++y) {
-        uint8_t* row = dst + y * k_kspr_decode_dim * 2;
-        int x = 0;
-        while (true) {
-            if (sp >= sp_end) {
-                WARNLOG("decode_keeper_rle: ran past expected data end at row %d", y);
-                return;
-            }
-            signed char cmd = *sp++;
-            if (cmd == 0) break;
-            if (cmd < 0) {
-                x += (int)(-cmd);
-            } else {
-                int count = (int)cmd;
-                for (int i = 0; i < count; ++i) {
-                    if (sp >= sp_end) {
-                        WARNLOG("decode_keeper_rle: pixel data past expected end");
-                        return;
-                    }
-                    if (x < w) {
-                        row[x * 2]     = (uint8_t)(*sp);
-                        row[x * 2 + 1] = 255;
-                    }
-                    ++sp;
-                    ++x;
-                }
-            }
-        }
-    }
-}
 
 /******************************************************************************/
 
@@ -302,9 +240,6 @@ void GLWorldViewRenderer::free_gl_resources()
 
 void GLWorldViewRenderer::free_keeper_sprite_resources()
 {
-    log_kspr_cache_stats();
-    m_kspr_hits = 0;
-    m_kspr_misses = 0;
     m_kspr_cache.Clear();
     m_kspr_clut_remaps.clear();
     m_kspr_clut_used = 1;
@@ -931,8 +866,8 @@ void GLWorldViewRenderer::draw_shadows_gpu()
             ShadowGLVertex gv;
             gv.x = cmd.x[t];
             gv.y = cmd.y[t];
-            gv.u = ((float)ref.x + cmd.u[t]) / (float)k_kspr_layer_dim;
-            gv.v = ((float)ref.y + cmd.v[t]) / (float)k_kspr_layer_dim;
+            gv.u = ((float)ref.x + cmd.u[t]) / (float)GLKeeperSpriteCache::k_layer_dim;
+            gv.v = ((float)ref.y + cmd.v[t]) / (float)GLKeeperSpriteCache::k_layer_dim;
             gv.layer  = (float)layer;
             gv.z_ndc  = cmd.z_ndc;
             gv.darken = cmd.darken;
@@ -954,7 +889,7 @@ void GLWorldViewRenderer::draw_shadows_gpu()
     glBindVertexArray(shadow_geom->vao);
     glUniform2f(m_shadow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
 
-    const GLTexture* sprite_array_tex = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
+    const GLTexture* sprite_array_tex = m_resource_mapper->ResolveTexture(m_kspr_cache.Texture());
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_array_tex ? sprite_array_tex->id : 0);
@@ -1120,32 +1055,12 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
             }
         }
 
-        // Allocate the texture array. RequestCreateTexture's initial_pixels
-        // stays empty (nullptr upload) -- undefined storage is valid and
-        // expected here, matching the original's own glTexImage3D(...,
-        // nullptr) call.
-        GpuTextureDesc array_desc;
-        array_desc.width = k_kspr_layer_dim;
-        array_desc.height = k_kspr_layer_dim;
-        array_desc.array_layers = std::min(k_kspr_start_layers, std::max<int32_t>(1, m_kspr_max_layers / 2));
-        array_desc.format = GpuTextureFormat::RG8;
-        array_desc.min_filter = GpuTextureFilter::Nearest;
-        array_desc.mag_filter = GpuTextureFilter::Nearest;
-        array_desc.wrap = GpuTextureWrap::Clamp;
-        array_desc.debug_name = "kspr_sprite_array";
-        m_kspr_sprite_array_handle = m_resource_mapper->RequestCreateTexture(array_desc);
-        if (m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle) == nullptr)
+        if (!m_kspr_cache.Create(m_resource_mapper))
         {
-            GLWARN("Could not create the creature sprite cache. Creatures still draw, but more slowly.");
-            m_kspr_sprite_array_handle = kInvalidGpuResource;
             m_kspr_atlas_shader_handle = kInvalidGpuResource;
             m_kspr_atlas_glow_shader_handle = kInvalidGpuResource;
             break;
         }
-        m_kspr_cache.SetCeiling(m_kspr_max_layers);
-        m_kspr_cache.SetCapacity(array_desc.array_layers);
-        GLLOG("Creature sprite cache ready: %d layers of %dx%d, up to %d.",
-              (int)array_desc.array_layers, (int)k_kspr_layer_dim, (int)k_kspr_layer_dim, (int)m_kspr_max_layers);
     } while (false);
 
     // CLUT texture -- only useful (and only allocated) when the atlas shader
@@ -1260,7 +1175,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
     // Instanced fast path: optional, requires the decode atlas. Failure just
     // leaves the per-sprite path active (handle invalid gates usage in
     // gpu_execute_passes()).
-    if (m_kspr_sprite_array_handle != kInvalidGpuResource && !init_keeper_sprite_instancing())
+    if (m_kspr_cache.Texture() != kInvalidGpuResource && !init_keeper_sprite_instancing())
         WARNLOG("GLWorldViewRenderer: sprite instancing unavailable, using per-sprite path");
 
     return true;
@@ -1555,7 +1470,7 @@ bool GLWorldViewRenderer::append_frontview_quad(const struct BucketKindTexturedQ
 
 void GLWorldViewRenderer::SetKeeperSpriteCacheLimits(int32_t max_layers, int32_t budget_layers)
 {
-    m_kspr_max_layers = std::max<int32_t>(1, std::min(max_layers, budget_layers));
+    m_kspr_cache.SetLimits(max_layers, budget_layers);
 }
 
 void GLWorldViewRenderer::ClearKeeperSpriteAtlas()
@@ -1573,26 +1488,11 @@ void GLWorldViewRenderer::UpdateAnimatedTiles()
     m_draw_cmds.push_back(cmd);
 }
 
-// Logged when a level ends and when the game closes.
-void GLWorldViewRenderer::log_kspr_cache_stats()
-{
-    const uint64_t lookups = m_kspr_hits + m_kspr_misses;
-    if (lookups > 0)
-        GLLOG("Creature sprite cache: %d of %d layers used (peak %d), %u grows, %u evictions, %.1f%% hits.",
-              (int)m_kspr_cache.UsedLayers(), (int)m_kspr_cache.Capacity(), (int)m_kspr_cache.PeakLayers(),
-              (unsigned)m_kspr_grows, (unsigned)m_kspr_cache.Evictions(),
-              100.0 * (double)m_kspr_hits / (double)lookups);
-}
-
 void GLWorldViewRenderer::execute_clear_atlas()
 {
-    log_kspr_cache_stats();
     m_kspr_cache.Clear();
     if (m_atlas)
         m_atlas->ResetSets();
-    m_kspr_hits = 0;
-    m_kspr_misses = 0;
-    m_kspr_full_logged = false;
     m_kspr_clut_remaps.clear();
     m_kspr_clut_used = 1;
     memset(m_kspr_clut_palette_snap, 0, sizeof(m_kspr_clut_palette_snap));
@@ -1684,86 +1584,10 @@ void GLWorldViewRenderer::SubmitKeeperSprite(
 bool GLWorldViewRenderer::resolve_kspr_cache(int32_t sprite_id, const unsigned char* data,
                                              int src_w, int src_h, KsprCacheRef* out)
 {
-    if (!m_resource_mapper || sprite_id < 0)
+    if (!m_resource_mapper || m_kspr_atlas_shader_handle == kInvalidGpuResource
+        || m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle) == nullptr)
         return false;
-    const GLTexture* sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
-    const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
-    if (!sprite_array || m_kspr_atlas_shader_handle == kInvalidGpuResource || !clut_tex)
-        return false;
-
-    SpriteCacheLayers::Entry e;
-    if (m_kspr_cache.Find(sprite_id, &e))
-    {
-        m_kspr_cache.MarkUsed(e.layer, m_kspr_frame);
-        ++m_kspr_hits;
-        *out = { e.layer, e.x, e.y, e.darkens };
-        return true;
-    }
-
-    SpriteCacheLayers::PlaceResult r = m_kspr_cache.Place(sprite_id, src_w, src_h, m_kspr_frame, &e);
-    if (r == SpriteCacheLayers::NeedsGrow)
-    {
-        const int32_t next = AtlasNextCapacity(m_kspr_cache.Capacity(), m_kspr_cache.Capacity() + 1, m_kspr_max_layers);
-        if (!grow_kspr_cache(next))
-            m_kspr_cache.SetCeiling(m_kspr_cache.Capacity()); // can't grow: evict from now on
-        r = m_kspr_cache.Place(sprite_id, src_w, src_h, m_kspr_frame, &e);
-    }
-    if (r != SpriteCacheLayers::Placed && r != SpriteCacheLayers::PlacedAfterEvict)
-    {
-        if (!m_kspr_full_logged)
-        {
-            GLWARN("Creature sprite cache has no free space this frame; some creatures draw the slow way. (%d layers, all in use)",
-                   (int)m_kspr_cache.Capacity());
-            m_kspr_full_logged = true;
-        }
-        return false;
-    }
-
-    sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_array->id);
-    if (e.fresh_layer)
-    {
-        static std::vector<uint8_t> s_zero((size_t)k_kspr_layer_dim * k_kspr_layer_dim * 2, 0);
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, e.layer, k_kspr_layer_dim, k_kspr_layer_dim, 1,
-                        GL_RG, GL_UNSIGNED_BYTE, s_zero.data());
-    }
-    memset(s_kspr_decode_buf, 0, sizeof(s_kspr_decode_buf));
-    decode_keeper_rle(s_kspr_decode_buf, data, src_w, src_h);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, e.x, e.y, e.layer, src_w, src_h, 1,
-                    GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    const bool darkens = decoded_sprite_darkens(src_w, src_h);
-    m_kspr_cache.SetDarkens(sprite_id, darkens);
-    ++m_kspr_misses;
-    *out = { e.layer, e.x, e.y, darkens };
-    return true;
-}
-
-bool GLWorldViewRenderer::grow_kspr_cache(int32_t layers)
-{
-    KFX_ZONE("GLWorldViewRenderer::grow_kspr_cache");
-    if (layers <= m_kspr_cache.Capacity())
-        return false;
-    GpuTextureDesc desc;
-    desc.width = k_kspr_layer_dim;
-    desc.height = k_kspr_layer_dim;
-    desc.array_layers = layers;
-    desc.format = GpuTextureFormat::RG8;
-    desc.min_filter = GpuTextureFilter::Nearest;
-    desc.mag_filter = GpuTextureFilter::Nearest;
-    desc.wrap = GpuTextureWrap::Clamp;
-    desc.debug_name = "kspr_sprite_array";
-    const int32_t old_layers = m_kspr_cache.Capacity();
-    if (!m_resource_mapper->ReplaceTexture(m_kspr_sprite_array_handle, desc,
-            [old_layers](const GLTexture& from, const GLTexture& to) {
-                return GLResourceMapper::CopyArrayLayers(from, to, old_layers);
-            }))
-        return false;
-    m_kspr_cache.SetCapacity(layers);
-    ++m_kspr_grows;
-    return true;
+    return m_kspr_cache.Lookup(sprite_id, data, src_w, src_h, out);
 }
 
 float GLWorldViewRenderer::resolve_clut_v(const unsigned char* remap)
@@ -1945,7 +1769,7 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
 
     {
         const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
-        const GLTexture* sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
+        const GLTexture* sprite_array = m_resource_mapper->ResolveTexture(m_kspr_cache.Texture());
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, clut_tex ? clut_tex->id : 0);
         glActiveTexture(GL_TEXTURE0);
@@ -2040,7 +1864,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
     const GLProgram* kspr_glow_prog = m_resource_mapper->ResolveProgram(m_kspr_glow_shader_handle);
     const GLProgram* kspr_atlas_glow_prog = m_resource_mapper->ResolveProgram(m_kspr_atlas_glow_shader_handle);
     const GLProgram* kspr_atlas_prog = m_resource_mapper->ResolveProgram(m_kspr_atlas_shader_handle);
-    const GLTexture* kspr_sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
+    const GLTexture* kspr_sprite_array = m_resource_mapper->ResolveTexture(m_kspr_cache.Texture());
     const GLTexture* kspr_clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
     const GLProgram* kspr_outline_prog = m_resource_mapper->ResolveProgram(m_kspr_outline_shader_handle);
     const GLProgram* kspr_atlas_outline_prog = m_resource_mapper->ResolveProgram(m_kspr_atlas_outline_shader_handle);
@@ -2171,11 +1995,11 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
             GLint  loc_col = use_edge ? m_kspr_edge_loc_color      : m_kspr_outline_loc_color;
             if (prog)
             {
-                decode_keeper_rle(s_kspr_decode_buf, data, src_w, src_h);
+                decode_keeper_rle(kspr_decode_buf, data, src_w, src_h);
                 if (use_remap)
                 {
                     for (int oy = 0; oy < src_h; ++oy) {
-                        uint8_t* orow = s_kspr_decode_buf + oy * k_kspr_decode_dim * 2;
+                        uint8_t* orow = kspr_decode_buf + oy * k_kspr_decode_dim * 2;
                         for (int ox = 0; ox < src_w; ++ox)
                             if (orow[ox * 2 + 1] != 0) orow[ox * 2] = remap[orow[ox * 2]];
                     }
@@ -2184,7 +2008,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
                 glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
                 glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
                 glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, src_w, src_h,
-                                GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
+                                GL_RG, GL_UNSIGNED_BYTE, kspr_decode_buf);
                 glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
                 glUseProgram(prog->id);
@@ -2245,11 +2069,11 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
                                    && (kspr_outline_prog || kspr_edge_prog);
     if (!outline_uploaded)
     {
-        decode_keeper_rle(s_kspr_decode_buf, data, src_w, src_h);
+        decode_keeper_rle(kspr_decode_buf, data, src_w, src_h);
         if (use_remap)
         {
             for (int y = 0; y < src_h; ++y) {
-                uint8_t* row = s_kspr_decode_buf + y * k_kspr_decode_dim * 2;
+                uint8_t* row = kspr_decode_buf + y * k_kspr_decode_dim * 2;
                 for (int x = 0; x < src_w; ++x)
                     if (row[x * 2 + 1] != 0) row[x * 2] = remap[row[x * 2]];
             }
@@ -2258,7 +2082,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
         glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, src_w, src_h,
-                        GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
+                        GL_RG, GL_UNSIGNED_BYTE, kspr_decode_buf);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 
@@ -2416,7 +2240,7 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
     m_draw_screen_w = screen_w;
     m_draw_screen_h = screen_h;
 
-    ++m_kspr_frame;
+    m_kspr_cache.BeginFrame();
 
     ensure_clut_valid();  // identity row 0 must exist before any sprite draws
 
@@ -2559,7 +2383,7 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
             };
 
             const bool use_instancing = (m_kspr_inst_shader_handle != kInvalidGpuResource)
-                                      && (m_kspr_sprite_array_handle != kInvalidGpuResource);
+                                      && (m_kspr_cache.Texture() != kInvalidGpuResource);
             if (use_instancing)
             {
                 m_kspr_instances.clear();
