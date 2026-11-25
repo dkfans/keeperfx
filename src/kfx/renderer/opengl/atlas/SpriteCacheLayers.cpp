@@ -1,5 +1,5 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/SpriteCacheLayers.h"
+#include "kfx/renderer/opengl/atlas/SpriteCacheLayers.h"
 #include <iterator>
 #include "post_inc.h"
 

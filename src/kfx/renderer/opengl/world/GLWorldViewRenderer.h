@@ -6,14 +6,14 @@
  */
 #pragma once
 
-#include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
 #include "kfx/renderer/IWorldViewRenderer.h"
 #include "kfx/renderer/WorldVertex.h"
 #include "kfx/renderer/ir/WorldCommands.h"
 #include "kfx/renderer/ir/IRCommandBuffer.h"
 #include "kfx/renderer/GpuResourceHandle.h"
 #include "kfx/renderer/PaletteTransform.h"
-#include "kfx/renderer/opengl/SpriteCacheLayers.h"
+#include "kfx/renderer/opengl/world/GLKeeperSpriteCache.h"
 
 class GLResourceMapper;
 
@@ -227,23 +227,19 @@ private:
 
 
     void execute_clear_atlas();
-    void log_kspr_cache_stats();
 
     /** Rebuild CLUT row 0 (identity) when the palette has changed since the
      *  last check; invalidates every cached remap row (they bake in RGB
      *  values from the old palette). Called at the top of gpu_execute_passes(). */
     void ensure_clut_valid();
 
-    /** Where a cached creature sprite frame lives. */
-    struct KsprCacheRef { int32_t layer; int32_t x, y; bool darkens; };
+    using KsprCacheRef = GLKeeperSpriteCache::Ref;
 
-    /** Finds a sprite frame in the cache, or decodes and packs it, growing or
-     *  evicting as needed. Keyed by @p sprite_id (stable across sprite-heap
-     *  reload). False means use the per-sprite path. */
+    /** Looks a frame up in the creature sprite cache (see GLKeeperSpriteCache).
+     *  Keyed by @p sprite_id (stable across sprite-heap reload). False means
+     *  use the per-sprite path. */
     bool resolve_kspr_cache(int32_t sprite_id, const unsigned char* data, int src_w, int src_h,
                             KsprCacheRef* out);
-    /** Grows the cache texture to @p layers, keeping what's packed. */
-    bool grow_kspr_cache(int32_t layers);
     void push_keeper_sprite_instance(const KsprInstance& inst, bool darken);
 
     /** Look up (or lazily build) the CLUT row for a remap table. Returns the
@@ -397,13 +393,8 @@ private:
     GLint  m_kspr_atlas_edge_loc_layer    = -1;
     GLint  m_kspr_atlas_edge_loc_origin   = -1;
 
-    // Creature sprite cache: GL_TEXTURE_2D_ARRAY, frames shelf-packed into layers
-    // on first use, grown and evicted by whole layer (see SpriteCacheLayers).
-    // Fallback to m_kspr_sprite_tex_handle when the cache is absent or has no room.
-    static constexpr int32_t k_kspr_layer_dim = 1024;    // RG8 layer, 2 MiB
-    static constexpr int32_t k_kspr_start_layers = 16;   // 32 MiB
-    static constexpr int32_t k_kspr_budget_layers = 128; // 256 MiB, the old fixed size
-    GpuResourceHandle m_kspr_sprite_array_handle = kInvalidGpuResource;
+    // Creature sprite cache; falls back to m_kspr_sprite_tex_handle when absent or full.
+    GLKeeperSpriteCache m_kspr_cache;
     GpuResourceHandle m_kspr_atlas_shader_handle = kInvalidGpuResource;  // sampler2DArray variant
     GLint  m_kspr_atlas_loc_viewport = -1;
     GLint  m_kspr_atlas_loc_sprite   = -1;
@@ -425,13 +416,6 @@ private:
     GLint  m_kspr_atlas_glow_loc_palette_xform = -1;
     GLint  m_kspr_atlas_glow_loc_darken = -1;
 
-    SpriteCacheLayers m_kspr_cache{ k_kspr_layer_dim, 1 };
-    int32_t  m_kspr_max_layers = k_kspr_budget_layers;
-    uint32_t m_kspr_grows = 0;
-    uint64_t m_kspr_hits = 0;
-    uint64_t m_kspr_misses = 0;
-    uint64_t m_kspr_frame = 0;        // render frames drawn; eviction never picks a layer used this frame
-    bool     m_kspr_full_logged = false;
 
     static const int k_clut_rows = 128;
     GpuResourceHandle m_kspr_clut_tex_handle = kInvalidGpuResource;

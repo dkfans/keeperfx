@@ -1,7 +1,7 @@
 #ifndef RENDERER_OPENGL_GLRESOURCETYPES_H
 #define RENDERER_OPENGL_GLRESOURCETYPES_H
 
-#include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
 #include <vector>
 
 /// A realized 2D texture or texture array.

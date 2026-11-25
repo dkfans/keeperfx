@@ -14,7 +14,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
 #include "kfx/renderer/ir/WorldCommands.h"  // IRMapFadeCmd
 #include "kfx/renderer/GpuResourceHandle.h"
 

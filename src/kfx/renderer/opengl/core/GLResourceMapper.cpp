@@ -1,9 +1,9 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/renderer/RendererThread.h"
 #include "kfx/renderer/RendererFrameCounter.h"
 #include "globals.h" // WARNLOG/ERRORLOG
-#include "kfx/renderer/opengl/GLLog.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
 #include "post_inc.h"
 
 #include <algorithm>

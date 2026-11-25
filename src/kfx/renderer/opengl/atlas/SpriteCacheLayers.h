@@ -6,7 +6,7 @@
 #ifndef KFX_SPRITECACHELAYERS_H
 #define KFX_SPRITECACHELAYERS_H
 
-#include "kfx/renderer/opengl/ShelfPacker.h"
+#include "kfx/renderer/opengl/atlas/ShelfPacker.h"
 #include <cstdint>
 #include <unordered_map>
 #include <vector>

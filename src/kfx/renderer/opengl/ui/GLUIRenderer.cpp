@@ -1,10 +1,10 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLUIRenderer.h"
-#include "kfx/renderer/opengl/GLSpriteAtlas.h"
-#include "kfx/renderer/opengl/GLTextRenderer.h"
-#include "kfx/renderer/opengl/GLShaders.h"
-#include "kfx/renderer/opengl/GLFunctions.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/opengl/ui/GLUIRenderer.h"
+#include "kfx/renderer/opengl/atlas/GLSpriteAtlas.h"
+#include "kfx/renderer/opengl/ui/GLTextRenderer.h"
+#include "kfx/renderer/opengl/shaders/UIShaders.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/renderer/ir/UICommands.h"
 #include "kfx/renderer/ir/TextCommands.h"
 #include "kfx/renderer/RendererManager.h"
@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <cstring>
 #include <unordered_set>
-#include "kfx/renderer/opengl/GLLog.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
 #include "post_inc.h"
 
 namespace {

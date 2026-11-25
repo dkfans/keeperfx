@@ -6,9 +6,9 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLImagePresentPass.h"
-#include "kfx/renderer/opengl/GLShaders.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/opengl/passes/GLImagePresentPass.h"
+#include "kfx/renderer/opengl/shaders/PassShaders.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/renderer/RendererManager.h"  // RendererPresentImageDesc, PRESENT_*
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "bflib_basics.h"                  // ERRORLOG

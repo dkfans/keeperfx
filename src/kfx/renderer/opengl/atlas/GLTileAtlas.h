@@ -17,7 +17,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
 #include "kfx/renderer/TileAtlasPacker.h"
 #include "kfx/renderer/ITileAtlas.h"
 #include "kfx/renderer/GpuResourceHandle.h"
