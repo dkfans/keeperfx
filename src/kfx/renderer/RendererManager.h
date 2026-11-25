@@ -242,7 +242,6 @@ int  RendererGetCurrentSpriteOwner(void);
 int  RendererGetCurrentSpriteWantsOutline(void);
 
 void RendererClearKeeperSpriteAtlas(void);
-void RendererPreloadKeeperSpriteAtlas(void);
 
 /** Re-upload the tile atlas's animated rows (lava, water, dig-tag
  *  cross-hatch). Call before drawing, after update_animating_texture_maps()

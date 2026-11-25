@@ -349,7 +349,9 @@
     <ClCompile Include="src\kfx\renderer\opengl\GLMapFadePass.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLPaletteIndexLookup.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLResourceMapper.cpp" />
+    <ClCompile Include="src\kfx\renderer\opengl\ShelfPacker.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLSpriteAtlas.cpp" />
+    <ClCompile Include="src\kfx\renderer\opengl\SpriteCacheLayers.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLTextRenderer.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLTileAtlas.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLUIRenderer.cpp" />
@@ -728,7 +730,9 @@
     <ClInclude Include="src\kfx\renderer\opengl\GLResourceMapper.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLResourceTypes.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLShaders.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\ShelfPacker.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLSpriteAtlas.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\SpriteCacheLayers.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLTextRenderer.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLTileAtlas.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLUIRenderer.h" />

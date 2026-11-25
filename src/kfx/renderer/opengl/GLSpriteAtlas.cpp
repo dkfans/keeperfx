@@ -4,9 +4,11 @@
 #include "bflib_basics.h"
 #include "bflib_sprite.h"
 #include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/GLLog.h"
 #include <algorithm>
 #include <unordered_set>
 #include <cstring>
+#include <iterator>
 #include "post_inc.h"
 
 void GLSpriteAtlas::SetLivenessQuery(std::function<bool(SpriteHandle)> is_live)
@@ -17,19 +19,23 @@ void GLSpriteAtlas::SetLivenessQuery(std::function<bool(SpriteHandle)> is_live)
 
 bool GLSpriteAtlas::Init()
 {
-    m_pixels.assign((size_t)k_atlas_w * k_atlas_h, 0u);
+    if (m_max_dim < k_start_dim)
+        m_max_dim = k_start_dim;
+    m_w = m_h = m_tex_w = m_tex_h = k_start_dim;
+    m_grow_failed = false;
+    m_pixels.assign((size_t)m_w * m_h, 0u);
     m_cursor_x = 1;
     m_shelf_y  = 0;
     m_shelf_h  = 0;
-    m_dirty_y_min = k_atlas_h;
+    m_dirty_y_min = m_h;
     m_dirty_y_max = -1;
     m_entries.clear();
 
     if (m_resource_mapper != nullptr)
     {
         GpuTextureDesc desc;
-        desc.width = k_atlas_w;
-        desc.height = k_atlas_h;
+        desc.width = m_w;
+        desc.height = m_h;
         desc.format = GpuTextureFormat::R8;
         desc.min_filter = GpuTextureFilter::Nearest;
         desc.mag_filter = GpuTextureFilter::Nearest;
@@ -51,10 +57,14 @@ void GLSpriteAtlas::PackSprite(SpriteHandle handle, const struct TbSprite* spr)
     static std::unordered_set<SpriteHandle> s_logged_no_data;
     static std::unordered_set<SpriteHandle> s_logged_bad_size;
 
-    if (!spr || !spr->Data)
+    if (!spr)
+        return;
+    if (spr->SWidth == 0 || spr->SHeight == 0)
+        return; // an empty slot in the sprite sheet: nothing to draw
+    if (!spr->Data)
     {
         if (s_logged_no_data.insert(handle).second)
-            WARNLOG("GLSpriteAtlas: PackSprite(handle=%u) -- sprite has no Data, cannot pack", (unsigned)handle);
+            GLWARN("Interface sprite %u has no pixel data, so it isn't drawn.", (unsigned)handle);
         return;
     }
 
@@ -67,20 +77,21 @@ void GLSpriteAtlas::PackSprite(SpriteHandle handle, const struct TbSprite* spr)
     if (w <= 0 || h <= 0)
     {
         if (s_logged_bad_size.insert(handle).second)
-            WARNLOG("GLSpriteAtlas: PackSprite(handle=%u) -- degenerate size %dx%d, cannot pack", (unsigned)handle, w, h);
+            GLWARN("Interface sprite %u has an invalid size, so it isn't drawn. (%dx%d)", (unsigned)handle, w, h);
         return;
     }
 
     int x, y;
     if (!alloc_shelf_rect(w, h, &x, &y, "sprite")) return;
 
-    uint8_t* dst = m_pixels.data() + (size_t)y * k_atlas_w + x;
-    LbSpriteDecode(dst, k_atlas_w, spr->Data, w, h);
+    uint8_t* dst = m_pixels.data() + (size_t)y * m_w + x;
+    LbSpriteDecode(dst, m_w, spr->Data, w, h);
 
     AtlasEntry entry;
-    entry.uv = make_sprite_uv(x, y, w, h);
     entry.x = x;
     entry.y = y;
+    entry.w = w;
+    entry.h = h;
     m_entries[handle] = entry;
 
     if (y < m_dirty_y_min) m_dirty_y_min = y;
@@ -100,28 +111,29 @@ void GLSpriteAtlas::PackRaw(SpriteHandle handle, const uint8_t* pixels, int w, i
 
     for (int row = 0; row < h; ++row)
     {
-        uint8_t* dst = m_pixels.data() + (size_t)(y + row) * k_atlas_w + x;
+        uint8_t* dst = m_pixels.data() + (size_t)(y + row) * m_w + x;
         std::memcpy(dst, pixels + (size_t)row * w, (size_t)w);
     }
 
     AtlasEntry entry;
-    entry.uv = make_sprite_uv(x, y, w, h);
     entry.x = x;
     entry.y = y;
+    entry.w = w;
+    entry.h = h;
     m_entries[handle] = entry;
 
     if (y < m_dirty_y_min) m_dirty_y_min = y;
     if (y + h > m_dirty_y_max) m_dirty_y_max = y + h;
 }
 
-SpriteUV GLSpriteAtlas::make_sprite_uv(int x, int y, int w, int h)
+SpriteUV GLSpriteAtlas::make_sprite_uv(int x, int y, int w, int h, int tex_w, int tex_h)
 {
     constexpr float k_inset = 1.0f / 32.0f;
     SpriteUV uv;
-    uv.u0 = ((float)x + k_inset) / (float)k_atlas_w;
-    uv.v0 = ((float)y + k_inset) / (float)k_atlas_h;
-    uv.u1 = ((float)(x + w) - k_inset) / (float)k_atlas_w;
-    uv.v1 = ((float)(y + h) - k_inset) / (float)k_atlas_h;
+    uv.u0 = ((float)x + k_inset) / (float)tex_w;
+    uv.v0 = ((float)y + k_inset) / (float)tex_h;
+    uv.u1 = ((float)(x + w) - k_inset) / (float)tex_w;
+    uv.v1 = ((float)(y + h) - k_inset) / (float)tex_h;
     uv.pixel_w = (uint16_t)w;
     uv.pixel_h = (uint16_t)h;
     return uv;
@@ -133,12 +145,12 @@ bool GLSpriteAtlas::try_alloc_shelf_rect(int alloc_w, int alloc_h, int* out_x, i
     int cursor_x = m_cursor_x;
     int shelf_y  = m_shelf_y;
     int shelf_h  = m_shelf_h;
-    if (cursor_x + alloc_w > k_atlas_w) {
+    if (cursor_x + alloc_w > m_w) {
         shelf_y += shelf_h;
         cursor_x = 0;
         shelf_h  = 0;
     }
-    if (alloc_w > k_atlas_w || shelf_y + alloc_h > k_atlas_h)
+    if (alloc_w > m_w || shelf_y + alloc_h > m_h)
         return false;
     if (alloc_h > shelf_h) shelf_h = alloc_h;
 
@@ -159,11 +171,17 @@ bool GLSpriteAtlas::alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const
     if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
         return true;
 
+    while (grow_layout())
+    {
+        if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
+            return true;
+    }
+
     compact();
 
     if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
         return true;
-    ERRORLOG("GLSpriteAtlas: cannot pack %dx%d %s, the atlas is full of live sprites", w, h, what);
+    GLERR("Interface sprite atlas is full of sprites in use; a new %s can't be added and won't draw. (%dx%d)", what, w, h);
     return false;
 }
 
@@ -182,14 +200,14 @@ void GLSpriteAtlas::compact()
 
     // Tallest first packs shelves tightly; the handle breaks ties so the layout is repeatable.
     std::sort(live.begin(), live.end(), [](const Live& a, const Live& b) {
-        if (a.entry.uv.pixel_h != b.entry.uv.pixel_h) return a.entry.uv.pixel_h > b.entry.uv.pixel_h;
-        if (a.entry.uv.pixel_w != b.entry.uv.pixel_w) return a.entry.uv.pixel_w > b.entry.uv.pixel_w;
+        if (a.entry.h != b.entry.h) return a.entry.h > b.entry.h;
+        if (a.entry.w != b.entry.w) return a.entry.w > b.entry.w;
         return a.handle < b.handle;
     });
 
     std::vector<uint8_t> old_pixels;
     old_pixels.swap(m_pixels);
-    m_pixels.assign((size_t)k_atlas_w * k_atlas_h, 0u);
+    m_pixels.assign((size_t)m_w * m_h, 0u);
     m_entries.clear();
     m_cursor_x = 1; // reserve (0,0) as a safe fallback UV
     m_shelf_y  = 0;
@@ -198,8 +216,8 @@ void GLSpriteAtlas::compact()
     size_t lost = 0;
     for (const Live& item : live)
     {
-        const int w = item.entry.uv.pixel_w;
-        const int h = item.entry.uv.pixel_h;
+        const int w = item.entry.w;
+        const int h = item.entry.h;
         int x, y;
         if (!try_alloc_shelf_rect(w + 1, h + 1, &x, &y))
         {
@@ -208,23 +226,24 @@ void GLSpriteAtlas::compact()
         }
         for (int row = 0; row < h; ++row)
         {
-            std::memcpy(m_pixels.data() + (size_t)(y + row) * k_atlas_w + x,
-                        old_pixels.data() + (size_t)(item.entry.y + row) * k_atlas_w + item.entry.x,
+            std::memcpy(m_pixels.data() + (size_t)(y + row) * m_w + x,
+                        old_pixels.data() + (size_t)(item.entry.y + row) * m_w + item.entry.x,
                         (size_t)w);
         }
         AtlasEntry entry;
-        entry.uv = make_sprite_uv(x, y, w, h);
         entry.x = x;
         entry.y = y;
+        entry.w = w;
+        entry.h = h;
         m_entries[item.handle] = entry;
     }
 
     m_dirty_y_min = 0;
-    m_dirty_y_max = k_atlas_h;
-    WARNLOG("GLSpriteAtlas: atlas full -- compacted, kept %d sprites, dropped %d unused",
-            (int)m_entries.size(), (int)dropped);
+    m_dirty_y_max = m_h;
+    GLWARN("Interface sprite atlas is full; made room by dropping %d unused sprites. (kept %d)",
+           (int)dropped, (int)m_entries.size());
     if (lost > 0)
-        ERRORLOG("GLSpriteAtlas: %d live sprites no longer fit after compacting", (int)lost);
+        GLERR("Interface sprite atlas: %d sprites in use no longer fit and won't draw until space frees up.", (int)lost);
 }
 
 bool GLSpriteAtlas::Contains(SpriteHandle handle) const
@@ -238,7 +257,10 @@ bool GLSpriteAtlas::GetUV(SpriteHandle handle, SpriteUV& out) const
     std::lock_guard<std::mutex> guard(m_mutex);
     auto it = m_entries.find(handle);
     if (it == m_entries.end()) return false;
-    out = it->second.uv;
+    const AtlasEntry& e = it->second;
+    if (e.x + e.w > m_tex_w || e.y + e.h > m_tex_h)
+        return false;   // packed into space the texture doesn't have yet; drawn next frame
+    out = make_sprite_uv(e.x, e.y, e.w, e.h, m_tex_w, m_tex_h);
     return true;
 }
 
@@ -250,12 +272,12 @@ void GLSpriteAtlas::flush_dirty(unsigned int tex_id)
     if (h <= 0) return;
 
     glBindTexture(GL_TEXTURE_2D, tex_id);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, m_dirty_y_min, k_atlas_w, h,
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, m_dirty_y_min, m_w, h,
                     GL_RED, GL_UNSIGNED_BYTE,
-                    m_pixels.data() + (size_t)m_dirty_y_min * k_atlas_w);
+                    m_pixels.data() + (size_t)m_dirty_y_min * m_w);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    m_dirty_y_min = k_atlas_h;
+    m_dirty_y_min = m_h;
     m_dirty_y_max = -1;
 }
 
@@ -267,5 +289,71 @@ void GLSpriteAtlas::FlushPendingGL()
     const GLTexture* const tex = m_resource_mapper->ResolveTexture(m_texture_handle);
     if (tex == nullptr) return;
 
+    if (m_w != m_tex_w || m_h != m_tex_h)
+    {
+        GpuTextureDesc desc;
+        desc.width = m_w;
+        desc.height = m_h;
+        desc.format = GpuTextureFormat::R8;
+        desc.min_filter = GpuTextureFilter::Nearest;
+        desc.mag_filter = GpuTextureFilter::Nearest;
+        desc.wrap = GpuTextureWrap::Clamp;
+        desc.debug_name = "sprite_atlas";
+        if (m_resource_mapper->ReplaceTexture(m_texture_handle, desc, nullptr))
+        {
+            m_tex_w = m_w;
+            m_tex_h = m_h;
+        }
+        else
+        {
+            GLWARN("Interface sprite atlas could not grow; it makes room by dropping unused sprites instead.");
+            m_grow_failed = true;
+            relayout(m_tex_w, m_tex_h);
+            compact();
+        }
+        m_dirty_y_min = 0;
+        m_dirty_y_max = m_h;
+    }
+
     flush_dirty(tex->id);
+}
+
+// Caller already holds m_mutex.
+bool GLSpriteAtlas::grow_layout()
+{
+    if (m_grow_failed)
+        return false;
+    int32_t new_w = m_w;
+    int32_t new_h = m_h;
+    if (m_w <= m_h && m_w * 2 <= m_max_dim)
+        new_w = m_w * 2;
+    else if (m_h * 2 <= m_max_dim)
+        new_h = m_h * 2;
+    else if (m_w * 2 <= m_max_dim)
+        new_w = m_w * 2;
+    else
+        return false;
+    relayout(new_w, new_h);
+    GLLOG("Interface sprite atlas grew to %dx%d.", (int)new_w, (int)new_h);
+    return true;
+}
+
+// Caller already holds m_mutex.
+void GLSpriteAtlas::relayout(int32_t new_w, int32_t new_h)
+{
+    std::vector<uint8_t> pixels((size_t)new_w * new_h, 0u);
+    const int32_t rows = std::min(m_h, new_h);
+    const int32_t cols = std::min(m_w, new_w);
+    for (int32_t row = 0; row < rows; ++row)
+        std::memcpy(pixels.data() + (size_t)row * new_w, m_pixels.data() + (size_t)row * m_w, (size_t)cols);
+    for (auto it = m_entries.begin(); it != m_entries.end(); )
+    {
+        const AtlasEntry& e = it->second;
+        it = (e.x + e.w > new_w || e.y + e.h > new_h) ? m_entries.erase(it) : std::next(it);
+    }
+    m_pixels.swap(pixels);
+    m_w = new_w;
+    m_h = new_h;
+    m_dirty_y_min = 0;
+    m_dirty_y_max = m_h;
 }

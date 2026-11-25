@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstring>
 #include <unordered_set>
+#include "kfx/renderer/opengl/GLLog.h"
 #include "post_inc.h"
 
 namespace {
@@ -343,9 +344,10 @@ void GLUIRenderer::DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units
     SpriteUV uv;
     if (!m_atlas || !m_atlas->GetUV(glyph, uv))
     {
+        // Packed but not on the GPU until the next frame: draws then, no need to log.
         static std::unordered_set<SpriteHandle> s_logged;
-        if (m_atlas && s_logged.insert(glyph).second)
-            WARNLOG("GLUIRenderer::DrawGlyphQuad: GetUV(handle=%u) failed -- glyph/cursor not in atlas", (unsigned)glyph);
+        if (m_atlas && !m_atlas->Contains(glyph) && s_logged.insert(glyph).second)
+            GLWARN("Interface sprite %u isn't in the sprite atlas, so it isn't drawn.", (unsigned)glyph);
         return;
     }
     float w = uv.pixel_w * units_per_px / 16.0f;

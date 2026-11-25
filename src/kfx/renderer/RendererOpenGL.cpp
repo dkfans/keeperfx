@@ -418,6 +418,8 @@ void RendererOpenGL::render_thread_init()
         GLWARN("A debug context was asked for, but the driver did not provide one. Only serious driver errors are logged.");
 
     m_impl->atlas.SetResourceMapper(&m_impl->resource_mapper);
+    // 8192 keeps the CPU copy of the atlas at 64 MiB in a 32-bit process.
+    m_impl->atlas.SetMaxSize(std::min<int32_t>(caps.max_texture_size, 8192));
     m_impl->ui.SetResourceMapper(&m_impl->resource_mapper);
     if (!m_impl->atlas.Init() || !m_impl->ui.Init())
     {
@@ -496,6 +498,12 @@ void RendererOpenGL::render_thread_init()
     m_impl->world.SetPaletteTexture(m_impl->palette_tex_handle);
     m_impl->world.SetPaletteIndexTexture(m_impl->palette_index_lookup.GetTexture());
     m_impl->world.SetScreenSize((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);
+    int32_t kspr_budget_layers = 128;
+#ifndef NDEBUG
+    if (GLStartupOptions_Get().caps_low)
+        kspr_budget_layers = 4;
+#endif
+    m_impl->world.SetKeeperSpriteCacheLimits(caps.max_array_layers, kspr_budget_layers);
     bool force_shader_fail = false;
 #ifndef NDEBUG
     force_shader_fail = GLStartupOptions_Get().fail == GLFailStage::Shader;

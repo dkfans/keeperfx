@@ -544,13 +544,6 @@ void RendererClearKeeperSpriteAtlas(void)
         world->ClearKeeperSpriteAtlas();
 }
 
-void RendererPreloadKeeperSpriteAtlas(void)
-{
-    IWorldViewRenderer* world = active_world_renderer();
-    if (world != nullptr)
-        world->PreloadKeeperSpriteAtlas();
-}
-
 void RendererUpdateAnimatedTiles(void)
 {
     IWorldViewRenderer* world = active_world_renderer();

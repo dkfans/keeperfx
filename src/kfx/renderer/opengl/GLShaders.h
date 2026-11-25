@@ -169,6 +169,7 @@ flat in float v_layer;                  // texture array layer (atlas variation)
 flat in int v_tile;                     // tile index within the layer
 in vec3  vWorldPos;                     // reserved for future dynamic lighting / shadow mapping
 uniform sampler2DArray u_tile_atlas;    // R8 palette-index atlas array (unit 0)
+uniform int        u_set_layer[32];     // atlas layer of each tile set, -1 = none
 uniform sampler2D  u_palette;           // RGBA8 256×1 palette (unit 1)
 uniform usampler2D u_lightmap;          // R16UI subtile_lightness map (unit 2), mode 1
 uniform sampler2D  u_fade_table;        // R8 256x64 fade/remap LUT (unit 3), palette mode
@@ -226,7 +227,10 @@ float tile_index(ivec2 texel)
 {
     int cols = textureSize(u_tile_atlas, 0).x / 32;
     ivec2 origin = ivec2(v_tile % cols, v_tile / cols) * 32;
-    return texelFetch(u_tile_atlas, ivec3(origin + (texel & 31), int(v_layer + 0.5)), 0).r;
+    int layer = u_set_layer[clamp(int(v_layer + 0.5), 0, 31)];
+    if (layer < 0)
+        return 0.0;
+    return texelFetch(u_tile_atlas, ivec3(origin + (texel & 31), layer), 0).r;
 }
 
 void main()
@@ -497,17 +501,18 @@ in vec2 v_local;
 flat in vec4  v_map;
 flat in vec2  v_src;
 flat in float v_flip;
-uniform sampler2DArray u_sprite;   // GL_RG8 texture array (index, coverage), one layer per unique sprite
+uniform sampler2DArray u_sprite;   // GL_RG8 texture array (index, coverage), many frames packed per layer
 uniform sampler2D      u_clut;     // GL_RGBA8 256xN CLUT -- row 0=identity, rows 1..N-1=remaps
 uniform float          u_alpha;    // 1.0=solid, 0.5=transpar4, 0.25=transpar8
 uniform float          u_layer;    // layer index in the sprite array
+uniform vec2           u_origin;   // sprite's top-left texel in the layer
 uniform float          u_clut_v;   // V texcoord selecting the CLUT row
 out vec4 fragColor;
 )glsl" KSPR_SOURCE_TEXEL_GLSL R"glsl(
 void main()
 {
     ivec2 t = kspr_source_texel(v_local, v_map, v_src, v_flip);
-    vec4 texel = texelFetch(u_sprite, ivec3(t, int(u_layer + 0.5)), 0);
+    vec4 texel = texelFetch(u_sprite, ivec3(t + ivec2(u_origin), int(u_layer + 0.5)), 0);
     if (texel.g < 0.5) discard;
     vec4 color = texture(u_clut, vec2(texel.r, u_clut_v));
     fragColor = vec4(color.rgb, color.a * u_alpha);
@@ -523,6 +528,7 @@ flat in vec2  v_src;
 flat in float v_flip;
 uniform sampler2DArray u_sprite;
 uniform float          u_layer;
+uniform vec2           u_origin;
 // Glow steps are engine-palette colours; this moves them into the palette drawn with.
 uniform mat3 u_palette_xform;
 uniform bool u_darken;
@@ -531,7 +537,7 @@ out vec4 fragColor;
 void main()
 {
     ivec2 t = kspr_source_texel(v_local, v_map, v_src, v_flip);
-    int px = int(texelFetch(u_sprite, ivec3(t, int(u_layer + 0.5)), 0).r * 255.0 + 0.5);
+    int px = int(texelFetch(u_sprite, ivec3(t + ivec2(u_origin), int(u_layer + 0.5)), 0).r * 255.0 + 0.5);
     vec3 delta;
     if (!kspr_glow_delta(px, u_darken, u_palette_xform, delta)) discard;
     fragColor = vec4(delta, u_darken ? 0.0 : 1.0);
@@ -567,13 +573,14 @@ flat in vec2  v_src;
 flat in float v_flip;
 uniform sampler2DArray u_sprite;
 uniform float          u_layer;
+uniform vec2           u_origin;
 uniform vec4           u_outline_color;
 out vec4 fragColor;
 )glsl" KSPR_SOURCE_TEXEL_GLSL R"glsl(
 void main()
 {
     ivec2 t = kspr_source_texel(v_local, v_map, v_src, v_flip);
-    if (texelFetch(u_sprite, ivec3(t, int(u_layer + 0.5)), 0).g < 0.5) discard;
+    if (texelFetch(u_sprite, ivec3(t + ivec2(u_origin), int(u_layer + 0.5)), 0).g < 0.5) discard;
     fragColor = u_outline_color;
 }
 )glsl";
@@ -618,16 +625,16 @@ flat in vec2  v_src;
 flat in float v_flip;
 uniform sampler2DArray u_sprite;
 uniform float          u_layer;
+uniform vec2           u_origin;
 uniform vec4           u_outline_color;
 out vec4 fragColor;
 const float kThr = 0.5;
 )glsl" KSPR_SOURCE_TEXEL_GLSL R"glsl(
 float coverage(ivec2 t)
 {
-    ivec2 size = textureSize(u_sprite, 0).xy;
-    if (any(lessThan(t, ivec2(0))) || any(greaterThanEqual(t, size)))
+    if (any(lessThan(t, ivec2(0))) || t.x >= int(v_src.x))
         return 0.0;
-    return texelFetch(u_sprite, ivec3(t, int(u_layer + 0.5)), 0).g;
+    return texelFetch(u_sprite, ivec3(t + ivec2(u_origin), int(u_layer + 0.5)), 0).g;
 }
 void main()
 {
@@ -647,12 +654,14 @@ layout(location = 2) in vec2 a_src;     // instance: src_w, content_h
 layout(location = 3) in vec4 a_misc;    // instance: layer, clut_v, alpha, z_ndc
 layout(location = 4) in uint a_flags;   // instance: bit0 = flip_h, bit1 = glow, bit2 = darken pass
 layout(location = 5) in vec4 a_map;     // instance: phase x/y, step x/y
+layout(location = 6) in vec2 a_origin;  // instance: sprite's top-left texel in the layer
 uniform vec2 u_viewport;
 out vec2 v_local;
 flat out vec4 v_map;
 flat out vec2 v_src;
 flat out vec3 v_lca;    // layer, clut_v, alpha
 flat out uint v_flags;
+flat out vec2 v_origin;
 void main()
 {
     vec2 px = a_rect.xy + a_corner * a_rect.zw;
@@ -665,6 +674,7 @@ void main()
     v_src   = a_src;
     v_lca   = a_misc.xyz;
     v_flags = a_flags;
+    v_origin = a_origin;
 }
 )glsl";
 
@@ -675,7 +685,8 @@ flat in vec4 v_map;
 flat in vec2 v_src;
 flat in vec3 v_lca;    // layer, clut_v, alpha
 flat in uint v_flags;  // bit0 = flip_h, bit1 = glow, bit2 = darken pass
-uniform sampler2DArray u_sprite;   // GL_RG8 decode atlas (index, coverage), one layer per sprite
+flat in vec2 v_origin;
+uniform sampler2DArray u_sprite;   // GL_RG8 decode atlas (index, coverage), many frames packed per layer
 uniform sampler2D      u_clut;     // 256xN CLUT -- row 0 identity, rows 1..N remaps
 // Glow steps are engine-palette colours; this moves them into the palette drawn with.
 uniform mat3 u_palette_xform;
@@ -685,7 +696,7 @@ void main()
 {
     float flip = ((v_flags & 1u) != 0u) ? 1.0 : 0.0;
     ivec2 t = kspr_source_texel(v_local, v_map, v_src, flip);
-    vec4 texel = texelFetch(u_sprite, ivec3(t, int(v_lca.x + 0.5)), 0);
+    vec4 texel = texelFetch(u_sprite, ivec3(t + ivec2(v_origin), int(v_lca.x + 0.5)), 0);
     float idx = texel.r;
     if ((v_flags & 2u) != 0u)
     {
@@ -716,6 +727,7 @@ layout(location = 2) in vec2 a_src;
 layout(location = 3) in vec3 a_lzf;     // instance: layer, z_ndc, flip (0/1)
 layout(location = 4) in vec4 a_color;   // instance: outline rgba
 layout(location = 5) in vec4 a_map;
+layout(location = 6) in vec2 a_origin;  // instance: sprite's top-left texel in the layer
 uniform vec2 u_viewport;
 out vec2 v_local;
 flat out vec4  v_map;
@@ -723,6 +735,7 @@ flat out vec2  v_src;
 flat out float v_layer;
 flat out float v_flip;
 flat out vec4  v_color;
+flat out vec2  v_origin;
 void main()
 {
     vec2 px = a_rect.xy + a_corner * a_rect.zw;
@@ -736,6 +749,7 @@ void main()
     v_layer = a_lzf.x;
     v_flip  = a_lzf.z;
     v_color = a_color;
+    v_origin = a_origin;
 }
 )glsl";
 
@@ -747,13 +761,14 @@ flat in vec2  v_src;
 flat in float v_layer;
 flat in float v_flip;
 flat in vec4  v_color;
+flat in vec2  v_origin;
 uniform sampler2DArray u_sprite;
 out vec4 fragColor;
 )glsl" KSPR_SOURCE_TEXEL_GLSL R"glsl(
 void main()
 {
     ivec2 t = kspr_source_texel(v_local, v_map, v_src, v_flip);
-    if (texelFetch(u_sprite, ivec3(t, int(v_layer + 0.5)), 0).g < 0.5) discard;
+    if (texelFetch(u_sprite, ivec3(t + ivec2(v_origin), int(v_layer + 0.5)), 0).g < 0.5) discard;
     fragColor = vec4(v_color.rgb * v_color.a, v_color.a);  // premultiplied
 }
 )glsl";
@@ -768,16 +783,16 @@ flat in vec2  v_src;
 flat in float v_layer;
 flat in float v_flip;
 flat in vec4  v_color;
+flat in vec2  v_origin;
 uniform sampler2DArray u_sprite;
 out vec4 fragColor;
 const float kThr = 0.5;
 )glsl" KSPR_SOURCE_TEXEL_GLSL R"glsl(
 float coverage(ivec2 t)
 {
-    ivec2 size = textureSize(u_sprite, 0).xy;
-    if (any(lessThan(t, ivec2(0))) || any(greaterThanEqual(t, size)))
+    if (any(lessThan(t, ivec2(0))) || t.x >= int(v_src.x))
         return 0.0;
-    return texelFetch(u_sprite, ivec3(t, int(v_layer + 0.5)), 0).g;
+    return texelFetch(u_sprite, ivec3(t + ivec2(v_origin), int(v_layer + 0.5)), 0).g;
 }
 void main()
 {
@@ -790,7 +805,7 @@ void main()
 )glsl";
 
 // Creature-shadow shaders. Samples the same GL_TEXTURE_2D_ARRAY
-// the keeper-sprite atlas already builds (resolve_atlas_layer(), shared
+// the keeper-sprite cache already builds (resolve_kspr_cache(), shared
 // cache) as a binary silhouette mask, discarding transparent texels the
 // same way KSPR_ARRAY_FRAGMENT_SHADER does. Where the mask is solid, the
 // draw call (glBlendFunc(GL_ZERO, GL_SRC_COLOR)) multiplies the
@@ -804,10 +819,12 @@ layout(location = 1) in vec2  a_uv;      // atlas UV [0,1]
 layout(location = 2) in float a_layer;   // atlas layer index
 layout(location = 3) in float a_z_ndc;
 layout(location = 4) in float a_darken;  // 0=no shadow, 1=fully black
+layout(location = 5) in vec4  a_rect;    // sprite's texels in the layer: x0, y0, x1, y1
 uniform vec2 u_viewport;
 out vec2 v_uv;
 flat out float v_layer;
 flat out float v_darken;
+flat out vec4  v_rect;
 void main()
 {
     float ndc_x = a_pos.x / u_viewport.x * 2.0 - 1.0;
@@ -816,6 +833,7 @@ void main()
     v_uv = a_uv;
     v_layer = a_layer;
     v_darken = a_darken;
+    v_rect = a_rect;
 }
 )glsl";
 
@@ -824,10 +842,14 @@ constexpr const char* SHADOW_FRAGMENT_SHADER = R"glsl(
 in vec2 v_uv;
 flat in float v_layer;
 flat in float v_darken;
+flat in vec4  v_rect;
 uniform sampler2DArray u_sprite;
 out vec4 fragColor;
 void main()
 {
+    // The shadow quad can span more than the cached frame; never read a neighbour.
+    vec2 px = v_uv * vec2(textureSize(u_sprite, 0).xy);
+    if (any(lessThan(px, v_rect.xy)) || any(greaterThanEqual(px, v_rect.zw))) discard;
     if (texture(u_sprite, vec3(v_uv, v_layer)).g < 0.5) discard;
     float keep = 1.0 - v_darken;
     fragColor = vec4(keep, keep, keep, 1.0);
