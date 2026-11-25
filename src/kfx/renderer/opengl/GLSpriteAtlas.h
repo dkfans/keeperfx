@@ -97,8 +97,9 @@ private:
     bool grow_layout();
 
     /** Moves the CPU pixels into a new_w x new_h layout, dropping entries
-     *  that no longer fit. Caller already holds m_mutex. */
-    void relayout(int32_t new_w, int32_t new_h);
+     *  that no longer fit. False (nothing changed) if the memory isn't there.
+     *  Caller already holds m_mutex. */
+    bool relayout(int32_t new_w, int32_t new_h);
 
     /** Repacks the live entries into a zeroed buffer, dropping the rest.
      *  Caller already holds m_mutex. */

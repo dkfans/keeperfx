@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include <cstring>
 #include <iterator>
+#include <new>
 #include "post_inc.h"
 
 void GLSpriteAtlas::SetLivenessQuery(std::function<bool(SpriteHandle)> is_live)
@@ -333,15 +334,29 @@ bool GLSpriteAtlas::grow_layout()
         new_w = m_w * 2;
     else
         return false;
-    relayout(new_w, new_h);
+    if (!relayout(new_w, new_h))
+    {
+        GLWARN("Not enough memory to grow the interface sprite atlas to %dx%d; it makes room by dropping unused sprites instead.",
+               (int)new_w, (int)new_h);
+        m_grow_failed = true;
+        return false;
+    }
     GLLOG("Interface sprite atlas grew to %dx%d.", (int)new_w, (int)new_h);
     return true;
 }
 
 // Caller already holds m_mutex.
-void GLSpriteAtlas::relayout(int32_t new_w, int32_t new_h)
+bool GLSpriteAtlas::relayout(int32_t new_w, int32_t new_h)
 {
-    std::vector<uint8_t> pixels((size_t)new_w * new_h, 0u);
+    std::vector<uint8_t> pixels;
+    try
+    {
+        pixels.assign((size_t)new_w * new_h, 0u);
+    }
+    catch (const std::bad_alloc&)
+    {
+        return false;
+    }
     const int32_t rows = std::min(m_h, new_h);
     const int32_t cols = std::min(m_w, new_w);
     for (int32_t row = 0; row < rows; ++row)
@@ -356,4 +371,5 @@ void GLSpriteAtlas::relayout(int32_t new_w, int32_t new_h)
     m_h = new_h;
     m_dirty_y_min = 0;
     m_dirty_y_max = m_h;
+    return true;
 }

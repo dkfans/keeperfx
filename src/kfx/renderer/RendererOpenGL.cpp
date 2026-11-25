@@ -418,8 +418,7 @@ void RendererOpenGL::render_thread_init()
         GLWARN("A debug context was asked for, but the driver did not provide one. Only serious driver errors are logged.");
 
     m_impl->atlas.SetResourceMapper(&m_impl->resource_mapper);
-    // 8192 keeps the CPU copy of the atlas at 64 MiB in a 32-bit process.
-    m_impl->atlas.SetMaxSize(std::min<int32_t>(caps.max_texture_size, 8192));
+    m_impl->atlas.SetMaxSize(caps.max_texture_size);
     m_impl->ui.SetResourceMapper(&m_impl->resource_mapper);
     if (!m_impl->atlas.Init() || !m_impl->ui.Init())
     {
