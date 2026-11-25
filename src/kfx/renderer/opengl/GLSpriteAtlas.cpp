@@ -36,6 +36,7 @@ bool GLSpriteAtlas::Init()
         desc.wrap = GpuTextureWrap::Clamp;
         desc.debug_name = "sprite_atlas";
         m_texture_handle = m_resource_mapper->RequestCreateTexture(desc);
+        return m_resource_mapper->ResolveTexture(m_texture_handle) != nullptr;
     }
 
     return true;

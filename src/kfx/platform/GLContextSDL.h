@@ -12,7 +12,7 @@ class GLContextSDL : public IGLContext {
 public:
     /** Set the context and pixel format attributes. Must run before the
      *  window is created, since SDL fixes the pixel format at creation. */
-    static void RequestWindowAttributes();
+    static void RequestWindowAttributes(bool debug_context);
 
     /** Create a context for a window made with SDL_WINDOW_OPENGL. The context
      *  is current on the calling thread. Returns nullptr on failure. */

@@ -36,6 +36,7 @@ void         PlatformManager_SetWindowBordered(int bordered);
 void         PlatformManager_SetWindowPosition(int x, int y);
 void         PlatformManager_SetWindowTitle(const char* title);
 int          PlatformManager_CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags);
+void         PlatformManager_DestroyWindow(void);
 void         PlatformManager_WarpCursor(int x, int y);
 void         PlatformManager_SetGameSurfaceSize(int w, int h);
 int          PlatformManager_GetCursorPosition(int* x, int* y);

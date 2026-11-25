@@ -3,9 +3,94 @@
 #include "kfx/renderer/RendererThread.h"
 #include "kfx/renderer/RendererFrameCounter.h"
 #include "globals.h" // WARNLOG/ERRORLOG
+#include "kfx/renderer/opengl/GLLog.h"
 #include "post_inc.h"
 
+#include <algorithm>
 #include <cstring>
+#include <string>
+
+static const char* gl_error_name(GLenum err)
+{
+    switch (err)
+    {
+        case GL_INVALID_ENUM:                  return "GL_INVALID_ENUM";
+        case GL_INVALID_VALUE:                 return "GL_INVALID_VALUE";
+        case GL_INVALID_OPERATION:             return "GL_INVALID_OPERATION";
+        case GL_INVALID_FRAMEBUFFER_OPERATION: return "GL_INVALID_FRAMEBUFFER_OPERATION";
+        case GL_OUT_OF_MEMORY:                 return "GL_OUT_OF_MEMORY";
+        default:                               return "unknown GL error";
+    }
+}
+
+static const char* gl_error_plain(GLenum err)
+{
+    return (err == GL_OUT_OF_MEMORY) ? "Not enough video memory for"
+                                     : "The graphics driver refused to create";
+}
+
+// Clears errors left by earlier calls so they aren't blamed on the next resource.
+static void drain_earlier_gl_errors(const char* name)
+{
+    for (int i = 0; i < 16; ++i)
+    {
+        const GLenum err = glGetError();
+        if (err == GL_NO_ERROR)
+            return;
+        GLWARN("An earlier graphics call failed; found before creating '%s', not caused by it. (%s)",
+               name ? name : "?", gl_error_name(err));
+    }
+}
+
+static const char* format_name(GpuTextureFormat f)
+{
+    switch (f)
+    {
+        case GpuTextureFormat::R8:              return "R8";
+        case GpuTextureFormat::RG8:             return "RG8";
+        case GpuTextureFormat::RGBA8:           return "RGBA8";
+        case GpuTextureFormat::RGBA16F:         return "RGBA16F";
+        case GpuTextureFormat::Depth24Stencil8: return "D24S8";
+        case GpuTextureFormat::R16UI:           return "R16UI";
+        case GpuTextureFormat::RG16UI:          return "RG16UI";
+        default:                                return "?";
+    }
+}
+
+template <typename Desc, typename Realized>
+void GLResourceMapper::DeferPreviousDestroy(Slot<Desc, Realized>& slot, GpuResourceHandle handle,
+                                            Realized PendingDestroy::* snapshot)
+{
+    if (!slot.has_previous)
+        return;
+    PendingDestroy pd;
+    pd.handle = handle;
+    pd.destroy_after_frame = RendererFrameCounter_Current();
+    pd.had_realized = true;
+    pd.*snapshot = slot.previous;
+    m_pending_destroys.push_back(std::move(pd));
+    slot.previous = {};
+    slot.has_previous = false;
+}
+
+template <typename Desc, typename Realized, typename RealizeFn>
+const Realized* GLResourceMapper::RealizePending(Slot<Desc, Realized>& slot, GpuResourceHandle handle,
+                                                 RealizeFn realize, Realized PendingDestroy::* snapshot)
+{
+    Realized fresh = {};
+    if (realize(slot.desc, fresh))
+    {
+        DeferPreviousDestroy(slot, handle, snapshot);
+        slot.realized = fresh;
+        slot.state = SlotState::Realized;
+        return &slot.realized;
+    }
+    // Callers already sized their draws for the new object, so the old one is
+    // not a safe stand-in: drop it and let the draws skip.
+    DeferPreviousDestroy(slot, handle, snapshot);
+    slot.state = SlotState::Failed;
+    return nullptr;
+}
 
 static void LogShaderCompileError(const char* stage, GLuint shader)
 {
@@ -222,6 +307,14 @@ void GLResourceMapper::RequestRelease(GpuResourceHandle handle)
     }
 
     m_pending_destroys.push_back(std::move(pd));
+    switch (kind)
+    {
+        case GpuResourceKind::Texture:        DeferPreviousDestroy(m_textures[index], handle, &PendingDestroy::realized_texture); break;
+        case GpuResourceKind::RenderTarget:   DeferPreviousDestroy(m_render_targets[index], handle, &PendingDestroy::realized_render_target); break;
+        case GpuResourceKind::Program:        DeferPreviousDestroy(m_programs[index], handle, &PendingDestroy::realized_program); break;
+        case GpuResourceKind::GeometryBuffer: DeferPreviousDestroy(m_geometry_buffers[index], handle, &PendingDestroy::realized_geometry_buffer); break;
+        default: break;
+    }
 }
 
 GpuResourceHandle GLResourceMapper::RequestReloadTexture(GpuResourceHandle handle, const GpuTextureDesc& new_desc)
@@ -237,20 +330,22 @@ GpuResourceHandle GLResourceMapper::RequestReloadTexture(GpuResourceHandle handl
         WARNLOG("GLResourceMapper::RequestReloadTexture: invalid handle");
         return kInvalidGpuResource;
     }
-
-    PendingDestroy pd;
-    pd.handle = handle;
-    pd.destroy_after_frame = RendererFrameCounter_Current();
-    pd.is_release = false;
-    if (m_textures[index].state == SlotState::Realized)
+    if (IsReleasePending(handle))
     {
-        pd.had_realized = true;
-        pd.realized_texture = m_textures[index].realized;
+        WARNLOG("GLResourceMapper::RequestReloadTexture: handle already released");
+        return kInvalidGpuResource;
     }
-    m_pending_destroys.push_back(std::move(pd));
-    m_textures[index].desc = new_desc;
-    m_textures[index].state = SlotState::Pending;
-    ++m_textures[index].generation;
+
+    auto& slot = m_textures[index];
+    if (slot.state == SlotState::Realized)
+    {
+        slot.previous      = slot.realized;
+        slot.has_previous  = true;
+    }
+    // A second reload before the first realized keeps the original previous.
+    slot.desc  = new_desc;
+    slot.state = SlotState::Pending;
+    ++slot.generation;
 
     return GpuResourceHandle_Make(GpuResourceKind::Texture, m_textures[index].generation, index);
 }
@@ -268,20 +363,22 @@ GpuResourceHandle GLResourceMapper::RequestReloadRenderTarget(GpuResourceHandle 
         WARNLOG("GLResourceMapper::RequestReloadRenderTarget: invalid handle");
         return kInvalidGpuResource;
     }
-
-    PendingDestroy pd;
-    pd.handle = handle;
-    pd.destroy_after_frame = RendererFrameCounter_Current();
-    pd.is_release = false;
-    if (m_render_targets[index].state == SlotState::Realized)
+    if (IsReleasePending(handle))
     {
-        pd.had_realized = true;
-        pd.realized_render_target = m_render_targets[index].realized;
+        WARNLOG("GLResourceMapper::RequestReloadRenderTarget: handle already released");
+        return kInvalidGpuResource;
     }
-    m_pending_destroys.push_back(std::move(pd));
-    m_render_targets[index].desc = new_desc;
-    m_render_targets[index].state = SlotState::Pending;
-    ++m_render_targets[index].generation;
+
+    auto& slot = m_render_targets[index];
+    if (slot.state == SlotState::Realized)
+    {
+        slot.previous      = slot.realized;
+        slot.has_previous  = true;
+    }
+    // A second reload before the first realized keeps the original previous.
+    slot.desc  = new_desc;
+    slot.state = SlotState::Pending;
+    ++slot.generation;
 
     return GpuResourceHandle_Make(GpuResourceKind::RenderTarget, m_render_targets[index].generation, index);
 }
@@ -299,20 +396,22 @@ GpuResourceHandle GLResourceMapper::RequestReloadProgram(GpuResourceHandle handl
         WARNLOG("GLResourceMapper::RequestReloadProgram: invalid handle");
         return kInvalidGpuResource;
     }
-
-    PendingDestroy pd;
-    pd.handle = handle;
-    pd.destroy_after_frame = RendererFrameCounter_Current();
-    pd.is_release = false;
-    if (m_programs[index].state == SlotState::Realized)
+    if (IsReleasePending(handle))
     {
-        pd.had_realized = true;
-        pd.realized_program = m_programs[index].realized;
+        WARNLOG("GLResourceMapper::RequestReloadProgram: handle already released");
+        return kInvalidGpuResource;
     }
-    m_pending_destroys.push_back(std::move(pd));
-    m_programs[index].desc = new_desc;
-    m_programs[index].state = SlotState::Pending;
-    ++m_programs[index].generation;
+
+    auto& slot = m_programs[index];
+    if (slot.state == SlotState::Realized)
+    {
+        slot.previous      = slot.realized;
+        slot.has_previous  = true;
+    }
+    // A second reload before the first realized keeps the original previous.
+    slot.desc  = new_desc;
+    slot.state = SlotState::Pending;
+    ++slot.generation;
 
     return GpuResourceHandle_Make(GpuResourceKind::Program, m_programs[index].generation, index);
 }
@@ -330,20 +429,22 @@ GpuResourceHandle GLResourceMapper::RequestReloadGeometryBuffer(GpuResourceHandl
         WARNLOG("GLResourceMapper::RequestReloadGeometryBuffer: invalid handle");
         return kInvalidGpuResource;
     }
-
-    PendingDestroy pd;
-    pd.handle = handle;
-    pd.destroy_after_frame = RendererFrameCounter_Current();
-    pd.is_release = false;
-    if (m_geometry_buffers[index].state == SlotState::Realized)
+    if (IsReleasePending(handle))
     {
-        pd.had_realized = true;
-        pd.realized_geometry_buffer = m_geometry_buffers[index].realized;
+        WARNLOG("GLResourceMapper::RequestReloadGeometryBuffer: handle already released");
+        return kInvalidGpuResource;
     }
-    m_pending_destroys.push_back(std::move(pd));
-    m_geometry_buffers[index].desc = new_desc;
-    m_geometry_buffers[index].state = SlotState::Pending;
-    ++m_geometry_buffers[index].generation;
+
+    auto& slot = m_geometry_buffers[index];
+    if (slot.state == SlotState::Realized)
+    {
+        slot.previous      = slot.realized;
+        slot.has_previous  = true;
+    }
+    // A second reload before the first realized keeps the original previous.
+    slot.desc  = new_desc;
+    slot.state = SlotState::Pending;
+    ++slot.generation;
 
     return GpuResourceHandle_Make(GpuResourceKind::GeometryBuffer, m_geometry_buffers[index].generation, index);
 }
@@ -384,19 +485,7 @@ const GLTexture* GLResourceMapper::ResolveTexture(GpuResourceHandle handle)
         return nullptr;
 
     if (slot.state == SlotState::Pending)
-    {
-        if (RealizeTexture(slot.desc, slot.realized))
-        {
-            slot.state = SlotState::Realized;
-            return &slot.realized;
-        }
-        else
-        {
-            ERRORLOG("GLResourceMapper::ResolveTexture: realization failed for '%s'", slot.desc.debug_name);
-            slot.state = SlotState::Failed;
-            return nullptr;
-        }
-    }
+        return RealizePending(slot, handle, [this](const GpuTextureDesc& d, GLTexture& o) { return RealizeTexture(d, o); }, &PendingDestroy::realized_texture);
 
     return nullptr;
 }
@@ -437,19 +526,7 @@ const GLRenderTarget* GLResourceMapper::ResolveRenderTarget(GpuResourceHandle ha
         return nullptr;
 
     if (slot.state == SlotState::Pending)
-    {
-        if (RealizeRenderTarget(slot.desc, slot.realized))
-        {
-            slot.state = SlotState::Realized;
-            return &slot.realized;
-        }
-        else
-        {
-            ERRORLOG("GLResourceMapper::ResolveRenderTarget: realization failed for '%s'", slot.desc.debug_name);
-            slot.state = SlotState::Failed;
-            return nullptr;
-        }
-    }
+        return RealizePending(slot, handle, [this](const GpuRenderTargetDesc& d, GLRenderTarget& o) { return RealizeRenderTarget(d, o); }, &PendingDestroy::realized_render_target);
 
     return nullptr;
 }
@@ -491,17 +568,10 @@ const GLProgram* GLResourceMapper::ResolveProgram(GpuResourceHandle handle)
 
     if (slot.state == SlotState::Pending)
     {
-        if (RealizeProgram(slot.desc, slot.realized))
-        {
-            slot.state = SlotState::Realized;
-            return &slot.realized;
-        }
-        else
-        {
+        const GLProgram* realized = RealizePending(slot, handle, [this](const GpuProgramDesc& d, GLProgram& o) { return RealizeProgram(d, o); }, &PendingDestroy::realized_program);
+        if (realized == nullptr)
             ERRORLOG("GLResourceMapper::ResolveProgram: realization failed for '%s'", slot.desc.debug_name);
-            slot.state = SlotState::Failed;
-            return nullptr;
-        }
+        return realized;
     }
 
     return nullptr;
@@ -543,19 +613,7 @@ const GLGeometryBuffer* GLResourceMapper::ResolveGeometryBuffer(GpuResourceHandl
         return nullptr;
 
     if (slot.state == SlotState::Pending)
-    {
-        if (RealizeGeometryBuffer(slot.desc, slot.realized))
-        {
-            slot.state = SlotState::Realized;
-            return &slot.realized;
-        }
-        else
-        {
-            ERRORLOG("GLResourceMapper::ResolveGeometryBuffer: realization failed for '%s'", slot.desc.debug_name);
-            slot.state = SlotState::Failed;
-            return nullptr;
-        }
-    }
+        return RealizePending(slot, handle, [this](const GpuGeometryBufferDesc& d, GLGeometryBuffer& o) { return RealizeGeometryBuffer(d, o); }, &PendingDestroy::realized_geometry_buffer);
 
     return nullptr;
 }
@@ -593,28 +651,32 @@ void GLResourceMapper::ProcessDeferredDestroys(uint64_t frame_being_rendered)
                 switch (kind)
                 {
                     case GpuResourceKind::Texture:
-                        if (index < (uint32_t)m_textures.size())
+                        if (index < (uint32_t)m_textures.size()
+                            && m_textures[index].generation == GpuResourceHandle_Generation(it->handle))
                         {
                             m_textures[index].state = SlotState::Free;
                             ++m_textures[index].generation;
                         }
                         break;
                     case GpuResourceKind::RenderTarget:
-                        if (index < (uint32_t)m_render_targets.size())
+                        if (index < (uint32_t)m_render_targets.size()
+                            && m_render_targets[index].generation == GpuResourceHandle_Generation(it->handle))
                         {
                             m_render_targets[index].state = SlotState::Free;
                             ++m_render_targets[index].generation;
                         }
                         break;
                     case GpuResourceKind::Program:
-                        if (index < (uint32_t)m_programs.size())
+                        if (index < (uint32_t)m_programs.size()
+                            && m_programs[index].generation == GpuResourceHandle_Generation(it->handle))
                         {
                             m_programs[index].state = SlotState::Free;
                             ++m_programs[index].generation;
                         }
                         break;
                     case GpuResourceKind::GeometryBuffer:
-                        if (index < (uint32_t)m_geometry_buffers.size())
+                        if (index < (uint32_t)m_geometry_buffers.size()
+                            && m_geometry_buffers[index].generation == GpuResourceHandle_Generation(it->handle))
                         {
                             m_geometry_buffers[index].state = SlotState::Free;
                             ++m_geometry_buffers[index].generation;
@@ -630,6 +692,23 @@ void GLResourceMapper::ProcessDeferredDestroys(uint64_t frame_being_rendered)
     }
 }
 
+bool GLResourceMapper::IsReleasePending(GpuResourceHandle handle) const
+{
+    for (const PendingDestroy& pd : m_pending_destroys)
+        if (pd.is_release && pd.handle == handle)
+            return true;
+    return false;
+}
+
+void GLResourceMapper::ReportSkippedDraw(GpuResourceHandle handle, const char* what)
+{
+    ASSERT_RENDER_THREAD();
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_warned_skipped.insert(handle).second)
+        return;
+    GLWARN("Skipping %s: its graphics resource could not be created. Logged once.", what);
+}
+
 void GLResourceMapper::ShutdownAll()
 {
     ASSERT_RENDER_THREAD();
@@ -639,6 +718,9 @@ void GLResourceMapper::ShutdownAll()
     {
         if (slot.state == SlotState::Realized)
             DestroyTexture(slot.realized);
+        if (slot.has_previous)
+            DestroyTexture(slot.previous);
+        slot.has_previous = false;
         slot.state = SlotState::Free;
     }
 
@@ -646,6 +728,9 @@ void GLResourceMapper::ShutdownAll()
     {
         if (slot.state == SlotState::Realized)
             DestroyRenderTarget(slot.realized);
+        if (slot.has_previous)
+            DestroyRenderTarget(slot.previous);
+        slot.has_previous = false;
         slot.state = SlotState::Free;
     }
 
@@ -653,6 +738,9 @@ void GLResourceMapper::ShutdownAll()
     {
         if (slot.state == SlotState::Realized)
             DestroyProgram(slot.realized);
+        if (slot.has_previous)
+            DestroyProgram(slot.previous);
+        slot.has_previous = false;
         slot.state = SlotState::Free;
     }
 
@@ -660,6 +748,9 @@ void GLResourceMapper::ShutdownAll()
     {
         if (slot.state == SlotState::Realized)
             DestroyGeometryBuffer(slot.realized);
+        if (slot.has_previous)
+            DestroyGeometryBuffer(slot.previous);
+        slot.has_previous = false;
         slot.state = SlotState::Free;
     }
 
@@ -668,6 +759,7 @@ void GLResourceMapper::ShutdownAll()
 
 bool GLResourceMapper::RealizeTexture(const GpuTextureDesc& desc, GLTexture& out)
 {
+    drain_earlier_gl_errors(desc.debug_name);
     GLuint tex_id = 0;
     glGenTextures(1, &tex_id);
     if (tex_id == 0)
@@ -733,18 +825,33 @@ bool GLResourceMapper::RealizeTexture(const GpuTextureDesc& desc, GLTexture& out
             break;
     }
 
-    if (desc.array_layers > 1)
+    GLsizei width = desc.width;
+#ifndef NDEBUG
+    if (!m_force_fail_texture.empty() && desc.debug_name != nullptr
+        && m_force_fail_texture == desc.debug_name)
     {
-        glTexImage3D(target, 0, internal_format, desc.width, desc.height, desc.array_layers, 0,
-                     gl_format, gl_type, desc.initial_pixels.empty() ? nullptr : desc.initial_pixels.data());
+        width = 1 << 30; // larger than any GL_MAX_TEXTURE_SIZE: the driver rejects it
+        m_force_fail_texture.clear();
     }
-    else
-    {
-        glTexImage2D(target, 0, internal_format, desc.width, desc.height, 0,
-                     gl_format, gl_type, desc.initial_pixels.empty() ? nullptr : desc.initial_pixels.data());
-    }
+#endif
+    const void* pixels = (width != desc.width || desc.initial_pixels.empty()) ? nullptr : desc.initial_pixels.data();
 
+    if (desc.array_layers > 1)
+        glTexImage3D(target, 0, internal_format, width, desc.height, desc.array_layers, 0, gl_format, gl_type, pixels);
+    else
+        glTexImage2D(target, 0, internal_format, width, desc.height, 0, gl_format, gl_type, pixels);
+
+    const GLenum err = glGetError();
     glBindTexture(target, 0);
+    if (err != GL_NO_ERROR)
+    {
+        glDeleteTextures(1, &tex_id);
+        GLERR("%s '%s'. Anything that uses it will not be drawn. (%dx%dx%d %s, %s)",
+              gl_error_plain(err), desc.debug_name ? desc.debug_name : "?",
+              (int)desc.width, (int)desc.height, std::max(1, (int)desc.array_layers),
+              format_name(desc.format), gl_error_name(err));
+        return false;
+    }
 
     out.id = tex_id;
     out.target = target;
@@ -757,6 +864,7 @@ bool GLResourceMapper::RealizeTexture(const GpuTextureDesc& desc, GLTexture& out
 
 bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRenderTarget& out)
 {
+    drain_earlier_gl_errors(desc.debug_name);
     GLuint fbo = 0;
     glGenFramebuffers(1, &fbo);
     if (fbo == 0)
@@ -790,9 +898,12 @@ bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRe
         GLTexture att_tex;
         if (!RealizeTexture(tex_desc, att_tex))
         {
-            ERRORLOG("GLResourceMapper::RealizeRenderTarget: failed to create attachment texture");
             glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prev_fbo);
             glDeleteFramebuffers(1, &fbo);
+            for (GLuint tex : color_attachments)
+                glDeleteTextures(1, &tex);
+            if (depth_stencil != 0)
+                glDeleteTextures(1, &depth_stencil);
             return false;
         }
 
@@ -815,12 +926,16 @@ bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRe
         glDrawBuffers((GLsizei)color_attachment_enums.size(), color_attachment_enums.data());
     }
 
+    const GLenum err = glGetError();
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prev_fbo);
 
-    if (status != GL_FRAMEBUFFER_COMPLETE)
+    if (err != GL_NO_ERROR || status != GL_FRAMEBUFFER_COMPLETE)
     {
-        ERRORLOG("GLResourceMapper::RealizeRenderTarget: FBO incomplete (status 0x%X)", status);
+        GLERR("%s render target '%s'. What draws into it will be skipped. (%dx%d, %s, status 0x%X)",
+              gl_error_plain(err), desc.debug_name ? desc.debug_name : "?",
+              (int)desc.width, (int)desc.height,
+              err != GL_NO_ERROR ? gl_error_name(err) : "no GL error", (unsigned)status);
         glDeleteFramebuffers(1, &fbo);
         for (GLuint tex : color_attachments)
             glDeleteTextures(1, &tex);
@@ -894,6 +1009,7 @@ bool GLResourceMapper::RealizeProgram(const GpuProgramDesc& desc, GLProgram& out
 
 bool GLResourceMapper::RealizeGeometryBuffer(const GpuGeometryBufferDesc& desc, GLGeometryBuffer& out)
 {
+    drain_earlier_gl_errors(desc.debug_name);
     GLuint vao = 0, vbo = 0, ebo = 0;
 
     glGenVertexArrays(1, &vao);
@@ -959,8 +1075,20 @@ bool GLResourceMapper::RealizeGeometryBuffer(const GpuGeometryBufferDesc& desc, 
         }
     }
 
+    const GLenum err = glGetError();
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    if (err != GL_NO_ERROR)
+    {
+        if (ebo != 0)
+            glDeleteBuffers(1, &ebo);
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
+        GLERR("%s buffer '%s'. What uses it will not be drawn. (%u bytes, %s)",
+              gl_error_plain(err), desc.debug_name ? desc.debug_name : "?",
+              (unsigned)(desc.initial_vertex_capacity + desc.initial_index_capacity), gl_error_name(err));
+        return false;
+    }
 
     out.vao = vao;
     out.vbo = vbo;

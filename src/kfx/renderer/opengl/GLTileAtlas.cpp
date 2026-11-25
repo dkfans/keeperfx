@@ -14,6 +14,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include "kfx/renderer/opengl/GLLog.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -39,9 +40,30 @@ bool GLTileAtlas::Init()
         }
     }
 
+    if (!CreateTexture())
+        return false;
+
+    for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
+    {
+        BuildVariation(v);
+        m_built_generation[v] = texture_set_generation(v);
+    }
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+    m_initialized = true;
+    SYNCLOG("GLTileAtlas: loaded %d variations (%d×%d×%d R8 texture array)",
+            TEXTURE_VARIATIONS_COUNT, k_atlas_w, k_atlas_h, TEXTURE_VARIATIONS_COUNT);
+    return true;
+}
+
+bool GLTileAtlas::CreateTexture()
+{
+    if (m_texture_handle != kInvalidGpuResource)
+        return true;
     if (m_resource_mapper == nullptr)
     {
-        ERRORLOG("GLTileAtlas::Init — no resource mapper set");
+        ERRORLOG("GLTileAtlas::CreateTexture — no resource mapper set");
         return false;
     }
 
@@ -57,21 +79,10 @@ bool GLTileAtlas::Init()
     m_texture_handle = m_resource_mapper->RequestCreateTexture(desc);
     if (m_resource_mapper->ResolveTexture(m_texture_handle) == nullptr)
     {
-        ERRORLOG("GLTileAtlas::Init — tile atlas array texture realization failed");
+        GLERR("Could not create the tile atlas. Switching to software.");
+        m_texture_handle = kInvalidGpuResource;
         return false;
     }
-
-    for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
-    {
-        BuildVariation(v);
-        m_built_generation[v] = texture_set_generation(v);
-    }
-
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-    m_initialized = true;
-    SYNCLOG("GLTileAtlas: loaded %d variations (%d×%d×%d R8 texture array)",
-            TEXTURE_VARIATIONS_COUNT, k_atlas_w, k_atlas_h, TEXTURE_VARIATIONS_COUNT);
     return true;
 }
 

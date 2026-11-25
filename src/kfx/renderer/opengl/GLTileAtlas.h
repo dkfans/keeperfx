@@ -38,6 +38,8 @@ public:
 
     // ITileAtlas
     bool              Init() override;
+    /** Allocates the array texture. Needs no level data; called during renderer init. */
+    bool              CreateTexture();
     void              Free() override;
     /** Re-uploads every set whose tile data changed since it was last built. */
     void              RebuildChanged();

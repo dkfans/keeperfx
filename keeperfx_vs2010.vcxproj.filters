@@ -342,6 +342,7 @@
     <ClCompile Include="src\kfx\renderer\TileAtlasPacker.cpp" />
     <ClCompile Include="src\kfx\renderer\backends\SoftwareCursorLayer.cpp" />
     <ClCompile Include="src\kfx\renderer\backends\SoftwareWorldViewRenderer.cpp" />
+    <ClCompile Include="src\kfx\renderer\opengl\GLCaps.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLCursorLayer.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLFunctions.cpp" />
     <ClCompile Include="src\kfx\renderer\opengl\GLImagePresentPass.cpp" />
@@ -717,9 +718,11 @@
     <ClInclude Include="src\kfx\renderer\ir\TextCommands.h" />
     <ClInclude Include="src\kfx\renderer\ir\UICommands.h" />
     <ClInclude Include="src\kfx\renderer\ir\WorldCommands.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\GLCaps.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLCursorLayer.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLFunctions.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLImagePresentPass.h" />
+    <ClInclude Include="src\kfx\renderer\opengl\GLLog.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLMapFadePass.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLPaletteIndexLookup.h" />
     <ClInclude Include="src\kfx\renderer\opengl\GLResourceMapper.h" />

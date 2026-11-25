@@ -7,6 +7,8 @@
 #include "kfx/platform/IWindowSystem.h"
 #include "kfx/platform/IGLContext.h"
 #include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/GLCaps.h"
+#include "kfx/renderer/opengl/GLLog.h"
 #include "kfx/renderer/opengl/GLSpriteAtlas.h"
 #include "kfx/renderer/opengl/GLUIRenderer.h"
 #include "kfx/renderer/opengl/GLTextRenderer.h"
@@ -106,6 +108,7 @@ struct RendererOpenGL::Impl {
     std::vector<unsigned char> huge_sprite_coverage;
 
     GLResourceMapper   resource_mapper;
+    GLCaps             caps;
     GpuResourceHandle  palette_tex_handle    = kInvalidGpuResource;
     GpuResourceHandle  fade_table_tex_handle = kInvalidGpuResource;
     GLPaletteIndexLookup palette_index_lookup;
@@ -200,14 +203,7 @@ void RendererOpenGL::Impl::PresentScreenTarget(const GLFrameData& fd)
         glEnable(GL_SCISSOR_TEST);
 }
 
-// GL_KHR_debug callback -- surfaces driver-reported errors/warnings (bad
-// texture uploads, shader link failures the compile-time check missed,
-// invalid enum/operation, etc.) as ERRORLOG/WARNLOG/SYNCLOG lines instead of
-// silently wrong pixels with no trail. Adapted from develop's equivalent
-// (RendererOpenGL.cpp's DebugCallback), which this branch never had. Wired
-// up unconditionally in render_thread_init() below (not gated behind a debug
-// build) since this renderer is young enough that the diagnostic value
-// outweighs the (small, driver-side) overhead -- revisit once it's mature.
+// GL_KHR_debug callback. May run on driver threads; the Lb*Log path is locked.
 static void APIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
     GLsizei /*length*/, const GLchar* message, const void* /*userParam*/)
 {
@@ -231,10 +227,10 @@ static void APIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id, GLen
                     : type == GL_DEBUG_TYPE_MARKER              ? "Marker"
                     : type == GL_DEBUG_TYPE_OTHER               ? "Other"
                                                                  : "Unknown";
-    if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
-        ERRORLOG("[GL DEBUG] %s/%s id=%u: %s", src, tp, id, message);
+    if (severity == GL_DEBUG_SEVERITY_HIGH)
+        GLERR("Graphics driver reported: %s (%s/%s id=%u)", message, src, tp, id);
     else
-        WARNLOG("[GL DEBUG] %s/%s id=%u: %s", src, tp, id, message);
+        GLWARN("Graphics driver reported: %s (%s/%s id=%u)", message, src, tp, id);
 }
 
 RendererOpenGL::RendererOpenGL() = default;
@@ -244,21 +240,40 @@ RendererOpenGL::~RendererOpenGL()
     Shutdown();
 }
 
+// Render thread or game thread, before init_ok is read.
+void RendererOpenGL::fail_init(const char* reason)
+{
+    if (m_init_failure.empty())
+        m_init_failure = reason;
+    if (m_impl != nullptr)
+        m_impl->init_ok = false;
+}
+
 bool RendererOpenGL::Init()
 {
+    m_init_failure.clear();
     IWindowSystem* ws = GetPlatform()->GetWindowSystem();
     if (ws == nullptr || !ws->HasWindow())
     {
+        fail_init("the game window was not ready");
         ERRORLOG("RendererOpenGL::Init: no window (startup ordering invariant violated -- "
                  "the window must exist before RendererInit() runs)");
         return false;
     }
 
+#ifndef NDEBUG
+    if (GLStartupOptions_Get().fail == GLFailStage::Context)
+    {
+        GLERR("OpenGL context creation forced to fail by -glfail context.");
+        fail_init("the graphics driver could not create an OpenGL 3.3 context");
+        return false;
+    }
+#endif
     m_gl_context = ws->CreateGLContext();
     if (!m_gl_context)
     {
-        ERRORLOG("RendererOpenGL::Init: could not create a GL context "
-                 "(the window needs the flags from RendererGetRequiredWindowFlags())");
+        GLERR("Could not create an OpenGL 3.3 context. The game will switch to software. (%s)", SDL_GetError());
+        fail_init("the graphics driver could not create an OpenGL 3.3 context");
         return false;
     }
 
@@ -266,6 +281,7 @@ bool RendererOpenGL::Init()
 
     if (!m_gl_context->ReleaseCurrent())
     {
+        fail_init("the graphics driver could not hand the OpenGL context to the render thread");
         m_gl_context.reset();
         return false;
     }
@@ -308,40 +324,105 @@ void RendererOpenGL::render_thread_init()
 {
     if (!m_gl_context->MakeCurrent())
     {
-        m_impl->init_ok = false;
+        fail_init("the graphics driver could not make the OpenGL context current");
         return;
     }
 
     if (!GLFunctions_Load(m_gl_context->GetProcLoader()))
     {
-        ERRORLOG("RendererOpenGL::Init: failed to load required GL entry points");
-        m_impl->init_ok = false;
+        GLERR("The graphics driver is missing OpenGL functions the game needs. Switching to software.");
+        fail_init("the graphics driver is missing OpenGL functions the game needs");
         return;
     }
     m_impl->functions_loaded = true;
 
     KFX_GPU_CTX_CREATE();
 
-    SYNCDBG(0, "RendererOpenGL::Init: GL context current on render thread (version: %s)", (const char*)glGetString(GL_VERSION));
+    GLCaps& caps = m_impl->caps;
+    auto gl_str = [](GLenum e) { const GLubyte* s = glGetString(e); return std::string(s ? (const char*)s : "?"); };
+    caps.vendor   = gl_str(GL_VENDOR);
+    caps.renderer = gl_str(GL_RENDERER);
+    caps.version  = gl_str(GL_VERSION);
+    GLint v = 0;
+    glGetIntegerv(GL_MAJOR_VERSION, &v); caps.major = v;
+    glGetIntegerv(GL_MINOR_VERSION, &v); caps.minor = v;
+    if (caps.major == 0)
+    {
+        glGetError(); // pre-3.0 contexts reject GL_MAJOR_VERSION
+        int major = 0, minor = 0;
+        if (sscanf(caps.version.c_str(), "%d.%d", &major, &minor) == 2)
+        {
+            caps.major = major;
+            caps.minor = minor;
+        }
+    }
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &v); caps.max_texture_size = v;
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &v); caps.max_array_layers = v;
+    glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &v); caps.max_renderbuffer_size = v;
+    GLint dims[2] = {0, 0};
+    glGetIntegerv(GL_MAX_VIEWPORT_DIMS, dims);
+    caps.max_viewport_w = dims[0];
+    caps.max_viewport_h = dims[1];
+    caps.has_khr_debug = GLAD_GL_KHR_debug != 0;
+    GLint context_flags = 0;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
+    caps.debug_context = (context_flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0;
 
-    if (GLAD_GL_KHR_debug)
+#ifndef NDEBUG
+    const GLStartupOptions& opts = GLStartupOptions_Get();
+    if (opts.caps_low)
+        GLCaps_ApplyLow(caps);
+    if (opts.fail == GLFailStage::Version) { caps.major = 3; caps.minor = 1; }
+    if (opts.fail == GLFailStage::Limits)  { caps.max_texture_size = 1024; caps.max_array_layers = 16; }
+#endif
+
+    GLLOG("Graphics card: %s, %s, OpenGL %d.%d. Largest texture %d, texture layers %d. (GL_VERSION \"%s\")",
+          caps.vendor.c_str(), caps.renderer.c_str(), (int)caps.major, (int)caps.minor,
+          (int)caps.max_texture_size, (int)caps.max_array_layers, caps.version.c_str());
+#ifndef NDEBUG
+    if (opts.caps_low || opts.fail != GLFailStage::None)
+        GLLOG("Limits above are forced by -glcaps or -glfail for testing.");
+#endif
+
+    const std::string hard = GLCaps_CheckHard(caps);
+    if (!hard.empty())
+    {
+        GLERR("OpenGL could not start: %s. Switching to the software renderer. (GL_VERSION \"%s\", max texture %d, layers %d)",
+              hard.c_str(), caps.version.c_str(), (int)caps.max_texture_size, (int)caps.max_array_layers);
+        fail_init(hard.c_str());
+        return;
+    }
+
+    if (caps.has_khr_debug)
     {
         glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugCallback, nullptr);
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        if (caps.debug_context)
+        {
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+        }
+        else
+        {
+            glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE);
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+        }
     }
-    else
-    {
-        WARNLOG("RendererOpenGL::Init: GL_KHR_debug not available; debug callback disabled");
-    }
+    GLLOG("Driver messages: %s.",
+          !caps.has_khr_debug ? "not available on this driver"
+          : caps.debug_context ? "debug context, all warnings and errors, synchronous"
+          : "serious errors only");
+    if (GLStartupOptions_Get().debug_context && !caps.debug_context)
+        GLWARN("A debug context was asked for, but the driver did not provide one. Only serious driver errors are logged.");
 
     m_impl->atlas.SetResourceMapper(&m_impl->resource_mapper);
     m_impl->ui.SetResourceMapper(&m_impl->resource_mapper);
     if (!m_impl->atlas.Init() || !m_impl->ui.Init())
     {
-        ERRORLOG("RendererOpenGL::Init: UI renderer/atlas init failed");
-        m_impl->init_ok = false;
+        GLERR("Could not create the interface sprite atlas or its shaders. Switching to software.");
+        fail_init("the interface graphics could not be created");
         return;
     }
 
@@ -358,11 +439,15 @@ void RendererOpenGL::render_thread_init()
     palette_desc.wrap = GpuTextureWrap::Clamp;
     palette_desc.initial_pixels.assign(black_palette, black_palette + sizeof(black_palette));
     palette_desc.debug_name = "palette";
+#ifndef NDEBUG
+    if (GLStartupOptions_Get().fail == GLFailStage::Texture)
+        m_impl->resource_mapper.SetForceTextureFailure("palette");
+#endif
     m_impl->palette_tex_handle = m_impl->resource_mapper.RequestCreateTexture(palette_desc);
     if (m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle) == nullptr)
     {
-        ERRORLOG("RendererOpenGL::Init: palette texture realization failed");
-        m_impl->init_ok = false;
+        GLERR("Could not create the palette texture. Switching to software.");
+        fail_init("a required texture could not be created");
         return;
     }
 
@@ -378,15 +463,15 @@ void RendererOpenGL::render_thread_init()
     m_impl->fade_table_tex_handle = m_impl->resource_mapper.RequestCreateTexture(fade_table_desc);
     if (m_impl->resource_mapper.ResolveTexture(m_impl->fade_table_tex_handle) == nullptr)
     {
-        ERRORLOG("RendererOpenGL::Init: fade table texture realization failed");
-        m_impl->init_ok = false;
+        GLERR("Could not create the fade table texture. Switching to software.");
+        fail_init("a required texture could not be created");
         return;
     }
 
     if (!m_impl->palette_index_lookup.Init(&m_impl->resource_mapper))
     {
-        ERRORLOG("RendererOpenGL::Init: palette index lookup texture realization failed");
-        m_impl->init_ok = false;
+        GLERR("Could not create the palette lookup texture. Switching to software.");
+        fail_init("a required texture could not be created");
         return;
     }
 
@@ -400,16 +485,27 @@ void RendererOpenGL::render_thread_init()
 
 
     m_impl->world_atlas.SetResourceMapper(&m_impl->resource_mapper);
+    if (!m_impl->world_atlas.CreateTexture())
+    {
+        fail_init("a required texture could not be created");
+        return;
+    }
     m_impl->world.SetAtlas(&m_impl->world_atlas);
     m_impl->world.SetResourceMapper(&m_impl->resource_mapper);
     m_impl->world.SetFadeTexture(m_impl->fade_table_tex_handle);
     m_impl->world.SetPaletteTexture(m_impl->palette_tex_handle);
     m_impl->world.SetPaletteIndexTexture(m_impl->palette_index_lookup.GetTexture());
     m_impl->world.SetScreenSize((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);
-    if (!m_impl->world.CompileShaders())
+    bool force_shader_fail = false;
+#ifndef NDEBUG
+    force_shader_fail = GLStartupOptions_Get().fail == GLFailStage::Shader;
+    if (force_shader_fail)
+        GLERR("World shader build forced to fail by -glfail shader.");
+#endif
+    if (force_shader_fail || !m_impl->world.CompileShaders())
     {
-        ERRORLOG("RendererOpenGL::Init: world view renderer shader compile failed");
-        m_impl->init_ok = false;
+        GLERR("A required world shader failed to build. Switching to software.");
+        fail_init("a required shader could not be built");
         return;
     }
 
