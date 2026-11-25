@@ -32,6 +32,13 @@ extern "C" {
 
 // Lifecycle: initialise the requested backend (nonzero on success) / shut it down.
 int          RendererInit(RendererType type);
+/** Starts the requested renderer; if a hardware renderer can't start, switches
+ *  to software and tells the player. Returns 1 when a renderer is running. */
+int          RendererStartup(RendererType type);
+/** Plain reason the last RendererInit() failed, or NULL. */
+const char*  RendererGetInitFailureReason(void);
+/** Logs and tells the player that OpenGL could not start and software is used. */
+void         RendererReportSoftwareFallback(const char* reason);
 void         RendererShutdown(void);
 RendererType RendererGetActiveType(void);
 
@@ -66,6 +73,8 @@ void RendererSetPaletteForRenderers(const unsigned char *pal6);
 
 // Clear the whole display to a palette index.
 void RendererClearScreen(unsigned char colour);
+/** Waits until the renderer has finished reading game data for the frame in flight. Game thread only. */
+void RendererWaitIdle(void);
 
 // Present the drawn frame to the window (blit draw surface + flip).
 void RendererPresentFrame(void);
@@ -233,7 +242,6 @@ int  RendererGetCurrentSpriteOwner(void);
 int  RendererGetCurrentSpriteWantsOutline(void);
 
 void RendererClearKeeperSpriteAtlas(void);
-void RendererPreloadKeeperSpriteAtlas(void);
 
 /** Re-upload the tile atlas's animated rows (lava, water, dig-tag
  *  cross-hatch). Call before drawing, after update_animating_texture_maps()

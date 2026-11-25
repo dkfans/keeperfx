@@ -205,6 +205,7 @@ void S3DSetSoundReceiverSensitivity(unsigned short nsensivity)
 
 /**
  * Destroys sound emitter, without stopping samples which are being played.
+ * Those samples play to the end, unless they are out of range of the listener.
  * @param eidx Sound emitter id.
  * @return True if emitter was destroyed, false if it already was.
  */
@@ -546,6 +547,12 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit)
                 stop_sample(get_emitter_id(emit), sample->smptbl_id);
                 sample->is_playing = 0;
             }
+            else
+            {
+                sample->orphan_pos = emit->pos;
+                sample->orphan_is_global = ((emit->emitter_flags & 0x08) != 0);
+                sample->is_orphan = 1;
+            }
             sample->emit_ptr = NULL;
         }
     }
@@ -796,6 +803,12 @@ TbBool process_sound_samples(void)
                   kick_out_sample(i);
               }
             }
+            else if (sample->is_playing && sample->is_orphan && !sample->orphan_is_global
+                  && (get_sound_distance(&sample->orphan_pos, &Receiver.pos) > MaxSoundDistance))
+            {
+                S3DDropsOutOfRange++;
+                kick_out_sample(i);
+            }
         }
     }
     return true;
@@ -901,6 +914,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->priority = priority;
     sample->smptbl_id = smptbl_id;
     sample->emit_ptr = emit;
+    sample->is_orphan = 0;
     sample->repeat_count = fild1D;
     sample->volume = volume;
     sample->pan = pan;

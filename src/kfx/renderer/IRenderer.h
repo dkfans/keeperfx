@@ -25,6 +25,8 @@ public:
     virtual bool Init() = 0;
     virtual void Shutdown() = 0;
     virtual const char* GetName() const = 0;
+    /** Plain reason the last Init() failed, safe to show the player. Null if none. */
+    virtual const char* GetInitFailureReason() const { return nullptr; }
     
     virtual void SetDisplayPalette(const unsigned char* rgb8) { (void)rgb8; }
 
@@ -33,6 +35,9 @@ public:
 
     // Present the drawn frame to the window (blit + flip). Default no-op.
     virtual void PresentFrame() {}
+    /** Blocks until the backend has stopped reading game-thread data for the
+     *  frame in flight. Game thread only. */
+    virtual void WaitIdle() {}
 
     struct BackendCapabilities {
         // True when the backend composites the minimap over the panel artwork

@@ -67,6 +67,7 @@ static TbClockMSec torture_idle_start;
 static TbClockMSec torture_screen_start;
 static unsigned char *torture_background;
 static unsigned char *torture_palette;
+static unsigned char *torture_buf;
 extern struct DoorDesc doors[TORTURE_DOORS_COUNT];
 extern struct TbSpriteSheet *fronttor_sprites;
 long torture_doors_available = TORTURE_DOORS_COUNT;
@@ -129,22 +130,40 @@ void fronttorture_unload(void)
   clear_slabs();
   clear_rooms();
   clear_dungeons();
+  if (torture_buf != NULL)
+  {
+      RendererWaitIdle();
+      free(torture_buf);
+      torture_buf = NULL;
+  }
+  torture_background = NULL;
+  torture_palette = NULL;
 }
 
 void fronttorture_load(void)
 {
     frontend_load_data_from_cd();
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
-    // Texture blocks memory isn't used here, so reuse it instead of allocating
-    unsigned char* ptr = block_mem;
     // Load RAW/PAL background
-    char* fname = prepare_file_path(FGrp_LoData, "torture.raw");
-    torture_background = ptr;
-    long i = LbFileLoadAt(fname, ptr);
-    ptr += i;
-    fname = prepare_file_path(FGrp_LoData,"torture.pal");
-    torture_palette = ptr;
-    i = LbFileLoadAt(fname, ptr);
+    char raw_path[2048];
+    snprintf(raw_path, sizeof(raw_path), "%s", prepare_file_path(FGrp_LoData, "torture.raw"));
+    char* pal_name = prepare_file_path(FGrp_LoData, "torture.pal");
+    // The draw code always reads a full 640x480 image, whatever the file holds.
+    const int32_t image_bytes = 640 * 480;
+    int32_t raw_len = (int32_t)LbFileLengthRnc(raw_path);
+    int32_t pal_len = (int32_t)LbFileLengthRnc(pal_name);
+    int32_t image_space = (raw_len > image_bytes) ? raw_len : image_bytes;
+    int32_t pal_space = (pal_len > PALETTE_SIZE) ? pal_len : PALETTE_SIZE;
+    torture_buf = (unsigned char *)calloc((size_t)image_space + (size_t)pal_space, 1);
+    if (torture_buf == NULL)
+    {
+        ERRORLOG("Not enough memory for the torture screen");
+        return;
+    }
+    torture_background = torture_buf;
+    LbFileLoadAt(raw_path, torture_background);
+    torture_palette = torture_buf + image_space;
+    LbFileLoadAt(pal_name, torture_palette);
     // Load DAT/TAB sprites for doors
     for (int idx = 0; idx < TORTURE_DOORS_COUNT; ++idx) {
         char tab_name[2048];

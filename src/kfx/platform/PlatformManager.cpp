@@ -202,6 +202,13 @@ extern "C" int PlatformManager_CreateWindow(const char* title, int x, int y, int
     return (ws && ws->CreateWindow(title, x, y, w, h, flags)) ? 1 : 0;
 }
 
+extern "C" void PlatformManager_DestroyWindow(void)
+{
+    IWindowSystem* ws = GetSDLWindowSystem();
+    if (ws)
+        ws->DestroyWindow();
+}
+
 extern "C" void PlatformManager_SetGameSurfaceSize(int w, int h)
 {
     IWindowSystem* ws = GetSDLWindowSystem();

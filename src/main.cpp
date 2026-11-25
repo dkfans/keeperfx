@@ -18,6 +18,8 @@
 #include "kfx/renderer/RendererManager.h"
 #include "kfx/renderer/RendererSettings.h"
 #include "kfx/renderer/RendererThread.h"
+#include "kfx/renderer/opengl/core/GLCaps.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -229,7 +231,7 @@ long double host_packet_received = 1;
 
 void setup_stuff(void)
 {
-    setup_texture_block_mem();
+    texture_sets_init();
     init_fades_table();
     init_alpha_table();
 }
@@ -300,8 +302,6 @@ TbBool initial_setup(void)
     SYNCDBG(6,"Starting");
     // setting this will force video mode change, even if previous one is same
     MinimalResolutionSetup = true;
-    // Set size of static textures buffer
-    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
     if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
@@ -867,7 +867,7 @@ void reinit_level_after_load(void)
     update_room_tab_to_config();
     update_powers_tab_to_config();
     update_trap_tab_to_config();
-    load_texture_map_file(game.texture_id, get_loaded_level_number(), get_level_fgroup(get_loaded_level_number()));
+    texture_sets_load_for_level();
     init_animating_texture_maps();
     init_gui();
     reset_gui_based_on_player_mode();
@@ -1094,6 +1094,7 @@ void clear_game_for_summary(void)
 void clear_game(void)
 {
     SYNCDBG(6,"Starting");
+    texture_sets_release_level();
     clear_game_for_summary();
     game.music_track = 0;
     clear_map();
@@ -1724,6 +1725,9 @@ static short process_command_line(unsigned short argc, char *argv[])
   level_num = LEVELNUMBER_ERROR;
   TbBool one_player_mode = 0;
   narg = 1;
+#ifndef NDEBUG
+  GLStartupOptions_Get().debug_context = true;
+#endif
   char bad_params[TEXT_BUFFER_LENGTH] = "\0";
   while ( narg < argc )
   {
@@ -1761,6 +1765,32 @@ static short process_command_line(unsigned short argc, char *argv[])
       {
         start_params.overrides[Clo_Renderer] = true;
         start_params.renderer_type = RENDERER_OPENGL;
+      } else
+      if (strcasecmp(parstr, "gldebug") == 0)
+      {
+        GLStartupOptions_Get().debug_context = true;
+      } else
+      if (strcasecmp(parstr, "glfail") == 0)
+      {
+#ifndef NDEBUG
+        if (!GLStartupOptions_ParseFailStage(pr2str, &GLStartupOptions_Get().fail))
+            GLWARN("Unknown -glfail stage \"%s\"; use context, version, limits, shader or texture.", pr2str);
+#else
+        GLWARN("-glfail works only in debug builds; ignored.");
+#endif
+        narg++;
+      } else
+      if (strcasecmp(parstr, "glcaps") == 0)
+      {
+#ifndef NDEBUG
+        if (strcasecmp(pr2str, "low") == 0)
+            GLStartupOptions_Get().caps_low = true;
+        else
+            GLWARN("Unknown -glcaps value \"%s\"; only \"low\" is supported.", pr2str);
+#else
+        GLWARN("-glcaps works only in debug builds; ignored.");
+#endif
+        narg++;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
@@ -2151,6 +2181,7 @@ static short reset_game(void)
     LbMouseSuspend();
     LbIKeyboardClose();
     RendererResetScreen(false);
+    texture_sets_shutdown();
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     free_level_strings_data();
@@ -2198,14 +2229,22 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     // Setup polyscans
     setup_bflib_render();
     // View the legal screen
-    if (!setup_screen_mode_zero(get_frontend_vidmode()))
+    TbBool display_ok = (setup_screen_mode_zero(get_frontend_vidmode()) != Lb_SCREEN_MODE_INVALID);
+    if (!display_ok && requested_renderer_type != RENDERER_SOFTWARE)
+    {
+        PlatformManager_DestroyWindow();
+        RendererReportSoftwareFallback("the game window could not be created for OpenGL");
+        requested_renderer_type = RENDERER_SOFTWARE;
+        display_ok = (setup_screen_mode_zero(get_frontend_vidmode()) != Lb_SCREEN_MODE_INVALID);
+    }
+    if (!display_ok)
     {
         ERRORLOG("Unable to set display mode for legal screen");
         LbErrorLogClose();
         return 0;
     }
 
-    retval &= (RendererInit((RendererType)requested_renderer_type) != 0);
+    retval &= (RendererStartup((RendererType)requested_renderer_type) != 0);
     RendererSettings_Load();
     PlatformManager_SetWindowTitle(PROGRAM_NAME);
     LbSetIcon(1);

@@ -4,6 +4,7 @@
 #include "kfx/renderer/IRenderer.h"
 #include "kfx/renderer/IFrameGraphExecutor.h"
 #include <memory>
+#include <string>
 
 class IGLContext;
 
@@ -15,10 +16,12 @@ public:
     bool Init() override;
     void Shutdown() override;
     const char* GetName() const override { return "OpenGL"; }
+    const char* GetInitFailureReason() const override { return m_init_failure.empty() ? nullptr : m_init_failure.c_str(); }
 
     void SetDisplayPalette(const unsigned char* rgb8) override;
     void ClearScreen(unsigned char colour) override;
     void PresentFrame() override;
+    void WaitIdle() override;
 
     BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 1 }; }
     bool CanDraw() const override
@@ -77,6 +80,9 @@ private:
     Impl* m_impl = nullptr;
 
     std::unique_ptr<IGLContext> m_gl_context;
+    std::string m_init_failure;
+
+    void fail_init(const char* reason);
 
     void render_thread_init();
     void render_thread_work();

@@ -40,6 +40,7 @@
 
 #include <zlib.h>
 
+#include "engine_textures.h"
 #include "post_inc.h"
 
 /**********************************************/
@@ -2145,8 +2146,7 @@ static int lua_Change_slab_texture(lua_State *L)
     else
     {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-        game.slab_ext_data[slb_num] = texture_id;
-        game.slab_ext_data_initial[slb_num] = texture_id;
+        set_slab_texture_set(slb_num, texture_id, true);
     }
 
     return 0;
