@@ -1618,10 +1618,12 @@ static NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
         return colour;
     }
 
+    struct DoorConfigStats *doorst = get_door_model_stats(doortng->model);
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if ((players_are_mutual_allies(plyr_idx,doortng->owner) && doortng->door.is_locked) ||
-            door_is_hidden_to_player(doortng,plyr_idx))
+           (!players_are_mutual_allies(plyr_idx,doortng->owner) && flag_is_set(doorst->model_flags,DoMF_Indestructible)) ||
+           door_is_hidden_to_player(doortng,plyr_idx))
         {
             colour |= 1 << (NAVMAP_OWNERSELECT_BIT + plyr_idx);
         }

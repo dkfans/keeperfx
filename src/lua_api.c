@@ -1351,6 +1351,7 @@ static int lua_Set_door_configuration(lua_State *L)
 {
     set_configuration(L, &trapdoor_door_named_fields_set, "SET_DOOR_CONFIGURATION");
     create_manufacture_array_from_trapdoor_data();
+    update_navigation_around_all_doors();
     return 0;
 }
 
