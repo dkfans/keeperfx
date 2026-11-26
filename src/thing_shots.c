@@ -858,8 +858,9 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (shotng->shot.damage)
     {
 
-        if (shot_hit_type_allows_damage(shotng, target) && ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming))))
-        {
+        short destructible = thing_is_destructible_trap(target);
+        TbBool disarms = (destructible >= 0) && flag_is_set(shotst->model_flags, ShMF_Disarming);
+        if (disarms || ((destructible > 0) && shot_hit_type_allows_damage(shotng, target))) {
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
 
             // Drain allows caster to regain half of damage
