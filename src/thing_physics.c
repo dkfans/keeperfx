@@ -819,7 +819,7 @@ static TbBool collect_players_avoiding_barrier(const struct Thing *barrier, void
     }
     TbBool destructible = (thing_is_destructible_trap(barrier) > 0) || object_is_destructible(barrier);
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        if (!destructible || players_are_mutual_allies(plyr_idx, barrier->owner)) {
+        if (!destructible || (plyr_idx == game.neutral_player_num) || players_are_mutual_allies(plyr_idx, barrier->owner)) {
             *players |= to_flag(plyr_idx);
         }
     }

@@ -2632,7 +2632,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         struct Thing* barrier = thing_get(cctrl->collided_barrier_idx);
         cctrl->collided_barrier_idx = 0;
         if (((cctrl->combat_flags & CmbtF_DoorFight) == 0) && ((cctrl->creature_control_flags & CCFlg_NoCompControl) == 0)
-            && barrier_blocks(barrier, TCF_BlockCreatures) && !players_are_mutual_allies(thing->owner, barrier->owner)
+            && (thing->owner != PLAYER_NEUTRAL) && barrier_blocks(barrier, TCF_BlockCreatures) && !players_are_mutual_allies(thing->owner, barrier->owner)
             && (creature_can_damage_trap(thing, barrier) || object_is_destructible(barrier))
             && can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat)) {
             set_creature_door_combat(thing, barrier);
