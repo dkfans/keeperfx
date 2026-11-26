@@ -1102,6 +1102,10 @@ void clear_thing_velocity(struct Thing* thing)
  */
 TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos, const struct Thing *sectng)
 {
+    if (thing_is_barrier(sectng)) {
+        struct SubtileArea area = get_subtile_area_around(pos, firstng->solid_size_xy / 2);
+        return barrier_overlaps_area(sectng, &area);
+    }
     MapCoordDelta dist_collide = (sectng->solid_size_xy + firstng->solid_size_xy) / 2;
     MapCoordDelta dist_x = pos->x.val - (MapCoordDelta)sectng->mappos.x.val;
     MapCoordDelta dist_y = pos->y.val - (MapCoordDelta)sectng->mappos.y.val;
