@@ -1018,8 +1018,12 @@ long gold_being_dropped_on_creature(long plyr_idx, NetUserId user, struct Thing 
 
 void set_dropped_thing_position(struct Thing *droptng, const struct Coord3d *dstpos)
 {
-    droptng->mappos.x.val = dstpos->x.val;
-    droptng->mappos.y.val = dstpos->y.val;
+    struct Coord3d pos = *dstpos;
+    if (thing_is_creature(droptng) && creature_in_barrier_at(droptng, &pos)) {
+        get_nearest_valid_position_for_creature_at(droptng, &pos);
+    }
+    droptng->mappos.x.val = pos.x.val;
+    droptng->mappos.y.val = pos.y.val;
     int32_t ceiling_height = get_ceiling_height_at(&droptng->mappos);
     int32_t floor_height = get_floor_height_at(&droptng->mappos);
     int32_t fall_dist = ceiling_height - floor_height;
