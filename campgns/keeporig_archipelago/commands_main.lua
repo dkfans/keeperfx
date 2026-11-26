@@ -74,29 +74,49 @@ function CommandsMain.ForEachBitInMask(bit_value, entries, callback)
       end
 end
 
----Writes the calculated 15-Bitmask value to `meta_index`, after changing `index` to `value`
+---Iterate through each thing in `entries` and after finishing write the result to MetaValue `meta_index`
 ---@param meta_index number which meta-index to save to
----@param index number Position in it to write to
----@param value boolean Value to assign to the mask
-function CommandsMain.WriteToMetaBitmask(meta_index, index, value)
+---@param entries table<any> Table of up to *15* entries, any more are dropped (less is fine)
+---@param callback fun(key: any, result: boolean)
+function CommandsMain.CalculateAndWriteMetaBitmask(meta_index, entries, callback)
       assert(type(meta_index) == "number", "meta_index must be a number")
       assert(meta_index > 0 and meta_index <= max_bitmask_value and math.floor(meta_index) == meta_index, "meta_index must be a whole-number within 1 - " .. max_bitmask_value)
+      assert(type(entries) == "table", "Entries was not given a valid table")
+      assert(#entries > 0, "Entries MUST have at least one argument")
+      assert(type(callback) == "function", "Must provide function to handle each result")
+      local mask_value = 0
+      for index = 1, math.min(#entries, 15) do
+            local result = callback(entries[index])
+            assert(type(result) == "boolean", "Callback MUST return true/false")
+            mask_value = _G.WriteAndGetBitmaskValue(mask_value, index, result)
+      end
+      if GetMetaValue(meta_index) == mask_value then
+            return -- Not modifying. Don't need to do anything.
+      end
+      SetMetaValue(meta_index, mask_value)
+end
+
+---Writes and returns the calculated 15-Bitmask of `input`, after changing `index` to `value`
+---@param input number starting value to modify
+---@param index number Position in it to write to
+---@param value boolean Value to assign to the mask
+function CommandsMain.WriteAndGetBitmaskValue(input, index, value)
+      assert(type(input) == "number", "input must be a number")
+      assert(IsValid15BitMask(input), "input is NOT a valid bitmask")
       assert(type(index) == "number", "index must be a number")
       assert(index > 0 and index <= 15 and math.floor(index) == index, "index must be a whole-number within 1 - 15")
       assert(type(value) == "boolean", "value must be true or false")
-      local result = GetMetaValue(meta_index)
-      assert(IsValid15BitMask(result), "attempted to use meta_index which is NOT a valid bitmask")
       local mask = 2 ^ (index - 1)
-      local mask_value = (math.floor(result / mask) % 2) == 1
+      local mask_value = (math.floor(input / mask) % 2) == 1
       if mask_value == value then
-            return -- Not modifying. Don't need to do anything.
+            return input -- Not modifying. Don't need to do anything.
       end
       if value then
-            result = result + mask
+            input = input + mask
       else
-            result = result - mask
+            input = input - mask
       end
-      SetMetaValue(meta_index, result)
+      return input
 end
 -- END OF BIT-MASK HELPER FUNCTIONS ------------------------------------------------------------------------------------
 
@@ -163,16 +183,27 @@ function Setup()
       --BITMASK EXAMPLE BELOW
       --(Value, {List,Of,Things}, Function() --TO THING end)
       -- {List,Of,Things} can have AT MAXIMUM 15 things!! Anything extra gets dropped.
-      CommandsMain.ForEachBitInMask(GetMetaValue(1), {"FLY", "BUG", "SPIDER", "DEMONSPAWN"},
+      local example_list = {"FLY", "BUG", "SPIDER", "DEMONSPAWN"}
+      CommandsMain.ForEachBitInMask(GetMetaValue(1), example_list,
             function(key, result) -- 'key' can be anything, "string", "number", or even a function() if you wanna get wild.
                   -- You can pass in 'anything' ("string", number or even a function() if your crazy!!) so remember what you give it.
                   -- result will ALWAYS be TRUE or FALSE, if it exists within the value.
                   print("====EXAMPLE_BITMASK==== The flag for " .. key .. " was set to: " .. tostring(result))
             end)
-      --EXAMPLE SETTING!!
-      --(MetaIndexNumber, SpotInsideIt, TRUE/FALSE)
-      --Using our above example, we ASSUME that '1' is 'FLY', and set it to 'TRUE'
+      --Example assigning a list of things into a single value
+      --(Value, {List,Of,Things}, Function() --TO THING end)
+      -- Again, {List,Of,Things} can have AT MAXIMUM 15 things!! Anything extra gets dropped.
+      -- Function() **MUST** return TRUE/FALSE.
       CommandsMain.WriteToMetaBitmask(1, 1, true)
+      CommandsMain.CalculateAndWriteMetaBitmask(1, example_list,
+              function(key) -- Purely for example...
+                    if key == "FLY" then
+                          return true
+                    elseif key == "SPIDER" then
+                          return true
+                    end
+                    return false
+      end)
       ActivateItems()
       if Map.map_number ~= 1000 then
             IncreaseLevelCap()

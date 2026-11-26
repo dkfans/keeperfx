@@ -32,6 +32,7 @@ void lua_on_game_start();
 void lua_on_game_load();
 void lua_on_item_received(int itemid);
 void lua_on_game_tick();
+void lua_on_gold_mined(PlayerNumber player, MapSlabCoord x_pos, MapSlabCoord y_pos);
 void lua_on_research_thing(PlayerNumber plyr_idx, const char *research, int8_t type);
 void lua_on_manufacture_thing(struct Thing *cratetng, int8_t type);
 void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing);
