@@ -826,6 +826,14 @@ void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
     }
 }
 
+static TbBool shot_hit_type_allows_damage(const struct Thing *shotng, const struct Thing *target)
+{
+    if (!thing_is_barrier(target)) {
+        return true;
+    }
+    return thing_is_shootable(target, shotng->owner, hit_type_to_hit_targets(shotng->shot.hit_type));
+}
+
 static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struct Coord3d* pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
@@ -850,7 +858,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (shotng->shot.damage)
     {
 
-        if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
+        if (shot_hit_type_allows_damage(shotng, target) && ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming))))
         {
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
 
@@ -935,7 +943,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
-        if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
+        if (object_can_be_damaged(target) && shot_hit_type_allows_damage(shotng, target)) // do not damage objects that cannot be destroyed
         {
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
 
@@ -1502,6 +1510,9 @@ HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, cons
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
         shot_owner = parntng->owner;
+    if (thing_is_barrier(thing)) {
+        return barrier_blocks_player(thing, shot_owner, TCF_AllyShots, TCF_EnemyShots);
+    }
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }
 

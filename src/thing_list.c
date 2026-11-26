@@ -3570,10 +3570,21 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
  * @param hit_targets Target hit configuration flags.
  * @return
  */
+static TbBool hit_targets_include_destructible_trap_of(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
+{
+    if (shot_owner == thing->owner) {
+        return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
+    }
+    if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
+        return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
+    }
+    return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
+}
+
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
 {
     if (thing_is_barrier(thing)) {
-        return barrier_blocks_player(thing, shot_owner, TCF_AllyShots, TCF_EnemyShots);
+        return barrier_blocks_player(thing, shot_owner, TCF_AllyShots, TCF_EnemyShots) && hit_targets_include_destructible_trap_of(thing, shot_owner, hit_targets);
     }
     if (thing_is_creature(thing))
     {
@@ -3672,13 +3683,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
     {
         if (thing_is_destructible_trap(thing) > 0)
         {
-            if (shot_owner == thing->owner) {
-                return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
-            }
-            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
-                return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
-            }
-            return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
+            return hit_targets_include_destructible_trap_of(thing, shot_owner, hit_targets);
         }
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
