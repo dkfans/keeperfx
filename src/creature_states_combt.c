@@ -195,6 +195,9 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 
 long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
+    if (thing_is_barrier(enmtng)) {
+        return get_combat_distance_to_barrier(thing, enmtng);
+    }
     long dist = get_2d_distance(&thing->mappos, &enmtng->mappos);
     if (!((enmtng->class_id == TCls_Door) || (thing->class_id == TCls_Door))) // Doors are positioned at the ceiling, with special code to hit them lower.
     {

@@ -754,6 +754,14 @@ TbBool barrier_blocks_player(const struct Thing *barrier, PlayerNumber plyr_idx)
     return flag_is_set(flags, OMF_BlockEnemyMovement);
 }
 
+MapCoordDelta get_combat_distance_to_barrier(const struct Thing *creatng, const struct Thing *barrier)
+{
+    struct SubtileArea area = get_subtile_area_around(&barrier->mappos, barrier->solid_size_xy / 2);
+    MapCoordDelta gap_x = max(subtile_coord(area.x_beg, 0) - creatng->mappos.x.val, creatng->mappos.x.val - subtile_coord(area.x_end + 1, 0));
+    MapCoordDelta gap_y = max(subtile_coord(area.y_beg, 0) - creatng->mappos.y.val, creatng->mappos.y.val - subtile_coord(area.y_end + 1, 0));
+    return max(max(gap_x, gap_y) + COORD_PER_STL / 2 - creatng->clipbox_size_xy / 2, 0);
+}
+
 static TbBool barrier_overlaps_area(const struct Thing *barrier, const struct SubtileArea *area)
 {
     struct SubtileArea barrier_area = get_subtile_area_around(&barrier->mappos, barrier->solid_size_xy / 2);

@@ -67,6 +67,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
 TbBool creature_can_pass_through_wall_at(const struct Thing *thing, const struct Coord3d *pos);
 TbBool thing_is_barrier(const struct Thing *thing);
 TbBool barrier_blocks_player(const struct Thing *barrier, PlayerNumber plyr_idx);
+MapCoordDelta get_combat_distance_to_barrier(const struct Thing *creatng, const struct Thing *barrier);
 PlayerBitFlags get_players_avoiding_barriers_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void update_navigation_around_barrier(const struct Thing *thing);
 void update_navigation_around_all_barriers(void);
