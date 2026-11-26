@@ -1019,6 +1019,7 @@ long gold_being_dropped_on_creature(long plyr_idx, NetUserId user, struct Thing 
 void set_dropped_thing_position(struct Thing *droptng, const struct Coord3d *dstpos)
 {
     struct Coord3d pos = *dstpos;
+    pos.z.val = get_floor_height_at(&pos);
     if (thing_is_creature(droptng) && creature_in_barrier_at(droptng, &pos)) {
         get_nearest_valid_position_for_creature_at(droptng, &pos);
     }

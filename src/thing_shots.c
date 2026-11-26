@@ -1505,13 +1505,13 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     return false;
 }
 
-HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
+HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long target_idx)
 {
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
         shot_owner = parntng->owner;
     if (thing_is_barrier(thing)) {
-        return barrier_blocks_player(thing, shot_owner, TCF_AllyAttack, TCF_EnemyAttack);
+        return barrier_blocks_shot_aimed_at(thing, target_idx);
     }
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }
@@ -1602,7 +1602,7 @@ TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxp
     SYNCDBG(18,"Starting for %s index %d, hit type %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_type);
     struct Thing* targetng = INVALID_THING;
     HitTargetFlags hit_targets = hit_type_to_hit_targets(shotng->shot.hit_type);
-    targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
+    targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, shotng->shot.target_idx);
     if (thing_is_invalid(targetng)) {
         return false;
     }

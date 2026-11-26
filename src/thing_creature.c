@@ -2632,8 +2632,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         struct Thing* barrier = thing_get(cctrl->collided_barrier_idx);
         cctrl->collided_barrier_idx = 0;
         if (((cctrl->combat_flags & CmbtF_DoorFight) == 0) && ((cctrl->creature_control_flags & CCFlg_NoCompControl) == 0)
-            && barrier_blocks_player(barrier, thing->owner, TCF_AllyCreature, TCF_EnemyCreature) && barrier_blocks_player(barrier, thing->owner, TCF_AllyAttack, TCF_EnemyAttack)
-            && !players_are_mutual_allies(thing->owner, barrier->owner)
+            && barrier_blocks(barrier, TCF_BlockCreatures) && !players_are_mutual_allies(thing->owner, barrier->owner)
             && (!thing_is_deployed_trap(barrier) || creature_can_damage_trap(thing, barrier))
             && can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat)) {
             set_creature_door_combat(thing, barrier);
@@ -3804,7 +3803,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     }
     struct Thing* shotng = NULL;
     long target_idx = 0;
-    // Set target index for navigating shots
+    // Set target index for navigating shots and barrier collision
     if (!thing_is_invalid(target))
     {
         target_idx = target->index;
@@ -3907,7 +3906,6 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng->shot.damage = damage;
         shotng->health = shotst->health;
         shotng->parent_idx = firing->index;
-        shotng->shot.target_idx = target_idx;
         shotng->shot.dexterity = dexterity;
         if (shotst->fire_logic == ShFL_Lizard)
         {
@@ -3928,6 +3926,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       }
 #endif
       shotng->shot.hit_type = hit_type;
+      shotng->shot.target_idx = target_idx;
       if (!local_possession_sounded_shot(firing)) {
           play_shot_firing_sound(firing, shot_model);
       }

@@ -3584,7 +3584,7 @@ static TbBool hit_targets_include_destructible_trap_of(const struct Thing *thing
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
 {
     if (thing_is_barrier(thing)) {
-        return barrier_blocks_player(thing, shot_owner, TCF_AllyAttack, TCF_EnemyAttack) && hit_targets_include_destructible_trap_of(thing, shot_owner, hit_targets);
+        return hit_targets_include_destructible_trap_of(thing, shot_owner, hit_targets);
     }
     if (thing_is_creature(thing))
     {

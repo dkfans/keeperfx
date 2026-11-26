@@ -64,12 +64,9 @@ const struct NamedCommand objects_properties_commands[] = {
   };
 
 const struct NamedCommand collision_flags_commands[] = {
-  {"ALLY_CREATURE",           TCF_AllyCreature        },
-  {"ENEMY_CREATURE",          TCF_EnemyCreature       },
-  {"ALLY_ATTACK",             TCF_AllyAttack          },
-  {"ENEMY_ATTACK",            TCF_EnemyAttack         },
-  {"BLOCK_ALLY_SIGHT",        TCF_BlockAllySight      },
-  {"BLOCK_ENEMY_SIGHT",       TCF_BlockEnemySight     },
+  {"BLOCK_CREATURES",         TCF_BlockCreatures      },
+  {"BLOCK_SHOTS",             TCF_BlockShots          },
+  {"BLOCK_SIGHT",             TCF_BlockSight          },
   {NULL,                      0},
   };
 

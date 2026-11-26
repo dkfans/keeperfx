@@ -62,12 +62,9 @@ enum ObjectModelFlags {
 };
 
 enum ThingCollisionFlags {
-    TCF_AllyCreature    = 0x01,
-    TCF_EnemyCreature   = 0x02,
-    TCF_AllyAttack      = 0x04,
-    TCF_EnemyAttack     = 0x08,
-    TCF_BlockAllySight  = 0x10,
-    TCF_BlockEnemySight = 0x20,
+    TCF_BlockCreatures = 0x01,
+    TCF_BlockShots     = 0x02,
+    TCF_BlockSight     = 0x04,
 };
 
 
