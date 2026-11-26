@@ -723,7 +723,7 @@ static uint32_t get_collision_flags(const struct Thing *thing)
 
 TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag)
 {
-    if ((barrier->health < 0) || (thing_is_deployed_trap(barrier) && (barrier->trap.num_shots <= 0))) {
+    if ((barrier->health < 0) || flag_is_set(barrier->alloc_flags, TAlF_IsInLimbo) || (thing_is_deployed_trap(barrier) && (barrier->trap.num_shots <= 0))) {
         return false;
     }
     return flag_is_set(get_collision_flags(barrier), collision_flag);

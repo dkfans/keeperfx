@@ -1472,7 +1472,7 @@ short creature_door_combat(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!combat_enemy_exists(creatng, doortng) || (thing_is_deployed_door(doortng) && (doortng->active_state == DorSt_Open)))
+    if (!combat_enemy_exists(creatng, doortng) || thing_is_picked_up(doortng) || (thing_is_deployed_door(doortng) && (doortng->active_state == DorSt_Open)))
     {
         check_map_explored(creatng, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         set_start_state(creatng);
