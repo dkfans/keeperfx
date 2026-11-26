@@ -53,6 +53,8 @@ public:
     void SubmitMapFadeStep(bool starting, float display_step, float warp_scale,
                            const unsigned char* ghost_table) override;
     bool MapFadeSupportsNativeResolution() const override;
+    void EndMapFade() override;
+    bool MapFadeUnavailable() const override;
     void BeginOverlayCapture(OverlayCaptureKind kind) override;
     void EndOverlayCapture(OverlayCaptureKind kind) override;
 

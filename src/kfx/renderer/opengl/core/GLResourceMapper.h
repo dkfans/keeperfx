@@ -9,6 +9,14 @@
 #include <vector>
 #include <unordered_set>
 
+/// Video memory the mapper's objects hold, in bytes.
+struct GLMemoryUsage
+{
+    uint64_t asset_bytes  = 0; ///< Textures and targets that don't follow the window size.
+    uint64_t screen_bytes = 0; ///< Window-sized targets.
+    uint64_t buffer_bytes = 0; ///< Geometry buffers at their creation size.
+};
+
 class GLResourceMapper : public IGpuResourceMapper
 {
 public:
@@ -48,6 +56,12 @@ public:
 
     /// @brief Logs once per handle that a draw was skipped because its resource is missing. Render thread only.
     void ReportSkippedDraw(GpuResourceHandle handle, const char* what);
+
+    /// @brief Current totals. Any thread.
+    GLMemoryUsage GetMemoryUsage();
+
+    /// @brief Bytes a texture of this description takes, all layers.
+    static uint64_t TextureBytes(const GpuTextureDesc& desc);
 
     /// @brief Debug builds: the next texture created with this debug name fails for real.
     void SetForceTextureFailure(const char* debug_name) { m_force_fail_texture = debug_name ? debug_name : ""; }
@@ -90,6 +104,12 @@ private:
     std::unordered_set<GpuResourceHandle> m_warned_stale;
     std::unordered_set<GpuResourceHandle> m_warned_skipped;
     std::string m_force_fail_texture;
+    GLMemoryUsage m_usage; ///< Under m_mutex.
+
+    void account(const GLTexture& texture, bool add);
+    void account(const GLRenderTarget& target, bool add);
+    void account(const GLProgram&, bool) {}
+    void account(const GLGeometryBuffer& buffer, bool add);
 
     /// @brief Queues the object a pending reload replaced for deferred destroy.
     template <typename Desc, typename Realized>

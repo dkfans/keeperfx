@@ -25,6 +25,7 @@ struct GpuTextureDesc
     GpuTextureWrap   wrap       = GpuTextureWrap::Clamp;
     std::vector<uint8_t> initial_pixels; ///< Owned. Empty means uninitialized storage.
     const char* debug_name = ""; ///< Literal.
+    bool screen_sized = false; ///< Sized to the window; counted apart from game assets.
 };
 
 /// Describes one attachment of a render target.
@@ -41,6 +42,7 @@ struct GpuRenderTargetDesc
     int32_t height = 0;
     std::vector<GpuRenderTargetAttachmentDesc> attachments; ///< Order is attachment index.
     const char* debug_name = ""; ///< Literal.
+    bool screen_sized = false; ///< Sized to the window; counted apart from game assets.
 };
 
 /// Describes a linked shader program.

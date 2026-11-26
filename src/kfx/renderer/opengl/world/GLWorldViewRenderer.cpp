@@ -507,6 +507,7 @@ void GLWorldViewRenderer::EnsureLensSceneRT(int w, int h)
         { GpuTextureFormat::Depth24Stencil8, true },
     };
     desc.debug_name = "lens_scene";
+    desc.screen_sized = true;
 
     if (m_lens_scene_rt_handle == kInvalidGpuResource)
         m_lens_scene_rt_handle = m_resource_mapper->RequestCreateRenderTarget(desc);
@@ -532,6 +533,7 @@ void GLWorldViewRenderer::EnsureLensRemapTexture(int w, int h)
     desc.mag_filter = GpuTextureFilter::Nearest;
     desc.wrap = GpuTextureWrap::Clamp;
     desc.debug_name = "lens_remap";
+    desc.screen_sized = true;
 
     if (m_lens_remap_tex_handle == kInvalidGpuResource)
         m_lens_remap_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
@@ -559,6 +561,7 @@ void GLWorldViewRenderer::EnsureLensOverlayTexture(int w, int h)
     desc.mag_filter = GpuTextureFilter::Nearest;
     desc.wrap = GpuTextureWrap::Clamp;
     desc.debug_name = "lens_overlay";
+    desc.screen_sized = true;
 
     if (m_lens_overlay_tex_handle == kInvalidGpuResource)
         m_lens_overlay_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
@@ -1488,8 +1491,27 @@ void GLWorldViewRenderer::UpdateAnimatedTiles()
     m_draw_cmds.push_back(cmd);
 }
 
+static double to_mib(uint64_t bytes)
+{
+    return (double)bytes / (1024.0 * 1024.0);
+}
+
+void GLWorldViewRenderer::LogMemorySummary() const
+{
+    if (!m_resource_mapper)
+        return;
+    const GLMemoryUsage usage = m_resource_mapper->GetMemoryUsage();
+    const uint64_t total = usage.asset_bytes + usage.screen_bytes + usage.buffer_bytes;
+    const std::string tiles = m_atlas ? " " + m_atlas->Summary() : std::string();
+    GLLOG("Video memory in use: %.0f MiB (game assets %.0f MiB, screen %.0f MiB at %dx%d, buffers %.0f MiB). %s%s",
+          to_mib(total), to_mib(usage.asset_bytes), to_mib(usage.screen_bytes),
+          m_full_screen_w, m_full_screen_h, to_mib(usage.buffer_bytes),
+          m_kspr_cache.Summary().c_str(), tiles.c_str());
+}
+
 void GLWorldViewRenderer::execute_clear_atlas()
 {
+    LogMemorySummary();
     m_kspr_cache.Clear();
     if (m_atlas)
         m_atlas->ResetSets();

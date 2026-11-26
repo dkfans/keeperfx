@@ -83,12 +83,17 @@ private:
     mutable std::mutex m_mutex;
 
     /** Shelf-allocate a w x h (+1px margin) rect, advancing the packer
-     *  cursor. When the atlas is full it is compacted first: live entries
-     *  are repacked into a cleared buffer and dead ones dropped, so a live
-     *  handle never loses its pixels. Returns false (logging via `what`)
-     *  only if the rect still doesn't fit.
+     *  cursor. When the atlas is full it compacts first if a quarter or more
+     *  of it is unused sprites, then grows, then compacts as a last resort.
+     *  Compacting repacks live entries and drops dead ones, so a live handle
+     *  never loses its pixels. Returns false (logging via `what`) only if
+     *  the rect still doesn't fit.
      *  Caller already holds m_mutex. */
     bool alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const char* what);
+
+    /** True when unused sprites cover a quarter or more of the layout.
+     *  Caller already holds m_mutex. */
+    bool unused_share_is_large() const;
     bool try_alloc_shelf_rect(int alloc_w, int alloc_h, int* out_x, int* out_y);
     static SpriteUV make_sprite_uv(int x, int y, int w, int h, int tex_w, int tex_h);
 

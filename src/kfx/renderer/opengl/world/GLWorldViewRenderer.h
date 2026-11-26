@@ -127,6 +127,10 @@ public:
      *  is destroyed */
     void Shutdown() { free_gl_resources(); }
 
+    /** Logs one line with the video memory in use and the cache numbers.
+     *  Render thread; at level end and before the renderer shuts down. */
+    void LogMemorySummary() const;
+
     /** Notify of the full OS-window dimensions (not the world viewport). */
     void SetScreenSize(int w, int h) override { m_full_screen_w = w; m_full_screen_h = h; }
 

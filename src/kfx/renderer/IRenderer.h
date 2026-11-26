@@ -94,6 +94,10 @@ public:
                                    const unsigned char* ghost_table)
         { (void)starting; (void)display_step; (void)warp_scale; (void)ghost_table; }
     virtual bool MapFadeSupportsNativeResolution() const { return false; }
+    /** The game's map fade has finished; free what it used. */
+    virtual void EndMapFade() {}
+    /** True when the backend can't draw this fade, so the game should skip it. */
+    virtual bool MapFadeUnavailable() const { return false; }
 
     virtual void BeginOverlayCapture(OverlayCaptureKind kind) { (void)kind; }
     virtual void EndOverlayCapture(OverlayCaptureKind kind) { (void)kind; }

@@ -40,6 +40,10 @@ std::string GLCaps_CheckHard(const GLCaps& caps);
  *  below needed means the limit is reached. */
 int32_t AtlasNextCapacity(int32_t current, int32_t needed, int32_t limit);
 
+/** Largest window side the renderer can draw: the smallest of the texture,
+ *  renderbuffer and viewport limits. */
+int32_t GLCaps_MaxScreenSide(const GLCaps& caps);
+
 /** Lowers the limits for -glcaps low. Never raises one. */
 void GLCaps_ApplyLow(GLCaps& caps);
 

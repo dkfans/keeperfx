@@ -172,18 +172,45 @@ bool GLSpriteAtlas::alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const
     if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
         return true;
 
-    while (grow_layout())
+    // Much of it is sprites from unloaded sheets: repack at this size before growing.
+    bool compacted = false;
+    if (unused_share_is_large())
     {
+        compact(m_w, m_h);
+        compacted = true;
         if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
             return true;
     }
 
-    compact(m_w, m_h);
+    while (grow_layout())
+    {
+        compacted = false;
+        if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
+            return true;
+    }
 
-    if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
-        return true;
+    if (!compacted)
+    {
+        compact(m_w, m_h);
+        if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
+            return true;
+    }
     GLERR("Interface sprite atlas is full of sprites in use; a new %s can't be added and won't draw. (%dx%d)", what, w, h);
     return false;
+}
+
+// Caller already holds m_mutex.
+bool GLSpriteAtlas::unused_share_is_large() const
+{
+    if (!m_is_live)
+        return false;
+    int64_t unused = 0;
+    for (const auto& kv : m_entries)
+    {
+        if (!m_is_live(kv.first))
+            unused += (int64_t)(kv.second.w + 1) * (kv.second.h + 1);
+    }
+    return unused * 4 >= (int64_t)m_w * m_h;
 }
 
 // Caller already holds m_mutex.
