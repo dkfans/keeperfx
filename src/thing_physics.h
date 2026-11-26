@@ -69,6 +69,7 @@ TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag);
 TbBool barrier_blocks_sight_between(const struct Thing *viewer, const struct Thing *target);
 MapCoordDelta get_combat_distance_to_barrier(const struct Thing *creatng, const struct Thing *barrier);
 PlayerBitFlags get_players_avoiding_barriers_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void refresh_barrier_search_margin(void);
 void update_navigation_around_barrier(const struct Thing *thing);
 void update_navigation_around_all_barriers(void);
 struct Thing *slide_creature_against_barrier_at(struct Thing *creatng, struct Coord3d *pos);

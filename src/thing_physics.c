@@ -721,6 +721,27 @@ static uint32_t get_collision_flags(const struct Thing *thing)
     return 0;
 }
 
+static MapSubtlDelta barrier_search_margin = -1;
+static GameTurn barrier_search_turn = 0;
+
+void refresh_barrier_search_margin(void)
+{
+    barrier_search_margin = -1;
+    for (ThingModel model = 0; model < game.conf.object_conf.object_types_count; model++) {
+        struct ObjectConfigStats *objst = get_object_model_stats(model);
+        if (objst->collision_flags != 0) {
+            barrier_search_margin = max(barrier_search_margin, objst->size_xy / 2 / COORD_PER_STL + 1);
+        }
+    }
+    for (ThingModel model = 0; model < game.conf.trapdoor_conf.trap_types_count; model++) {
+        struct TrapConfigStats *trapst = get_trap_model_stats(model);
+        if (trapst->collision_flags != 0) {
+            barrier_search_margin = max(barrier_search_margin, trapst->size_xy / 2 / COORD_PER_STL + 1);
+        }
+    }
+    barrier_search_turn = get_gameturn();
+}
+
 TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag)
 {
     if ((barrier->health < 0) || flag_is_set(barrier->alloc_flags, TAlF_IsInLimbo) || (thing_is_deployed_trap(barrier) && (barrier->trap.num_shots <= 0))) {
@@ -746,8 +767,14 @@ static TbBool barrier_overlaps_area(const struct Thing *barrier, const struct Su
 
 static struct Thing *find_barrier_covering_area(const struct SubtileArea *area, TbBool (*accept)(const struct Thing *barrier, void *context), void *context)
 {
-    for (MapSubtlCoord stl_y = area->y_beg - 2; stl_y <= area->y_end + 2; stl_y++) {
-        for (MapSubtlCoord stl_x = area->x_beg - 2; stl_x <= area->x_end + 2; stl_x++) {
+    if (barrier_search_turn != get_gameturn()) {
+        refresh_barrier_search_margin();
+    }
+    if (barrier_search_margin < 0) {
+        return INVALID_THING;
+    }
+    for (MapSubtlCoord stl_y = area->y_beg - barrier_search_margin; stl_y <= area->y_end + barrier_search_margin; stl_y++) {
+        for (MapSubtlCoord stl_x = area->x_beg - barrier_search_margin; stl_x <= area->x_end + barrier_search_margin; stl_x++) {
             ThingIndex i = get_mapwho_thing_index(get_map_block_at(stl_x, stl_y));
             while (i != 0) {
                 struct Thing *thing = thing_get(i);
@@ -755,7 +782,7 @@ static struct Thing *find_barrier_covering_area(const struct SubtileArea *area, 
                     break;
                 }
                 i = thing->next_on_mapblk;
-                if (barrier_overlaps_area(thing, area) && accept(thing, context)) {
+                if ((get_collision_flags(thing) != 0) && barrier_overlaps_area(thing, area) && accept(thing, context)) {
                     return thing;
                 }
             }

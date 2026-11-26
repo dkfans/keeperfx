@@ -1664,6 +1664,7 @@ static void init_navigation_map(void)
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     memset(game.navigation_map, 0, sizeof(NavColour)*game.navigation_map_size_x*game.navigation_map_size_y);
+    refresh_barrier_search_margin();
     for (stl_y=0; stl_y < game.navigation_map_size_y; stl_y++)
     {
         for (stl_x=0; stl_x < game.navigation_map_size_x; stl_x++)
