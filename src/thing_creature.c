@@ -1287,11 +1287,8 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_Flying)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Flying);
-        // TODO: Strange condition regarding the fly, check why it's here?
-        if (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_IsDiptera))
-        {
-            clear_flag(thing->movement_flags, TMvF_Flying);
-        }
+        clear_flag(thing->movement_flags, TMvF_Flying);
+        restore_creature_flight_flag(thing);
         cleared = true;
     }
     // INVISIBILITY.
