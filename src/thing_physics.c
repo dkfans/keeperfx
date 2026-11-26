@@ -710,7 +710,7 @@ static struct SubtileArea get_subtile_area_around(const struct Coord3d *pos, Map
     return area;
 }
 
-static uint32_t get_configured_collision_flags(const struct Thing *thing)
+static uint32_t get_collision_flags(const struct Thing *thing)
 {
     if (thing_is_deployed_trap(thing)) {
         return get_trap_model_stats(thing->model)->collision_flags;
@@ -721,17 +721,9 @@ static uint32_t get_configured_collision_flags(const struct Thing *thing)
     return 0;
 }
 
-static uint32_t get_collision_flags(const struct Thing *thing)
-{
-    if (thing_is_deployed_trap(thing) && (thing->trap.num_shots <= 0)) {
-        return 0;
-    }
-    return get_configured_collision_flags(thing);
-}
-
 TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag)
 {
-    if (barrier->health < 0) {
+    if ((barrier->health < 0) || (thing_is_deployed_trap(barrier) && (barrier->trap.num_shots <= 0))) {
         return false;
     }
     return flag_is_set(get_collision_flags(barrier), collision_flag);
@@ -844,7 +836,7 @@ PlayerBitFlags get_players_avoiding_barriers_at(MapSubtlCoord stl_x, MapSubtlCoo
 
 void update_navigation_around_barrier(const struct Thing *thing)
 {
-    if (!nav_map_initialised || !flag_is_set(get_configured_collision_flags(thing), TCF_BlockCreatures)) {
+    if (!nav_map_initialised || !flag_is_set(get_collision_flags(thing), TCF_BlockCreatures)) {
         return;
     }
     struct SubtileArea area = get_subtile_area_around(&thing->mappos, thing->solid_size_xy / 2);
@@ -915,7 +907,8 @@ struct Thing *slide_creature_against_barrier_at(struct Thing *creatng, struct Co
     if (thing_is_invalid(barrier)) {
         return INVALID_THING;
     }
-    struct Coord3d requested_pos = *pos;
+    int32_t step_x = abs(pos->x.val - creatng->mappos.x.val);
+    int32_t step_y = abs(pos->y.val - creatng->mappos.y.val);
     int32_t blocked_flags = SlbBloF_None;
     if (barrier_blocks_creature_at(creatng, pos->x.val, creatng->mappos.y.val)) {
         blocked_flags |= SlbBloF_WalledX;
@@ -925,13 +918,11 @@ struct Thing *slide_creature_against_barrier_at(struct Thing *creatng, struct Co
     }
     if (blocked_flags == SlbBloF_None) {
         blocked_flags = SlbBloF_WalledY;
-        if (abs(pos->y.val - creatng->mappos.y.val) > abs(pos->x.val - creatng->mappos.x.val)) {
+        if (step_y > step_x) {
             blocked_flags = SlbBloF_WalledX;
         }
     }
     slide_thing_against_wall_at(creatng, pos, blocked_flags);
-    int32_t step_x = abs(requested_pos.x.val - creatng->mappos.x.val);
-    int32_t step_y = abs(requested_pos.y.val - creatng->mappos.y.val);
     if ((blocked_flags == SlbBloF_WalledX) && (step_y < step_x)) {
         sidestep_barrier_at(creatng, pos, &pos->y.val, creatng->mappos.y.val, barrier->mappos.y.val, step_x);
     } else if ((blocked_flags == SlbBloF_WalledY) && (step_x < step_y)) {
