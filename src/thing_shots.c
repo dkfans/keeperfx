@@ -1511,7 +1511,7 @@ HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, cons
     if (thing_exists(parntng))
         shot_owner = parntng->owner;
     if (thing_is_barrier(thing)) {
-        return barrier_blocks_player(thing, shot_owner, TCF_AllyShots, TCF_EnemyShots);
+        return barrier_blocks_player(thing, shot_owner, TCF_AllyAttack, TCF_EnemyAttack);
     }
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }

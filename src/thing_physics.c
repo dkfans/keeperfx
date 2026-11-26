@@ -838,7 +838,7 @@ static TbBool collect_players_avoiding_barrier(const struct Thing *barrier, void
     PlayerBitFlags *players = context;
     TbBool destructible = barrier_is_destructible(barrier);
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        TbBool attackable = destructible && barrier_blocks_player(barrier, plyr_idx, TCF_AllyShots, TCF_EnemyShots) && !players_are_mutual_allies(plyr_idx, barrier->owner);
+        TbBool attackable = destructible && barrier_blocks_player(barrier, plyr_idx, TCF_AllyAttack, TCF_EnemyAttack) && !players_are_mutual_allies(plyr_idx, barrier->owner);
         if (barrier_blocks_player(barrier, plyr_idx, TCF_AllyCreature, TCF_EnemyCreature) && !attackable) {
             *players |= to_flag(plyr_idx);
         }
