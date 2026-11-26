@@ -1,5 +1,3 @@
-Debugging = require("debugging")
-
 -- Init
 
 local Pos3d = require("fxdata.lua.classes.Pos3d")
@@ -265,13 +263,22 @@ UpdateFlightCandle = function (trap)
 
         for index, creature in ipairs(creatures) do
             if HelperFunctions.GetDistance(trap.pos.stl_x, trap.pos.stl_y, creature.pos.stl_x, creature.pos.stl_y) <= maxradius then
-                if creature.owner == trap.owner then
+                -- Creatures which already fly don't get flight cast on them
+                if (creature:isValid() and creature.owner == trap.owner and not CreatureNaturallyFlies(creature.model)) then
                     UseSpellOnCreature(creature, "SPELL_FLIGHT", 9)
                 end
             end
         end
     end
     return 1
+end
+
+function CreatureNaturallyFlies(model)
+    if (model == "FAIRY") then return true end
+    if (model == "FLY") then return true end
+    if (model == "FIREFLY") then return true end
+    if (model == "GHOST") then return true end
+    return false
 end
 
 -------------------------------------------------------

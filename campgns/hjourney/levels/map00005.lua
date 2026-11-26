@@ -2,7 +2,6 @@
 --        Hero Portal Level
 -- ********************************************
 
-Debugging = require("debugging")
 Common = require("common")
 HelperFunctions = require("helperfunctions")
 Objects = require("commontraps")

@@ -1,4 +1,4 @@
-Debugging = require("debugging")
+-- Contains functionality for custom spells
 
 function UseVoidRod(player, power_kind, power_level, stl_x, stl_y, thing, is_free)
 

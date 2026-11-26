@@ -2,7 +2,6 @@
 --        Intermission 2
 -- ********************************************
 
-Debugging = require("debugging")
 Common = require("common")
 HelperFunctions = require("helperfunctions")
 Objects = require("commontraps")

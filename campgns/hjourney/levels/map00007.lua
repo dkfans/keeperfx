@@ -2,7 +2,6 @@
 --        2 Enemies map
 -- ********************************************
 
-Debugging = require("debugging")
 Common = require("common")
 HelperFunctions = require("helperfunctions")
 Objects = require("commontraps")
