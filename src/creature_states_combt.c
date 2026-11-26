@@ -3385,6 +3385,9 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     long i;
     TRACE_THING(figtng);
     TRACE_THING(enmtng);
+    if (thing_is_barrier(enmtng)) {
+        return Lb_FAIL;
+    }
 
     struct CreatureControl* figctrl = creature_control_get_from_thing(figtng);
     MapCoordDelta dist_x = enmtng->mappos.x.val - (MapCoordDelta)figtng->mappos.x.val;
