@@ -588,6 +588,7 @@ TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_
 void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
+    update_navigation_around_barrier(thing);
     if (thing->light_id != 0)
     {
         light_delete_light(thing->light_id);
@@ -602,6 +603,7 @@ void remove_thing_from_limbo(struct Thing *thing)
     thing->alloc_flags &= ~TAlF_IsInLimbo;
     thing->rendering_flags &= ~TRF_Invisible;
     place_thing_in_mapwho(thing);
+    update_navigation_around_barrier(thing);
 }
 
 void draw_power_hand(void)

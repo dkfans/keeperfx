@@ -33,6 +33,7 @@
 #include "engine_redraw.h"
 #include "frontend.h"
 #include "thing_objects.h"
+#include "thing_physics.h"
 #include "power_hand.h"
 #include "gui_msgs.h"
 #include "kfx/renderer/RendererManager.h"
@@ -521,6 +522,7 @@ void toggle_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx)
     if (player_invalid(player))
         return;
     toggle_flag(player->allied_players, to_flag(ally_idx)); // toggle player ally_idx in player plyridx's allies list
+    update_navigation_around_all_barriers();
 }
 
 TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool make_ally)
@@ -530,11 +532,14 @@ TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
         return false;
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return false;
+    PlayerBitFlags previous_allies = player->allied_players;
     if (make_ally)
         set_flag(player->allied_players, to_flag(ally_idx)); // add player ally_idx to player plyridx's allies list
     else // enemy
         clear_flag(player->allied_players, to_flag(ally_idx)); // remove player ally_idx from player plyridx's allies list
-
+    if (player->allied_players != previous_allies) {
+        update_navigation_around_all_barriers();
+    }
     return true;
 }
 

@@ -2628,15 +2628,13 @@ TngUpdateRet process_creature_state(struct Thing *thing)
             }
         }
     }
-    if (cctrl->collided_barrier_idx != 0)
-    {
+    if (cctrl->collided_barrier_idx != 0) {
         struct Thing* barrier = thing_get(cctrl->collided_barrier_idx);
         cctrl->collided_barrier_idx = 0;
         if (((cctrl->combat_flags & CmbtF_DoorFight) == 0) && ((cctrl->creature_control_flags & CCFlg_NoCompControl) == 0)
-            && barrier_blocks_creature(barrier, thing) && !players_are_mutual_allies(thing->owner, barrier->owner)
+            && barrier_blocks_player(barrier, thing->owner) && !players_are_mutual_allies(thing->owner, barrier->owner)
             && (!thing_is_deployed_trap(barrier) || creature_can_damage_trap(thing, barrier))
-            && can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat))
-        {
+            && can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat)) {
             set_creature_door_combat(thing, barrier);
         }
     }

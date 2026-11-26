@@ -306,6 +306,7 @@ void change_object_owner(struct Thing *objtng, PlayerNumber nowner)
     //TODO make this function more advanced - switch object types and update dungeon and rooms for spellbook/workshop box/lair
     SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(objtng),(int)objtng->owner,(int)nowner);
     objtng->owner = nowner;
+    update_navigation_around_barrier(objtng);
 }
 
 /**

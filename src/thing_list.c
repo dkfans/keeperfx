@@ -3626,8 +3626,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
             }
             return ((hit_targets & HitTF_AlliedSoulContainer) != 0);
         }
-        if (thing_is_barrier(thing))
-        {
+        if (thing_is_barrier(thing)) {
             return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
         }
         if (object_is_growing_food(thing) ||
