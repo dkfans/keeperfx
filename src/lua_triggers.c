@@ -193,6 +193,23 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 	}
 }
 
+void lua_on_gold_mined(PlayerNumber player, MapSlabCoord x_pos, MapSlabCoord y_pos)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnGoldVeinMined");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushPlayer(Lvl_script, player);
+        lua_pushnumber(Lvl_script, x_pos);
+        lua_pushnumber(Lvl_script, y_pos);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0), "OnGoldVeinMined");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
+}
+
 void lua_on_research_thing(PlayerNumber player, const char *research, int8_t type)
 {
     SYNCDBG(6, "Starting");

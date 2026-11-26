@@ -43,6 +43,7 @@
 #include "config_spritecolors.h"
 #include "lua_triggers.h"
 #include "post_inc.h"
+#include "lua_triggers.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1921,6 +1922,7 @@ void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_
     // so sine we're destroying it - make it invisible
     // TODO MAP Maybe it should be cleared only if sibling non-gold and non-rock slabs are invisible
     set_slab_explored_flags(plyr_idx, slb_x, slb_y);
+    lua_on_gold_mined(plyr_idx, slb_x, slb_y);
 }
 
 TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, PlayerNumber plyr_idx)
