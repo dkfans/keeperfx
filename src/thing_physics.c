@@ -904,12 +904,30 @@ static TbBool barrier_blocks_creature_at(const struct Thing *creatng, MapCoord p
     return !thing_is_invalid(get_barrier_blocking_creature_at(creatng, &pos));
 }
 
+static void sidestep_barrier_at(const struct Thing *creatng, struct Coord3d *pos, int32_t *axis, int32_t creature_axis, int32_t barrier_axis, int32_t step)
+{
+    int32_t direction = 1;
+    if (creature_axis < barrier_axis) {
+        direction = -1;
+    }
+    int32_t unchanged_axis = *axis;
+    *axis = creature_axis + direction * step;
+    if (!barrier_blocks_creature_at(creatng, pos->x.val, pos->y.val)) {
+        return;
+    }
+    *axis = creature_axis - direction * step;
+    if (barrier_blocks_creature_at(creatng, pos->x.val, pos->y.val)) {
+        *axis = unchanged_axis;
+    }
+}
+
 struct Thing *slide_creature_against_barrier_at(struct Thing *creatng, struct Coord3d *pos)
 {
     struct Thing *barrier = get_barrier_blocking_creature_at(creatng, pos);
     if (thing_is_invalid(barrier)) {
         return INVALID_THING;
     }
+    struct Coord3d requested_pos = *pos;
     int32_t blocked_flags = SlbBloF_None;
     if (barrier_blocks_creature_at(creatng, pos->x.val, creatng->mappos.y.val)) {
         blocked_flags |= SlbBloF_WalledX;
@@ -918,9 +936,19 @@ struct Thing *slide_creature_against_barrier_at(struct Thing *creatng, struct Co
         blocked_flags |= SlbBloF_WalledY;
     }
     if (blocked_flags == SlbBloF_None) {
-        blocked_flags = SlbBloF_WalledX | SlbBloF_WalledY;
+        blocked_flags = SlbBloF_WalledY;
+        if (abs(pos->y.val - creatng->mappos.y.val) > abs(pos->x.val - creatng->mappos.x.val)) {
+            blocked_flags = SlbBloF_WalledX;
+        }
     }
     slide_thing_against_wall_at(creatng, pos, blocked_flags);
+    int32_t step_x = abs(requested_pos.x.val - creatng->mappos.x.val);
+    int32_t step_y = abs(requested_pos.y.val - creatng->mappos.y.val);
+    if ((blocked_flags == SlbBloF_WalledX) && (step_y < step_x)) {
+        sidestep_barrier_at(creatng, pos, &pos->y.val, creatng->mappos.y.val, barrier->mappos.y.val, step_x);
+    } else if ((blocked_flags == SlbBloF_WalledY) && (step_x < step_y)) {
+        sidestep_barrier_at(creatng, pos, &pos->x.val, creatng->mappos.x.val, barrier->mappos.x.val, step_y);
+    }
     if (barrier_blocks_creature_at(creatng, pos->x.val, pos->y.val)) {
         pos->x.val = creatng->mappos.x.val;
         pos->y.val = creatng->mappos.y.val;
