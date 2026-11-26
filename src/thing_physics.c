@@ -781,15 +781,10 @@ static struct Thing *find_barrier_covering_area(const struct SubtileArea *area, 
     return INVALID_THING;
 }
 
-struct BarrierMoveCheck {
-    const struct Thing *creatng;
-    struct SubtileArea curr_area;
-};
-
-static TbBool barrier_blocks_creature_entering(const struct Thing *barrier, void *context)
+static TbBool barrier_blocks_creature(const struct Thing *barrier, void *context)
 {
-    struct BarrierMoveCheck *check = context;
-    return barrier_blocks_player(barrier, check->creatng->owner) && !barrier_overlaps_area(barrier, &check->curr_area);
+    const struct Thing *creatng = context;
+    return barrier_blocks_player(barrier, creatng->owner);
 }
 
 static TbBool collect_players_avoiding_barrier(const struct Thing *barrier, void *context)
@@ -840,14 +835,18 @@ void update_navigation_around_all_barriers(void)
 static struct Thing *get_barrier_blocking_creature_at(const struct Thing *creatng, const struct Coord3d *pos)
 {
     int radius = thing_collision_radius(creatng);
-    struct BarrierMoveCheck check;
-    check.creatng = creatng;
-    check.curr_area = get_subtile_area_around(&creatng->mappos, radius);
+    struct SubtileArea curr_area = get_subtile_area_around(&creatng->mappos, radius);
     struct SubtileArea dest_area = get_subtile_area_around(pos, radius);
-    if (memcmp(&check.curr_area, &dest_area, sizeof(struct SubtileArea)) == 0) {
+    if (memcmp(&curr_area, &dest_area, sizeof(struct SubtileArea)) == 0) {
         return INVALID_THING;
     }
-    return find_barrier_covering_area(&dest_area, barrier_blocks_creature_entering, &check);
+    return find_barrier_covering_area(&dest_area, barrier_blocks_creature, (void *)creatng);
+}
+
+TbBool creature_in_barrier_at(const struct Thing *creatng, const struct Coord3d *pos)
+{
+    struct SubtileArea area = get_subtile_area_around(pos, thing_collision_radius(creatng));
+    return !thing_is_invalid(find_barrier_covering_area(&area, barrier_blocks_creature, (void *)creatng));
 }
 
 static TbBool barrier_blocks_creature_at(const struct Thing *creatng, MapCoord pos_x, MapCoord pos_y)

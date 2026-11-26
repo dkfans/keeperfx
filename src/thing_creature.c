@@ -2921,8 +2921,7 @@ long move_creature(struct Thing *thing)
     pvpos.z.val = tngpos->z.val;
     cctrl->creature_control_flags &= ~CCFlg_RepositionedInWall;
     struct Coord3d nxpos;
-    if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_through_wall_at(thing, &thing->mappos))
-    {
+    if ((thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_through_wall_at(thing, &thing->mappos)) || (thing_has_landed(thing) && creature_in_barrier_at(thing, &thing->mappos))) {
         nxpos.x.val = tngpos->x.val;
         nxpos.y.val = tngpos->y.val;
         nxpos.z.val = tngpos->z.val;

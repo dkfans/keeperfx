@@ -109,8 +109,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
             spiral_pos.x.val = (stl_x << 8) + 128;
             spiral_pos.y.val = (stl_y << 8) + 128;
             spiral_pos.z.val = get_floor_height_at(&spiral_pos);
-            if ( !thing_in_wall_at(thing, &spiral_pos) )
-            {
+            if (!thing_in_wall_at(thing, &spiral_pos) && !creature_in_barrier_at(thing, &spiral_pos)) {
                 pos->x.val = spiral_pos.x.val;
                 pos->y.val = spiral_pos.y.val;
                 pos->z.val = spiral_pos.z.val;
