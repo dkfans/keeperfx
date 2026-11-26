@@ -802,6 +802,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     {
         destroy_food(target);
     } else
+    if (!thing_is_barrier(target))
     {
         WARNLOG("Killing %s by %s is not supported",thing_model_name(target),thing_model_name(shotng));
     }

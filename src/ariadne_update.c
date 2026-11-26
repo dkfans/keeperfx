@@ -23,6 +23,7 @@
 #include "ariadne_regions.h"
 #include "ariadne_edge.h"
 #include "ariadne_navitree.h"
+#include "thing_physics.h"
 
 #include "game_legacy.h"
 #include "kfx/profiling/KfxProfilingC.h"
@@ -1655,7 +1656,7 @@ static NavColour get_navigation_colour(long stl_x, long stl_y)
     {
         return (NAVMAP_FLOORHEIGHT_MAX << NAVMAP_FLOORHEIGHT_BIT);
     }
-    return get_navigation_colour_for_cube(stl_x, stl_y);
+    return get_navigation_colour_for_cube(stl_x, stl_y) | (get_players_avoiding_barriers_at(stl_x, stl_y) << NAVMAP_OWNERSELECT_BIT);
 }
 
 static void init_navigation_map(void)

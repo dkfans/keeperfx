@@ -68,6 +68,12 @@ static const struct NamedCommand door_properties_commands[] = {
     {NULL,                   0},
   };
 
+static const struct NamedCommand trap_properties_commands[] = {
+    {"BLOCK_ALLY_MOVEMENT",  OMF_BlockAllyMovement},
+    {"BLOCK_ENEMY_MOVEMENT", OMF_BlockEnemyMovement},
+    {NULL,                   0},
+  };
+
 static const struct NamedCommand trap_trigger_type_commands[] = {
     {"NONE",             TrpTrg_None},
     {"LINE_OF_SIGHT_90", TrpTrg_LineOfSight90},
@@ -338,6 +344,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"SHOTVECTOR",             2, field_t(struct TrapConfigStats, shotvector.z),                     0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"DESTRUCTIBLE",           0, field_t(struct TrapConfigStats, destructible),                     0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"UNSTABLE",               0, field_t(struct TrapConfigStats, unstable),                         0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
+    {"PROPERTIES",            -1, field_t(struct TrapConfigStats, model_flags),                      0,   INT32_MIN,         UINT32_MAX, trap_properties_commands, value_flagsfield, assign_default},
     {"UNSELLABLE",             0, field_t(struct TrapConfigStats, unsellable),                       0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"PLACEONBRIDGE",          0, field_t(struct TrapConfigStats, place_on_bridge),                  0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"SHOTORIGIN",             0, field_t(struct TrapConfigStats, shot_shift_x),                     0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},

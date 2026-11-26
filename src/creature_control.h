@@ -349,6 +349,7 @@ struct CreatureControl {
     TbBool instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
+    ThingIndex collided_barrier_idx;
     int8_t fighting_player_idx;
     ThingModel shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];

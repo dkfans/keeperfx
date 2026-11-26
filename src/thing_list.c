@@ -3572,6 +3572,9 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
  */
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
 {
+    if (thing_is_barrier(thing) && (shot_owner >= 0) && players_are_mutual_allies(shot_owner, thing->owner)) {
+        return false;
+    }
     if (thing_is_creature(thing))
     {
         // spectators are not shootable
@@ -3622,6 +3625,10 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
                 return ((hit_targets & HitTF_EnemySoulContainer) != 0);
             }
             return ((hit_targets & HitTF_AlliedSoulContainer) != 0);
+        }
+        if (thing_is_barrier(thing))
+        {
+            return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
         }
         if (object_is_growing_food(thing) ||
            (object_is_mature_food(thing) && !user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_PossessionEntryZoom) && !user_controls_thing(ANY_USER, thing, UCT_Passenger | UCT_PossessionEntryZoom)))

@@ -1447,7 +1447,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
     }
     struct CreatureControl* enmcctrl = creature_control_get_from_thing(enmtng);
     if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door)
-        && (thing_is_destructible_trap(enmtng) <= 0) && !((thing_is_destructible_trap(enmtng) >= 0) && creature_has_disarming_weapon(thing))) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
+        && !creature_can_damage_trap(thing, enmtng)) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
     {
         if (!(thing_is_deployed_trap(enmtng) && (enmtng->trap.num_shots <= 0))) //No error needed when trap fired it's final shot
         {
@@ -1469,7 +1469,7 @@ short creature_door_combat(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!combat_enemy_exists(creatng, doortng) || (doortng->active_state == DorSt_Open))
+    if (!combat_enemy_exists(creatng, doortng) || (thing_is_deployed_door(doortng) && (doortng->active_state == DorSt_Open)))
     {
         check_map_explored(creatng, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         set_start_state(creatng);
@@ -3277,6 +3277,12 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     return true;
 }
 
+TbBool creature_can_damage_trap(const struct Thing* creatng, const struct Thing* traptng)
+{
+    short destructible = thing_is_destructible_trap(traptng);
+    return (destructible > 0) || ((destructible >= 0) && creature_has_disarming_weapon(creatng));
+}
+
 struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, could be expanded to non-trap objects
 {
     long m = THING_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
@@ -3285,7 +3291,7 @@ struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, c
         MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
         MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
         struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
+        if (creature_can_damage_trap(thing, trpthing))
         {
             if (players_are_enemies(thing->owner, trpthing->owner))
             {

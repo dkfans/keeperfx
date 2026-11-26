@@ -59,6 +59,8 @@ enum ObjectModelFlags {
     OMF_HoldInHand           = 0x0080, // Object can be picked up to hold
     OMF_IgnoredByImps        = 0x0100, // Specialdiggers don't dragging this object
     OMF_Slappable            = 0x0200, // Object can be slapped
+    OMF_BlockAllyMovement    = 0x0400,
+    OMF_BlockEnemyMovement   = 0x0800,
 };
 
 

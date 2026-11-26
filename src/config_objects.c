@@ -60,6 +60,8 @@ const struct NamedCommand objects_properties_commands[] = {
   {"HOLD_IN_HAND",            OMF_HoldInHand          },
   {"IGNORED_BY_IMPS",         OMF_IgnoredByImps       },
   {"SLAPPABLE",               OMF_Slappable           },
+  {"BLOCK_ALLY_MOVEMENT",     OMF_BlockAllyMovement   },
+  {"BLOCK_ENEMY_MOVEMENT",    OMF_BlockEnemyMovement  },
   {NULL,                      0},
   };
 

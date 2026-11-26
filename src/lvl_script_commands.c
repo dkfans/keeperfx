@@ -1940,6 +1940,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->health = 1;
     trapst->destructible = 0;
     trapst->unstable = 0;
+    trapst->model_flags = 0;
     trapst->destroyed_effect = -39;
     trapst->size_xy = 0;
     trapst->size_z = 0;
