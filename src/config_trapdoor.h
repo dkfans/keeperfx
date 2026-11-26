@@ -91,7 +91,7 @@ struct TrapConfigStats {
     HitPoints health;
     int8_t destructible;
     int8_t unstable;
-    uint32_t model_flags;
+    uint32_t collision_flags;
     EffectOrEffElModel destroyed_effect;
     short size_xy;
     short size_z;

@@ -59,8 +59,15 @@ enum ObjectModelFlags {
     OMF_HoldInHand           = 0x0080, // Object can be picked up to hold
     OMF_IgnoredByImps        = 0x0100, // Specialdiggers don't dragging this object
     OMF_Slappable            = 0x0200, // Object can be slapped
-    OMF_BlockAllyMovement    = 0x0400,
-    OMF_BlockEnemyMovement   = 0x0800,
+};
+
+enum ThingCollisionFlags {
+    TCF_AllyCreature    = 0x01,
+    TCF_EnemyCreature   = 0x02,
+    TCF_AllyShots       = 0x04,
+    TCF_EnemyShots      = 0x08,
+    TCF_BlockAllySight  = 0x10,
+    TCF_BlockEnemySight = 0x20,
 };
 
 
@@ -89,6 +96,7 @@ struct FlameProperties {
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     uint32_t model_flags;
+    uint32_t collision_flags;
     int32_t genre;
     int32_t map_icon;
     int32_t hand_icon;
@@ -138,6 +146,7 @@ struct ObjectsConfig {
 extern const struct ConfigFileData keeper_objects_file_data;
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 extern const struct NamedCommand objects_genres_desc[];
+extern const struct NamedCommand collision_flags_commands[];
 
 extern const struct NamedFieldSet objects_named_fields_set;
 /******************************************************************************/

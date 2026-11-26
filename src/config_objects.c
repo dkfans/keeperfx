@@ -60,8 +60,16 @@ const struct NamedCommand objects_properties_commands[] = {
   {"HOLD_IN_HAND",            OMF_HoldInHand          },
   {"IGNORED_BY_IMPS",         OMF_IgnoredByImps       },
   {"SLAPPABLE",               OMF_Slappable           },
-  {"BLOCK_ALLY_MOVEMENT",     OMF_BlockAllyMovement   },
-  {"BLOCK_ENEMY_MOVEMENT",    OMF_BlockEnemyMovement  },
+  {NULL,                      0},
+  };
+
+const struct NamedCommand collision_flags_commands[] = {
+  {"ALLY_CREATURE",           TCF_AllyCreature        },
+  {"ENEMY_CREATURE",          TCF_EnemyCreature       },
+  {"ALLY_SHOTS",              TCF_AllyShots           },
+  {"ENEMY_SHOTS",             TCF_EnemyShots          },
+  {"BLOCK_ALLY_SIGHT",        TCF_BlockAllySight      },
+  {"BLOCK_ENEMY_SIGHT",       TCF_BlockEnemySight     },
   {NULL,                      0},
   };
 
@@ -88,6 +96,7 @@ static const struct NamedField objects_named_fields[] = {
     {"GENRE",                    0, field_t(struct ObjectConfigStats, genre),                         0, INT32_MIN,UINT32_MAX, objects_genres_desc,         value_default,   assign_default},
     {"RELATEDCREATURE",          0, field_t(struct ObjectConfigStats, related_creatr_model),          0, INT32_MIN,UINT32_MAX, creature_desc,               value_default,   assign_default},
     {"PROPERTIES",              -1, field_t(struct ObjectConfigStats, model_flags),                   0, INT32_MIN,UINT32_MAX, objects_properties_commands, value_flagsfield,assign_default},
+    {"COLLISION",               -1, field_t(struct ObjectConfigStats, collision_flags),               0, INT32_MIN,UINT32_MAX, collision_flags_commands,    value_flagsfield,assign_default},
     {"ANIMATIONID",              0, field_t(struct ObjectConfigStats, sprite_anim_idx),               0, INT32_MIN,UINT32_MAX, NULL,                        value_animid,    assign_animid},
     {"HANDANIMATIONID",          0, field_t(struct ObjectConfigStats, sprite_anim_idx_in_hand),       0, INT32_MIN,UINT32_MAX, NULL,                        value_animid,    assign_animid},
     {"ANIMATIONSPEED",           0, field_t(struct ObjectConfigStats, anim_speed),                    0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},

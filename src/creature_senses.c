@@ -25,6 +25,7 @@
 #include "creature_states.h"
 #include "thing_list.h"
 #include "thing_navigate.h"
+#include "thing_physics.h"
 #include "thing_stats.h"
 #include "creature_control.h"
 #include "player_instances.h"
@@ -595,6 +596,9 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
 
 TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
 {
+    if (barrier_blocks_sight_between(creatng, thing)) {
+        return false;
+    }
     struct Coord3d thing_pos;
     struct Coord3d creat_pos;
 
@@ -616,6 +620,9 @@ TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
 
 TbBool creature_can_see_thing_ignoring_specific_door(struct Thing *creatng, struct Thing *thing,struct Thing *doortng)
 {
+    if (barrier_blocks_sight_between(creatng, thing)) {
+        return false;
+    }
     struct Coord3d thing_pos;
     struct Coord3d creat_pos;
 
@@ -637,6 +644,9 @@ TbBool creature_can_see_thing_ignoring_specific_door(struct Thing *creatng, stru
 
 TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
 {
+    if (barrier_blocks_sight_between(creatng, thing)) {
+        return false;
+    }
     const struct Coord3d* srcpos = &creatng->mappos;
     struct Coord3d eyepos;
     eyepos.x.val = srcpos->x.val;

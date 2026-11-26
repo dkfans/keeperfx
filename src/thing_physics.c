@@ -710,28 +710,28 @@ static struct SubtileArea get_subtile_area_around(const struct Coord3d *pos, Map
     return area;
 }
 
-static uint32_t get_configured_barrier_flags(const struct Thing *thing)
+static uint32_t get_configured_collision_flags(const struct Thing *thing)
 {
     if (thing_is_deployed_trap(thing)) {
-        return get_trap_model_stats(thing->model)->model_flags;
+        return get_trap_model_stats(thing->model)->collision_flags;
     }
     if (thing_is_object(thing)) {
-        return get_object_model_stats(thing->model)->model_flags;
+        return get_object_model_stats(thing->model)->collision_flags;
     }
     return 0;
 }
 
-static uint32_t get_barrier_flags(const struct Thing *thing)
+static uint32_t get_collision_flags(const struct Thing *thing)
 {
     if (thing_is_deployed_trap(thing) && (thing->trap.num_shots <= 0)) {
         return 0;
     }
-    return get_configured_barrier_flags(thing);
+    return get_configured_collision_flags(thing);
 }
 
 TbBool thing_is_barrier(const struct Thing *thing)
 {
-    return any_flag_is_set(get_barrier_flags(thing), OMF_BlockAllyMovement | OMF_BlockEnemyMovement);
+    return (get_collision_flags(thing) != 0);
 }
 
 static TbBool barrier_is_destructible(const struct Thing *barrier)
@@ -742,16 +742,16 @@ static TbBool barrier_is_destructible(const struct Thing *barrier)
     return true;
 }
 
-TbBool barrier_blocks_player(const struct Thing *barrier, PlayerNumber plyr_idx)
+TbBool barrier_blocks_player(const struct Thing *barrier, PlayerNumber plyr_idx, uint32_t ally_flag, uint32_t enemy_flag)
 {
     if (barrier->health < 0) {
         return false;
     }
-    uint32_t flags = get_barrier_flags(barrier);
-    if (players_are_mutual_allies(plyr_idx, barrier->owner)) {
-        return flag_is_set(flags, OMF_BlockAllyMovement);
+    uint32_t flags = get_collision_flags(barrier);
+    if ((plyr_idx >= 0) && players_are_mutual_allies(plyr_idx, barrier->owner)) {
+        return flag_is_set(flags, ally_flag);
     }
-    return flag_is_set(flags, OMF_BlockEnemyMovement);
+    return flag_is_set(flags, enemy_flag);
 }
 
 MapCoordDelta get_combat_distance_to_barrier(const struct Thing *creatng, const struct Thing *barrier)
@@ -792,7 +792,45 @@ static struct Thing *find_barrier_covering_area(const struct SubtileArea *area, 
 static TbBool barrier_blocks_creature(const struct Thing *barrier, void *context)
 {
     const struct Thing *creatng = context;
-    return barrier_blocks_player(barrier, creatng->owner);
+    return barrier_blocks_player(barrier, creatng->owner, TCF_AllyCreature, TCF_EnemyCreature);
+}
+
+struct SightLine {
+    const struct Thing *viewer;
+    const struct Thing *target;
+};
+
+static TbBool barrier_crosses_sight_line(const struct Thing *barrier, void *context)
+{
+    const struct SightLine *line = context;
+    if ((barrier == line->target) || !barrier_blocks_player(barrier, line->viewer->owner, TCF_BlockAllySight, TCF_BlockEnemySight)) {
+        return false;
+    }
+    struct SubtileArea area = get_subtile_area_around(&barrier->mappos, barrier->solid_size_xy / 2);
+    const struct Coord3d *frpos = &line->viewer->mappos;
+    MapCoordDelta delta_x = line->target->mappos.x.val - frpos->x.val;
+    MapCoordDelta delta_y = line->target->mappos.y.val - frpos->y.val;
+    int32_t steps = max(abs(delta_x), abs(delta_y)) / (COORD_PER_STL / 4) + 1;
+    for (int32_t step = 0; step <= steps; step++) {
+        MapSubtlCoord stl_x = coord_subtile(frpos->x.val + delta_x * step / steps);
+        MapSubtlCoord stl_y = coord_subtile(frpos->y.val + delta_y * step / steps);
+        if ((stl_x >= area.x_beg) && (stl_x <= area.x_end) && (stl_y >= area.y_beg) && (stl_y <= area.y_end)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+TbBool barrier_blocks_sight_between(const struct Thing *viewer, const struct Thing *target)
+{
+    struct SightLine line = {viewer, target};
+    struct SubtileArea area = {
+        min(viewer->mappos.x.stl.num, target->mappos.x.stl.num),
+        min(viewer->mappos.y.stl.num, target->mappos.y.stl.num),
+        max(viewer->mappos.x.stl.num, target->mappos.x.stl.num),
+        max(viewer->mappos.y.stl.num, target->mappos.y.stl.num),
+    };
+    return !thing_is_invalid(find_barrier_covering_area(&area, barrier_crosses_sight_line, &line));
 }
 
 static TbBool collect_players_avoiding_barrier(const struct Thing *barrier, void *context)
@@ -800,7 +838,8 @@ static TbBool collect_players_avoiding_barrier(const struct Thing *barrier, void
     PlayerBitFlags *players = context;
     TbBool destructible = barrier_is_destructible(barrier);
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        if (barrier_blocks_player(barrier, plyr_idx) && (!destructible || players_are_mutual_allies(plyr_idx, barrier->owner))) {
+        TbBool attackable = destructible && barrier_blocks_player(barrier, plyr_idx, TCF_AllyShots, TCF_EnemyShots) && !players_are_mutual_allies(plyr_idx, barrier->owner);
+        if (barrier_blocks_player(barrier, plyr_idx, TCF_AllyCreature, TCF_EnemyCreature) && !attackable) {
             *players |= to_flag(plyr_idx);
         }
     }
@@ -817,7 +856,7 @@ PlayerBitFlags get_players_avoiding_barriers_at(MapSubtlCoord stl_x, MapSubtlCoo
 
 void update_navigation_around_barrier(const struct Thing *thing)
 {
-    if (!nav_map_initialised || !any_flag_is_set(get_configured_barrier_flags(thing), OMF_BlockAllyMovement | OMF_BlockEnemyMovement)) {
+    if (!nav_map_initialised || !any_flag_is_set(get_configured_collision_flags(thing), TCF_AllyCreature | TCF_EnemyCreature)) {
         return;
     }
     struct SubtileArea area = get_subtile_area_around(&thing->mappos, thing->solid_size_xy / 2);
