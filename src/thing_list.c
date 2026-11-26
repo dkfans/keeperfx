@@ -3527,12 +3527,14 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
             HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
+            HitTF_EnemyDestructibleObjects|HitTF_AlliedDestructibleObjects|HitTF_OwnedDestructibleObjects|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsNObjcts:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
+            HitTF_EnemyDestructibleObjects|HitTF_AlliedDestructibleObjects|HitTF_OwnedDestructibleObjects|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3545,6 +3547,7 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
         HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
+        HitTF_EnemyDestructibleObjects | HitTF_AlliedDestructibleObjects|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsNotArmourNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures;
@@ -3570,22 +3573,19 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
  * @param hit_targets Target hit configuration flags.
  * @return
  */
-static TbBool hit_targets_include_destructible_trap_of(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
+static TbBool hit_targets_include_by_owner(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets, HitTargetFlags owned_flag, HitTargetFlags allied_flag, HitTargetFlags enemy_flag)
 {
     if (shot_owner == thing->owner) {
-        return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
+        return ((hit_targets & owned_flag) != 0);
     }
     if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
-        return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
+        return ((hit_targets & enemy_flag) != 0);
     }
-    return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
+    return ((hit_targets & allied_flag) != 0);
 }
 
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
 {
-    if (thing_is_barrier(thing)) {
-        return hit_targets_include_destructible_trap_of(thing, shot_owner, hit_targets);
-    }
     if (thing_is_creature(thing))
     {
         // spectators are not shootable
@@ -3662,6 +3662,10 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
         {
             return ((hit_targets & HitTF_AnyGoldPiles) != 0);
         }
+        if (object_is_destructible(thing))
+        {
+            return hit_targets_include_by_owner(thing, shot_owner, hit_targets, HitTF_OwnedDestructibleObjects, HitTF_AlliedDestructibleObjects, HitTF_EnemyDestructibleObjects);
+        }
         //TODO implement hitting decorations flag
         /*if (object_is_decoration(thing))
         {
@@ -3683,7 +3687,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
     {
         if (thing_is_destructible_trap(thing) > 0)
         {
-            return hit_targets_include_destructible_trap_of(thing, shot_owner, hit_targets);
+            return hit_targets_include_by_owner(thing, shot_owner, hit_targets, HitTF_OwnedDestructibleTraps, HitTF_AlliedDestructibleTraps, HitTF_EnemyDestructibleTraps);
         }
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);

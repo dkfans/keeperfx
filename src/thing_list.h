@@ -128,6 +128,9 @@ enum HitTargetFlagsList {
     HitTF_EnemyDestructibleTraps  = (1LL << 26),//!< Allow targeting enemy Deployed Traps.
     HitTF_AlliedDestructibleTraps = (1LL << 27),//!< Allow targeting allied and neutral deployed Traps.
     HitTF_OwnedDestructibleTraps  = (1LL << 28),//!< Allow targeting Owned Deployed Traps.
+    HitTF_EnemyDestructibleObjects  = (1LL << 29),//!< Allow targeting enemy destructible objects.
+    HitTF_AlliedDestructibleObjects = (1LL << 30),//!< Allow targeting allied and neutral destructible objects.
+    HitTF_OwnedDestructibleObjects  = (1LL << 31),//!< Allow targeting owned destructible objects.
 };
 
 /******************************************************************************/

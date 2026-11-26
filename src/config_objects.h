@@ -101,6 +101,7 @@ struct ObjectConfigStats {
     short tooltip_stridx;
     TbBool tooltip_optional;
     HitPoints health;
+    int8_t destructible;
     int8_t fall_acceleration;
     int16_t inertia_floor;
     int16_t inertia_air;

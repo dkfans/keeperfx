@@ -802,7 +802,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     {
         destroy_food(target);
     } else
-    if (!thing_is_barrier(target))
+    if (!object_is_destructible(target))
     {
         WARNLOG("Killing %s by %s is not supported",thing_model_name(target),thing_model_name(shotng));
     }
@@ -828,7 +828,7 @@ void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
 
 static TbBool shot_hit_type_allows_damage(const struct Thing *shotng, const struct Thing *target)
 {
-    if (!thing_is_barrier(target)) {
+    if (!barrier_blocks(target, TCF_BlockShots)) {
         return true;
     }
     return thing_is_shootable(target, shotng->owner, hit_type_to_hit_targets(shotng->shot.hit_type));
@@ -1505,13 +1505,13 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     return false;
 }
 
-HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long target_idx)
+HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
 {
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
         shot_owner = parntng->owner;
-    if (thing_is_barrier(thing)) {
-        return barrier_blocks_shot_aimed_at(thing, target_idx);
+    if (barrier_blocks(thing, TCF_BlockShots)) {
+        return true;
     }
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }
@@ -1602,7 +1602,7 @@ TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxp
     SYNCDBG(18,"Starting for %s index %d, hit type %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_type);
     struct Thing* targetng = INVALID_THING;
     HitTargetFlags hit_targets = hit_type_to_hit_targets(shotng->shot.hit_type);
-    targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, shotng->shot.target_idx);
+    targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
     if (thing_is_invalid(targetng)) {
         return false;
     }

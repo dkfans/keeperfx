@@ -271,7 +271,7 @@ TbBool object_can_be_damaged (const struct Thing* thing)
     //todo make this an object property. Then include the possibility to kill the other object types.
     if (thing->class_id != TCls_Object)
         return false;
-    if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing) || thing_is_barrier(thing))
+    if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing) || object_is_destructible(thing))
         return true;
     return false;
 }
@@ -582,6 +582,14 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
         return true;
 
     return false;
+}
+
+TbBool object_is_destructible(const struct Thing* thing)
+{
+    if (!thing_is_object(thing)) {
+        return false;
+    }
+    return (get_object_model_stats(thing->model)->destructible != 0);
 }
 
 /**

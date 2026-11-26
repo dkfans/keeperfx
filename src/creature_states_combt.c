@@ -195,7 +195,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 
 long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
-    if (thing_is_barrier(enmtng)) {
+    if (barrier_blocks(enmtng, TCF_BlockCreatures)) {
         return get_combat_distance_to_barrier(thing, enmtng);
     }
     long dist = get_2d_distance(&thing->mappos, &enmtng->mappos);
@@ -3388,7 +3388,7 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     long i;
     TRACE_THING(figtng);
     TRACE_THING(enmtng);
-    if (thing_is_barrier(enmtng)) {
+    if (barrier_blocks(enmtng, TCF_BlockCreatures)) {
         return Lb_FAIL;
     }
 

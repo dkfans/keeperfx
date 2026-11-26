@@ -729,17 +729,12 @@ static uint32_t get_collision_flags(const struct Thing *thing)
     return get_configured_collision_flags(thing);
 }
 
-TbBool thing_is_barrier(const struct Thing *thing)
-{
-    return (get_collision_flags(thing) != 0);
-}
-
 static TbBool barrier_is_destructible(const struct Thing *barrier)
 {
     if (thing_is_deployed_trap(barrier)) {
         return (thing_is_destructible_trap(barrier) > 0);
     }
-    return true;
+    return object_is_destructible(barrier);
 }
 
 TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag)
@@ -748,14 +743,6 @@ TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag)
         return false;
     }
     return flag_is_set(get_collision_flags(barrier), collision_flag);
-}
-
-TbBool barrier_blocks_shot_aimed_at(const struct Thing *barrier, ThingIndex target_idx)
-{
-    if ((target_idx == 0) || (target_idx == barrier->index)) {
-        return (barrier->health >= 0);
-    }
-    return barrier_blocks(barrier, TCF_BlockShots);
 }
 
 MapCoordDelta get_combat_distance_to_barrier(const struct Thing *creatng, const struct Thing *barrier)
@@ -784,7 +771,7 @@ static struct Thing *find_barrier_covering_area(const struct SubtileArea *area, 
                     break;
                 }
                 i = thing->next_on_mapblk;
-                if (thing_is_barrier(thing) && barrier_overlaps_area(thing, area) && accept(thing, context)) {
+                if (barrier_overlaps_area(thing, area) && accept(thing, context)) {
                     return thing;
                 }
             }

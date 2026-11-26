@@ -104,6 +104,7 @@ static const struct NamedField objects_named_fields[] = {
     {"DESTROYONLIQUID",          0, field_t(struct ObjectConfigStats, destroy_on_liquid),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"DESTROYONLAVA",            0, field_t(struct ObjectConfigStats, destroy_on_lava),               0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"HEALTH",                   0, field_t(struct ObjectConfigStats, health),                        0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"DESTRUCTIBLE",             0, field_t(struct ObjectConfigStats, destructible),                  0,         0,         1, NULL,                        value_default,   assign_default},
     {"FALLACCELERATION",         0, field_t(struct ObjectConfigStats, fall_acceleration),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"INERTIA",                  0, field_t(struct ObjectConfigStats, inertia_floor),               204, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"INERTIA",                  1, field_t(struct ObjectConfigStats, inertia_air),                  51, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
