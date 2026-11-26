@@ -1507,12 +1507,12 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
 
 HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
 {
-    PlayerNumber shot_owner = -1;
-    if (thing_exists(parntng))
-        shot_owner = parntng->owner;
     if (barrier_blocks(thing, TCF_BlockShots)) {
         return true;
     }
+    PlayerNumber shot_owner = -1;
+    if (thing_exists(parntng))
+        shot_owner = parntng->owner;
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }
 

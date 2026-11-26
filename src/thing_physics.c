@@ -729,14 +729,6 @@ static uint32_t get_collision_flags(const struct Thing *thing)
     return get_configured_collision_flags(thing);
 }
 
-static TbBool barrier_is_destructible(const struct Thing *barrier)
-{
-    if (thing_is_deployed_trap(barrier)) {
-        return (thing_is_destructible_trap(barrier) > 0);
-    }
-    return object_is_destructible(barrier);
-}
-
 TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag)
 {
     if (barrier->health < 0) {
@@ -833,7 +825,7 @@ static TbBool collect_players_avoiding_barrier(const struct Thing *barrier, void
     if (!barrier_blocks(barrier, TCF_BlockCreatures)) {
         return false;
     }
-    TbBool destructible = barrier_is_destructible(barrier);
+    TbBool destructible = (thing_is_destructible_trap(barrier) > 0) || object_is_destructible(barrier);
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         if (!destructible || players_are_mutual_allies(plyr_idx, barrier->owner)) {
             *players |= to_flag(plyr_idx);

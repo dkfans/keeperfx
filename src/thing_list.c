@@ -3566,13 +3566,6 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
     }
 }
 
-/**
- * Returns  whether a thing can be shot by given players shot.
- * @param thing The thing to be checked.
- * @param shot_owner Shot owner to be checked, or -1 if any enemy player should be considered.
- * @param hit_targets Target hit configuration flags.
- * @return
- */
 static TbBool hit_targets_include_by_owner(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets, HitTargetFlags owned_flag, HitTargetFlags allied_flag, HitTargetFlags enemy_flag)
 {
     if (shot_owner == thing->owner) {
@@ -3584,6 +3577,13 @@ static TbBool hit_targets_include_by_owner(const struct Thing *thing, PlayerNumb
     return ((hit_targets & allied_flag) != 0);
 }
 
+/**
+ * Returns  whether a thing can be shot by given players shot.
+ * @param thing The thing to be checked.
+ * @param shot_owner Shot owner to be checked, or -1 if any enemy player should be considered.
+ * @param hit_targets Target hit configuration flags.
+ * @return
+ */
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
 {
     if (thing_is_creature(thing))
