@@ -378,6 +378,7 @@ TbBool startup_saved_packet_game(void)
         return false;
     if (!verify_replay_map_checksums())
         ERRORLOG("Replay \"%s\": level on disk differs from original", replay.fname);
+    init_replay_player_types();
     setup_zombie_players();
     restore_users_from_packet_save();
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)

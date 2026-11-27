@@ -347,18 +347,13 @@ void net_apply_lobby_seats(const int8_t player_slots[MAX_NET_USERS])
     net_lobby_empty_seats = 0;
     for (int8_t seat = 0; seat < MAX_NET_USERS; seat++) {
         PlayerNumber plyr_idx = net_seat_players[seat];
-        TbBool occupied = net_user_with_value(player_slots, seat) >= 0;
-        if (!occupied) {
+        if (net_user_with_value(player_slots, seat) < 0) {
             set_flag(net_lobby_empty_seats, to_flag(plyr_idx));
+            if (!lobby_seat_available(seat)) {
+                continue;
+            }
         }
-        if (!occupied && !lobby_seat_available(seat)) {
-            continue;
-        }
-        if (player_is_roaming(plyr_idx)) {
-            struct PlayerInfo *player = get_player(plyr_idx);
-            player->allocflags &= ~(PlaF_Allocated | PlaF_CompCtrl);
-            player->player_type = PT_Keeper;
-        }
+        convert_roaming_player_to_keeper(plyr_idx);
     }
 }
 

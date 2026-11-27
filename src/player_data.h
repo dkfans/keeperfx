@@ -416,6 +416,7 @@ TbBool is_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx);
 void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool lock_alliance);
 
 TbBool player_is_roaming(PlayerNumber plyr_num);
+void convert_roaming_player_to_keeper(PlayerNumber plyr_num);
 TbBool player_is_keeper(PlayerNumber plyr_num);
 TbBool player_is_neutral(PlayerNumber plyr_num);
 
