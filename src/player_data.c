@@ -352,16 +352,6 @@ TbBool player_is_roaming(PlayerNumber plyr_num)
     return (player->player_type == PT_Roaming);
 }
 
-void convert_roaming_player_to_keeper(PlayerNumber plyr_num)
-{
-    if (!player_is_roaming(plyr_num)) {
-        return;
-    }
-    struct PlayerInfo* player = get_player(plyr_num);
-    player->allocflags &= ~(PlaF_Allocated | PlaF_CompCtrl);
-    player->player_type = PT_Keeper;
-}
-
 TbBool player_is_keeper(PlayerNumber plyr_num)
 {
     struct PlayerInfo* player = get_player(plyr_num);

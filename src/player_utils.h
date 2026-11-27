@@ -61,7 +61,6 @@ void calculate_dungeon_area_scores(void);
 TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool whole_slab);
 TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-void init_replay_player_types(void);
 void init_players(void);
 int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y);
 TbBool get_starting_highlight_mode(void);

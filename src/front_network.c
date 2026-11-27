@@ -282,15 +282,27 @@ static void reserve_lobby_seats(TbBool (*occupies_seat)(NetUserId), const TbBool
     }
 }
 
+static PlayerNumber lobby_level_seats(LevelNumber lvnum)
+{
+    struct LevelInformation *level = get_level_info(lvnum);
+    if (!level) {
+        return 0;
+    }
+    return min(max(level->players, 2), MAX_NET_USERS);
+}
+
 static TbBool lobby_seat_available(PlayerNumber colour)
 {
-    PlayerNumber level_seats = 0;
-    struct LevelInformation *level = get_level_info(get_loaded_level_number());
-    if (level) {
-        level_seats = min(max(level->players, 2), MAX_NET_USERS);
-    }
     PlayerNumber plyr_idx = net_seat_players[colour];
-    return colour < level_seats || (player_is_keeper(plyr_idx) && thing_exists(find_players_dungeon_heart(plyr_idx)));
+    return colour < lobby_level_seats(get_loaded_level_number()) || (player_is_keeper(plyr_idx) && thing_exists(find_players_dungeon_heart(plyr_idx)));
+}
+
+TbBool net_lobby_has_hero_seat(LevelNumber lvnum)
+{
+    if (!network_is_active() && !frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+        return false;
+    }
+    return lobby_level_seats(lvnum) == MAX_NET_USERS;
 }
 
 void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS])
@@ -349,11 +361,7 @@ void net_apply_lobby_seats(const int8_t player_slots[MAX_NET_USERS])
         PlayerNumber plyr_idx = net_seat_players[seat];
         if (net_user_with_value(player_slots, seat) < 0) {
             set_flag(net_lobby_empty_seats, to_flag(plyr_idx));
-            if (!lobby_seat_available(seat)) {
-                continue;
-            }
         }
-        convert_roaming_player_to_keeper(plyr_idx);
     }
 }
 

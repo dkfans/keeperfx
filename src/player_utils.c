@@ -980,16 +980,6 @@ int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y)
     }
 }
 
-void init_replay_player_types(void)
-{
-    PlayerBitFlags keepers = replay.head.players_keeper | replay.head.players_seat;
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        if (flag_is_set(keepers, to_flag(plyr_idx))) {
-            convert_roaming_player_to_keeper(plyr_idx);
-        }
-    }
-}
-
 void init_players(void)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)

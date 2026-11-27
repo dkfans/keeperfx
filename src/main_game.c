@@ -114,8 +114,18 @@ void reset_script_timers_and_flags(void)
     }
 }
 
+static TbBool hero_player_is_keeper(void)
+{
+    if (replay.load_enable) {
+        PlayerBitFlags keepers = replay.head.players_keeper | replay.head.players_seat;
+        return flag_is_set(keepers, to_flag(PLAYER_GOOD));
+    }
+    return net_lobby_has_hero_seat(get_selected_level_number());
+}
+
 static void init_player_types()
 {
+    TbBool hero_is_keeper = hero_player_is_keeper();
     for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
     {
         struct PlayerInfo *player;
@@ -123,6 +133,10 @@ static void init_player_types()
         switch (plr_idx)
         {
         case PLAYER_GOOD:
+            if (hero_is_keeper) {
+                player->player_type = PT_Keeper;
+                break;
+            }
             player->allocflags |= PlaF_Allocated;
             player->allocflags |= PlaF_CompCtrl;
             player->player_type = PT_Roaming;
@@ -378,7 +392,6 @@ TbBool startup_saved_packet_game(void)
         return false;
     if (!verify_replay_map_checksums())
         ERRORLOG("Replay \"%s\": level on disk differs from original", replay.fname);
-    init_replay_player_types();
     setup_zombie_players();
     restore_users_from_packet_save();
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)

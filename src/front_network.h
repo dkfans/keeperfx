@@ -96,6 +96,7 @@ TbBool net_player_colours_conflict(void);
 NetUserId net_lobby_primary_user(NetUserId user);
 TbBool net_lobby_computer_player(NetUserId user);
 TbBool net_lobby_force_coop(void);
+TbBool net_lobby_has_hero_seat(LevelNumber lvnum);
 void frontnet_select_coop_level(LevelNumber lvnum);
 void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId user, TbBool backwards);
 void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS]);
