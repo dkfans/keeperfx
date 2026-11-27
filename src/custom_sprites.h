@@ -32,10 +32,12 @@ struct ObjectConfigStats;
 
 static const char * const required_sprite_zips[] = {
     "colored_sprites.zip",
+    "cat.zip",
     "creatures.zip",
     "decorative_objects.zip",
     "druid.zip",
     "effects.zip",
+    "firefly.zip",
     "maiden.zip",
     "natural_features.zip",
     "time_mage.zip",

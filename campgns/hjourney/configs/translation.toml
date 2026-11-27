@@ -1,0 +1,1282 @@
+# Translation info
+# All strings containing REPLACEMENT1 have a variable inserted there, often the name of a creature
+# Make sure translations for QuickMessage strings don't go past the screen width.
+
+# Strings with replacements can be found in the code using this function. The second argument is the variable being inserted.
+# local msg = HelperFunctions.GetTranslatedString("TRANSFORM_SAMURAI_SUCCESS", thing.name)
+
+# Level 1 - Tutorial
+
+[LEVEL_1_INTRO]
+ENG = "Something evil stirs in the deepest depths of the underground. Lord Diamond, we must act swiftly, if we want to secure the peace in the overworld. Lead the charge into these caverns, and guide our heroes into battle against Keeper Scarlet."
+GER = "Etwas Böses rührt sich in den dunkelsten Tiefen der Unterwelt. Lord Diamant, wir müssen uns beeilen wenn wir das Königreich beschützen wollen. Leitet den Angriff in diese Höhlen, und führt unsere Helden in den Kampf gegen den Keeper Scarlet."
+
+[LEVEL_1_TUNNELLER_CHARGE]
+ENG = "You can charge the spell to recruit Level 3 Tunnellers."
+GER = "Lade den Zauber auf um Zwerge Level 3 zu beschwören."
+
+[LEVEL_1_TUNNELLER_TUTORIAL]
+ENG = "To get started, recruit Tunnellers to help you explore the underworld. This spell can be charged to recruit faster and stronger Tunnellers. After 7 tunnellers, they will become more expensive."
+GER = "Als ersten Schritt, rekrutiert Dunkelzwerge um die Unterwelt zu erkunden. Dieser Zauber kann aufgeladen werden, um schnellere und stärkere Zwerge zu erhalten. Nach 7 Zwergen werden sie teurer."
+
+[LEVEL_1_OBJECTIVE_TUNNEL_EAST]
+ENG = "Well done. Now, every true band of heroes needs a Knight to lead it. Tunnel eastward, and unearth a sacred relic we're going to need."
+GER = "Sehr gut. Als nächstes, braucht jede wahre Gruppe Helden einen Ritter, um sie zu leiten. Schaut gen Osten, und grabt ein heiliges Artefakt aus, das wir brauchen werden."
+
+[LEVEL_1_HOLY_ARMOR_TUTORIAL]
+ENG = "Excellent, a suit of holy armor! You can equip a Thief with this blessed platemail, and turn him into a royal Knight. Keep an eye out for these powerful artifacts."
+GER = "Exzellent, eine heilge Rüstung! Ihr könnt einen Dieb mit dieser Rüstung ausstatten, um ihn zu einem königlichen Ritter zu machen. Haltet ein Auge offen für diese mächtigen Artefakte."
+
+[LEVEL_1_OBJECTIVE_MOVE_TO_PORTAL]
+ENG = "Great work so far, milord. But, we are in need of more allies. An ancient hero fortress nearby may serve us well as a base of operations. Tunnel towards it, and look for a portal there to recruit more heroes."
+GER = "Gute Arbeit soweit, Meister. Aber wir benötigen noch mehr Verbündete. Eine alte Festung in dieser Höhle könnte uns gut als Basis dienen. Grabt dorthin, und sucht nach einem Heldentor, um mehr Helden zu rekrutieren."
+
+[LEVEL_1_GRAVEYARD_TUTORIAL]
+ENG = "Graveyards will channel the souls of the departed into ectoplasmic shape, in the form of Ghosts that will fight for our cause. It will also attract Priestesses to your dungeon."
+GER = "Ein Friedhof zieht die Seelen der Toten an, und verwandelt sie in Geister welche für unseren Zweck kampfen können. Außerdem lockt ein Friedhof Priesterinnen in Euren Dungeon."
+
+[LEVEL_1_WIN]
+ENG = "Our first step towards protecting the overworld is taken. Well done."
+GER = "Der erste Schritt ist getan, um das Königreich zu beschützen. Gut gemacht."
+
+[LEVEL_1_TUTORIAL_FOR_CURSES]
+ENG = "This core of malicious, evil energy is a Curse. Some realms may contain these items, each with their own unique effects. Activating one will curse you for the remainder of this realm, making your task of conquering this land significantly more difficult. Keep in mind that the Curse orb will expire after a few minutes if you haven't used it, or if you slap it. Only use a Curse if you are confident that you can handle the extra challenge!"
+GER = "Dieses Bündel von bösartiger Energie ist ein Fluch. Diese magischen Gegenstände können in einigen Gebieten gefunden werden, jeder mit einem eigenen Effekt. Einen zu aktivieren bedeutet, dass man für den Rest dieser Karte verflucht ist, was unsere Aufgabe schwieriger machen wird. Ein Fluch erlischt nach ein paar Minuten wenn er nicht verwendet wird. Benutzt den Fluch nur, wenn ihr euch sicher seid, dass ihr für eine Herausforderung bereit seid!"
+
+[LEVEL_1_CURSE_EXPLANATION]
+ENG = "Evil creatures have joined your cause, but they have also attracted an army of enemy spiders..."
+GER = "Böse Kreaturen sind eurer Seite beigetreten, aber sie haben auch eine Armee von gegnerischen Spinnen angelockt..."
+
+[LEVEL_1_CURSE_NAME]
+ENG = "Curse of Arachnophobia"
+GER = "Fluch der Arachnophobie"
+
+[LEVEL_1_PORTAL_ROOM_FOUND]
+ENG = "The portal room appears to be derelict and the portal no longer functions, but we can make it work again. Take these candles, and place them near the gate to activate its connection to the overworld, and we should soon receive reinforcements!"
+GER = "Diese Portal-Kammer scheint verlassen zu sein und das Heldentor funktioniert nicht mehr, aber wir können es wieder aktivieren. Nehmt diese Kerzen, und platziert sie in der Nähe des Portals um es mit der Außenwelt zu verbinden. Dann sollten wir bald Verstärkung erhalten!"
+
+[LEVEL_1_PORTAL_REMINDER]
+ENG = "You've not forgotten the portal, have you? Place the candles to reactivate the dormant portal."
+GER = "Ich hoffe, ihr habt das Portal nicht vergessen? Platziert die Kerzen, um das Heldentor zu aktivieren."
+
+[LEVEL_1_PORTAL_ACTIVE]
+ENG = "The portal is active again, and heroes are on their way! Amass a big enough fighting force, and take down the Scarlet outpost in this realm so we can dig further down into the depths."
+GER = "Das Heldentor ist wieder aktiv, und Helden sind auf dem Weg! Sammelt eine kampfbereite Truppe, und erobert Scarlet's Stützpunkt in dieser Gegend damit wir weiter in die Tiefen vordringen können."
+
+[LEVEL_1_DWARFA_INTRO]
+ENG = "Mountain Dwarves are your reliable bread and butter fighters, able to imbue their allies with armor in battle. Don't underestimate them - these skilled craftsmen are as capable as those fiendish Trolls in the workshop."
+GER = "Bergzwerge sehen zwar nicht nach viel aus, aber sind verlässliche Kämpfer, und können Verbündete mit Rüstung stärken. Unterschätzt sie nicht - diese erfahrenen Handwerker können in der Handwerkskammer selbst Trollen Konkurrenz machen."
+
+[LEVEL_1_WITCH_INTRO]
+ENG = "A Priestess has joined our cause. These spiritual guides of the afterlife tend to the Graveyard. She commands the will of departed souls, and can conjure Ghosts to help her in battle."
+GER = "Eine Priesterin ist uns beigetreten. Sie kümmern sich um die Seelen der Verstorbenen und den Friedhof. Im Kampf kann sie den Zorn der Toten auf unsere Gegner hetzen indem sie Geister beschwört."
+
+[LEVEL_1_MONK_INTRO]
+ENG = "The peaceful Monks will assist our allies both spiritually, and with healing in battle. Attract them with the Temple to let them soothe the wounds of other heroes."
+GER = "Die friedlichen Mönche unterstützen ihre Verbündeten mit kräftiger Heilmagie. Ein Tempel lockt sie in euren Dungeon und sorgt dafür, dass sie sich um die Wunden anderer Helden kümmern."
+
+[LEVEL_1_BARBARIAN_INTRO]
+ENG = "Barbarians are fierce fighters and can take a beating. Their wide hammer swings let them mop up multiple creatures at once. Train them well, and they will make for great frontliners."
+GER = "Barbaren sind wilde Kämpfer und halten ordentlich was aus. Ihre weiten Hammerangriffe lassen sie mehrere Gegner auf einmal treffen. Trainiert sie gut, und sie werden gerne für Euch an der Front stehen."
+
+[LEVEL_1_GIANT_INTRO]
+ENG = "Giants are hulking masses of destruction. They may be slow, but are great at pounding enemies into the ground, and exceptionally skilled in the workshop. Their tough skin also makes them resistant to lava."
+GER = "Riesen sind massive Zerstörungsmaschinen. Sie sind vielleicht langsam, aber können unsere Gegner in den Boden stampfen, und sind dazu nützlich in der Handwerkskammer. Ihre raue Haut macht sie außerdem resistent gegen Lava."
+
+[LEVEL_1_THIEF_INTRO]
+ENG = "Thieves may be good-for-nothing grunts, but they have some latent potential. Nobody becomes a noble Knight through sheer training, but put the right weapon in their hands, and they may amount to something more than being petty thieves..."
+GER = "Ein Dieb mag ein Tunichtgut sein, aber in ihm steckt Potential. Niemand wird nur durch Training zu einem königlichen Ritter, aber gibt ihm die richtige Waffe in die Hände, und vielleicht wird aus ihm noch mehr als nur ein Dieb..."
+
+[LEVEL_1_ARCHER_INTRO]
+ENG = "Archers are dependable ranged fighters. They will arrive to take on lookout duty if you build a guardpost, and can speed up their allies."
+GER = "Bogenschützen sind verlässliche Fernkämpfer. Sie melden sich freiwillig als Späher wenn ihr einen Wachposten baut, und können ihre Verbündeten beschleunigen."
+
+[LEVEL_1_FAIRY_INTRO]
+ENG = "Fairies may be extremely fragile, but their magical power makes up for it. Treat them with utmost care, and their lightning attacks will fry our enemies."
+GER = "Feen sind sehr zerbrechliche Wesen, aber ihre magische Macht gleicht das wieder aus. Behandelt sie vorsichtig, und ihre Blitzangriffe werden unsere Feinde zerstören."
+
+[LEVEL_1_WIZARD_INTRO]
+ENG = "Wizards are grumpy bookworms. Let them have their peace and quiet in the library, so they may research new magical tricks for us to use."
+GER = "Magier sind schlecht gelaunte Leseratten. Lasst ihnen ihre Ruhe und Frieden in der Bibliothek, und sie werden sicherlich für uns nützliche magische Tricks erforschen."
+
+[LEVEL_1_MANIPULATED_PORTAL]
+ENG = "These fiends! The same way we can claim Keeper portals to do our bidding and serve as tunnels for reinforcements, the Keepers have found a way to use our hero gates for their own nefarious purposes. Do not trust these strangely colored portals!"
+GER = "Diese Dämonen! Genauso wie wir den Eingang eines Keepers erobern können um sie für unsere Zwecke zu benutzen, haben die Keeper einen Weg gefunden, unsere Heldentore zu missbrauchen. Vertraut nicht diesen roten oder schwarzen Portalen!"
+
+[LEVEL_1_KATANA_EXPLANATION]
+ENG = "The blessed katana is much like the holy platemail - it allows you to equip one Thief with it, to make him realize the error of his ways, and put him on the path of an honorable samurai."
+GER = "Das gesegnete Katana ist der heiligen Rüstung ähnlich - es erlaubt Euch einen Dieb damit auszurüsten, damit er aus seinen Fehlern lernt, und sich auf den Pfad eines ehrenhaften Samurai begibt."
+
+# Level 2 - Fairy village
+
+[LEVEL_2_INTRO]
+ENG = "This usually calm, small settlement of fairies and dwarves is our guild's deepest outpost. Its inhabitants are mages and artisans, with their own tools and tricks, but they are not fighters by trade. Learn how to use their traps and spells, and defend this village from the neighboring Keeper threat before we advance."
+GER = "Dieses normalerweise ruhige, kleine Dorf von Feen und Zwergen ist einer der tiefsten Außenposten unserer Gilde. Die Bewohner sind Zauberer und Künstler, aber sie sind keine trainierten Kämpfer. Lernt von ihnen wie ihre Zauber und Fallen funktionieren, und verteidigt das Dorf von dem benachbarten Keeper bevor wir weiter vordringen."
+
+[LEVEL_2_CAT_SPAWNED]
+ENG = "Looks like the cat followed us here. Guess it wants to tag along on our journey, try to protect it if you can."
+GER = "Sieht so aus, als sei uns die Katze hierhin gefolgt. Vermutlich möchte sie auf unserer Reise mitkommen. Versucht sie zu beschützen."
+
+[LEVEL_2_CURSE_EXPLANATION]
+ENG = "You have incurred the ire of Scarlet. Expect a tougher and more fierce fighting force."
+GER = "Ihr habt den Zorn von Scarlet auf euch gezogen. Erwartet eine größere und aggressivere Opposition."
+
+[LEVEL_2_CURSE_NAME]
+ENG = "Curse of Malice"
+GER = "Fluch der Boshaftigkeit"
+
+[LEVEL_2_OBTAIN_ALL_ITEMS]
+ENG = "Good work taking care of Scarlet's presence here. Before you move on though, you should learn what you can from the heroes here. Build a large library and workshop, and learn their remaining spells and traps."
+GER = "Gute Arbeit, Scarlet's Präsenz hier auszulöschen. Bevor es weitergeht, solltet Ihr allerdings noch etwas von den Helden hier lernen. Baut eine große Bibliothek und Handwerkskammer, und erlangt alle Zauber und Fallen."
+
+[LEVEL_2_WIN]
+ENG = "We did all we came here for. Let us advance to the next layer, Lord Diamond."
+GER = "Wir haben unser Ziel hier erreicht. Lasst uns in die nächste Ebene vordringen, Lord Diamant."
+
+[LEVEL_2_MIDAS_TOUCH_EXPLANATION]
+ENG = "Mischievous Fairies of this layer have made it a hobby to turn their enemies into golden statues. This spell can turn both enemies and allies into solid gold. Keep in mind, that it costs 10000 gold to cast on enemies, and is free to cast on prisoners or your own minions. But you would never use it on one of our heroes... right?"
+GER = "Schelmische Feen in dieser Ebene haben es zu ihrem Hobby gemacht, ihre Feinde in goldene Statuen zu verwandeln. Dieser Zauber kann sowohl Freunde als auch Feinde in Gold verwandeln. Aber bedenkt, dass der Zauber 10000 Gold für Feinde kostet, aber kostenlos bei euren eigenen Untergebenen oder Gefangenen ist. Aber ihr würdet ihn niemals auf einen Helden verwenden... oder?"
+
+[LEVEL_2_CAVE_IN_EXPLANATION]
+ENG = "Cave-In has the power to turn lava or water into path, and collapses the ceiling to scare off enemies with falling rocks."
+GER = "Einsturz kann Lava und Wasser in Pfade verwandeln, und lässt Steine von der Decke regnen um Gegner abzuschrecken."
+
+[LEVEL_2_GAS_CLOUD_EXPLANATION]
+ENG = "This power is one to be careful with, allowing you to turn the Keepers' Bile Demon gas against them. Beware however that this will harm all nearby creatures and your own too, except those immune to gas, like Wizards or Fairies."
+GER = "Mit diesem Zauber solltet ihr vorsichtig sein. Er erlaubt euch, das Gas von Teuflern gegen eure Feinde zu verwenden. Aber bedenkt, dass es auch euren eigenen Untergebenen schaden kann, außer denen die immun gegen Gas sind, wie Magier oder Feen."
+
+[LEVEL_2_DRAGONIFY_EXPLANATION]
+ENG = "Originally conceived by a Wizard as a silly party trick, this spell can turn magical creatures into Dragons. As of yet, there is no way to turn Dragons back into heroes, and the spell has seen fringe military use, but is largely considered heretical. However, perhaps desperate times call for desperate measures..."
+GER = "Ursprünglich erdacht von einem Magier als Party-Trick, kann dieser Zauber magische Kreaturen in Drachen verwandeln. Bisher hat noch niemand einen Weg gefunden, diesen Zauber wieder rückgängig zu machen. Generell wird dieser Zauber als ketzerisch angesehen, aber falls ihr in der Notlage einen Drachen als Kämpfer braucht..."
+
+[LEVEL_2_SPEED_CANDLE_EXPLANATION]
+ENG = "The dwarves of this layer are skilled craftsmen, and have made numerous tools and traps. Among them are magical candles, able to buff our allies and imbue them with great speed! Place them strategically, so your subjects may train, work or fight faster."
+GER = "Die Bergzwerge dieser Ebene sind gekonnte Handwerker, und haben vieles geschmiedet. Eines ihrer Produkte sind magische Kerzenständer, welche Verbündete stärken und beschleunigen können! Platziert sie strategisch damit eure Untertanen schneller arbeiten, trainieren oder kämpfen."
+
+[LEVEL_2_BERSERKER_TRAP_EXPLANATION]
+ENG = "This trap instills within the poor soul who steps on it a short, but intense anger. The bloodlust causes them to attack anyone nearby, no matter if they are friend or foe."
+GER = "Diese Falle füllt ihr Opfer mit einer kurzen, aber intensiven Mordlust. Der Wutanfall bringt sie dazu alle Kreaturen in der Nähe anzugreifen, egal ob sie Freund oder Feind sind."
+
+[LEVEL_2_ENFEEBLE_TRAP_EXPLANATION]
+ENG = "The Enfeeble Trap permanently weakens its victims. Watch your enemies shrink before you, as their strength withers away."
+GER = "Die Schwächende Falle raubt ihrem Opfer permanent Kraft. Schaut zu wie eure Feinde schrumpfen, und ihre Stärke sie verlässt."
+
+[LEVEL_2_THIEVING_TRAP_EXPLANATION]
+ENG = "The Thieving Trap rips gold right out of your enemies' pockets. They also take damage proportional to gold stolen, so this trap stings double."
+GER = "Die Stehlende Falle klaut Gold direkt aus den Taschen eurer Gegner. Um dem Ganzen noch die Krone aufzusetzen, nehmen sie auch Schaden in Höhe des geraubten Goldes."
+
+# Level 3 - Enemy convoy
+
+[LEVEL_3_INTRO]
+ENG = "Milord, an enemy supply route seems to run through this region. Perhaps we can pilfer some resources and gold from this Keeper to weaken his position. Advance carefully and investigate."
+GER = "Meister, in dieser Region liegt eine gegnerische Transportroute. Vielleicht können wir diesem Keeper Gold und Ressourcen stehlen um ihn zu schwächen? Bewegt euch vorsichtig vorwärts und untersucht die Lage."
+
+[LEVEL_3_WIN]
+ENG = "Confidently executed yet again. Good work, milord."
+GER = "Auch diese Aufgabe habt Ihr elegant bewältigt. Gute Arbeit, Master."
+
+[LEVEL_3_SHOW_TRANSPORT_ROUTE]
+ENG = "The enemy will be transporting gold and creatures through here. The transports will likely be very strong, so you may not be able to defeat them. But with traps, you may be able to turn their own strength against them until you can fight on your own. Let as few transports through as you can, and then bring the fight to Keeper Scarlet. Anyone you let through could come back to haunt us..."
+GER = "Der Feind wird über diese Route Gold und Kreaturen transportieren. Die Gruppen werden wahrscheinlich stark sein, vielleicht werdet ihr sie nicht besiegen können. Aber mit Fallen könnt ihr sie vielleicht aufhalten, bis ihr selber bereit für den Kampf seid. Lasst so wenige Transporte durch wie möglich, und schlagt danach zurück. Jeder, den ihr durchlasst könnte uns sonst später zur Last fallen..."
+
+[LEVEL_3_EXPLANATION]
+ENG = "The transport parties will be escorted by powerful lightning casters, and Scarlet will use Lightning magic against you. Be careful."
+GER = "Die Transport-Gruppen werden eskortiert von Gegnern, die Euch mit Blitzen angreifen werden, und Scarlet wird Blitzmagie gegen Euch verwenden. Seid vorsichtig."
+
+[LEVEL_3_CURSE_NAME]
+ENG = "Curse of Lightning"
+GER = "Fluch des Blitzschlags"
+
+[LEVEL_3_TRANSPORT_MOVING]
+ENG = "A Scarlet transport is on its way."
+GER = "Ein Scarlet Transport ist unterwegs."
+
+[LEVEL_3_LAST_TRANSPORT]
+ENG = "The last of the convoys approaches, hopefully you have been taking care of them up to now. It's about time to wrap this up and take the fight to Scarlet."
+GER = "Der letzte Transport nähert sich, ich hoffe ihr habt bisher nicht viel durchgelassen. Die Zeit ist gekommen die Dinge hier zu Ende zu bringen und Scarlet anzugreifen."
+
+[LEVEL_3_ENEMY_GOT_THROUGH]
+ENG = "The more gold you let through, the more minions Scarlet can afford to keep. Try to kill as many of the creatures transporting gold as possible, or take their gold with Thieving Traps."
+GER = "Je mehr Gold Ihr durchlasst, desto mehr Untertanen kann Scarlet sich leisten. Tötet sie viele der Kreaturen wir ihr könnt, oder benutzt die Stehlenden Fallen um ihr Gold zu klauen."
+
+# Level 4 - Eye invasion
+
+[LEVEL_4_INTRO]
+ENG = "Milord, do you also feel like we are being watched? We are entering the layers of the underworld that are the domain of the Onyx guild, our sworn enemies. These filthy traitors hide among the keepers like the vermin they are. Let's exterminate these heretics too while we're here."
+GER = "Meister, Fühlt Ihr euch auch beobachtet? Wir sind in der Gegend der Unterwelt angekommen, die das Reich der Onyx Gilde ist, unsere Erzfeinde. Diese dreckigen Verräter verstecken sich inmitten von Keepern, wie das Ungeziefer das sie sind. Rotten wir diese Ketzer aus wenn wir schon einmal hier sind."
+
+[LEVEL_4_LAVA_TRAPS]
+ENG = "Find a smart place to use these lava traps to even the odds in our favor given the terrain, and cut off some of the enemy attack vectors."
+GER = "Findet einen eleganten Platz für diese Lavafallen, um die Angriffsrouten des Gegners zu unterbrechen. Damit können wir die Umgebung zu unserem Gunsten nutzen."
+
+[LEVEL_4_TOUGH_POSITION]
+ENG = "This position is highly disadvantegous for us, and we will constantly be exposed to enemy attacks. Build up and defend yourself, or use the workshop to trap the enemy portals. When you're ready to strike back, the enemy waits for you in the North."
+GER = "Diese Position ist taktisch ungünstig für uns, und wir sind Angriffen unserer Gegner ausgeliefert. Verteidigt Euch, und benutzt die Handwerkskammer um Fallen um die gegnerischen Portale zu platzieren. Wenn Ihr bereit für einen Gegenschlag seid, wartet der Gegner im Norden auf uns."
+
+[LEVEL_4_WIN]
+ENG = "Thank the Trinity we can leave this creepy place behind us. Onwards!"
+GER = "Der Dreieinigkeit sei Dank, wir können diesen unheimlichen Ort hinter uns lassen. Weiter geht es!"
+
+[LEVEL_4_FINAL_PATH_OPEN]
+ENG = "Clearing both paths has opened a hidden passage! Let's make short work of their soul gem here and move on."
+GER = "Eine geheime Passage in der Mitte hat sich geöffnet! Zerstören wir schnell ihren Seelenstein, und verschwinden von hier."
+
+[LEVEL_4_CURSE_NAME]
+ENG = "Curse of Doppelgaengers"
+GER = "Fluch der Doppelgänger"
+
+[LEVEL_4_CURSE_ACTIVATED]
+ENG = "The lava lake is freezing over! A new portal emerges, bringing a tide of evil reflections of your own heroes against you."
+GER = "Der Lavasee friert ein! Ein neues Portal ist erschienen, und eine Horde von bösen Spiegelbildern Eurer eigenen Helden kommt auf euch zu."
+
+# Level 5 - Icy lake
+
+[LEVEL_5_INTRO]
+ENG = "An icy climate firmly holds this region in its grasp. The Onyx rogues have established a stronghold in the central lake here, but there is no way for you to break in right now. Unfortunately, the closest Entrance is guarded by their forces. Approach the area to the West to see if you can find a way to secure it, and figure out how breach the enemy's defenses."
+GER = "Ein eisiges Klima herrscht in dieser Region. Die Onyx Schurken haben inmitten des Sees bereits eine Festung erreichtet, aber momentan werdet ihr dort nicht reinkommen. Leider bewachen feindliche Wächter unseren Eingang. Nähert euch der Gegend im Westen und findet heraus wie ihr den Eingang sichern könnt, und wie ihr die Verteidigung des Gegners durchbrechen könnt."
+
+[LEVEL_5_CAVE_IN_FOUND]
+ENG = "How fortunate, milord! We can use the Cave-In spellbook we found to bridge the moat and get into the fortress to go on the offensive."
+GER = "Ein Glück, Meister! Wir können den gefunden Einsturz-Zauber benutzen, um eine Brücke über den See zu schlagen, um die Festung anzugreifen!"
+
+[LEVEL_5_HERO_PORTAL_EXPLANATION]
+ENG = "Excellent, a ceremonial portal chamber still remains, and with this spell we can request reinforcements through this portal! The spell allows you to hire mercenaries to attack Onyx, and it can be charged to request stronger forces. Use this spell now to help us claim the entrance."
+GER = "Exzellent, es gibt hier noch eine zeremonielle Portalkammer. Mit diesem Zauber können wir Verstärkungen durch das Portal rufen! Der Zauber erlaubt es euch Söldner anzuheuern um Onyx anzugreifen, und kann aufgeladen werden um stärkere Truppen anzufordern. Benutzt den Zauber um den Eingang zu erobern."
+
+[LEVEL_5_OBJECTIVE_EXPLORE]
+ENG = "Now that you have an Entrance, prepare yourself for battle, and search this cavern for a means to enter the Onyx fortress."
+GER = "Jetzt wo wir einen Eingang besitzen können wir uns auf den Kampf vorbereiten. Durchsucht dieses Höhle nach einem Weg, in die Festung von Onyx zu gelangen."
+
+[LEVEL_5_HEROES_JOIN_YOU]
+ENG = "The remaining heroes have decided to join you."
+GER = "Die übrigen Helden sind Euch beigetreten."
+
+[LEVEL_5_WIN]
+ENG = "We are now halfway through the underworld. We're making good progress, milord! Keep it up."
+GER = "Die Hälfte unserer Reise durch die Unterwelt ist geschafft. Wir machen guten Fortschritt, Meister! Weiter so."
+
+[LEVEL_5_CURSE_EXPLANATION]
+ENG = "Your enemy has come prepared. Enemy invasions will become faster and more dangerous."
+GER = "Euer Gegner ist gut vorbereitet. Gegnerischen Invasionen sind gefährlicher und kommen öfter."
+
+[LEVEL_5_CURSE_NAME]
+ENG = "Curse of Frostbite"
+GER = "Fluch der Eiseskälte"
+
+[LEVEL_5_WAVES_WARNING]
+ENG = "Onyx forces will relentlessly assault your dungeon, if you leave them be. Weaken the forces inside their dungeon if you can, and they won't have as many fearsome creatures to send your way."
+GER = "Onyx wird Euch ohne Zurückhaltung angreifen, wenn Ihr sie lasst. Schwächt die Truppen in ihrem Dungeon wenn ihr könnt, und sie werden nicht mehr so viele Kreaturen haben, die sie auf Euch hetzen können."
+
+# Level 6 - Plain invasion
+
+[LEVEL_6_INTRO]
+ENG = "This now desolate wasteland appears to once have been home to a Keeper's hideout. Not much is left of it, and with how open this area is, we are vulnerable to enemy attacks. Milord, let's find a way to protect our position first."
+GER = "Dieses mittlerweile verwüstete Ödland war anscheinend mal das Versteck eines Keepers. Nicht mehr viel ist davon übrig. Da diese Gegend allerdings so offen ist, können unsere Gegner uns leicht angreifen. Finden wir einen Weg unsere Position zu verteidigen."
+
+[LEVEL_6_CONJURE_EARTH]
+ENG = "Most intriguing! This spellbook details a magical technique to cause the earth beneath us to rise upward, and form a wall! This may be just what we need. Use this spell to construct a dungeon that can be more easily defended and keeps out intruders."
+GER = "Sehr interessant! Dieses Zauberbuch beschreibt eine magische Methode, um Wände aus Erde aus dem Boden zu zaubern! Das könnte genau das sein, was wir brauchen. Benutzt diesen Zauber um einen Dungeon zu bauen, der leichter gegen Eindringlinge verteidigt werden kann."
+
+[LEVEL_6_GUARDS_EXPLANATION]
+ENG = "The path deeper down is guarded by 3 Onyx Reapers. Defeat these Reapers and all enemy creatures and traitors, so we can safely tunnel further into the next layer. Set out to dispose of them when your fighting forces are strong enough."
+GER = "Der Weg nach unten wird durch 3 Hornies von Onyx bewacht. Besiegt alle 3 und alle anderen Verräter und Kreaturen, damit wir sicher zur nächsten Ebene graben können. Macht Euch an die Arbeit wenn unsere Streitkräfte stark genug sind."
+
+[LEVEL_6_WIN]
+ENG = "Excellent work, despite the circumstances. We can now dig deeper."
+GER = "Ausgezeichnete Arbeit, trotz der Umstände. Wir können endlich tiefer graben."
+
+[LEVEL_6_WAVES_START_WARNING]
+ENG = "The enemy won't need long before they discover our vulnerable position. Be careful, and dispose of every vile creature here, so we may move on safely."
+GER = "Es wird nicht lange dauern, bis der Gegner bemerkt, dass wir angreifbar sind. Seid vorsichtig, und entsorgt alle abscheulichen Kreaturen die uns den Weg versperren."
+
+[LEVEL_6_CURSE_EXPLANATION]
+ENG = "A few of your creatures have been duplicated, but your enemies have multiplied..."
+GER = "Ein paar Eurer Untergebenen wurden dupliziert, aber Eure Gegner haben sich vervielfacht..."
+
+[LEVEL_6_CURSE_NAME]
+ENG = "Curse of Legion"
+GER = "Fluch der Horde"
+
+# Level 7 - Sacrifices
+
+[LEVEL_7_INTRO]
+ENG = "We are in a tough spot here, stuck between two opponents who both don't want to see us advance any further. Even worse, we are so far from the overworld that our portal is growing weaker. We will need to make do with what we have here. Good luck, milord."
+GER = "Hier könnte es schwierig für uns werden. Wir stecken zwischen zwei Gegnern, die uns beide aufhalten wollen. Was uns nicht hilft, ist dass die Verbindung zur Oberfläche und unser Portal hier schwach ist. Wir werden das beste aus dem machen müssen, was wir haben. Viel Glück."
+
+[LEVEL_7_TEMPLE_RECIPES]
+ENG = "You're no stranger to temple recipes, are you? If you are, perhaps we can find some hints spread around in this realm that can help us discover some of them. Even imprisoned enemy creatures can be used to conjure new fighters from the temple. Strike early and capture creatures from both Keepers to build up your army."
+GER = "Sind euch Tempel-Rezepte ein Begriff, Meister? Falls Ihr sie nicht kennt, können wir vielleicht Hinweise in diesem Reich finden um ein paar Rezepte zu finden. Selbst Kreaturen in eurem Gefängnis können verwendet werden um neue Kämpfer aus dem Tempel zu beschwören. Greift eure Gegner früh an, nehmt ihre Kreaturen als Gefangene und baut eure Armee auf."
+
+[LEVEL_7_ENTRANCE_GAINED]
+ENG = "How fortunate! Claiming an entrance has increased our portal limit."
+GER = "Welch ein Glück! Der Eingang erlaubt uns, mehr Kreaturen anzulocken."
+
+[LEVEL_7_WIN]
+ENG = "Not even two enemies at once can stop you. Impressive work, Lord Diamond. Onwards!"
+GER = "Nicht einmal zwei Feinde auf einmal können Euch aufhalten. Beeindruckende Arbeit, Lord Diamant. Weiter so!"
+
+[LEVEL_7_CURSE_NAME]
+ENG = "Curse of Desecration"
+GER = "Fluch der Entweihung"
+
+[LEVEL_7_CURSE_EXPLANATION]
+ENG = "Your enemies have become stronger and you will become invaded by weak enemy creatures, but perhaps you will find them useful for your Temple..."
+GER = "Eure Gegner sind stärker geworden. Ab und zu werden euch schwache Eindringlinge angreifen, aber vielleicht findet Ihr diese nützlich für euren Tempel..."
+
+# Level 8 - Lava river
+
+[LEVEL_8_INTRO]
+ENG = "Milord, this could get ugly. This volcanic cavern is the soul gem manufactory of the Onyx rogues, and their hideout. Even worse, the volcano is active and about to awaken its molten fury. Advance quickly before the tide of lava swallows our soul gem, and make your way to the end of this cavern in the Northeast."
+GER = "Meister, es könnte sehr unangenehm für uns werden. Diese vulkanische Höhle ist die Seelenstein-Fabrik und das Versteck der Onyx Schurken. Noch schlimmer, der Vulkan könnte jeden Moment ausbrechen. Bewegt auch schnell bevor die Lavaflut unseren Seelenstein verschlingt, und macht Euch auf den Weg in den Nordosten dieser Höhle."
+
+[LEVEL_8_LAVA_SPREAD_WARNING]
+ENG = "I fear we don't have much time to prepare before this volcano will erupt. Be careful, and ready yourself to mobilize."
+GER = "Ich fürchte, wir haben nicht viel Zeit uns vorzubereiten bis der Vulkan ausbricht. Seid vorsichtig, und bereitet Euch vor tiefer in die Höhle vorzudringen.."
+
+[LEVEL_8_SLOW_LAVA_BOX]
+ENG = "Slow lava spread"
+GER = "Lava verlangsamen"
+
+[LEVEL_8_CURSE_EXPLANATION]
+ENG = "Your creatures have been blessed with more power and a Horned Reaper has joined your cause, but the spread of the lava has massively accelerated..."
+GER = "Eure Kreaturen wurden mit mehr Kraft gesegnet, und ein Horny ist Euch beigetreten, aber die Lava breitet sich viel schneller aus..."
+
+[LEVEL_8_CURSE_NAME]
+ENG = "Curse of Inferno"
+GER = "Fluch des Infernos"
+
+[LEVEL_8_LAVA_SPREAD_SLOWED]
+ENG = "The spread of lava has been slowed."
+GER = "Die Lava wurde verlangsamt."
+
+[LEVEL_8_LAVA_SPREAD_START]
+ENG = "Milord, it has begun. Make haste, or we will be drowning in lava very soon."
+GER = "Meister, es hat begonnen. Beeilt Euch, oder wir werden bald in Lava versinken."
+
+[LEVEL_8_HEART_MOVE_EXPLANATION]
+ENG = "One way we may be able to survive is by attempting a soul gem transplant... destroy the soul gem of this Onyx outpost, and perhaps we can teleport ours to safety inside their fortress."
+GER = "Vielleicht können wir überleben, über einen Transfer unseres Seelensteins... zerstör den Seelenstein von diesem Onyx Wachposten, und vielleicht können wir unseren eigenen dorthin teleportieren und in Sicherheit bringen."
+
+[LEVEL_8_ENTRANCE_LOST]
+ENG = "You have lost your entrance to the flood. The lava will swallow up your rooms, so sometimes you may want to sell or save what you can, and move further ahead..."
+GER = "Euer Eingang ist durch die Flut verloren gegangen. Die Lava wird unsere Räume verschlingen. Manchmal solltet Ihr Räume verkaufen oder retten was Ihr könnt, und Euch nach vorne bewegen..."
+
+[LEVEL_8_HEART_MOVE_SUCCESS]
+ENG = "It worked! We are safe for a little longer, but we must keep going. We're not out of here yet."
+GER = "Es hat geklappt! Wir sind etwas länger sicher, aber wir müssen in Bewegung bleiben. Wir sind noch nicht hier raus."
+
+[LEVEL_8_WIN]
+ENG = "That was a arrowing experience. Good thing you kept a cool head despite the circumstances."
+GER = "Welche eine gruselige Erfahrung. Gut, dass Ihr trotz den Umständen einen kühlen Kopf bewahrt habt."
+
+# Level 9 - Prison
+
+[LEVEL_9_INTRO]
+ENG = "We have done well so far, the Onyx rogues are out of commission. But we must be careful, Lord Diamond. Many of our allies have been imprisoned. If we don't rescue them before they starve, this cavern may be the final stop on our quest. Free them so we can strike back, but beware the jailers..."
+GER = "Gute Arbeit bis jetzt, die Onyx Schurken sind aus dem Spiel. Aber wir müssen vorsichtig sein, Lord Diamant. Viele unserer Verbündeten wurden eingesperrt. Wenn wir sie nicht retten bevor sie verhungern, könnte diese Höhle der Endpunkt unserer Reise sein. Befreit sie damit wir zurückschlagen können, aber passt auf die Wachen auf..."
+
+[LEVEL_9_SECRET_RECIPES]
+ENG = "Runes inscribed into this temple indicate Keepers using Skeletons and Heroes as sacrifices in their rituals, to summon more evil creatures. Heretical! We should put a stop to this."
+GER = "In diesen Tempel eingravierte Runen erzählen davon, dass Keeper einst Skeletten und Helden als Opfer in ihren Ritualen gebracht haben, um mehr bösartige Kreaturen zu beschwören. Diese Ketzerei sollten wir aufhalten!"
+
+[LEVEL_9_WON]
+ENG = "Milord, well done. Next up is Keeper Scarlet's home realm. No man or dwarf has ever made it this far..."
+GER = "Meister, gute Arbeit. Unser nächster und letzter Stopp ist die Domäne von Keeper Scarlet. Kein Mensch oder Zwerg hat es je soweit geschafft..."
+
+[LEVEL_9_WARDENS]
+ENG = "The enemy is patrolling inside the main prison. Don't let yourself be seen if you venture in."
+GER = "Der Gegner ist auf Streife im mittleren Verlies. Lasst euch nicht sehen wenn ihr dort eindringt."
+
+[LEVEL_9_CAUGHT_BY_WARDEN]
+ENG = "You've been caught! Be more careful, if a patrol sees you, they will call in reinforcements!"
+GER = "Ihr wurdet erwischt! Seid vorsichtiger, wenn eine Patrouille euch erwischt werden sie Verstärkung rufen!"
+
+[LEVEL_9_CURSE_EXPLANATION]
+ENG = "The living creatures in this realm have been cursed with undeath. Be wary of vengeful ghosts that may come back to haunt you..."
+GER = "Die lebenden Kreaturen in diesem Reich wurden verflucht. Hütet euch vor rachsüchtigen Geistern, die euch heimsuchen werden..."
+
+[LEVEL_9_CURSE_NAME]
+ENG = "Curse of Eternal Undeath"
+GER = "Fluch der endlosen Untoten"
+
+# Level 10 - Finale
+
+[LEVEL_10_INTRODUCTION]
+ENG = "This is it. The lowest point of the underworld, the dreg heap of realms conquered, looted and destroyed by Keeper Scarlet. His campaign of evil has made him the ruler of this kingdom of ruin, and he has caused the demise of too many realms. Don't let ours be the next, Lord Diamond."
+GER = "Wir sind angekommen, dies ist der tiefste Punkt der Unterwelt. Ein Haufen Ruinen von Ländern die von Keeper Scarlet erobert, geplündert und zerstört worden sind. Er ist der Herrscher dieses zerstörten Königreichs, und hat bereits zu viele Länder ins chaos gestürzt. Sorgt dafür dass unserer nicht als nächstes dran ist, Lord Diamant."
+
+[LEVEL_10_SPELLBOOK_HINT]
+ENG = "Legends speak of a spellbook that was stolen by a keeper long, long ago, now lost to time. This spellbook holds the power to turn a hero into an Avatar! If we could find it here, it would give us the edge we need to win this battle."
+GER = "Legenden berichten von einem Zauberbuch das vor einer langen, langen Zeit von einem Keeper gestohlen worden ist. Dieses Buch hat die Macht einen Helden in den Avatar zu verwandeln! Falls wir dieses Buch finden könnten, würde es uns vielleicht zum Sieg verhelfen!"
+
+[LEVEL_10_SPELLBOOK_FOUND]
+ENG = "Milord, you have saved the holy spellbook! This blessing can appoint a chosen one as your Avatar. The Avatar will inherit an ability from the hero you choose, so make a wise decision!"
+GER = "Meister, ihr habt das heilige Zauberbuch gefunden! Der Zauber segnet euren Außerwählten und macht diesen Helden zum Avatar. Der Avatar erbt eine Fähigkeit des Helden eurer Wahl, also trefft eine weise Entscheidung!"
+
+[LEVEL_10_FINAL_WAVE_APPROACHING]
+ENG = "Today is a blessed day, Keeper Scarlet has been defeated! But it is not time to celebrate yet, I hear a rumbling and digging in the distance. An army of undead approaches, we must make our final stand! Prepare quickly, and eliminate all evil creatures here!"
+GER = "Welch ein glücklicher Tag, Keeper Scarlet ist besiegt! Aber noch können wir nicht feiern, ich höre ein entferntes Grollen und Beben in der Ferne. Eine Armee von Untoten nähert sich, es ist Zeit für den letzten Kampf! Bereitet euch schnell vor, und vernichtet alle bösen Kreaturen hier!"
+
+[LEVEL_10_CURSE_EXPLANATION]
+ENG = "Your enemy has grown stronger, and doom is inevitable if you take too long. Defeat your enemy in time, or our fate is gloomy... You will also need to find the Prison and Graveyard to be able to use them."
+GER = "Euer Gegner ist stärker geworden, und unser Ende ist unausweichlich wenn wir zu lange brauchen. Besiegt schnell unseren Gegner, oder unser Schicksal wird düster sein... Außerdem, falls ihr das Gefängnis oder den Friedhof verwenden wollt, müsst ihr sie erst finden."
+
+[LEVEL_10_CURSE_TIMER]
+ENG = "Destroy Scarlet, or face Armageddon and a brutal fight."
+GER = "Zerstört Scarlet, oder riskiert Armageddon und einen brutalen Kampf."
+
+[LEVEL_10_CURSE_NAME]
+ENG = "Curse of Inevitability"
+GER = "Fluch der Endgültigkeit"
+
+[LEVEL_10_LEVEL_WIN]
+ENG = "You did it! Let's get out of these cursed caverns and finally return to the surface now that our work here is done."
+GER = "Ihr habt es geschafft! Lasst uns aus diesen verfluchten Höhlen entkommen jetzt wo unsere Arbeit erledigt ist, damit wir endlich die Oberfläche wiedersehen können."
+
+# Level 11 - Bonus realm
+
+[LEVEL_11_LEVEL_INTRODUCTION]
+ENG = "You really should not be here. Forbidden magic permeates this realm, and I think we best not peer too deeply into it. Strong adversaries roam this land. If you are sticking around, prepare for opposition."
+GER = "Ihr solltet nicht hier sein. Verbotene Magie durchdringt dieses Reich und ich würde davon abraten, zu tief in diesen Abgrund zu starren. Starke Gegner erwarten Euch hier. Falls ihr dennoch verweilt, bereitet Euch auf Widerstand vor."
+
+[LEVEL_11_STATUE_EXPLANATION]
+ENG = "Light all 3 statues by defeating the guardians to open the path forward..."
+GER = "Erhellt alle 3 Statuen, indem ihr die Wächter besiegt damit der Pfad sich öffnet..."
+
+[LEVEL_11_MID_LEVEL_OBJECTIVE]
+ENG = "The evil Lord of this realm resides on the central island in the middle of the abyss. Find a way in there to defeat him."
+GER = "Der finstere Herrscher dieses Landes verweilt auf der zentralen Insel inmitten des Abgrunds. Findet einen Weg hinein, um ihn zu besiegen."
+
+[LEVEL_11_MURAL_HINT_TOP]
+ENG = "Have you seen another area like this somewhere in this realm...?"
+GER = "Habt ihr eine ähnliche Gegend wie diese in der Nähe gesehen...?"
+
+[LEVEL_11_MURAL_HINT_BOTTOM]
+ENG = "An empty abyss. Perhaps something could be placed here...?"
+GER = "Ein leerer Abgrund. Vielleicht kann hier etwas platziert werden...?"
+
+[LEVEL_11_VOID_ROD_INTRODUCTION]
+ENG = "This must be the source of magic in this realm, the Void Rod. It has the power to manipulate matter, by picking up and placing terrain. Picked up tiles can be placed on an abyss, and can be used to make bridges. Use the rod to reach the entrance in the South."
+GER = "Dies muss die Quelle der Magie dieses Landes sein, der Stab des Nichts. Er hat die Macht Materie zu manipulieren, indem man den Boden aufhebt und bewegt. Aufgehobener Boden kann auf einem Abgrund platziert werden, um Brücken zu bilden. Benutzt das Zepter um den südlichen Eingang zu erobern."
+
+[LEVEL_11_VOID_TRAP_INTRODUCTION]
+ENG = "You can now construct and use the Void Statue traps. These traps can be identified by their black glow. When an enemy steps on them, the tile briefly turns into a bottomless pit."
+GER = "Ihr könnt jetzt die Statuen des Nichts herstellen. Diese Fallen könnt Ihr durch die schwarze Flamme erkennen. Wenn ein Gegner ihr zu Nahe kommt, verwandelt sich der Boden kurzzeitig in einen Abgrund."
+
+[LEVEL_11_MIND_THE_STATUES]
+ENG = "Mind the two statues..."
+GER = "Achtet auf die zwei Statuen..."
+
+[LEVEL_11_WIN_MESSAGE]
+ENG = "Even here you were victorious, most impressive. Just keep in mind Milord, do not peer too deeply into the abyss..."
+GER = "Selbst hier wart ihr erfolgreich, ich bin zutiefst beeindruckt. Aber denkt dran Meister, starrt nicht zu tief in den Abgrund..."
+
+[LEVEL_11_VOID_TRAP_AVAILABLE]
+ENG = "You can now construct the Void Statues in all chapters. These traps will briefly turn into a bottomless pit, that turns back into solid ground after a few seconds."
+GER = "Ihr könnt jetzt in allen Kapiteln die Statue des Nichts herstellen. Diese Falle verwandelt sich für kurze Zeit in ein bodenloses Loch, welches nach ein paar Sekunden wieder zu normalem Boden wird."
+
+[LEVEL_11_NEW_TRAP_UNLOCKED]
+ENG = "A new trap has been unlocked!"
+GER = "Eine neue Falle wurde freigeschaltet!"
+
+[LEVEL_11_COME_BACK_LATER]
+ENG = "Conquer the whole underworld to unlock the Void Rod for other realms..."
+GER = "Erobert die ganze Unterwelt, um den Stab des Nichts überall nutzen zu können..."
+
+[LEVEL_11_ISLAND_CRUMBLING]
+ENG = "The whole island crumbles... make haste! We don't have much time left. Conquer the fortress in the middle of the island before it's too late. The way deeper in is open now."
+GER = "Die ganze Insel bröckelt... beeilt Euch! Wir haben nicht mehr viel Zeit. Stürmt die Festung in der Mitte der Insel, bevor es zu spät ist. Der Weg ins Innere ist jetzt offen."
+
+[LEVEL_11_ENEMIES_SPAWNING]
+ENG = "The enemy is catching on to your presence. Be on your guard."
+GER = "Der Gegner merkt, dass ihr hier seid. Gebt Acht."
+
+[LEVEL_11_BOSS_DEFEATED]
+ENG = "A sense of unease overcomes you..."
+GER = "Ein beunruhigendes Gefühl überkommt Euch..."
+
+[LEVEL_11_WALL_OPENED]
+ENG = "The wall nearby crumbles..."
+GER = "Eine Wand in der Nähe ist eingestürzt..."
+
+# Level 13 - Intermission 1
+
+[LEVEL_13_INTRO]
+ENG = "Lord Diamond, we are making swift progress. However, up ahead is a bleak, frigid region, and the hideout of the Onyx rogues. These traitors will likely try to stop us too, so we may as well take them out alongside Scarlet if we can. We shall not let traitors who ally with Keepers live. Make your way to the next portal so we can leave this area behind us."
+GER = "Lord Diamant, wir machen gute Fortschritte. Allerdings liegt vor uns eine trostlose, kalte Region, und das Versteck der Onyx Schurken. Diese Verräter werden sicher versuchen uns aufzuhalten. Am besten vernichten wir sie direkt zusammen mit Scarlet, Verräter die mit Keepern zusammen arbeiten haben es nicht anders verdient. Begebt euch aber erstmal zum nächsten Portal."
+
+[LEVEL_13_WIN]
+ENG = "Good work reaching the gate! It's going to get freezing cold, but we will have to push through this icy region to reach our goal."
+GER = "Gute Arbeit, ihr habt es zum Portal geschafft. Ab hier wird es bitterkalt werden, aber wir müssen durch diese frostige Region durch um zu unserem Ziel zu kommen."
+
+[LEVEL_13_DIALOGUE_1]
+ENG = "Are we finally there yet? I'm getting tired."
+GER = "Sind wir endlich da? Meine Beine werden müde."
+
+[LEVEL_13_DIALOGUE_2]
+ENG = "Not yet. But remain courageous and ready for battle."
+GER = "Noch nicht. Aber bleibe tapfer und bereit zum Kampf."
+
+[LEVEL_13_DIALOGUE_3]
+ENG = "I will research a way for us to continue ahead."
+GER = "Ich werde erforschen, wie wir von hier weiterkommen."
+
+[LEVEL_13_CAVE_IN_REMINDER]
+ENG = "Don't forget that you can use Cave-In to construct bridges over lava and water."
+GER = "Vergesst nicht, dass Ihr Einsturz verwenden könnt, um Brücken über Lava und Wasser zu bauen."
+
+# Level 14 - Intermission 2
+
+[LEVEL_14_INTRO]
+ENG = "The guard dog Onyx has fallen. What remains, is for us to take down Scarlet himself. His giant prison is up ahead, filled with captured heroes. Make your way to the portal, so we can advance into the next layer and rescue them."
+GER = "Der Wachhund Onyx ist gefallen. Was übrig bleibt, ist Scarlet selbst zu erledigen. Sein riesiger Kerker liegt vor uns, voll von gefangenen Helden. Macht euch auf den Weg zum Portal, damit wir weiter in die nächste Ebene können um sie zu retten."
+
+[LEVEL_14_WIN]
+ENG = "Fantastic, you have made it to the portal. Let's advance right into Scarlet's territory and teach him respect."
+GER = "Exzellent, Ihr habt es zum Portal geschafft. Dringen wir in das Territorium von Scarlet ein, um ihm Respekt beizubringen."
+
+[LEVEL_14_DIALOGUE_1_1]
+ENG = "Help! Is anyone there?"
+GER = "Hilfe! Ist dort jemand?"
+
+# Replacement is the name of the monk
+[LEVEL_14_DIALOGUE_2_1]
+ENG = "REPLACEMENT1, is that you?"
+GER = "REPLACEMENT1, bist du es?"
+
+[LEVEL_14_DIALOGUE_2_2]
+ENG = "How did you end up imprisoned?"
+GER = "Wie wurdest du gefangen genommen?"
+
+[LEVEL_14_DIALOGUE_3_1]
+ENG = "Let's not worry about that for now."
+GER = "Machen wir uns darum später Gedanken."
+
+# Replacement is the name of the monk
+[LEVEL_14_DIALOGUE_3_2]
+ENG = "We should rescue REPLACEMENT1 first."
+GER = "Lasst uns vorerst REPLACEMENT1 retten."
+
+[LEVEL_14_DIALOGUE_4_1]
+ENG = "Praised be the Trinity and my saviours! Thank you."
+GER = "Dank sei der Dreieinigkeit und meinen Rettern!"
+
+# Level 15 - Ending
+
+[LEVEL_15_INTRO]
+ENG = "You have made it out of the caves, and it's time to return back to daylight. Let's see how well you did in your campaign against evil."
+GER = "Ihr habt es aus den Tiefen rausgeschafft, und könnt euch auf den Weg zurück zum Tageslicht machen. Mal sehen wie Ihr Euch so geschlagen habt in der Kampagne gegen das Böse."
+
+[LEVEL_15_CAT_SACRIFICE]
+ENG = "The cat sacrificed itself to close the last evil portal..."
+GER = "Die Katze hat sich geopfert, um das finsere Portal zu schließen..."
+
+[LEVEL_15_CAT_RESCUED]
+ENG = "The cat made it back home safely! Well done!"
+GER = "Die Katze hat es zurück nach Hause geschafft! Gute Arbeit!"
+
+[LEVEL_15_REVOLTING_EVIL]
+ENG = "This is terrible! The remaining evil creatures you have recruited have come back and are revolting!"
+GER = "Wie schrecklich! Die bösen Kreaturen, die ihr rekrutiert habt sind zurückgekommen und greifen uns an!"
+
+# This ending text is included as a replacement in some of the other endings below
+[LEVEL_15_GENERIC_ENDING]
+ENG = "You have defeated Keeper Scarlet and your sworn enemies, the Onyx rogues. Rest easy knowing that the threat to the overworld is gone."
+GER = "Ihr habt den Keeper Scarlet und Eure Erzfeinde, die Onyx Schurken besiegt. Ruht Euch nun aus, und seid stolz darauf, dass die Bedrohung gebannt ist."
+
+[LEVEL_15_ENDING_1]
+ENG = "Good Ending - REPLACEMENT1 You even had the time to do a good deed by rescuing a feline friend. Congratulations!"
+GER = "Gutes Ende - REPLACEMENT1 Ihr hattet sogar die Zeit für eine gute Tat, und habt dazu noch die Katze gerettet. Glückwunsch!"
+
+[LEVEL_15_ENDING_2]
+ENG = "Neutral Ending - REPLACEMENT1"
+GER = "Neutrales Ende - REPLACEMENT1"
+
+[LEVEL_15_ENDING_3]
+ENG = "Neutral Ending - Through the sacrifice of our feline friend, a crisis was averted. For now, the overworld is safe."
+GER = "Neutrales Ending - Durch das Opfer unseres Katzen-Freundes konnte ein Disaster verhindert werden. Das Königreich ist erstmal wieder sicher."
+
+[LEVEL_15_ENDING_4]
+ENG = "Good Ending - Your mistake of giving rise to the evil avatar almost cost us very dearly. Thankfully our heroes were able to stop the evil forces before they could reach the overworld portal."
+GER = "Gutes Ende - Euer Fehler, einen finseren Avatar zu beschwören hat uns fast zerstört. Zum Glück waren unsere Helden stark genug, das Böse aufzuhalten, bevor es die Oberfläche erreichen konnte."
+
+[LEVEL_15_ENDING_5]
+ENG = "Evil Ending - You have vanquished an evil Keeper, only to give rise to another evil. Is this truly what you wanted, Lord Diamond?"
+GER = "Böses Ende - Ihr habt zwar einen bösartigen Keeper besiegt, aber dadurch eine neue Gefahr beschworen. War das wirklich was ihr wolltet, Lord Diamant?"
+
+[LEVEL_15_ENDING_6]
+ENG = "Hero Ending - REPLACEMENT1 You even had the time to do a good deed by rescuing a feline friend. Congratulations!"
+GER = "Heldenhaftes Ende - REPLACEMENT1 Ihr hattet sogar die Zeit für eine gute Tat, und habt dazu noch die Katze gerettet. Glückwunsch!"
+
+[LEVEL_15_ENDING_7]
+ENG = "Good Ending - We managed to subdue the evil threatening our home at last. Both we and our group of heroes can rest peacefully now."
+GER = "Gutes Ende - Wir haben das Unheil besiegt, das unsere Heimat bedroht hat. Wir und unsere Gruppe von Helden können sich endlich ausruhen."
+
+[LEVEL_15_ENDING_8]
+ENG = "Evil Ending - Despite our fight for peace, the evil we set out to defeat still roams free and has set its eyes on the overworld..."
+GER = "Böses Ende - Obwohl wir für Frieden gekämpft haben, konnte das Böse entkommen, und hat seinen Blick auf der Königreich an der Oberfläche gerichtet..."
+
+[LEVEL_15_ENDING_9]
+ENG = "Neutral Ending - On both sides, there are no survivors. Evil has been eradicated, but tragically, our heroes did not return home..."
+GER = "Neutrales Ende - Auf beiden Seiten gibt es keine Überlebenden. Das Böse wurde zwar ausgelöscht, aber unsere Helden sind nicht mehr nach Hause zurückgekehrt..."
+
+# Hard Mode
+
+[HARD_MODE_AMOUNT_CURSES_BEATEN]
+ENG = "You have broken REPLACEMENT1 out of 10 curses."
+GER = "Ihr habt REPLACEMENT1 von 10 Flüchen gebrochen."
+
+[HARD_MODE_CURSE_FIRST_TIME_1]
+ENG = "Milord, you have activated a Curse."
+GER = "Meister, Ihr habt einen Fluch aktiviert."
+
+[HARD_MODE_CURSE_FIRST_TIME_2]
+ENG = "Be careful, these will make our quest harder..."
+GER = "Flüche machen unsere Aufgabe schwieriger..."
+
+[HARD_MODE_CURSE_EXPIRED_1]
+ENG = "This curse has expired."
+GER = "Dieser Fluch ist erloschen."
+
+[HARD_MODE_CURSE_EXPIRED_2]
+ENG = "To enable Hard Mode in this realm, find"
+GER = "Um Hard Mode für diese Level anzuschalten,"
+
+[HARD_MODE_CURSE_EXPIRED_3]
+ENG = "the curse orb before its power is extinguished."
+GER = "finde den Fluch bevor er erlischt."
+
+[HARD_MODE_CURSE_ACTIVATED_1]
+ENG = "A chill runs down your spine..."
+GER = "Ein Schauer läuft Euch über den Rücken..."
+
+# Replacement -> name of the curse
+[HARD_MODE_CURSE_ACTIVATED_2]
+ENG = "You have activated the REPLACEMENT1."
+GER = "Der REPLACEMENT1 wurde aktiviert."
+
+[HARD_MODE_CURSE_ACTIVATED_3]
+ENG = "Hard Mode enabled for this level."
+GER = "Hard Mode für diese Level ist an."
+
+[CURSE_LONG_EXPLANATION]
+ENG = "A curse orb expires a few minutes after starting a realm. If you want to play a realm in Hard Mode, find the orb near your Soul Gem and activate it, to enable Hard Mode until the level is over."
+GER = "Ein Fluch erlischt wenige Minuten nach dem Anfang einer Level. Falls du die Level im Hard Mode spielen willst, finde den Fluch nahe deines Seelensteins, um Hard Mode anzuschalten bis die Level vorbei ist."
+
+# Helper Functions / Misc text
+
+[ARACHNOMANCER_TUTORIAL]
+ENG = "An Arachnomancer has joined our cause. These rather heretical Wizards are attracted by the Barracks and have dedicated their lives to studying the arachnoid inhabitants of dungeons, and can summon Spiderlings to help them in battle. You're not afraid of spiders, are you?"
+GER = "Ein Arachnozauberer hat sich zu euren Helden gesellt. Diese ungewöhnlichen Zauberer werden von den Barracken angelockt und haben ihr Leben dem Studium von Spinnen hingegeben, welche sie auch im Kampf zur Hilfe beschwören können. Ihr habt doch wohl nicht Angst vor Spinnen, oder?"
+
+[CURSE_ALREADY_BROKEN]
+ENG = "The curse for this level has already been broken."
+GER = "Der Fluch dieses Landes wurde bereits gebrochen."
+
+[BEARER_OF_CURSES_1]
+ENG = "Bearer of all curses..."
+GER = "Sieger über alle Flüche..."
+
+[BEARER_OF_CURSES_2]
+ENG = "Impressive work, beating every single curse."
+GER = "Beeindruckend, jeden einzelnen Fluch zu schaffen!"
+
+[BEARER_OF_CURSES_3]
+ENG = "Congratulations!"
+GER = "Glückwunsch!"
+
+[MEOW]
+ENG = "Meow...?"
+GER = "Miau...?"
+
+[CAT_INTRODUCTION]
+ENG = "This cat appears lost and wants to return to its home, on the far other side of this cave network. It will be a long and arduous journey. Will you take it with you?"
+GER = "Diese Katze scheint sich verlaufen zu haben, und will nach Hause zurückkehren. Aber es ist ein langer und schwerer Weg, bis an das ganz andere Ende dieses Höhlensystems. Werdet Ihr sie mitnehmen?"
+
+[CAT_MOVED_ON]
+ENG = "The cat has safely moved on to the next realm."
+GER = "Die Katze ist sicher im nächsten Reich angekommen."
+
+[BONUS_REALM_UNLOCKED]
+ENG = "A hidden realm has appeared..."
+GER = "Ein geheimes Reich ist erschienen..."
+
+# Lucky Box
+
+[LUCKY_BOX_TOOLTIP]
+ENG = "Box of Fortune"
+GER = "Box des Glücks"
+
+[LUCKY_BOX]
+ENG = "How lucky!"
+GER = "So ein Glück!"
+
+[LUCKY_BOX_GOLD]
+ENG = "The box contained 7500 Gold."
+GER = "Die Box enthielt 7500 Gold."
+
+[LUCKY_BOX_EXTRA_HERO]
+ENG = "A new hero has joined you."
+GER = "Ein Held ist Euch beigetreten."
+
+[LUCKY_BOX_LEVEL_UP]
+ENG = "Some of your creatures have leveled up."
+GER = "Ein extra Level für manche Kreaturen."
+
+[LUCKY_BOX_SPEED_BOOST]
+ENG = "A speed boost for your heroes."
+GER = "Geschwindigkeit für Eure Helden!"
+
+# Unlucky Box
+
+[UNLUCKY_BOX_TOOLTIP]
+ENG = "Box of Misfortune"
+GER = "Box des Unglücks"
+
+[UNLUCKY_GOLD_LOST]
+ENG = "Lost 1000 Gold!"
+GER = "1000 Gold verloren!"
+
+[UNLUCKY_ENEMY_SPAWNED]
+ENG = "An enemy creature has spawned!"
+GER = "Ein Gegner ist erschienen!"
+
+[UNLUCKY_EVIL_CREATURE]
+ENG = "You have received an evil creature..."
+GER = "Ihr habt eine böse Kreatur erhalten..."
+
+[UNLUCKY_NOTHING]
+ENG = "Nothing happened..."
+GER = "Nichts ist passiert..."
+
+[UNLUCKY_SPIDER_TRANSFORMATION]
+ENG = "One of your creatures transformed into a Spider!"
+GER = "Eine eurer Kreatur wurde zu einer Spinne!"
+
+[UNLUCKY_CREATURES_SLOWED]
+ENG = "Some of your creatures have been slowed!"
+GER = "Eure Kreaturen wurden verlangsamt!"
+
+[UNLUCKY_CREATURES_LEVEL_DOWN]
+ENG = "Some of your creatures have been leveled down!"
+GER = "Ein paar Eurer Kreaturen haben ein Level verloren!"
+
+[UNLUCKY_CREATURES_CHICKENED]
+ENG = "Some of your creatures have been turned into chickens!"
+GER = "Ein paar Eurer Kreaturen wurden zu Hühnern!"
+
+# Upgrade items
+
+[SAMURAI_UPGRADE_AVAILABLE]
+ENG = "Samurai promotion is available."
+GER = "Samurai-Beförderung ist verfügbar."
+
+[KNIGHT_UPGRADE_AVAILABLE]
+ENG = "Knight promotion is available."
+GER = "Ritter-Beförderung ist verfügbar."
+
+# Abyss items
+
+[VOID_ROD_CANNOT_PICK_UP]
+ENG = "The Rod can't pick up this slab..."
+GER = "Das Zepter kann dies nicht aufheben..."
+
+[VOID_ROD_CANNOT_PLACE]
+ENG = "You can only place a tile on an Abyss."
+GER = "Das kann nur auf einem Abgrund platziert werden."
+
+[ENDLESS_ROD_UNLOCKED_SHORT]
+ENG = "The Endless Rod has been unlocked for all realms!"
+GER = "Der Stab des Endlosen Nichts ist überall verfügbar!"
+
+[VOID_ROD_UNLOCKED_SHORT]
+ENG = "You can keep and use the Void Rod anywhere!"
+GER = "Ihr könnt den Stab des Nichts überall benutzen!"
+
+[VOID_ROD_UNLOCKED_LONG]
+ENG = "The Void Rod has been unlocked for all realms! Some say, its power is inhibited by curses and if you beat all of them, its full power will be unleashed..."
+GER = "Der Stab des Nichts ist in allen Kapiteln verfügbar! Angeblich wird die Macht des Zepters durch Flüche eingeschränkt. Wenn ihr alle Flüche bezwingt, entfesselt ihr seine volle Macht..."
+
+[VOID_MISTAKE]
+ENG = "Milord, that may have been a mistake..."
+GER = "Meister, das war vielleicht ein Fehler..."
+
+[VOID_MONUMENT]
+ENG = "Forbidden Realm - Void Monument"
+GER = "Verbotenes Reich - Insel des Nichts"
+
+[VOID_ROD]
+ENG = "Void Rod"
+GER = "Stab des Nichts"
+
+[ENDLESS_ROD]
+ENG = "Endless Void Rod"
+GER = "Stab des Endlosen Nichts"
+
+[VOID_TRAP]
+ENG = "Void Statue"
+GER = "Statue des Nichts"
+
+[VOID_ROD_TOOLTIP]
+ENG = "Void Rod: An unsettling scepter which has the ability to manipulate terrain."
+GER = "Stab des Nichts: Ein ungewöhnliches Zepter, mit der Fähigkeit den Boden zu manipulieren."
+
+[ENDLESS_ROD_TOOLTIP]
+ENG = "Endless Void Rod: A powered up magical scepter which can manipulate multiple slabs."
+GER = "Stab des Endlosen Nichts: Ein stärkeres magisches Zepter, das größere Flächen manipulieren kann."
+
+[VOID_TRAP_TOOLTIP]
+ENG = "Void Statue: A trap which creates a pit if an enemy steps on it."
+GER = "Statue des Nichts: Eine Falle, die sich in ein bodenloses Loch unter einem Feind verwandelt."
+
+# Create Dirt
+
+[CREATE_ON_TILE]
+ENG = "Can't cast because a creature is on this tile."
+GER = "Eine Kreatur befindet sich auf diesem Block."
+
+[CREATE_DIRT_ONLY_PATH]
+ENG = "This spell can only be used on path or claimed tiles."
+GER = "Dieser Zauber kann nur auf leerem Pfad benutzt werden."
+
+# Thief Transform
+
+[TRANSFORM_KNIGHT_ONLY_THIEF]
+ENG = "Only Thieves can wear the holy armor."
+GER = "Nur Diebe können die heilige Rüstung tragen."
+
+# Replacement is the name of the knight
+[TRANSFORM_KNIGHT_SUCCESS]
+ENG = "Lord REPLACEMENT1 raises his sword against evil!"
+GER = "Ritter REPLACEMENT1 hebt sein Schwert gegen das Böse!"
+
+# Samurai Transform
+
+[TRANSFORM_SAMURAI_ONLY_THIEF]
+ENG = "Only Thieves can wield the holy katana."
+GER = "Nur Diebe können das heilige Katana nutzen."
+
+# Replacement is the name of the samurai
+[TRANSFORM_SAMURAI_SUCCESS]
+ENG = "Samurai REPLACEMENT1 raises his katana!"
+GER = "Samurai REPLACEMENT1 nimmt sein Katana auf!"
+
+# Dragon Transform
+
+[TRANSFORM_DRAGON_ALREADY_DRAGON]
+ENG = "Milord, that's already a Dragon..."
+GER = "Meister, das ist bereits ein Drache..."
+
+[TRANSFORM_DRAGON_MAGICAL_CREATURES_ONLY]
+ENG = "This spell can only be used on magical creatures."
+GER = "Nur magische Kreaturen können verwandelt werden."
+
+# Avatar Transform
+
+[EVIL_AVATAR_1]
+ENG = "Have you lost your mind? An evil Avatar?"
+GER = "Habt ihr den Verstand verloren? Ein böser Avatar?"
+
+[EVIL_AVATAR_2]
+ENG = "Are you truly certain about this?"
+GER = "Ist dies Euer Ernst?"
+
+# Replacement is the name of the avatar
+[CREATE_GOOD_AVATAR]
+ENG = "Avatar REPLACEMENT1 is ready to destroy all evil!"
+GER = "Avatar REPLACEMENT1 ist bereit, das Böse zu besiegen!"
+
+[CREATE_EVIL_AVATAR_1]
+ENG = "What have you done?! The church will have us beheaded..."
+GER = "Was habt Ihr getan? Die Kirche wird uns köpfen..."
+
+# Replacement is the name of the avatar
+[CREATE_EVIL_AVATAR_2]
+ENG = "The evil Avatar REPLACEMENT1 rises."
+GER = "Der finsere Avatar REPLACEMENT1 erscheint."
+
+# Hero Portal Spell
+
+[PORTAL_SEND_SMALL_WAVE]
+ENG = "Just send a small wave for now."
+GER = "Sendet erst eine kleine Truppe."
+
+# Replacement is the amount of seconds the spell is still on cooldown
+[PORTAL_ON_COOLDOWN]
+ENG = "You cannot recruit another party for REPLACEMENT1 seconds."
+GER = "Ihr müsst noch REPLACEMENT1 Sekunden warten."
+
+[PORTAL_MOVING_OUT]
+ENG = "Moving out!"
+GER = "Zum Angriff!"
+
+[PORTAL_READY]
+ENG = "The Portal can be used again."
+GER = "Das Portal kann wieder benutzt werden."
+
+# Midas
+
+[MIDAS_NO_SUMMONS]
+ENG = "Summoned creatures can't be turned into gold."
+GER = "Beschworene Kreaturen können nicht vergoldet werden."
+
+[MIDAS_ILLEGAL_CREATURE]
+ENG = "This creature resists the gold transformation..."
+GER = "Diese Kreatur widersetzt sich dem Zauber..."
+
+[MIDAS_NOT_ENOUGH_GOLD]
+ENG = "You can only transform your own creatures for free."
+GER = "Ihr könnt nur eigene Kreaturen kostenlos verwandeln."
+
+# Level intros
+
+[CHAPTER_1_INTRO]
+ENG = "Our journey begins here, a large cavern which not many heroes have dared to explore. Say goodbye to daylight, torchlight will guide our path for a while. First, let us investigate the area and establish a base camp. Perhaps we can conjure a portal to receive reinforcements underground."
+GER = "Unsere Reise beginnt hier, eine massive Höhle die nur wenige Helden bisher erkundet haben. Verabschiedet euch vom Tageslicht, nur der Schein unserer Fakeln wird unseren Weg erleuchten. Lasst uns als erstes eine Basis errichten und die Gegend erkunden. Vielleicht können wir ein Portal beschwören, um auch im Untergrund Verstärkung zu erhalten."
+
+[CHAPTER_2_INTRO]
+ENG = "An allied settlement of reclusive Fairies and Dwarves is our next destination. Their craftsmanship is impressive, and they may be able to provide us with some useful tools. Even inside the castle walls, legends speak of their magical candles and mischievous spells."
+GER = "Unser nächstes Ziel ist eine befreundete Siedlung von zurückgezogenen Feen und Zwergen. Ihr Handwerk ist beeindruckend, und sie können uns sicherlich mit nützlichen Werkzeugen ausstatten. Selbst im königlichen Schloss erzählt man sich Legenden über ihre magischen Kerzen und zauberischen Fähigkeiten."
+
+[CHAPTER_3_INTRO]
+ENG = "Scarlet has a supply route transporting gold that's running through this fiery area. Don't be intimidated by the lava river, milord. The volcano's molten fury reaches far and wide in the underground. Perhaps rally some Giants for battle, their lava resistance may help us."
+GER = "Scarlet hat eine Transportroute in dieser feurigen Gegend um seine Versorgung mit Gold zu sichern. Lasst euch nicht von dem Lavafluss einschüchtern, Meistern, auch wenn die Macht des Vulkans bis weit in den Untergrund reicht. Rekrutiert ein paar Riesen, ihre Resistenz gegen Lava könnte uns helfen."
+
+[CHAPTER_4_INTRO]
+ENG = "Did you bring a warm coat, milord? It's about to get cold, and the way down is still long. The lava lake that awaits us is an ominous landmark, and Onyx scouts have been found lurking nearby. Inexcusable that they would ally with Scarlet, but all the more reason to wipe them out."
+GER = "Habt ihr Euch einen warmen Mantel eingepackt, Meister? Es könnte kalt werden, und der Weg nach unten ist noch lang. Ein ominöser Lavasee erwartet uns hier, und wir haben bereits späher von Onyx in der Gegend gesichtet. Dass sich die Onyx Schurken mit Scarlet zusammengetan haben, ist nur ein weiterer Grund für uns sie auszulöschen."
+
+[CHAPTER_5_INTRO]
+ENG = "We are deep in enemy territory and Onyx forces already await us in an ancient, frigid stronghold. Capturing it won't be easy, they hold a strategic advantage, holed up in the middle of a freezing cold lake. Light a torch and let the dwarves ready our digging axes to burrow through the permafrost."
+GER = "Wir sind tief im gegnerischen Gebiet, und Onyx Streitkräfte erwarten uns bereits in einer uralten Festung. Es wird nicht einfach sein, die Festung inmitten des eiskalten Sees zu erobern. Zündet eine Fackel an, und lasst die Dunkelzwerge ihre Äxte zum Graben bereithalten, um den gefrorenen Boden zu durchdringen."
+
+[CHAPTER_6_INTRO]
+ENG = "Our scouts indicate that this may have once been the base of a Keeper. It has long since fallen into ruin and not much is left of it but rubble and a few stray walls. However, legends say that the Keeper was an expert Geomancer, capable of manipulating the very earth itself. Perhaps some magic of his is left here..."
+GER = "Unsere Späher berichten uns, dass hier mal ein Keeper sein Reich hatte. Es ist schon lange in Ruinen zerfallen, und außer Trümmern und ein paar Wänden ist nicht mehr viel übrig. Aber Legenden besagen, dass dieser Keeper ein erfahrener Geomant war, und die Macht besaß, die Erde und Gestein zu manipulieren. Vielleicht hat er etwas von diesem Wissen hier zurückgelassen..."
+
+[CHAPTER_7_INTRO]
+ENG = "A sinister cult once held rituals in these halls, a heretical place. We are outmatched here, with both Onyx and Scarlet having surrounded our position. We may need to use the temple here to strengthen our forces, even if it is against the teachings of the church."
+GER = "Ein finsterer Kult hielt einst Rituale in diesen Hallen ab. Welch ein unheiliger Ort. Onyx und Scarlet haben uns hier umzingelt, und haben die Überhand. Vielleicht müssen wir den Tempel nutzen, um unsere Streitkräfte zu stärken. Auch wenn den Tempel so zu missbrauchen gegen den Willen der Kirche ist."
+
+[CHAPTER_8_INTRO]
+ENG = "The mine and Soul Gem manufactory of Onyx lies ahead. Not only is this area heavily defended as their underground base of operations, it is also vulnerable to heavy volcanic activity. The path will be dangerous and fortified. Ready yourself for a fight."
+GER = "Die Mine und Seelenstein-Fabrik von Onyx liegt vor uns. Nicht nur ist dieses Gebiet schwer bewacht und ihre Basis im Untergrund, sondern auch sehr anfällig für vulkanische Aktivität. Der Pfad vor uns wird gefährlich sein, und schwer bewacht. Macht Euch auf einen Kampf gefasst."
+
+[CHAPTER_9_INTRO]
+ENG = "We may have saved some of our allies, but many Heroes remain captured in the Scarlet prison. Even the very water here is soaked red from the blood of their prisoners. Let's make haste and rescue our allies from them, but the wardens will certainly be trying to stop us."
+GER = "Wir haben einige unserer Verbündeten gerettet, aber viele Helden stecken noch fest im Gefängnis von Scarlet. Selbst das Wasser ist ominös rot gefärbt vom Blut der Gefangenen. Beeilen wir uns und retten wir unsere Helden, aber die Wächter werden sicher versuchen uns aufzuhalten."
+
+[CHAPTER_10_INTRO]
+ENG = "Our final battle is upon us. Here lie the ruins of many conquered realms, and the remains of battles past. Defeat the scourge that is Scarlet, so our land will not turn to ruin too."
+GER = "Unser letzter Kampf beginnt. Vor uns liegen die Ruinen von eroberten Ländern und vergangenen Kämpfen. Besiegt Scarlet, der unsere Welt plagt, damit unser Land nicht auch in den Ruin fällt."
+
+# Full Moon level
+
+[FULL_MOON_NAME]
+ENG = "Caverns of the Full Moon"
+GER = "Höhle des Vollmonds"
+
+# Replacement is the percentage number of health left on the door
+[MIDAS_DOOR_HEALTH_LEFT]
+ENG = "The door's sturdiness is at REPLACEMENT1%."
+GER = "Die Standhaftigkeit der Tür liegt bei REPLACEMENT1%."
+
+[MIDAS_DOOR_HALF_DESTROYED]
+ENG = "The door is halfway destroyed..."
+GER = "Die Türe ist halb zerstört..."
+
+[MIDAS_DOOR_INFORMATION]
+ENG = "This door is extraordinarily sturdy. It can be destroyed, but it will take us a while to break through. Split your attention between defending yourself and attacking the door."
+GER = "Diese Tür ist außerordentlich stabil. Sie kann zwar zerstört werden, aber es wird eine Weile dauern. Teilt eure Aufmerksamkeit zwischen Verteidigung eures Dungeons, und dem Angriff auf die Tür."
+
+[FULL_MOON_LEVEL_INTRO]
+ENG = "A world inside the painting... this appears to be a mirror image of the Trinity Island, after it had been conquered by yet another Keeper, Sapphire. We will not be able to bring anything out of this world, but perhaps it's a good practice skirmish? To escape from here again, conquer the enemy fortress on the far side of the cavern. There must be a portal there we can use to get back out."
+GER = "Eine Welt im Gemälde... dies scheint ein Spiegelbild der Insel der Dreeinigkeit zu sein, nachdem es von einem anderen Keeper, Sapphire, erobert wurde. Wir werden nichts von hier zurück in die Außenwelt nehmen können, aber vielleicht ist es eine gute Kampf-Übung. Um wieder von hier zu entkommen, erobert die Festung am anderen Ende dieser Höhle. Dort muss ein Portal sein, mit dem wir zurückkehren können."
+
+[FULL_MOON_PORTAL_ACTIVE]
+ENG = "Looks like you can receive reinforcements even here, the portal is active. Make do with what you have, and prepare yourself for enemy resistance."
+GER = "Sieht so aus als könnten wir auch hier Verstärkungen erhalten, das Portal ist aktiv. Wir müssen allerdings mit dem klarkommen, was wir hier haben. Bereitet Euch auf gegnerischen Widerstand vor."
+
+[FULL_MOON_WAVE_SPAWNING]
+ENG = "Wave REPLACEMENT1 approaches..."
+GER = "Welle REPLACEMENT1 ist im Anmarsch..."
+
+[FULL_MOON_HINT]
+ENG = "Inside the royal castle's briefing room hangs a painting, next to the bookshelf. They say on a Full Moon, people have vanished inside the painting, never to return... don't ask how I know."
+GER = "Im Besprechungsraum des königlichen Schlosses hängt ein Gemälde, neben dem Bücherregal. Man sagt an einem Vollmond sind Leute in diesem Gemälde verschwunden, und nie wieder zurückgekehrt... frag mich nicht, woher ich das weiß."
+
+[BOX_OF_SECRETS]
+ENG = "Box of Secrets"
+GER = "Box der Geheimnisse"
+
+[FULL_MOON_LEVEL_END]
+ENG = "Thankfully we got out of here again. Good work!"
+GER = "Zum Glück konnten wir von hier entkommen. Gute Arbeit!"
+
+[FULL_MOON_REMINDER]
+ENG = "Milord, you know you are supposed to beat the enemy and not just wait around, right...?"
+GER = "Meister, ihr seid Euch bewusst dass ihr den Gegner besiegen müsst um vor hier zu entkommen, richtig...?"
+
+[FULL_MOON_IMPRESSIVE]
+ENG = "I must admit, it is impressive that you survived this long!"
+GER = "Ich muss zugeben, ich bin beeindruckt dass ihr so lange überlebt habt!"
+
+[FULL_MOON_MAP_VIEW]
+ENG = "A painting of our homeland, taken over by the Keeper Sapphire. A menacing and powerful Keeper, who has long terrorized and threatened this land. When moonlight shines on the painting, it almost seems to come alive..."
+GER = "Ein Gemälde unserer Heimat, erobert vom Keeper Sapphire. Ein gefährlicher und starker Keeper, der dieses Reich schon seit langem bedroht. Wenn Mondlicht auf das Gemälde scheint, kommt es einem fast wie echt vor..."
+
+[FULL_MOON_CAT_INFO]
+ENG = "Missing your pet cat? Don't worry. She stayed safely outside the painted world, waiting for your return."
+GER = "Vermisst Ihr Eure Katze? Keine Angst. Sie ist sicher außerhalb der Welt im Gemälde geblieben, und wartet auf Eure Rückkehr."
+
+[CANDLE_OF_REFLECTION]
+ENG = "Candle of Reflection"
+GER = "Kerze des Abpralls"
+
+[CANDLE_OF_REFLECTION_TOOLTIP]
+ENG = "Candle of Reflection: A magical candle, which buffs an allied creature with the power to reflect projectiles."
+GER = "Kerze des Abpralls: Eine magische Kerze die Verbündeten einen magischen Schild gibt, der Projektile reflektiert."
+
+[CANDLE_OF_SPEED]
+ENG = "Candle of Speed"
+GER = "Kerze der Beschleunigung"
+
+[CANDLE_OF_SPEED_TOOLTIP]
+ENG = "Candle of Speed: A magical candle, which buffs an allied creature with speed."
+GER = "Kerze der Beschleunigung: Eine magische Kerze, die Verbündete schneller macht."
+
+[CANDLE_OF_HEALING]
+ENG = "Candle of Healing"
+GER = "Kerze der Heilung"
+
+[CANDLE_OF_HEALING_TOOLTIP]
+ENG = "Candle of Healing: A magical candle, which heals hurt allied creatures."
+GER = "Kerze der Heilung: Eine magische Kerze, die Verbündete heilt."
+
+[CANDLE_OF_FLIGHT]
+ENG = "Candle of Flight"
+GER = "Kerze des Flugs"
+
+[CANDLE_OF_FLIGHT_TOOLTIP]
+ENG = "Candle of Flight: A magical candle, which temporarily buffs all nearby allied creatures with the power to fly."
+GER = "Kerze des Flugs: Eine magische Kerze, die alle Verbündeten im Umkreis kurzzeitig fliegen lässt."
+
+[HIVE_GUARDPOST]
+ENG = "Hive Guardpost"
+GER = "Insekten-Wachposten"
+
+[HIVE_GUARDPOST_TOOLTIP]
+ENG = "Hive Guardpost: Spawns a Firefly to guard the area until the hive is destroyed."
+GER = "Insekten-Wachposten: Ein Glühwürmchen bewacht die Umgebung, bis das Versteck zerstört ist."
+
+[BERSERK_TRAP]
+ENG = "Berserk Trap"
+GER = "Berserker Falle"
+
+[BERSERK_TRAP_TOOLTIP]
+ENG = "Berserk Trap: Causes creatures that step on it to fly into an uncontrollable rage and attack anyone nearby."
+GER = "Berserker Falle: Eine Kreatur, die auf diese Falle tritt verfällt in einen Wutanfall und greift jeden im Umkreis an."
+
+[DRAGONBLOOD_BLESSING]
+ENG = "Dragonblood Blessing"
+GER = "Segen des Drachenbluts"
+
+[DRAGONBLOOD_BLESSING_TOOLTIP]
+ENG = "Dragonblood Blessing: Permanently transforms the selected magical creature into a Dragon."
+GER = "Segen des Drachenbluts: Verwandelt die ausgewählte magische Kreatur permanent in einen Drachen."
+
+[GAS_EXPLOSION]
+ENG = "Gas Explosion"
+GER = "Gas Explosion"
+
+[GAS_EXPLOSION_TOOLTIP]
+ENG = "Gas Explosion: Conjures a cloud of Bile Demon gas to harm all creatures in the area. Can be charged for greater area of effect."
+GER = "Gas Explosion: Eine Wolke von Teufler-Gas, welche allen Kreaturen Schaden zufügt. Kann aufgeladen werden um ein größeres Gebiet zu treffen."
+
+[CAVE_IN_RESTORED_TOOLTIP]
+ENG = "Cave In: Collapses ceilings to create natural bridges over water and lava and harms nearby creatures."
+GER = "Einsturz: Lässt die Decke einstürzen, und erzeugt natürliche Brücken über Wasser und Lava. Fügt allen Kreaturen in der Nähe Schaden zu."
+
+[CONJURE_EARTH]
+ENG = "Conjure Earth"
+GER = "Erde Beschwören"
+
+[CONJURE_EARTH_TOOLTIP]
+ENG = "Conjure Earth: Raises a pillar of earth from the ground to create walls. Only usable on path and claimed floor."
+GER = "Erde Beschwören: Hebt eine Erdsäule aus dem Boden um eine Wand zu erzeugen. Kann auf leerem Pfad verwendet werden."
+
+[TOUCH_OF_MIDAS]
+ENG = "Touch of Midas"
+GER = "Hand des Midas"
+
+[TOUCH_OF_MIDAS_TOOLTIP]
+ENG = "Touch of Midas: Kills target creature and turns it into gold. Free to cast on allied creatures and prisoners."
+GER = "Hand des Midas: Tötet die gewählte Kreatur und verwandelt sie in Gold. Kostenlos, wenn es auf Verbündete oder Gefangene angewendet wird."
+
+[WORD_OF_FROST_TOOLTIP]
+ENG = "Word of Frost: A blast of freezing cold magical energy, which damages and briefly stuns enemies."
+GER = "Wort der Kälte: Eine Explosion von kältester magischer Energie, die Schaden macht und Gegner kurz einfriert."
+
+[SUMMON_GHOSTS_TOOLTIP]
+ENG = "Summon Ghosts: Conjure Ghosts to help in battle."
+GER = "Geister Beschwören: Beschwört Geister, die für euch kämpfen."
+
+[SLAM_TOOLTIP]
+ENG = "Slam: Hits the ground with such force that all nearby enemies take damage."
+GER = "Zerschmettern: Schlägt den Boden mit so viel Wucht, dass alle Gegner im Umkreis Schaden nehmen."
+
+[PORTAL_CANDLE]
+ENG = "Portal Candle"
+GER = "Heldentor Kerze"
+
+[PORTAL_CANDLE_TOOLTIP]
+ENG = "Portal Candle: A candlestick, used to open a portal to the overworld."
+GER = "Heldentor Kerze: Eine Kerze, die ein Tor zur Oberwelt öffnen kann."
+
+[BLOOD_METEOR_TOOLTIP]
+ENG = "Blood Meteor: A Meteor that leaves behind a trail of blood. Stronger than the regular Meteor."
+GER = "Blutiger Meteor: Meteor, der eine Spur von Blut hinterlässt. Stärker als ein normaler Meteor."
+
+[KNIGHT_PROMOTION]
+ENG = "Knight Promotion"
+GER = "Ritter Beförderung"
+
+[KNIGHT_PROMOTION_TOOLTIP]
+ENG = "Knight Promotion: Promotes a Thief to a Knight. Can only be used once."
+GER = "Ritter Beförderung: Befördert einen Dieb zu einem Ritter. Kann nur einmal verwendet werden."
+
+[FIREFLY]
+ENG = "Firefly"
+GER = "Glühwürmchen"
+
+[SINISTER_AVATAR]
+ENG = "Sinister Avatar"
+GER = "Finsterer Avatar"
+
+[SAMURAI_PROMOTION]
+ENG = "Samurai Promotion"
+GER = "Samurai Beförderung"
+
+[SAMURAI_PROMOTION_TOOLTIP]
+ENG = "Samurai Promotion: Turns a Thief into a Samurai. Can only be used once."
+GER = "Samurai Beförderung: Befördert einen Dieb zu einem Samurai. Kann nur einmal verwendet werden."
+
+[PORTAL_INVASION]
+ENG = "Portal Invasion"
+GER = "Heldentor Invasion"
+
+[PORTAL_INVASION_TOOLTIP]
+ENG = "Portal Invasion: Recruits a party of Heroes from the overworld. Can be charged to recruit stronger parties."
+GER = "Heldentor Invasion: Rekrutiert eine Gruppe von Helden aus der Oberwelt. Kann aufgeladen um stärkere Gruppen zu rekrutieren."
+
+[APPOINT_AVATAR]
+ENG = "Appoint Avatar"
+GER = "Avatar Ernennen"
+
+[APPOINT_AVATAR_TOOLTIP]
+ENG = "Appoint Avatar: Turns the selected creature you own into the Avatar!"
+GER = "Avatar Ernennen: Verwandelt die gewählte Kreatur in den Avatar!"
+
+[ENFEEBLE_TRAP]
+ENG = "Enfeeble Trap"
+GER = "Schwächende Falle"
+
+[ENFEEBLE_TRAP_TOOLTIP]
+ENG = "Enfeeble Trap: Causes creatures that step on it to lose power and level down."
+GER = "Schwächende Falle: Kreaturen die auf diese Falle treten verlieren Kraft und ihr Level sinkt um 1."
+
+[THIEVING_TRAP]
+ENG = "Thieving Trap"
+GER = "Stehlende Falle"
+
+[THIEVING_TRAP_TOOLTIP]
+ENG = "Thieving Trap: Steals gold from creatures that step on it and deals damage relative to gold dropped."
+GER = "Stehlende Falle: Stiehlt Gold von Kreaturen die drauf treten und fügt Schaden relativ zum verlorenen Gold zu."
+
+[HEROES_JOURNEY]
+ENG = "Heroes' Journey"
+GER = "Heroes' Journey"
+
+[LEVEL_NAME_1]
+ENG = "Chapter 1 - Into Darkness"
+GER = "Kapitel 1 - In die Dunkelheit"
+
+[LEVEL_NAME_2]
+ENG = "Chapter 2 - Fairy Village"
+GER = "Kapitel 2 - Dorf der Feen"
+
+[LEVEL_NAME_3]
+ENG = "Chapter 3 - Aurum Passage"
+GER = "Kapitel 3 - Goldene Passage"
+
+[LEVEL_NAME_4]
+ENG = "Chapter 4 - Eye of the Swarm"
+GER = "Kapitel 4 - Auge des Bösen"
+
+[LEVEL_NAME_5]
+ENG = "Chapter 5 - Crystal Lake"
+GER = "Kapitel 5 - Kristallsee"
+
+[LEVEL_NAME_6]
+ENG = "Chapter 6 - Desolate Plain"
+GER = "Kapitel 6 - Verwüstete Ebene"
+
+[LEVEL_NAME_7]
+ENG = "Chapter 7 - Chamber of Sacrilege"
+GER = "Kapitel 7 - Kammer des Sakrilegium"
+
+[LEVEL_NAME_8]
+ENG = "Chapter 8 - Infernal Trail"
+GER = "Kapitel 8 - Höllischer Pfad"
+
+[LEVEL_NAME_9]
+ENG = "Chapter 9 - Scarlet Oubliette"
+GER = "Kapitel 9 - Blutverschmierter Kerker"
+
+[LEVEL_NAME_10]
+ENG = "Final Chapter - The Deepest Point"
+GER = "Letztes Kapitel - Der tiefste Punkt"
+
+[DIVINE_SIGHT]
+ENG = "Divine Sight"
+GER = "Göttliche Sicht"
+
+[DIVINE_SIGHT_TOOLTIP]
+ENG = "Divine Sight: Uses divine power to temporarily reveal a part of the map."
+GER = "Göttliche Sicht: Benutzt göttliche Macht um kurzzeitig den Nebel des Krieges zu lüften."
+
+[EVIL_GATE_TOOLTIP]
+ENG = "Evil Gate: A hero gate that has been manipulated to spawn enemy creatures by a Keeper. Be careful around these."
+GER = "Manipuliertes Portal: Ein Heldentor, welches durch einen einen Keeper manipuliert wurde, um feindliche Kreaturen zu beschwören."
+
+[HERO_GATE_TOOLTIP]
+ENG = "Hero Gate: Allied heroes can come through this gate."
+GER = "Heldentor: Verbündete Helden können durch diese Portale kommen."
+
+[INACTIVE_GATE_TOOLTIP]
+ENG = "Inactive Gate: A gate that is currently inactive. No creatures can come through it at the moment."
+GER = "Inaktives Portal: Ein Tor, das nicht aktiv ist. Kreaturen können es momentan nicht benutzen."
+
+[LEVEL_NAME_INTERLUDE_1]
+ENG = "Interlude 1 - Freezing Descent"
+GER = "Zwischenstück 1 - Eiskalter Abstieg"
+
+[LEVEL_NAME_INTERLUDE_2]
+ENG = "Interlude 2 - Prison Break"
+GER = "Zwischenstück 2 - Flucht aus dem Kerker"
+
+[LEVEL_NAME_ENDING]
+ENG = "Epilogue - Out of Darkness"
+GER = "Epilog - Aus der Dunkelheit"
+
+[BLACK_CAT]
+ENG = "Black Cat"
+GER = "Schwarze Katze"
+
+[ARACHNOMANCER]
+ENG = "Arachnomancer"
+GER = "Arachnozauberer"
+
+[EXPIRED_CURSE]
+ENG = "Expired Curse"
+GER = "Erloschener Fluch"

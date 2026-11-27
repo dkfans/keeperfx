@@ -1,0 +1,114 @@
+[slab12]
+
+[slab12.S]
+Columns = [818, 818, 818, 887, 818, 818, 818, 887, 818]
+Objects = []
+
+[slab12.W]
+Columns = [818, 818, 887, 887, 818, 818, 818, 818, 818]
+Objects = []
+
+[slab12.N]
+Columns = [818, 818, 887, 887, 887, 818, 818, 887, 818]
+Objects = []
+
+[slab12.E]
+Columns = [818, 887, 887, 887, 818, 818, 818, 818, 887]
+Objects = []
+
+[slab12.SW]
+Columns = [887, 818, 887, 818, 887, 818, 887, 818, 818]
+Objects = []
+
+[slab12.NW]
+Columns = [818, 887, 818, 887, 818, 818, 818, 818, 887]
+Objects = []
+
+[slab12.NE]
+Columns = [818, 887, 818, 887, 818, 887, 818, 887, 818]
+Objects = []
+
+[slab12.SE]
+Columns = [887, 818, 887, 818, 887, 818, 887, 818, 887]
+Objects = []
+
+[slab12.ALL]
+Columns = [818, 818, 818, 887, 818, 887, 818, 818, 818]
+Objects = []
+
+[slab12.S_LAVA]
+Columns = [818, 887, 818, 887, 887, 818, 818, 818, 818]
+Objects = []
+
+[slab12.W_LAVA]
+Columns = [887, 818, 818, 887, 887, 818, 818, 818, 887]
+Objects = []
+
+[slab12.N_LAVA]
+Columns = [818, 818, 887, 887, 818, 818, 818, 818, 818]
+Objects = []
+
+[slab12.E_LAVA]
+Columns = [887, 818, 818, 818, 887, 818, 887, 818, 887]
+Objects = []
+
+[slab12.SW_LAVA]
+Columns = [818, 818, 818, 818, 818, 887, 818, 887, 818]
+Objects = []
+
+[slab12.NW_LAVA]
+Columns = [887, 818, 818, 818, 818, 887, 887, 818, 818]
+Objects = []
+
+[slab12.NE_LAVA]
+Columns = [818, 818, 887, 818, 887, 818, 818, 818, 887]
+Objects = []
+
+[slab12.SE_LAVA]
+Columns = [818, 818, 818, 818, 818, 887, 887, 818, 818]
+Objects = []
+
+[slab12.ALL_LAVA]
+Columns = [818, 887, 818, 818, 887, 818, 887, 818, 887]
+Objects = []
+
+[slab12.S_WATER]
+Columns = [818, 818, 887, 887, 818, 818, 818, 818, 818]
+Objects = []
+
+[slab12.W_WATER]
+Columns = [818, 818, 887, 887, 818, 818, 818, 887, 818]
+Objects = []
+
+[slab12.N_WATER]
+Columns = [887, 818, 818, 818, 887, 887, 818, 818, 818]
+Objects = []
+
+[slab12.E_WATER]
+Columns = [818, 818, 818, 818, 887, 818, 887, 818, 887]
+Objects = []
+
+[slab12.SW_WATER]
+Columns = [818, 887, 818, 887, 818, 818, 818, 887, 818]
+Objects = []
+
+[slab12.NW_WATER]
+Columns = [887, 818, 887, 818, 887, 887, 818, 818, 818]
+Objects = []
+
+[slab12.NE_WATER]
+Columns = [887, 818, 818, 818, 887, 818, 887, 818, 818]
+Objects = []
+
+[slab12.SE_WATER]
+Columns = [818, 818, 887, 887, 887, 818, 818, 818, 818]
+Objects = []
+
+[slab12.ALL_WATER]
+Columns = [818, 818, 818, 818, 887, 818, 818, 887, 818]
+Objects = []
+
+[slab12.CENTER]
+Columns = [887, 818, 818, 887, 887, 818, 887, 818, 887]
+Objects = []
+

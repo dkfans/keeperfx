@@ -1,0 +1,673 @@
+
+# NEW EFFECTS - Starting from 100
+
+[effect200]
+Name = "EFFECT_WORD_OF_AZURE"
+Health = 10
+GenerationType = 1
+GenerationAccelXYRange = [100,100]
+GenerationAccelZRange = [1,1]
+GenerationKindRange = [500,500]
+AreaAffectType = 4
+HitType = 4
+Sound = 178
+AffectedByWind = 1
+LightRadius = 10
+LightIntensity = 52
+LightFlags = 0
+ElementsCount = 20
+AlwaysGenerate = 0
+
+[effect201]
+Name = "EFFECT_SPEED_CANDLE_RADIUS"
+Health = 4
+GenerationType = 1
+GenerationAccelXYRange = [16,16]
+GenerationAccelZRange = [-32,64]
+GenerationKindRange = [501,501]
+AreaAffectType = 0
+HitType = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 7
+LightIntensity = 40
+LightFlags = 0
+ElementsCount = 3
+AlwaysGenerate = 0
+
+[effect202]
+Name = "EFFECT_FLIGHT_CANDLE_RADIUS"
+Health = 4
+GenerationType = 1
+GenerationAccelXYRange = [16,16]
+GenerationAccelZRange = [-32,64]
+GenerationKindRange = [504,504]
+AreaAffectType = 0
+HitType = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 7
+LightIntensity = 40
+LightFlags = 0
+ElementsCount = 3
+AlwaysGenerate = 0
+
+[effect203]
+Name = "EFFECT_HEAL_CANDLE_RADIUS"
+Health = 4
+GenerationType = 1
+GenerationAccelXYRange = [16,16]
+GenerationAccelZRange = [-32,64]
+GenerationKindRange = [502,502]
+AreaAffectType = 0
+HitType = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 7
+LightIntensity = 40
+LightFlags = 0
+ElementsCount = 3
+AlwaysGenerate = 0
+
+[effect204]
+Name = "EFFECT_REBOUND_CANDLE_RADIUS"
+Health = 4
+GenerationType = 1
+GenerationAccelXYRange = [16,16]
+GenerationAccelZRange = [-32,64]
+GenerationKindRange = [501,504]
+AreaAffectType = 0
+HitType = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 7
+LightIntensity = 40
+LightFlags = 0
+ElementsCount = 3
+AlwaysGenerate = 0
+
+[effect205]
+Name = "EFFECT_CANDLE_COLFOUNTN"
+Health = 5
+GenerationType = 1
+GenerationAccelXYRange = [32,32]
+GenerationAccelZRange = [-64,64]
+GenerationKindRange = [501,504]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 1
+AlwaysGenerate = 0
+
+[effect206]
+Name = "EFFECT_WORD_OF_DARKNESS"
+Health = 10
+GenerationType = 1
+GenerationAccelXYRange = [200,200]
+GenerationAccelZRange = [1,1]
+GenerationKindRange = [505,505]
+AreaAffectType = 0
+HitType = 4
+Sound = 178
+AffectedByWind = 1
+LightRadius = 15
+LightIntensity = 40
+LightFlags = 0
+ElementsCount = 15
+AlwaysGenerate = 0
+
+[effect210]
+Name = "EFFECT_EXPLOSION_SILENT"
+Health = 10
+GenerationType = 1
+GenerationAccelXYRange = [172,172]
+GenerationAccelZRange = [-172,172]
+GenerationKindRange = [1,1]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 10
+LightIntensity = 45
+LightFlags = 1
+ElementsCount = 6
+AlwaysGenerate = 0
+
+[effect211]
+Name = "EFFECT_DROP_INTO_LAVA"
+Health = 16
+GenerationType = 1
+GenerationAccelXYRange = [128,128]
+GenerationAccelZRange = [-128,128]
+GenerationKindRange = [26,32]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 147
+AffectedByWind = 0
+LightRadius = 10
+LightIntensity = 45
+LightFlags = 1
+ElementsCount = 2
+AlwaysGenerate = 0
+
+[effect212]
+Name = "EFFECT_BLOOD_RAIN"
+Health = 1
+GenerationType = 1
+GenerationAccelXYRange = [10,10]
+GenerationAccelZRange = [-96,96]
+GenerationKindRange = [84,84]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 2
+AlwaysGenerate = 0
+
+[effect213]
+Name = "EFFECT_LEVEL_DOWN"
+Health = 4
+GenerationType = 1
+GenerationAccelXYRange = [16,16]
+GenerationAccelZRange = [-32,64]
+GenerationKindRange = [101,101]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 3
+AlwaysGenerate = 0
+
+[effect214]
+Name = "EFFECT_CREATE_BLOCK"
+Health = 10
+GenerationType = 1
+GenerationAccelXYRange = [20,150]
+GenerationAccelZRange = [-80,80]
+GenerationKindRange = [26,28]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 10
+LightIntensity = 52
+LightFlags = 0
+ElementsCount = 20
+AlwaysGenerate = 0
+
+[effect215]
+Name = "EFFECT_RUBBLE_WITH_SOUND"
+Health = 3
+GenerationType = 1
+GenerationAccelXYRange = [64,64]
+GenerationAccelZRange = [-96,96]
+GenerationKindRange = [26,28]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 73
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 10
+AlwaysGenerate = 0
+
+[effect216]
+Name = "EFFECT_RUBBLE_WITH_SOUND_TWO"
+Health = 3
+GenerationType = 1
+GenerationAccelXYRange = [64,64]
+GenerationAccelZRange = [-96,96]
+GenerationKindRange = [26,28]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 72
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 10
+AlwaysGenerate = 0
+
+[effect217]
+Name = "EFFECT_RUBBLE_WITH_SOUND_VERTICAL"
+Health = 3
+GenerationType = 1
+GenerationAccelXYRange = [-30,30]
+GenerationAccelZRange = [100,500]
+GenerationKindRange = [26,28]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 77
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 7
+AlwaysGenerate = 0
+
+[effect218]
+Name = "EFFECT_RUBBLE_VERTICAL"
+Health = 3
+GenerationType = 1
+GenerationAccelXYRange = [-30,30]
+GenerationAccelZRange = [100,500]
+GenerationKindRange = [26,28]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 7
+AlwaysGenerate = 0
+
+[effect219]
+Name = "EFFECT_BOULDER_BREAK_WATER_CHANGED"
+Health = 8
+GenerationType = 1
+GenerationAccelXYRange = [20,150]
+GenerationAccelZRange = [-80,80]
+GenerationKindRange = [27,28]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 73
+AffectedByWind = 1
+LightRadius = 10
+LightIntensity = 52
+LightFlags = 0
+ElementsCount = 8
+AlwaysGenerate = 0
+
+[effect221]
+Name = "EFFECT_TENTACLE_SPLASH"
+Health = 3
+GenerationType = 1
+GenerationAccelXYRange = [-80,80]
+GenerationAccelZRange = [100,300]
+GenerationKindRange = [29,29]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 36
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 7
+AlwaysGenerate = 0
+
+[effect222]
+Name = "EFFECT_WORD_OF_LIGHT"
+Health = 10
+GenerationType = 1
+GenerationAccelXYRange = [200,200]
+GenerationAccelZRange = [1,1]
+GenerationKindRange = [506,506]
+AreaAffectType = 0
+HitType = 4
+Sound = 178
+AffectedByWind = 1
+LightRadius = 15
+LightIntensity = 40
+LightFlags = 0
+ElementsCount = 15
+AlwaysGenerate = 0
+
+[effect223]
+Name = "EFFECT_GOLD_RUBBLE_ABYSS"
+Health = 4
+GenerationType = 1
+GenerationAccelXYRange = [200,200]
+GenerationAccelZRange = [1,1]
+GenerationKindRange = [49,51]
+AreaAffectType = 0
+HitType = 0
+Sound = 73
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 8
+AlwaysGenerate = 0
+
+[effect224]
+Name = "EFFECT_WATER_SPLASH_ABYSS"
+Health = 8
+GenerationType = 1
+GenerationAccelXYRange = [20,150]
+GenerationAccelZRange = [-80,80]
+GenerationKindRange = [507,508]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 36
+AffectedByWind = 1
+LightRadius = 10
+LightIntensity = 52
+LightFlags = 0
+ElementsCount = 15
+AlwaysGenerate = 0
+
+#####################################################################################################
+# NEW EFFECT ELEMENTS
+#####################################################################################################
+
+[effectElement500]
+Name = "EFFECTELEMENT_WOP_BLUE"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = 864
+SpriteSize = [100,400]
+RenderFlags = 1
+SpriteSpeed = [160,160]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+MovementFlags = 0
+SizeChange = 2
+FallAcceleration = 10
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement501]
+Name = "EFFECTELEMENT_CANDLEFLAME_BLUE"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = 864
+SpriteSize = [50,256]
+RenderFlags = 1
+SpriteSpeed = [160,160]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+MovementFlags = 0
+SizeChange = 2
+FallAcceleration = 10
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement502]
+Name = "EFFECTELEMENT_CANDLEFLAME_RED"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = 863
+SpriteSize = [50,256]
+RenderFlags = 1
+SpriteSpeed = [160,160]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+MovementFlags = 0
+SizeChange = 2
+FallAcceleration = 10
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement503]
+Name = "EFFECTELEMENT_CANDLEFLAME_GREEN"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = 865
+SpriteSize = [50,256]
+RenderFlags = 1
+SpriteSpeed = [160,160]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+MovementFlags = 0
+SizeChange = 2
+FallAcceleration = 10
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement504]
+Name = "EFFECTELEMENT_CANDLEFLAME_YELLOW"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = 866
+SpriteSize = [50,256]
+RenderFlags = 1
+SpriteSpeed = [160,160]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+MovementFlags = 0
+SizeChange = 2
+FallAcceleration = 10
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement505]
+Name = "EFFECTELEMENT_WOP_BLACK"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = "ROOMFLAME_BLACK"
+SpriteSize = [200,600]
+RenderFlags = 1
+SpriteSpeed = [100,100]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+MovementFlags = 0
+SizeChange = 2
+FallAcceleration = 10
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement506]
+Name = "EFFECTELEMENT_WOP_WHITE"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = "ROOMFLAME_WHITE"
+SpriteSize = [200,600]
+RenderFlags = 1
+SpriteSpeed = [100,100]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+MovementFlags = 0
+SizeChange = 2
+FallAcceleration = 10
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement507]
+Name = "EFFECTELEMENT_DRIP_NEW_1"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [30,40]
+AnimationId = 827
+SpriteSize = [122,142]
+AnimateOnce = 0
+SpriteSpeed = [192,256]
+AnimateOnFloor = false
+Unshaded = false
+Transparent = 2
+ThroughWalls = 0
+SizeChange = 0
+FallAcceleration = 10
+InertiaFloor = 102
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = true
+Impacts = true
+SolidGroundEffmodel = 19
+SolidGroundSoundId = 36
+SolidGroundLoudness = 80
+SolidGroundDestroyOnImpact = true
+WaterEffmodel = 19
+WaterSoundId = 36
+WaterLoudness = 80
+WaterDestroyOnImpact = true
+LavaEffmodel = 0
+LavaSoundId = 0
+LavaLoudness = 256
+LavaDestroyOnImpact = true
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement508]
+Name = "EFFECTELEMENT_DRIP_NEW_2"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = 828
+SpriteSize = [250,300]
+AnimateOnce = 1
+SpriteSpeed = [128,128]
+AnimateOnFloor = true
+Unshaded = false
+Transparent = 0
+ThroughWalls = 0
+SizeChange = 0
+FallAcceleration = 0
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 0
+
+#####################################################################################################
+# Effect generators
+#####################################################################################################
+
+[effectGenerator2]
+Name = "EFFECTGENERATOR_DRIPPING_WATER"
+GenerationDelayMin = 10
+GenerationDelayMax = 20
+
+[effectGenerator202]
+Name = "EFFECTGENERATOR_BLOOD_RAIN"
+GenerationDelayMin = 15
+GenerationDelayMax = 25
+GenerationAmount = 1
+EffectModel = "EFFECT_BLOOD_RAIN"
+IgnoreTerrain = 0
+SpawnHeight = 2000
+AccelerationMin = [0,0,0]
+AccelerationMax = [0,0,0]
+Sound = [0,0]
+
+[effectGenerator203]
+Name = "EFFECTGENERATOR_BLOOD_RAIN_UNALTERED"
+GenerationDelayMin = 0
+GenerationDelayMax = 0
+GenerationAmount = 5
+EffectModel = "EFFECT_BLOOD_HIT"
+IgnoreTerrain = 0
+SpawnHeight = -1
+AccelerationMin = [0,0,0]
+AccelerationMax = [0,0,0]
+Sound = [0,0]
