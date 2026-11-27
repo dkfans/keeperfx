@@ -985,9 +985,6 @@ void init_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (flag_is_set(replay.head.players_keeper, to_flag(i))) {
-            player->player_type = PT_Keeper;
-        }
         if (flag_is_set(replay.head.players_exist, to_flag(i)))
             player->allocflags |= PlaF_Allocated;
         else

@@ -1504,12 +1504,11 @@ void setup_computer_player(int plr_idx)
 {
     SYNCDBG(5,"Starting for player %d",plr_idx);
     struct Thing* thing = find_players_dungeon_heart(plr_idx); // cannot use player->id_number, as it isn't set yet
-    if (thing_exists(thing))
-    {
-        if (script_support_setup_player_as_computer_keeper(plr_idx, 0))
+    if (!player_is_neutral(plr_idx) && thing_exists(thing)) {
+        if (script_support_setup_player_as_computer_keeper(plr_idx, 0)) {
             get_player(plr_idx)->allocflags |= PlaF_Seat;
-    } else
-    {
+        }
+    } else {
         script_support_setup_player_as_zombie_keeper(plr_idx);
     }
 }
