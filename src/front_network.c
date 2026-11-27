@@ -299,7 +299,7 @@ static TbBool lobby_seat_available(PlayerNumber colour)
 
 TbBool net_lobby_has_hero_seat(LevelNumber lvnum)
 {
-    if (!network_is_active() && !frontnet_service_selected(FrontendNetSvc_Skirmish)) {
+    if (!network_is_active() && !frontnet_service_selected(FrontendNetSvc_Skirmish) && !AssignCpuKeepers && !campaign.assignCpuKeepers) {
         return false;
     }
     return lobby_level_seats(lvnum) == MAX_NET_USERS;
