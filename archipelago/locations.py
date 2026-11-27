@@ -181,8 +181,16 @@ for entry in (enums.KeeperGoodTempleLocations, enums.KeeperBadTempleLocations, e
         location_code += 1
         LOCATION_NAME_TO_ID[get_val(recipe)] = location_code
 
+# Base creatures (12001-12016), Imp (12017), FX creatures (12018 onwards)
 location_code = 12000
-for entry in ((enums.KeeperImpName, enums.KeeperTunnellerName, enums.KeeperKnightName, enums.KeeperAvatarName), enums.KeeperCreatureName, enums.KeeperFXCreatureName, enums.KeeperHeroName, enums.KeeperFXHeroName):
+for entry in (enums.KeeperCreatureName, (enums.KeeperImpName,), enums.KeeperFXCreatureName):
+    for creature in entry:
+        location_code += 1
+        LOCATION_NAME_TO_ID[f"{enums.ATTRACT}{creature}"] = location_code
+
+# Base heroes (12101-12110), Tunneller, Knight, Avatar (12111-12113), FX heroes (12114 onwards)
+location_code = 12100
+for entry in (enums.KeeperHeroName, (enums.KeeperTunnellerName, enums.KeeperKnightName, enums.KeeperAvatarName), enums.KeeperFXHeroName):
     for creature in entry:
         location_code += 1
         LOCATION_NAME_TO_ID[f"{enums.ATTRACT}{creature}"] = location_code
@@ -192,6 +200,8 @@ for room in enums.KeeperRoomName:
     location_code += 1
     LOCATION_NAME_TO_ID[f"{enums.BUILD}{room}"] = location_code
 
+#non_research_spells excluded for now. One day down the line we can look at allowing these to be researched too, but for now let's not :)
+# Base spells (Sight of Evil to Destroy Walls - 14001-14014), FX spells (14015+)
 non_research_spells = {enums.KeeperPowerName.POWER_HAND, enums.KeeperPowerName.POWER_SLAP, enums.KeeperPowerName.POWER_POSSESS, enums.KeeperPowerName.POWER_IMP}
 location_code = 14000
 for entry in (enums.KeeperPowerName, enums.KeeperFXPowerName):
@@ -201,13 +211,19 @@ for entry in (enums.KeeperPowerName, enums.KeeperFXPowerName):
         location_code += 1
         LOCATION_NAME_TO_ID[f"{enums.RESEARCH}{power}"] = location_code
 
+#Base traps (15001-15006), FX traps (15007+)
 location_code = 15000
-for entry in (enums.KeeperTrapName, enums.KeeperDoorName, enums.KeeperFXTrapName, enums.KeeperFXDoorName):
+for entry in (enums.KeeperTrapName, enums.KeeperFXTrapName):
     for item in entry:
         location_code += 1
         LOCATION_NAME_TO_ID[f"{enums.MANUFACTURE}{item}"] = location_code
 
-
+#Base doors (15101-15104), FX doors (15105+)
+location_code = 15100
+for entry in (enums.KeeperDoorName, enums.KeeperFXDoorName):
+    for item in entry:
+        location_code += 1
+        LOCATION_NAME_TO_ID[f"{enums.MANUFACTURE}{item}"] = location_code
 
     #Other checks you can do anywhere
 
