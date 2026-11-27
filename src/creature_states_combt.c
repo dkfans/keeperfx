@@ -2822,6 +2822,21 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     return 1;
 }
 
+static TbBool keep_or_switch_combat_type(struct Thing *creatng, struct Thing *enmtng)
+{
+    CrAttackType attack_type = check_for_valid_combat(creatng, enmtng);
+    if (combat_type_is_choice_of_creature(creatng, attack_type)) {
+        return true;
+    }
+    SYNCDBG(9,"Current combat type %d is not choice of %s index %d",(int)attack_type,thing_model_name(creatng),(int)creatng->index);
+    if (attack_type > AttckT_Unset) {
+        change_current_combat(creatng, enmtng, attack_type);
+    } else {
+        set_start_state(creatng);
+    }
+    return false;
+}
+
 void creature_in_combat_wait(struct Thing *creatng)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
@@ -2848,10 +2863,7 @@ void creature_in_combat_wait(struct Thing *creatng)
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    long cmbtyp = check_for_valid_combat(creatng, enmtng);
-    if ( !combat_type_is_choice_of_creature(creatng, cmbtyp) ) {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
-        set_start_state(creatng);
+    if (!keep_or_switch_combat_type(creatng, enmtng)) {
         return;
     }
     long dist = get_combat_distance(creatng, enmtng);
@@ -2871,11 +2883,7 @@ void creature_in_ranged_combat(struct Thing *creatng)
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    long cmbtyp = check_for_valid_combat(creatng, enmtng);
-    if (!combat_type_is_choice_of_creature(creatng, cmbtyp))
-    {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
-        set_start_state(creatng);
+    if (!keep_or_switch_combat_type(creatng, enmtng)) {
         return;
     }
     // If the creature has self buff, prefer it to weapon.
@@ -2924,11 +2932,7 @@ void creature_in_melee_combat(struct Thing *creatng)
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    CrAttackType attack_type = check_for_valid_combat(creatng, enmtng);
-    if (!combat_type_is_choice_of_creature(creatng, attack_type))
-    {
-        SYNCDBG(9,"Current combat type %d is not choice of %s index %d",(int)attack_type,thing_model_name(creatng),(int)creatng->index);
-        set_start_state(creatng);
+    if (!keep_or_switch_combat_type(creatng, enmtng)) {
         return;
     }
     long dist = get_combat_distance(creatng, enmtng);
