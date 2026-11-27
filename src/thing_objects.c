@@ -221,6 +221,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
 
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
+    update_navigation_around_barrier(thing);
 
     thing->flags = 0;
     thing->flags |= objst->rotation_flag << TAF_ROTATED_SHIFT;
@@ -270,7 +271,7 @@ TbBool object_can_be_damaged (const struct Thing* thing)
     //todo make this an object property. Then include the possibility to kill the other object types.
     if (thing->class_id != TCls_Object)
         return false;
-    if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing))
+    if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing) || object_is_destructible(thing))
         return true;
     return false;
 }
@@ -305,6 +306,7 @@ void change_object_owner(struct Thing *objtng, PlayerNumber nowner)
     //TODO make this function more advanced - switch object types and update dungeon and rooms for spellbook/workshop box/lair
     SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(objtng),(int)objtng->owner,(int)nowner);
     objtng->owner = nowner;
+    update_navigation_around_barrier(objtng);
 }
 
 /**
@@ -580,6 +582,14 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
         return true;
 
     return false;
+}
+
+TbBool object_is_destructible(const struct Thing* thing)
+{
+    if (!thing_is_object(thing)) {
+        return false;
+    }
+    return (get_object_model_stats(thing->model)->destructible != 0);
 }
 
 /**

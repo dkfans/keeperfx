@@ -63,6 +63,13 @@ const struct NamedCommand objects_properties_commands[] = {
   {NULL,                      0},
   };
 
+const struct NamedCommand collision_flags_commands[] = {
+  {"BLOCK_CREATURES",         TCF_BlockCreatures      },
+  {"BLOCK_SHOTS",             TCF_BlockShots          },
+  {"BLOCK_SIGHT",             TCF_BlockSight          },
+  {NULL,                      0},
+  };
+
 const struct NamedCommand objects_genres_desc[] = {
   {"NONE",            OCtg_None},
   {"DECORATION",      OCtg_Decoration},
@@ -86,6 +93,7 @@ static const struct NamedField objects_named_fields[] = {
     {"GENRE",                    0, field_t(struct ObjectConfigStats, genre),                         0, INT32_MIN,UINT32_MAX, objects_genres_desc,         value_default,   assign_default},
     {"RELATEDCREATURE",          0, field_t(struct ObjectConfigStats, related_creatr_model),          0, INT32_MIN,UINT32_MAX, creature_desc,               value_default,   assign_default},
     {"PROPERTIES",              -1, field_t(struct ObjectConfigStats, model_flags),                   0, INT32_MIN,UINT32_MAX, objects_properties_commands, value_flagsfield,assign_default},
+    {"COLLISION",               -1, field_t(struct ObjectConfigStats, collision_flags),               0, INT32_MIN,UINT32_MAX, collision_flags_commands,    value_flagsfield,assign_default},
     {"ANIMATIONID",              0, field_t(struct ObjectConfigStats, sprite_anim_idx),               0, INT32_MIN,UINT32_MAX, NULL,                        value_animid,    assign_animid},
     {"HANDANIMATIONID",          0, field_t(struct ObjectConfigStats, sprite_anim_idx_in_hand),       0, INT32_MIN,UINT32_MAX, NULL,                        value_animid,    assign_animid},
     {"ANIMATIONSPEED",           0, field_t(struct ObjectConfigStats, anim_speed),                    0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
@@ -96,6 +104,7 @@ static const struct NamedField objects_named_fields[] = {
     {"DESTROYONLIQUID",          0, field_t(struct ObjectConfigStats, destroy_on_liquid),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"DESTROYONLAVA",            0, field_t(struct ObjectConfigStats, destroy_on_lava),               0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"HEALTH",                   0, field_t(struct ObjectConfigStats, health),                        0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"DESTRUCTIBLE",             0, field_t(struct ObjectConfigStats, destructible),                  0,         0,         1, NULL,                        value_default,   assign_default},
     {"FALLACCELERATION",         0, field_t(struct ObjectConfigStats, fall_acceleration),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"INERTIA",                  0, field_t(struct ObjectConfigStats, inertia_floor),               204, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"INERTIA",                  1, field_t(struct ObjectConfigStats, inertia_air),                  51, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},

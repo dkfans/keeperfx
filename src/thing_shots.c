@@ -802,6 +802,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     {
         destroy_food(target);
     } else
+    if (!object_is_destructible(target))
     {
         WARNLOG("Killing %s by %s is not supported",thing_model_name(target),thing_model_name(shotng));
     }
@@ -823,6 +824,14 @@ void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
     } else {
         shooter->health = max_health;
     }
+}
+
+static TbBool shot_hit_type_allows_damage(const struct Thing *shotng, const struct Thing *target)
+{
+    if (!barrier_blocks(target, TCF_BlockShots)) {
+        return true;
+    }
+    return thing_is_shootable(target, shotng->owner, hit_type_to_hit_targets(shotng->shot.hit_type));
 }
 
 static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struct Coord3d* pos)
@@ -849,8 +858,9 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (shotng->shot.damage)
     {
 
-        if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
-        {
+        short destructible = thing_is_destructible_trap(target);
+        TbBool disarms = (destructible >= 0) && flag_is_set(shotst->model_flags, ShMF_Disarming);
+        if (disarms || ((destructible > 0) && shot_hit_type_allows_damage(shotng, target))) {
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
 
             // Drain allows caster to regain half of damage
@@ -934,7 +944,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
-        if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
+        if (object_can_be_damaged(target) && shot_hit_type_allows_damage(shotng, target)) // do not damage objects that cannot be destroyed
         {
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
 
@@ -1498,6 +1508,9 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
 
 HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
 {
+    if (barrier_blocks(thing, TCF_BlockShots)) {
+        return true;
+    }
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
         shot_owner = parntng->owner;

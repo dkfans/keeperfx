@@ -192,6 +192,7 @@ TbBool thing_is_lair_totem(const struct Thing *thing);
 TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole);
 TbBool object_can_be_damaged(const struct Thing* thing);
+TbBool object_is_destructible(const struct Thing* thing);
 TbBool object_is_buoyant(const struct Thing* thing);
 TbBool thing_is_hardcoded_special_box(const struct Thing* thing);
 TbBool thing_is_custom_special_box(const struct Thing* thing);

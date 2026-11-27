@@ -195,6 +195,9 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 
 long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
+    if (barrier_blocks(enmtng, TCF_BlockCreatures)) {
+        return get_combat_distance_to_barrier(thing, enmtng);
+    }
     long dist = get_2d_distance(&thing->mappos, &enmtng->mappos);
     if (!((enmtng->class_id == TCls_Door) || (thing->class_id == TCls_Door))) // Doors are positioned at the ceiling, with special code to hit them lower.
     {
@@ -1447,7 +1450,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
     }
     struct CreatureControl* enmcctrl = creature_control_get_from_thing(enmtng);
     if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door)
-        && (thing_is_destructible_trap(enmtng) <= 0) && !((thing_is_destructible_trap(enmtng) >= 0) && creature_has_disarming_weapon(thing))) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
+        && !creature_can_damage_trap(thing, enmtng)) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
     {
         if (!(thing_is_deployed_trap(enmtng) && (enmtng->trap.num_shots <= 0))) //No error needed when trap fired it's final shot
         {
@@ -1469,7 +1472,7 @@ short creature_door_combat(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!combat_enemy_exists(creatng, doortng) || (doortng->active_state == DorSt_Open))
+    if (!combat_enemy_exists(creatng, doortng) || thing_is_picked_up(doortng) || (thing_is_deployed_door(doortng) && (doortng->active_state == DorSt_Open)))
     {
         check_map_explored(creatng, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         set_start_state(creatng);
@@ -2819,6 +2822,21 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     return 1;
 }
 
+static TbBool keep_or_switch_combat_type(struct Thing *creatng, struct Thing *enmtng)
+{
+    CrAttackType attack_type = check_for_valid_combat(creatng, enmtng);
+    if (combat_type_is_choice_of_creature(creatng, attack_type)) {
+        return true;
+    }
+    SYNCDBG(9,"Current combat type %d is not choice of %s index %d",(int)attack_type,thing_model_name(creatng),(int)creatng->index);
+    if (attack_type > AttckT_Unset) {
+        change_current_combat(creatng, enmtng, attack_type);
+    } else {
+        set_start_state(creatng);
+    }
+    return false;
+}
+
 void creature_in_combat_wait(struct Thing *creatng)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
@@ -2845,10 +2863,7 @@ void creature_in_combat_wait(struct Thing *creatng)
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    long cmbtyp = check_for_valid_combat(creatng, enmtng);
-    if ( !combat_type_is_choice_of_creature(creatng, cmbtyp) ) {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
-        set_start_state(creatng);
+    if (!keep_or_switch_combat_type(creatng, enmtng)) {
         return;
     }
     long dist = get_combat_distance(creatng, enmtng);
@@ -2868,11 +2883,7 @@ void creature_in_ranged_combat(struct Thing *creatng)
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    long cmbtyp = check_for_valid_combat(creatng, enmtng);
-    if (!combat_type_is_choice_of_creature(creatng, cmbtyp))
-    {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
-        set_start_state(creatng);
+    if (!keep_or_switch_combat_type(creatng, enmtng)) {
         return;
     }
     // If the creature has self buff, prefer it to weapon.
@@ -2921,11 +2932,7 @@ void creature_in_melee_combat(struct Thing *creatng)
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    CrAttackType attack_type = check_for_valid_combat(creatng, enmtng);
-    if (!combat_type_is_choice_of_creature(creatng, attack_type))
-    {
-        SYNCDBG(9,"Current combat type %d is not choice of %s index %d",(int)attack_type,thing_model_name(creatng),(int)creatng->index);
-        set_start_state(creatng);
+    if (!keep_or_switch_combat_type(creatng, enmtng)) {
         return;
     }
     long dist = get_combat_distance(creatng, enmtng);
@@ -3277,6 +3284,12 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     return true;
 }
 
+TbBool creature_can_damage_trap(const struct Thing* creatng, const struct Thing* traptng)
+{
+    short destructible = thing_is_destructible_trap(traptng);
+    return (destructible > 0) || ((destructible >= 0) && creature_has_disarming_weapon(creatng));
+}
+
 struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, could be expanded to non-trap objects
 {
     long m = THING_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
@@ -3285,7 +3298,7 @@ struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, c
         MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
         MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
         struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
+        if (creature_can_damage_trap(thing, trpthing))
         {
             if (players_are_enemies(thing->owner, trpthing->owner))
             {
@@ -3379,6 +3392,9 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     long i;
     TRACE_THING(figtng);
     TRACE_THING(enmtng);
+    if (barrier_blocks(enmtng, TCF_BlockCreatures)) {
+        return Lb_FAIL;
+    }
 
     struct CreatureControl* figctrl = creature_control_get_from_thing(figtng);
     MapCoordDelta dist_x = enmtng->mappos.x.val - (MapCoordDelta)figtng->mappos.x.val;

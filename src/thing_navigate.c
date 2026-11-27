@@ -109,8 +109,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
             spiral_pos.x.val = (stl_x << 8) + 128;
             spiral_pos.y.val = (stl_y << 8) + 128;
             spiral_pos.z.val = get_floor_height_at(&spiral_pos);
-            if ( !thing_in_wall_at(thing, &spiral_pos) )
-            {
+            if (!thing_in_wall_at(thing, &spiral_pos) && !creature_in_barrier_at(thing, &spiral_pos)) {
                 pos->x.val = spiral_pos.x.val;
                 pos->y.val = spiral_pos.y.val;
                 pos->z.val = spiral_pos.z.val;
@@ -354,7 +353,7 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
         ERRORLOG("%s: Attempt to move deleted thing", func_name);
         return;
     }
-    if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
+    if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num) && !barrier_blocks(thing, TCF_BlockCreatures))
     {
         SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
             (int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)pos->x.val,(int)pos->y.val);
@@ -366,10 +365,12 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
         SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d), subtile changed",thing_model_name(thing),
             (int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)pos->x.val,(int)pos->y.val);
         remove_thing_from_mapwho(thing);
+        update_navigation_around_barrier(thing);
         thing->mappos.x.val = pos->x.val;
         thing->mappos.y.val = pos->y.val;
         thing->mappos.z.val = pos->z.val;
         place_thing_in_mapwho(thing);
+        update_navigation_around_barrier(thing);
     }
     thing->floor_height = get_thing_height_at(thing, &thing->mappos);
 }

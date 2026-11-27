@@ -833,6 +833,7 @@ void process_trap_charge(struct Thing* traptng)
         traptng->trap.num_shots = n - 1;
         if (traptng->trap.num_shots == 0)
         {
+            update_navigation_around_barrier(traptng);
             // If the trap is in strange location, destroy it after it's depleted.
             struct SlabMap* slb = get_slabmap_thing_is_on(traptng);
             if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
@@ -910,6 +911,7 @@ TbBool rearm_trap(struct Thing *traptng)
 {
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     traptng->trap.num_shots = trapst->shots;
+    update_navigation_around_barrier(traptng);
 
     clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
     set_flag(traptng->rendering_flags, trapst->transparency_flag);
@@ -921,6 +923,7 @@ void set_trap_shots(struct Thing *traptng, int shots)
 {
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     traptng->trap.num_shots = shots;
+    update_navigation_around_barrier(traptng);
     if (shots > 0)
     {
         clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);

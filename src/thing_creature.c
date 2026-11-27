@@ -2628,6 +2628,16 @@ TngUpdateRet process_creature_state(struct Thing *thing)
             }
         }
     }
+    if (cctrl->collided_barrier_idx != 0) {
+        struct Thing* barrier = thing_get(cctrl->collided_barrier_idx);
+        cctrl->collided_barrier_idx = 0;
+        if (((cctrl->combat_flags & CmbtF_DoorFight) == 0) && ((cctrl->creature_control_flags & CCFlg_NoCompControl) == 0)
+            && (thing->owner != PLAYER_NEUTRAL) && barrier_blocks(barrier, TCF_BlockCreatures) && !players_are_mutual_allies(thing->owner, barrier->owner)
+            && (creature_can_damage_trap(thing, barrier) || object_is_destructible(barrier))
+            && can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat)) {
+            set_creature_door_combat(thing, barrier);
+        }
+    }
     KFX_C_ZONE_END(ctx_doors);
 
     KFX_C_ZONE_BEGIN_COLOR(ctx_group, "CreatureAI: GroupLeader", KFX_COLOR_AI);
@@ -2857,7 +2867,7 @@ void update_tunneller_trail(struct Thing *thing)
     cctrl->party.member_pos_stl[0] = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
 }
 
-TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, TbBool collide_with_doors)
+TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, TbBool record_collisions)
 {
     int32_t velo_x = thing->velocity.x.val;
     int32_t velo_y = thing->velocity.y.val;
@@ -2873,6 +2883,10 @@ TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, Tb
     nxpos->x.val = clamp(velo_x, -MAX_VELOCITY, MAX_VELOCITY) + thing->mappos.x.val;
     nxpos->y.val = clamp(velo_y, -MAX_VELOCITY, MAX_VELOCITY) + thing->mappos.y.val;
     nxpos->z.val = clamp(velo_z, -MAX_VELOCITY, MAX_VELOCITY) + thing->mappos.z.val;
+    struct Thing* barrier = slide_creature_against_barrier_at(thing, nxpos);
+    if (record_collisions && !thing_is_invalid(barrier)) {
+        creature_control_get_from_thing(thing)->collided_barrier_idx = barrier->index;
+    }
     if (!thing_in_wall_at(thing, nxpos) || creature_can_pass_through_wall_at(thing, nxpos)) {
         return true;
     }
@@ -2881,7 +2895,7 @@ TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, Tb
         return true;
     }
     const int32_t blocked_flags = get_creature_blocked_flags_at(thing, nxpos);
-    if (collide_with_doors && (creature_control_get_from_thing(thing)->collided_door_subtile == 0)) {
+    if (record_collisions && (creature_control_get_from_thing(thing)->collided_door_subtile == 0)) {
         check_for_door_collision_at(thing, nxpos, blocked_flags);
     }
     slide_thing_against_wall_at(thing, nxpos, blocked_flags);
@@ -2907,8 +2921,7 @@ long move_creature(struct Thing *thing)
     pvpos.z.val = tngpos->z.val;
     cctrl->creature_control_flags &= ~CCFlg_RepositionedInWall;
     struct Coord3d nxpos;
-    if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_through_wall_at(thing, &thing->mappos))
-    {
+    if ((thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_through_wall_at(thing, &thing->mappos)) || (thing_has_landed(thing) && creature_in_barrier_at(thing, &thing->mappos))) {
         nxpos.x.val = tngpos->x.val;
         nxpos.y.val = tngpos->y.val;
         nxpos.z.val = tngpos->z.val;

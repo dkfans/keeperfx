@@ -61,6 +61,12 @@ enum ObjectModelFlags {
     OMF_Slappable            = 0x0200, // Object can be slapped
 };
 
+enum ThingCollisionFlags {
+    TCF_BlockCreatures = 0x01,
+    TCF_BlockShots     = 0x02,
+    TCF_BlockSight     = 0x04,
+};
+
 
 /******************************************************************************/
 struct Effects {
@@ -87,6 +93,7 @@ struct FlameProperties {
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     uint32_t model_flags;
+    uint32_t collision_flags;
     int32_t genre;
     int32_t map_icon;
     int32_t hand_icon;
@@ -94,6 +101,7 @@ struct ObjectConfigStats {
     short tooltip_stridx;
     TbBool tooltip_optional;
     HitPoints health;
+    int8_t destructible;
     int8_t fall_acceleration;
     int16_t inertia_floor;
     int16_t inertia_air;
@@ -136,6 +144,7 @@ struct ObjectsConfig {
 extern const struct ConfigFileData keeper_objects_file_data;
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 extern const struct NamedCommand objects_genres_desc[];
+extern const struct NamedCommand collision_flags_commands[];
 
 extern const struct NamedFieldSet objects_named_fields_set;
 /******************************************************************************/

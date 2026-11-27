@@ -3536,7 +3536,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         // Library owns books, specials and candles; only spellbooks require additional code
 
         oldowner = thing->owner;
-        thing->owner = newowner;
+        change_object_owner(thing, newowner);
         if (oldowner != game.neutral_player_num) {
             remove_power_from_player(book_thing_to_power_kind(thing), oldowner);
         }
@@ -3552,7 +3552,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         ThingClass tngclass;
         ThingModel tngmodel;
         oldowner = thing->owner;
-        thing->owner = newowner;
+        change_object_owner(thing, newowner);
         tngclass = crate_thing_to_workshop_item_class(thing);
         tngmodel = crate_thing_to_workshop_item_model(thing);
         remove_workshop_item_from_amount_stored(oldowner, tngclass, tngmodel, WrkCrtF_NoOffmap);
@@ -3572,7 +3572,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
              dungeon = get_dungeon(oldowner);
              dungeon->total_money_owned -= thing->valuable.gold_stored;
          }
-         thing->owner = newowner;
+         change_object_owner(thing, newowner);
          return;
     }
     else if (room_role_matches(room->kind,RoRoF_FoodStorage) && (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)))
@@ -3599,7 +3599,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     if (thing->parent_idx != -1)
     {
         if (parent_idx == thing->parent_idx) {
-            thing->owner = newowner;
+            change_object_owner(thing, newowner);
         }
         return;
     }
@@ -3610,7 +3610,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     }
     if ((game.conf.rules[room->owner].gameplay.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
         // Preserve classic bug - object is claimed with the room
-        thing->owner = newowner;
+        change_object_owner(thing, newowner);
         return;
     }
     // For some object types we've already executed code before; being here means they're on wrong room kind
@@ -3619,7 +3619,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     }
     // Otherwise, changing owner depends on object properties
     if ((objst->model_flags & OMF_ChOwnedOnRoomClaim) != 0) {
-        thing->owner = newowner;
+        change_object_owner(thing, newowner);
         return;
     }
     // No need to change owner - leave the object intact

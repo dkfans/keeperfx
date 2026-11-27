@@ -31,6 +31,7 @@
 #include "config_effects.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
+#include "thing_physics.h"
 #include "creature_graphics.h"
 #include "game_legacy.h"
 #include "engine_arrays.h"
@@ -201,6 +202,9 @@ void delete_thing_structure_f(struct Thing *thing, TbBool deleting_everything, c
     }
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
+    if (!deleting_everything) {
+        update_navigation_around_barrier(thing);
+    }
     remove_thing_as_dungeon_heart(thing);
     if (thing->index > 0) {
         if (thing->index <= SYNCED_THINGS_COUNT) {

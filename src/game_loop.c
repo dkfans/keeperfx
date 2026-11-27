@@ -22,6 +22,7 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "thing_objects.h"
+#include "thing_physics.h"
 #include "room_data.h"
 #include "room_workshop.h"
 #include "map_columns.h"
@@ -312,6 +313,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             // If this is the last heart the player had, finish him
             setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
             player->allied_players = to_flag(player->id_number);
+            update_navigation_around_all_barriers();
             if (game.game_kind == GKind_MultiGame)
                 reveal_whole_map(player);
         }

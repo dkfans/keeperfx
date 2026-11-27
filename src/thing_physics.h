@@ -65,6 +65,15 @@ long get_thing_height_at_xy_with_radius(const struct Thing *thing, const struct 
 long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
 TbBool creature_can_pass_through_wall_at(const struct Thing *thing, const struct Coord3d *pos);
+TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag);
+TbBool barrier_blocks_sight_between(const struct Thing *viewer, const struct Thing *target);
+MapCoordDelta get_combat_distance_to_barrier(const struct Thing *creatng, const struct Thing *barrier);
+PlayerBitFlags get_players_avoiding_barriers_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void refresh_barrier_search_margin(void);
+void update_navigation_around_barrier(const struct Thing *thing);
+void update_navigation_around_all_barriers(void);
+struct Thing *slide_creature_against_barrier_at(struct Thing *creatng, struct Coord3d *pos);
+TbBool creature_in_barrier_at(const struct Thing *creatng, const struct Coord3d *pos);
 long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos);
 long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos);
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,

@@ -588,6 +588,7 @@ TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_
 void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
+    update_navigation_around_barrier(thing);
     if (thing->light_id != 0)
     {
         light_delete_light(thing->light_id);
@@ -602,6 +603,7 @@ void remove_thing_from_limbo(struct Thing *thing)
     thing->alloc_flags &= ~TAlF_IsInLimbo;
     thing->rendering_flags &= ~TRF_Invisible;
     place_thing_in_mapwho(thing);
+    update_navigation_around_barrier(thing);
 }
 
 void draw_power_hand(void)
@@ -1016,8 +1018,13 @@ long gold_being_dropped_on_creature(long plyr_idx, NetUserId user, struct Thing 
 
 void set_dropped_thing_position(struct Thing *droptng, const struct Coord3d *dstpos)
 {
-    droptng->mappos.x.val = dstpos->x.val;
-    droptng->mappos.y.val = dstpos->y.val;
+    struct Coord3d pos = *dstpos;
+    pos.z.val = get_floor_height_at(&pos);
+    if (thing_is_creature(droptng) && creature_in_barrier_at(droptng, &pos)) {
+        get_nearest_valid_position_for_creature_at(droptng, &pos);
+    }
+    droptng->mappos.x.val = pos.x.val;
+    droptng->mappos.y.val = pos.y.val;
     int32_t ceiling_height = get_ceiling_height_at(&droptng->mappos);
     int32_t floor_height = get_floor_height_at(&droptng->mappos);
     int32_t fall_dist = ceiling_height - floor_height;

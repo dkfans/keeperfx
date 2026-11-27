@@ -58,6 +58,7 @@
 #include "player_data.h"
 #include "player_instances.h"
 #include "player_utils.h"
+#include "thing_physics.h"
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
@@ -331,6 +332,7 @@ static void post_init_level(void)
     update_dungeons_scores();
     update_dungeon_generation_speeds();
     init_traps();
+    update_navigation_around_all_barriers();
     init_all_creature_states();
     init_keepers_map_exploration();
     SYNCDBG(9,"Finished");

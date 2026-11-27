@@ -80,7 +80,7 @@ extern unsigned long creature_create_errors;
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 TbBool creature_count_below_map_limit(TbBool temp_creature);
 long move_creature(struct Thing *thing);
-TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, TbBool collide_with_doors);
+TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, TbBool record_collisions);
 void update_creature_move_distance(const struct Thing *thing, struct CreatureControl *cctrl, const struct Coord3d *prevpos);
 int32_t get_foot_creature_has_down(const struct Thing *thing, const struct CreatureControl *cctrl);
 TbBool update_controlled_creature_movement(const struct Thing *thing, struct CreatureControl *cctrl);

@@ -29,8 +29,15 @@
 #include "thing_stats.h"
 #include "thing_list.h"
 #include "thing_navigate.h"
+#include "thing_objects.h"
+#include "thing_traps.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "config_objects.h"
+#include "config_trapdoor.h"
+#include "player_data.h"
+#include "ariadne.h"
+#include "ariadne_update.h"
 #include "config_terrain.h"
 #include "engine_camera.h"
 #include "map_data.h"
@@ -683,6 +690,276 @@ TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const stru
         return allow;
     }
     return false;
+}
+
+struct SubtileArea {
+    MapSubtlCoord x_beg;
+    MapSubtlCoord y_beg;
+    MapSubtlCoord x_end;
+    MapSubtlCoord y_end;
+};
+
+static struct SubtileArea get_subtile_area_around(const struct Coord3d *pos, MapCoordDelta half_size)
+{
+    MapCoordDelta extent = max(half_size, 1);
+    struct SubtileArea area;
+    area.x_beg = coord_subtile(pos->x.val - extent);
+    area.y_beg = coord_subtile(pos->y.val - extent);
+    area.x_end = coord_subtile(pos->x.val + extent - 1);
+    area.y_end = coord_subtile(pos->y.val + extent - 1);
+    return area;
+}
+
+static uint32_t get_collision_flags(const struct Thing *thing)
+{
+    if (thing_is_deployed_trap(thing)) {
+        return get_trap_model_stats(thing->model)->collision_flags;
+    }
+    if (thing_is_object(thing)) {
+        return get_object_model_stats(thing->model)->collision_flags;
+    }
+    return 0;
+}
+
+static MapSubtlDelta barrier_search_margin = -1;
+static GameTurn barrier_search_turn = 0;
+
+void refresh_barrier_search_margin(void)
+{
+    barrier_search_margin = -1;
+    for (ThingModel model = 0; model < game.conf.object_conf.object_types_count; model++) {
+        struct ObjectConfigStats *objst = get_object_model_stats(model);
+        if (objst->collision_flags != 0) {
+            barrier_search_margin = max(barrier_search_margin, objst->size_xy / 2 / COORD_PER_STL + 1);
+        }
+    }
+    for (ThingModel model = 0; model < game.conf.trapdoor_conf.trap_types_count; model++) {
+        struct TrapConfigStats *trapst = get_trap_model_stats(model);
+        if (trapst->collision_flags != 0) {
+            barrier_search_margin = max(barrier_search_margin, trapst->size_xy / 2 / COORD_PER_STL + 1);
+        }
+    }
+    barrier_search_turn = get_gameturn();
+}
+
+TbBool barrier_blocks(const struct Thing *barrier, uint32_t collision_flag)
+{
+    if ((barrier->health < 0) || flag_is_set(barrier->alloc_flags, TAlF_IsInLimbo) || (thing_is_deployed_trap(barrier) && (barrier->trap.num_shots <= 0))) {
+        return false;
+    }
+    return flag_is_set(get_collision_flags(barrier), collision_flag);
+}
+
+MapCoordDelta get_combat_distance_to_barrier(const struct Thing *creatng, const struct Thing *barrier)
+{
+    struct SubtileArea area = get_subtile_area_around(&barrier->mappos, barrier->solid_size_xy / 2);
+    MapCoordDelta gap_x = max(subtile_coord(area.x_beg, 0) - creatng->mappos.x.val, creatng->mappos.x.val - subtile_coord(area.x_end + 1, 0));
+    MapCoordDelta gap_y = max(subtile_coord(area.y_beg, 0) - creatng->mappos.y.val, creatng->mappos.y.val - subtile_coord(area.y_end + 1, 0));
+    return max(max(gap_x, gap_y) + COORD_PER_STL / 2 - creatng->clipbox_size_xy / 2, 0);
+}
+
+static TbBool barrier_overlaps_area(const struct Thing *barrier, const struct SubtileArea *area)
+{
+    struct SubtileArea barrier_area = get_subtile_area_around(&barrier->mappos, barrier->solid_size_xy / 2);
+    return (barrier_area.x_beg <= area->x_end) && (area->x_beg <= barrier_area.x_end)
+        && (barrier_area.y_beg <= area->y_end) && (area->y_beg <= barrier_area.y_end);
+}
+
+static struct Thing *find_barrier_covering_area(const struct SubtileArea *area, TbBool (*accept)(const struct Thing *barrier, void *context), void *context)
+{
+    if (barrier_search_turn != get_gameturn()) {
+        refresh_barrier_search_margin();
+    }
+    if (barrier_search_margin < 0) {
+        return INVALID_THING;
+    }
+    for (MapSubtlCoord stl_y = area->y_beg - barrier_search_margin; stl_y <= area->y_end + barrier_search_margin; stl_y++) {
+        for (MapSubtlCoord stl_x = area->x_beg - barrier_search_margin; stl_x <= area->x_end + barrier_search_margin; stl_x++) {
+            ThingIndex i = get_mapwho_thing_index(get_map_block_at(stl_x, stl_y));
+            while (i != 0) {
+                struct Thing *thing = thing_get(i);
+                if (thing_is_invalid(thing)) {
+                    break;
+                }
+                i = thing->next_on_mapblk;
+                if ((get_collision_flags(thing) != 0) && barrier_overlaps_area(thing, area) && accept(thing, context)) {
+                    return thing;
+                }
+            }
+        }
+    }
+    return INVALID_THING;
+}
+
+static TbBool barrier_blocks_creature(const struct Thing *barrier, void *context)
+{
+    const struct Coord3d *feet_pos = context;
+    return barrier_blocks(barrier, TCF_BlockCreatures) && (feet_pos->z.val <= barrier->mappos.z.val + barrier->solid_size_z);
+}
+
+struct SightLine {
+    const struct Thing *viewer;
+    const struct Thing *target;
+};
+
+static TbBool barrier_crosses_sight_line(const struct Thing *barrier, void *context)
+{
+    const struct SightLine *line = context;
+    if ((barrier == line->target) || !barrier_blocks(barrier, TCF_BlockSight)) {
+        return false;
+    }
+    struct SubtileArea area = get_subtile_area_around(&barrier->mappos, barrier->solid_size_xy / 2);
+    const struct Coord3d *frpos = &line->viewer->mappos;
+    MapCoord eye_z = frpos->z.val + get_creature_eye_height(line->viewer);
+    MapCoordDelta delta_x = line->target->mappos.x.val - frpos->x.val;
+    MapCoordDelta delta_y = line->target->mappos.y.val - frpos->y.val;
+    MapCoordDelta delta_z = line->target->mappos.z.val + line->target->clipbox_size_z - eye_z;
+    int32_t steps = max(abs(delta_x), abs(delta_y)) / (COORD_PER_STL / 4) + 1;
+    for (int32_t step = 0; step <= steps; step++) {
+        MapSubtlCoord stl_x = coord_subtile(frpos->x.val + delta_x * step / steps);
+        MapSubtlCoord stl_y = coord_subtile(frpos->y.val + delta_y * step / steps);
+        MapCoord sight_z = eye_z + delta_z * step / steps;
+        if ((stl_x >= area.x_beg) && (stl_x <= area.x_end) && (stl_y >= area.y_beg) && (stl_y <= area.y_end) && (sight_z <= barrier->mappos.z.val + barrier->solid_size_z)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+TbBool barrier_blocks_sight_between(const struct Thing *viewer, const struct Thing *target)
+{
+    struct SightLine line = {viewer, target};
+    struct SubtileArea area = {
+        min(viewer->mappos.x.stl.num, target->mappos.x.stl.num),
+        min(viewer->mappos.y.stl.num, target->mappos.y.stl.num),
+        max(viewer->mappos.x.stl.num, target->mappos.x.stl.num),
+        max(viewer->mappos.y.stl.num, target->mappos.y.stl.num),
+    };
+    return !thing_is_invalid(find_barrier_covering_area(&area, barrier_crosses_sight_line, &line));
+}
+
+static TbBool collect_players_avoiding_barrier(const struct Thing *barrier, void *context)
+{
+    PlayerBitFlags *players = context;
+    if (!barrier_blocks(barrier, TCF_BlockCreatures)) {
+        return false;
+    }
+    TbBool destructible = (thing_is_destructible_trap(barrier) > 0) || object_is_destructible(barrier);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        if (!destructible || (plyr_idx == game.neutral_player_num) || players_are_mutual_allies(plyr_idx, barrier->owner)) {
+            *players |= to_flag(plyr_idx);
+        }
+    }
+    return false;
+}
+
+PlayerBitFlags get_players_avoiding_barriers_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct SubtileArea area = {stl_x, stl_y, stl_x, stl_y};
+    PlayerBitFlags players = 0;
+    find_barrier_covering_area(&area, collect_players_avoiding_barrier, &players);
+    return players;
+}
+
+void update_navigation_around_barrier(const struct Thing *thing)
+{
+    if (!nav_map_initialised || !flag_is_set(get_collision_flags(thing), TCF_BlockCreatures)) {
+        return;
+    }
+    struct SubtileArea area = get_subtile_area_around(&thing->mappos, thing->solid_size_xy / 2);
+    update_navigation_triangulation(area.x_beg, area.y_beg, area.x_end, area.y_end);
+}
+
+void update_navigation_around_all_barriers(void)
+{
+    const ThingClass barrier_classes[] = {TCls_Object, TCls_Trap};
+    for (size_t n = 0; n < sizeof(barrier_classes) / sizeof(barrier_classes[0]); n++) {
+        ThingIndex i = get_list_for_thing_class(barrier_classes[n])->index;
+        while (i != 0) {
+            struct Thing *thing = thing_get(i);
+            if (thing_is_invalid(thing)) {
+                break;
+            }
+            i = thing->next_of_class;
+            update_navigation_around_barrier(thing);
+        }
+    }
+}
+
+static struct Thing *get_barrier_blocking_creature_at(const struct Thing *creatng, const struct Coord3d *pos)
+{
+    int radius = thing_collision_radius(creatng);
+    struct SubtileArea curr_area = get_subtile_area_around(&creatng->mappos, radius);
+    struct SubtileArea dest_area = get_subtile_area_around(pos, radius);
+    if (memcmp(&curr_area, &dest_area, sizeof(struct SubtileArea)) == 0) {
+        return INVALID_THING;
+    }
+    return find_barrier_covering_area(&dest_area, barrier_blocks_creature, (void *)pos);
+}
+
+TbBool creature_in_barrier_at(const struct Thing *creatng, const struct Coord3d *pos)
+{
+    struct SubtileArea area = get_subtile_area_around(pos, thing_collision_radius(creatng));
+    return !thing_is_invalid(find_barrier_covering_area(&area, barrier_blocks_creature, (void *)pos));
+}
+
+static TbBool barrier_blocks_creature_at(const struct Thing *creatng, MapCoord pos_x, MapCoord pos_y)
+{
+    struct Coord3d pos = creatng->mappos;
+    pos.x.val = pos_x;
+    pos.y.val = pos_y;
+    return !thing_is_invalid(get_barrier_blocking_creature_at(creatng, &pos));
+}
+
+static void sidestep_barrier_at(const struct Thing *creatng, struct Coord3d *pos, int32_t *axis, int32_t creature_axis, int32_t barrier_axis, int32_t step)
+{
+    int32_t direction = 1;
+    if (creature_axis < barrier_axis) {
+        direction = -1;
+    }
+    int32_t unchanged_axis = *axis;
+    *axis = creature_axis + direction * step;
+    if (!barrier_blocks_creature_at(creatng, pos->x.val, pos->y.val)) {
+        return;
+    }
+    *axis = creature_axis - direction * step;
+    if (barrier_blocks_creature_at(creatng, pos->x.val, pos->y.val)) {
+        *axis = unchanged_axis;
+    }
+}
+
+struct Thing *slide_creature_against_barrier_at(struct Thing *creatng, struct Coord3d *pos)
+{
+    struct Thing *barrier = get_barrier_blocking_creature_at(creatng, pos);
+    if (thing_is_invalid(barrier)) {
+        return INVALID_THING;
+    }
+    int32_t step_x = abs(pos->x.val - creatng->mappos.x.val);
+    int32_t step_y = abs(pos->y.val - creatng->mappos.y.val);
+    int32_t blocked_flags = SlbBloF_None;
+    if (barrier_blocks_creature_at(creatng, pos->x.val, creatng->mappos.y.val)) {
+        blocked_flags |= SlbBloF_WalledX;
+    }
+    if (barrier_blocks_creature_at(creatng, creatng->mappos.x.val, pos->y.val)) {
+        blocked_flags |= SlbBloF_WalledY;
+    }
+    if (blocked_flags == SlbBloF_None) {
+        blocked_flags = SlbBloF_WalledY;
+        if (step_y > step_x) {
+            blocked_flags = SlbBloF_WalledX;
+        }
+    }
+    slide_thing_against_wall_at(creatng, pos, blocked_flags);
+    if ((blocked_flags == SlbBloF_WalledX) && (step_y < step_x)) {
+        sidestep_barrier_at(creatng, pos, &pos->y.val, creatng->mappos.y.val, barrier->mappos.y.val, step_x);
+    } else if ((blocked_flags == SlbBloF_WalledY) && (step_x < step_y)) {
+        sidestep_barrier_at(creatng, pos, &pos->x.val, creatng->mappos.x.val, barrier->mappos.x.val, step_y);
+    }
+    if (barrier_blocks_creature_at(creatng, pos->x.val, pos->y.val)) {
+        pos->x.val = creatng->mappos.x.val;
+        pos->y.val = creatng->mappos.y.val;
+    }
+    return barrier;
 }
 
 long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
