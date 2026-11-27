@@ -13,7 +13,13 @@
 #include "kfx/renderer/ir/WorldCommands.h"
 #include "kfx/lense/LensManager.h"
 #include "kfx/renderer/RendererSettings.h"
+#include "kfx/platform/PlatformManager.h"
+#include "kfx/renderer/opengl/core/GLCaps.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
+#include "vidmode.h"
+#include <cstdio>
 #include <cstring>          // memcpy (s_last_palette_rgb8 buffering)
+#include <string>
 #include "post_inc.h"
 
 static IRenderer*   s_active_renderer = nullptr;
@@ -24,6 +30,7 @@ static unsigned short s_draw_flags = 0;
 
 static unsigned char s_last_palette_rgb8[PALETTE_SIZE];
 static bool          s_have_last_palette = false;
+static std::string   s_init_failure_reason;
 
 // Allocate a backend for the requested type, or nullptr if unknown.
 static IRenderer* create_renderer(RendererType type)
@@ -48,7 +55,13 @@ unsigned int RendererGetRequiredWindowFlags(RendererType type)
         // GL presents can bypass the compositor when the window exactly covers a
         // monitor, and a real display mode change does the same, so GL scales
         // into a composited desktop fullscreen window instead.
-        case RENDERER_OPENGL: return KFX_WF_OPENGL | KFX_WF_KEEP_COMPOSITED | KFX_WF_DESKTOP_FULLSCREEN_ONLY;
+        case RENDERER_OPENGL:
+        {
+            unsigned int flags = KFX_WF_OPENGL | KFX_WF_KEEP_COMPOSITED | KFX_WF_DESKTOP_FULLSCREEN_ONLY;
+            if (GLStartupOptions_Get().debug_context)
+                flags |= KFX_WF_GL_DEBUG;
+            return flags;
+        }
         default:               return 0;
     }
 }
@@ -63,6 +76,7 @@ int RendererInit(RendererType type)
 
     if (s_active_renderer != nullptr)
         RendererShutdown();
+    s_init_failure_reason.clear();
 
     RendererType resolved = RendererResolveType(type);
     IRenderer* rend = create_renderer(resolved);
@@ -74,6 +88,8 @@ int RendererInit(RendererType type)
     if (!rend->Init())
     {
         ERRORLOG("Renderer '%s' failed to initialise", rend->GetName());
+        const char* reason = rend->GetInitFailureReason();
+        s_init_failure_reason = reason ? reason : "";
         delete rend;
         return 0;
     }
@@ -83,6 +99,43 @@ int RendererInit(RendererType type)
         s_active_renderer->SetDisplayPalette(s_last_palette_rgb8);
     SYNCDBG(0, "Renderer backend '%s' active", rend->GetName());
     return 1;
+}
+
+const char* RendererGetInitFailureReason(void)
+{
+    return s_init_failure_reason.empty() ? nullptr : s_init_failure_reason.c_str();
+}
+
+void RendererReportSoftwareFallback(const char* reason)
+{
+    GLERR("OpenGL could not start: %s. Switched to the software renderer.", reason);
+    char message[512];
+    snprintf(message, sizeof(message),
+             "OpenGL could not start on this system (%s). Using the software renderer.", reason);
+    error_dialog(__func__, 1, message);
+}
+
+int RendererStartup(RendererType type)
+{
+    const RendererType resolved = RendererResolveType(type);
+    if (RendererInit(resolved))
+        return 1;
+    if (resolved == RENDERER_SOFTWARE)
+        return 0;
+
+    const char* failed = RendererGetInitFailureReason();
+    const std::string reason = failed ? failed : "the graphics driver could not start it";
+
+    RendererShutdown();
+    LbScreenReset(false);
+    PlatformManager_DestroyWindow();
+    // Shown while no window exists, so it can't open behind a fullscreen one.
+    RendererReportSoftwareFallback(reason.c_str());
+
+    requested_renderer_type = RENDERER_SOFTWARE;
+    if (!setup_screen_mode_zero(get_frontend_vidmode()))
+        return 0;
+    return RendererInit(RENDERER_SOFTWARE);
 }
 
 void RendererShutdown(void)
@@ -491,13 +544,6 @@ void RendererClearKeeperSpriteAtlas(void)
         world->ClearKeeperSpriteAtlas();
 }
 
-void RendererPreloadKeeperSpriteAtlas(void)
-{
-    IWorldViewRenderer* world = active_world_renderer();
-    if (world != nullptr)
-        world->PreloadKeeperSpriteAtlas();
-}
-
 void RendererUpdateAnimatedTiles(void)
 {
     IWorldViewRenderer* world = active_world_renderer();
@@ -510,6 +556,17 @@ void RendererSubmitMapFadeStep(TbBool starting, float display_step, float warp_s
 {
     if (s_active_renderer != nullptr)
         s_active_renderer->SubmitMapFadeStep(starting != 0, display_step, warp_scale, ghost_table);
+}
+
+void RendererEndMapFade(void)
+{
+    if (s_active_renderer != nullptr)
+        s_active_renderer->EndMapFade();
+}
+
+TbBool RendererMapFadeUnavailable(void)
+{
+    return (s_active_renderer != nullptr && s_active_renderer->MapFadeUnavailable()) ? 1 : 0;
 }
 
 void RendererBeginOverlayCapture(OverlayCaptureKind kind)

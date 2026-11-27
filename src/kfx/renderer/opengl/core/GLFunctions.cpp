@@ -1,5 +1,5 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
 #include "bflib_basics.h"
 #include "globals.h" // ERRORLOG
 #include "post_inc.h"

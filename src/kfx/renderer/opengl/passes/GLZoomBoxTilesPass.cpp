@@ -6,10 +6,10 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLZoomBoxTilesPass.h"
-#include "kfx/renderer/opengl/GLShaders.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
-#include "kfx/renderer/opengl/GLTileAtlas.h"
+#include "kfx/renderer/opengl/passes/GLZoomBoxTilesPass.h"
+#include "kfx/renderer/opengl/shaders/PassShaders.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
+#include "kfx/renderer/opengl/atlas/GLTileAtlas.h"
 #include "kfx/renderer/TileAtlasPacker.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "engine_textures.h"                // TEXTURE_BLOCKS_COUNT
@@ -102,6 +102,15 @@ void GLZoomBoxTilesPass::Resolve(int screen_w, int screen_h)
     if (!IsActiveRT() || !m_resource_mapper || !m_tile_atlas || !m_tile_atlas->IsInitialized())
         return;
 
+    uint32_t set_mask = 0;
+    for (int i = 0; i < m_rt_cmd.tiles_x * m_rt_cmd.tiles_y; ++i)
+    {
+        const uint16_t tile_id = m_rt_cmd.tile_block_ids[i];
+        if (tile_id != 0xFFFF && tile_id / TEXTURE_BLOCKS_COUNT < TEXTURE_VARIATIONS_COUNT)
+            set_mask |= 1u << (tile_id / TEXTURE_BLOCKS_COUNT);
+    }
+    m_tile_atlas->EnsureSets(set_mask);
+
     const GLProgram* shader_prog = m_resource_mapper->ResolveProgram(m_shader_handle);
     const GLTexture* atlas_tex = m_resource_mapper->ResolveTexture(m_tile_atlas->GetAtlasTextureArray());
     const GLTexture* palette_tex = m_resource_mapper->ResolveTexture(m_palette_tex_handle);
@@ -122,9 +131,11 @@ void GLZoomBoxTilesPass::Resolve(int screen_w, int screen_h)
 
             const int variation  = tile_id / TEXTURE_BLOCKS_COUNT;
             const int tile_local = tile_id % TEXTURE_BLOCKS_COUNT;
+            if (variation >= TEXTURE_VARIATIONS_COUNT || m_tile_atlas->LayerOf(variation) < 0)
+                continue;
             float u0, v0, u1, v1;
             TileAtlasPacker::GetTileUV(tile_local, &u0, &v0, &u1, &v1);
-            const float layer = (float)variation;
+            const float layer = (float)m_tile_atlas->LayerOf(variation);
 
             const float x0 = (float)(m_rt_cmd.dst_x + tx * m_rt_cmd.tile_w);
             const float y0 = (float)(m_rt_cmd.dst_y + ty * m_rt_cmd.tile_h);

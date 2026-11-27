@@ -2,10 +2,20 @@
 #define RENDERER_OPENGL_GLRESOURCEMAPPER_H
 
 #include "kfx/renderer/IGpuResourceMapper.h"
-#include "kfx/renderer/opengl/GLResourceTypes.h"
+#include "kfx/renderer/opengl/core/GLResourceTypes.h"
+#include <functional>
 #include <mutex>
+#include <string>
 #include <vector>
 #include <unordered_set>
+
+/// Video memory the mapper's objects hold, in bytes.
+struct GLMemoryUsage
+{
+    uint64_t asset_bytes  = 0; ///< Textures and targets that don't follow the window size.
+    uint64_t screen_bytes = 0; ///< Window-sized targets.
+    uint64_t buffer_bytes = 0; ///< Geometry buffers at their creation size.
+};
 
 class GLResourceMapper : public IGpuResourceMapper
 {
@@ -32,6 +42,30 @@ public:
     void SetScreenFramebuffer(GLuint fbo) { m_screen_fbo = fbo; }
     GLuint GetScreenFramebuffer() const { return m_screen_fbo; }
 
+    /// @brief Render thread: makes a new texture from desc, lets copy fill it from
+    /// the old one, then swaps it in under the same handle. The old texture is
+    /// freed after this frame. Returns false and keeps the old texture if the
+    /// new one can't be created or copy returns false.
+    bool ReplaceTexture(GpuResourceHandle handle, const GpuTextureDesc& desc,
+                        const std::function<bool(const GLTexture& from, const GLTexture& to)>& copy);
+
+    /// @brief Copies the first `layers` layers of one array texture into another
+    /// of at least the same size, through two framebuffers. False if any layer
+    /// couldn't be copied. Render thread only.
+    static bool CopyArrayLayers(const GLTexture& from, const GLTexture& to, int32_t layers);
+
+    /// @brief Logs once per handle that a draw was skipped because its resource is missing. Render thread only.
+    void ReportSkippedDraw(GpuResourceHandle handle, const char* what);
+
+    /// @brief Current totals. Any thread.
+    GLMemoryUsage GetMemoryUsage();
+
+    /// @brief Bytes a texture of this description takes, all layers.
+    static uint64_t TextureBytes(const GpuTextureDesc& desc);
+
+    /// @brief Debug builds: the next texture created with this debug name fails for real.
+    void SetForceTextureFailure(const char* debug_name) { m_force_fail_texture = debug_name ? debug_name : ""; }
+
 private:
     enum class SlotState : uint8_t { Free, Pending, Realized, Failed };
 
@@ -42,6 +76,8 @@ private:
         uint32_t generation  = 0;
         Desc desc            = {};
         Realized realized    = {};
+        bool     has_previous = false; ///< A reload is pending; previous is still live.
+        Realized previous     = {};
     };
 
     std::vector<Slot<GpuTextureDesc, GLTexture>> m_textures;
@@ -66,6 +102,26 @@ private:
 
     std::mutex m_mutex;
     std::unordered_set<GpuResourceHandle> m_warned_stale;
+    std::unordered_set<GpuResourceHandle> m_warned_skipped;
+    std::string m_force_fail_texture;
+    GLMemoryUsage m_usage; ///< Under m_mutex.
+
+    void account(const GLTexture& texture, bool add);
+    void account(const GLRenderTarget& target, bool add);
+    void account(const GLProgram&, bool) {}
+    void account(const GLGeometryBuffer& buffer, bool add);
+
+    /// @brief Queues the object a pending reload replaced for deferred destroy.
+    template <typename Desc, typename Realized>
+    void DeferPreviousDestroy(Slot<Desc, Realized>& slot, GpuResourceHandle handle, Realized PendingDestroy::* snapshot);
+
+    /// @brief True when handle has a release queued. Caller holds m_mutex.
+    bool IsReleasePending(GpuResourceHandle handle) const;
+
+    /// @brief Creates a pending slot's object; the object a reload replaced is freed either way.
+    template <typename Desc, typename Realized, typename RealizeFn>
+    const Realized* RealizePending(Slot<Desc, Realized>& slot, GpuResourceHandle handle,
+                                   RealizeFn realize, Realized PendingDestroy::* snapshot);
 
     /// @brief Issues the gl* calls to bring a texture into existence.
     /// @param desc Description to realize.

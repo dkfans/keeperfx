@@ -1,10 +1,10 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLUIRenderer.h"
-#include "kfx/renderer/opengl/GLSpriteAtlas.h"
-#include "kfx/renderer/opengl/GLTextRenderer.h"
-#include "kfx/renderer/opengl/GLShaders.h"
-#include "kfx/renderer/opengl/GLFunctions.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/opengl/ui/GLUIRenderer.h"
+#include "kfx/renderer/opengl/atlas/GLSpriteAtlas.h"
+#include "kfx/renderer/opengl/ui/GLTextRenderer.h"
+#include "kfx/renderer/opengl/shaders/UIShaders.h"
+#include "kfx/renderer/opengl/core/GLFunctions.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
 #include "kfx/renderer/ir/UICommands.h"
 #include "kfx/renderer/ir/TextCommands.h"
 #include "kfx/renderer/RendererManager.h"
@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstring>
 #include <unordered_set>
+#include "kfx/renderer/opengl/core/GLLog.h"
 #include "post_inc.h"
 
 namespace {
@@ -343,9 +344,10 @@ void GLUIRenderer::DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units
     SpriteUV uv;
     if (!m_atlas || !m_atlas->GetUV(glyph, uv))
     {
+        // Packed but not on the GPU until the next frame: draws then, no need to log.
         static std::unordered_set<SpriteHandle> s_logged;
-        if (m_atlas && s_logged.insert(glyph).second)
-            WARNLOG("GLUIRenderer::DrawGlyphQuad: GetUV(handle=%u) failed -- glyph/cursor not in atlas", (unsigned)glyph);
+        if (m_atlas && !m_atlas->Contains(glyph) && s_logged.insert(glyph).second)
+            GLWARN("Interface sprite %u isn't in the sprite atlas, so it isn't drawn.", (unsigned)glyph);
         return;
     }
     float w = uv.pixel_w * units_per_px / 16.0f;
@@ -810,19 +812,39 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
     {
         FlushPendingSlabUpload();
         const GLTexture* slab_tex = m_resource_mapper->ResolveTexture(m_slab_tex_handle);
-        if (!slab_tex) return;
+        if (!slab_tex)
+        {
+            if (m_slab_tex_handle != kInvalidGpuResource)
+                m_resource_mapper->ReportSkippedDraw(m_slab_tex_handle, "slab texture draws");
+            return;
+        }
         shader = ResolveShaderId(m_shader_sprite_handle); tex0 = slab_tex->id; bind_palette = true;
         break;
     }
     case PASS_MINIMAP:
     {
         const GLTexture* mm_tex = m_resource_mapper->ResolveTexture(m_minimap_tex_handle);
-        if (!mm_tex) return;
+        if (!mm_tex)
+        {
+            if (m_minimap_tex_handle != kInvalidGpuResource)
+                m_resource_mapper->ReportSkippedDraw(m_minimap_tex_handle, "minimap draws");
+            return;
+        }
         shader = ResolveShaderId(m_shader_sprite_handle); tex0 = mm_tex->id; bind_palette = true;
         break;
     }
     }
-    if (!shader) return;
+    if (!shader)
+    {
+        const GpuResourceHandle shader_handle =
+            pass == PASS_SOLID   ? m_shader_solid_handle
+          : pass == PASS_COLORED ? m_shader_sprite_colored_handle
+          : pass == PASS_REMAP   ? m_shader_remap_handle
+          : pass == PASS_CLUT    ? m_shader_clut_handle
+          :                        m_shader_sprite_handle;
+        m_resource_mapper->ReportSkippedDraw(shader_handle, "interface draws");
+        return;
+    }
 
     std::vector<float> verts;
     verts.reserve(run.size() * 6 * 9);
@@ -873,7 +895,11 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
         glUniform1f(glGetUniformLocation(shader, "u_clut_v"), clut_v);
     }
     const GLGeometryBuffer* batch_geom = m_resource_mapper->ResolveGeometryBuffer(m_batch_geom_handle);
-    if (!batch_geom) return;
+    if (!batch_geom)
+    {
+        m_resource_mapper->ReportSkippedDraw(m_batch_geom_handle, "interface draws");
+        return;
+    }
     glBindVertexArray(batch_geom->vao);
     glBindBuffer(GL_ARRAY_BUFFER, batch_geom->vbo);
     // Orphan + refill: avoids the driver stalling this frame's batch on last

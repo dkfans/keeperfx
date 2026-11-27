@@ -45,6 +45,7 @@ public:
 
     bool SetWindowTitle(const char* /*title*/) override;
     void ShowWindow() override;
+    void DestroyWindow() override;
     std::unique_ptr<IGLContext> CreateGLContext() override;
 
     // ----- Display info -----

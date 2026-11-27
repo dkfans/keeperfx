@@ -18,6 +18,8 @@
 #include "kfx/renderer/RendererManager.h"
 #include "kfx/renderer/RendererSettings.h"
 #include "kfx/renderer/RendererThread.h"
+#include "kfx/renderer/opengl/core/GLCaps.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -1723,6 +1725,9 @@ static short process_command_line(unsigned short argc, char *argv[])
   level_num = LEVELNUMBER_ERROR;
   TbBool one_player_mode = 0;
   narg = 1;
+#ifndef NDEBUG
+  GLStartupOptions_Get().debug_context = true;
+#endif
   char bad_params[TEXT_BUFFER_LENGTH] = "\0";
   while ( narg < argc )
   {
@@ -1760,6 +1765,32 @@ static short process_command_line(unsigned short argc, char *argv[])
       {
         start_params.overrides[Clo_Renderer] = true;
         start_params.renderer_type = RENDERER_OPENGL;
+      } else
+      if (strcasecmp(parstr, "gldebug") == 0)
+      {
+        GLStartupOptions_Get().debug_context = true;
+      } else
+      if (strcasecmp(parstr, "glfail") == 0)
+      {
+#ifndef NDEBUG
+        if (!GLStartupOptions_ParseFailStage(pr2str, &GLStartupOptions_Get().fail))
+            GLWARN("Unknown -glfail stage \"%s\"; use context, version, limits, shader or texture.", pr2str);
+#else
+        GLWARN("-glfail works only in debug builds; ignored.");
+#endif
+        narg++;
+      } else
+      if (strcasecmp(parstr, "glcaps") == 0)
+      {
+#ifndef NDEBUG
+        if (strcasecmp(pr2str, "low") == 0)
+            GLStartupOptions_Get().caps_low = true;
+        else
+            GLWARN("Unknown -glcaps value \"%s\"; only \"low\" is supported.", pr2str);
+#else
+        GLWARN("-glcaps works only in debug builds; ignored.");
+#endif
+        narg++;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
@@ -2198,14 +2229,22 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     // Setup polyscans
     setup_bflib_render();
     // View the legal screen
-    if (!setup_screen_mode_zero(get_frontend_vidmode()))
+    TbBool display_ok = (setup_screen_mode_zero(get_frontend_vidmode()) != Lb_SCREEN_MODE_INVALID);
+    if (!display_ok && requested_renderer_type != RENDERER_SOFTWARE)
+    {
+        PlatformManager_DestroyWindow();
+        RendererReportSoftwareFallback("the game window could not be created for OpenGL");
+        requested_renderer_type = RENDERER_SOFTWARE;
+        display_ok = (setup_screen_mode_zero(get_frontend_vidmode()) != Lb_SCREEN_MODE_INVALID);
+    }
+    if (!display_ok)
     {
         ERRORLOG("Unable to set display mode for legal screen");
         LbErrorLogClose();
         return 0;
     }
 
-    retval &= (RendererInit((RendererType)requested_renderer_type) != 0);
+    retval &= (RendererStartup((RendererType)requested_renderer_type) != 0);
     RendererSettings_Load();
     PlatformManager_SetWindowTitle(PROGRAM_NAME);
     LbSetIcon(1);

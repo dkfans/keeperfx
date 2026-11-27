@@ -32,6 +32,13 @@ extern "C" {
 
 // Lifecycle: initialise the requested backend (nonzero on success) / shut it down.
 int          RendererInit(RendererType type);
+/** Starts the requested renderer; if a hardware renderer can't start, switches
+ *  to software and tells the player. Returns 1 when a renderer is running. */
+int          RendererStartup(RendererType type);
+/** Plain reason the last RendererInit() failed, or NULL. */
+const char*  RendererGetInitFailureReason(void);
+/** Logs and tells the player that OpenGL could not start and software is used. */
+void         RendererReportSoftwareFallback(const char* reason);
 void         RendererShutdown(void);
 RendererType RendererGetActiveType(void);
 
@@ -235,7 +242,6 @@ int  RendererGetCurrentSpriteOwner(void);
 int  RendererGetCurrentSpriteWantsOutline(void);
 
 void RendererClearKeeperSpriteAtlas(void);
-void RendererPreloadKeeperSpriteAtlas(void);
 
 /** Re-upload the tile atlas's animated rows (lava, water, dig-tag
  *  cross-hatch). Call before drawing, after update_animating_texture_maps()
@@ -256,6 +262,10 @@ void RendererSubmitPossessionLens(long viewport_x, long viewport_y, long viewpor
 void RendererSubmitMapFadeStep(TbBool starting, float display_step, float warp_scale,
                                const unsigned char *ghost_table);
 TbBool MapFadePass_SupportsNativeResolution(void);
+/** Call once when the map fade finishes. */
+void RendererEndMapFade(void);
+/** True when the renderer can't draw the map fade; the game should end it at once. */
+TbBool RendererMapFadeUnavailable(void);
 
 // See OverlayCaptureKind's own comment (IRenderer.h) for each kind's caller.
 void RendererBeginOverlayCapture(OverlayCaptureKind kind);

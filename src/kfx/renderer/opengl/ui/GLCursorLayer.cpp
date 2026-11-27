@@ -1,7 +1,7 @@
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLCursorLayer.h"
-#include "kfx/renderer/opengl/GLUIRenderer.h"
-#include "kfx/renderer/opengl/GLWorldViewRenderer.h"
+#include "kfx/renderer/opengl/ui/GLCursorLayer.h"
+#include "kfx/renderer/opengl/ui/GLUIRenderer.h"
+#include "kfx/renderer/opengl/world/GLWorldViewRenderer.h"
 #include "bflib_sprite.h"
 #include "engine_render.h"  // resolve_keepersprite_cursor_geometry()
 #include "kfx/renderer/SpriteScale.h"

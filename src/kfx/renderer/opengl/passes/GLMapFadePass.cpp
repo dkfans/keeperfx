@@ -6,13 +6,15 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "kfx/renderer/opengl/GLMapFadePass.h"
-#include "kfx/renderer/opengl/GLShaders.h"
-#include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/opengl/passes/GLMapFadePass.h"
+#include "kfx/renderer/opengl/shaders/PassShaders.h"
+#include "kfx/renderer/opengl/core/GLResourceMapper.h"
+#include "kfx/renderer/opengl/core/GLLog.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "kfx/renderer/RendererManager.h"  // RendererPhysicalWidth
 #include "bflib_basics.h"                  // ERRORLOG
 #include "bflib_video.h"                   // lbDisplay
+#include "kfx/profiling/KfxProfiling.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -97,6 +99,9 @@ bool GLMapFadePass::init_quad()
 
 void GLMapFadePass::Shutdown()
 {
+    // The mapper's ShutdownAll has already freed the targets.
+    m_parchment_rt_handle = kInvalidGpuResource;
+    m_tex_world_handle = kInvalidGpuResource;
     m_capture_gt_w = m_capture_gt_h = 0;
     m_cmd = IRMapFadeCmd{};
     m_rt_cmd = IRMapFadeCmd{};
@@ -109,6 +114,8 @@ void GLMapFadePass::SubmitStep(bool starting, float display_step, float warp_sca
     m_cmd.step = display_step;
     m_cmd.warp_scale = warp_scale;
     m_cmd.capture_pending = starting;
+    if (starting)
+        m_unavailable.store(false, std::memory_order_relaxed);
     if (m_cmd.capture_pending && ghost_table != nullptr)
         m_cmd.ghost_table.assign(ghost_table, ghost_table + 256 * 256);
 
@@ -121,6 +128,28 @@ void GLMapFadePass::FlipBuffers()
     ASSERT_GAME_THREAD();
     m_rt_cmd = std::move(m_cmd);
     m_cmd = IRMapFadeCmd{};
+    // The game says when a fade ends; a flip without a step (a palette fade,
+    // a forced UI flip) is not the end.
+    if (m_end_requested && !m_rt_cmd.active)
+    {
+        release_capture_resources();
+        m_end_requested = false;
+    }
+}
+
+void GLMapFadePass::release_capture_resources()
+{
+    if (!m_resource_mapper)
+        return;
+    if (m_parchment_rt_handle != kInvalidGpuResource)
+        m_resource_mapper->RequestRelease(m_parchment_rt_handle);
+    if (m_tex_world_handle != kInvalidGpuResource)
+        m_resource_mapper->RequestRelease(m_tex_world_handle);
+    m_parchment_rt_handle = kInvalidGpuResource;
+    m_tex_world_handle = kInvalidGpuResource;
+    m_capture_gt_w = m_capture_gt_h = 0;
+    m_fail_logged = false;
+    m_unavailable.store(false, std::memory_order_relaxed);
 }
 
 void GLMapFadePass::EnsureCaptureResources(int w, int h)
@@ -136,6 +165,7 @@ void GLMapFadePass::EnsureCaptureResources(int w, int h)
     rt_desc.height = h;
     rt_desc.attachments = { { GpuTextureFormat::RGBA8, false } };
     rt_desc.debug_name = "mapfade_parchment";
+    rt_desc.screen_sized = true;
 
     GpuTextureDesc world_desc;
     world_desc.width = w;
@@ -145,6 +175,7 @@ void GLMapFadePass::EnsureCaptureResources(int w, int h)
     world_desc.mag_filter = GpuTextureFilter::Linear;
     world_desc.wrap = GpuTextureWrap::Clamp;
     world_desc.debug_name = "mapfade_world";
+    world_desc.screen_sized = true;
 
     if (m_parchment_rt_handle == kInvalidGpuResource)
         m_parchment_rt_handle = m_resource_mapper->RequestCreateRenderTarget(rt_desc);
@@ -163,7 +194,7 @@ void GLMapFadePass::EnsureCaptureResources(int w, int h)
 void GLMapFadePass::CaptureParchmentFrame(int w, int h)
 {
     ASSERT_RENDER_THREAD();
-    if (!m_resource_mapper) return;
+    if (!m_resource_mapper || m_parchment_rt_handle == kInvalidGpuResource) return;
     const GLRenderTarget* rt = m_resource_mapper->ResolveRenderTarget(m_parchment_rt_handle);
     if (!rt || w <= 0 || h <= 0) return;
 
@@ -183,7 +214,8 @@ void GLMapFadePass::CaptureParchmentFrame(int w, int h)
 void GLMapFadePass::CaptureWorldFrame(int w, int h)
 {
     ASSERT_RENDER_THREAD();
-    if (!m_resource_mapper) return;
+    KFX_ZONE("GLMapFadePass::CaptureWorldFrame");
+    if (!m_resource_mapper || m_tex_world_handle == kInvalidGpuResource) return;
     const GLTexture* world_tex = m_resource_mapper->ResolveTexture(m_tex_world_handle);
     if (!world_tex || w <= 0 || h <= 0)
         return;
@@ -222,15 +254,26 @@ void GLMapFadePass::ResolveComposite(int screen_w, int screen_h)
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    const GLProgram* prog = m_resource_mapper->ResolveProgram(m_shader_handle);
+    if (m_parchment_rt_handle == kInvalidGpuResource || m_tex_world_handle == kInvalidGpuResource)
+        return;
     const GLRenderTarget* parchment_rt = m_resource_mapper->ResolveRenderTarget(m_parchment_rt_handle);
     const GLTexture* world_tex = m_resource_mapper->ResolveTexture(m_tex_world_handle);
+    if (!parchment_rt || parchment_rt->color_attachments.empty() || !world_tex)
+    {
+        // Only the capture frame draws the parchment, so ask the game to end the fade.
+        m_unavailable.store(true, std::memory_order_relaxed);
+        if (!m_fail_logged)
+            GLWARN("Not enough video memory for the map transition; showing the map straight away.");
+        m_fail_logged = true;
+        return;
+    }
+
+    const GLProgram* prog = m_resource_mapper->ResolveProgram(m_shader_handle);
     const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_quad_geom_handle);
     const GLTexture* palette_tex = m_resource_mapper->ResolveTexture(m_palette_tex_handle);
     const GLTexture* fade_tex = m_resource_mapper->ResolveTexture(m_fade_table_tex_handle);
     const GLTexture* index_tex = m_resource_mapper->ResolveTexture(m_palette_index_tex_handle);
-    if (!prog || !parchment_rt || parchment_rt->color_attachments.empty() || !world_tex || !geom
-        || !ghost_tex || !palette_tex || !fade_tex || !index_tex)
+    if (!prog || !geom || !ghost_tex || !palette_tex || !fade_tex || !index_tex)
         return;
 
     glViewport(0, 0, screen_w, screen_h);

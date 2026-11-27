@@ -229,6 +229,7 @@ struct WorldCommandBuffers
     // Owned here so any backend's ExecuteWorldFromIR can access them without
     // coupling to backend-private arrays.
     std::vector<WorldVertex>    tile_verts;
+    uint32_t                    used_sets = 0; // bit per tile set the tile verts use
 
     void Reset()
     {
@@ -237,6 +238,7 @@ struct WorldCommandBuffers
         keeper_sprites.Reset();
         shadows.Reset();
         tile_verts.clear();
+        used_sets = 0;
     }
 
     void Reserve(size_t tiles_n, size_t sprites_n, size_t shadows_n)
@@ -254,6 +256,7 @@ struct WorldCommandBuffers
         keeper_sprites.Swap(other.keeper_sprites);
         shadows.Swap(other.shadows);
         std::swap(tile_verts, other.tile_verts);
+        std::swap(used_sets, other.used_sets);
     }
 };
 

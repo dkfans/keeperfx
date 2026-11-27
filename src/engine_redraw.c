@@ -503,6 +503,8 @@ static void draw_map_fade(TbBool fading_in)
     const float display_step = 32.0f * (fading_in ? progress : 1.0f - progress);
     RendererSubmitMapFadeStep(starting, display_step,
         (float)turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, map_fade_ghost_table);
+    if (RendererMapFadeUnavailable())
+        local_state.map_fade_turns = 0; // the renderer can't blend: finish now
     // Software-only CPU blend
     if (lbDisplay.WScreen != NULL)
     {
@@ -950,8 +952,11 @@ void redraw_display(void)
         lens_mode = 0;
     }
     const unsigned char map_fade = get_local_map_fade();
-    if (map_fade == PVT_None)
+    if ((map_fade == PVT_None) && local_state.map_fade_prepared)
+    {
         local_state.map_fade_prepared = false;
+        RendererEndMapFade();
+    }
     if (map_fade != PVT_None) {
         parchment_loaded = 0;
         draw_map_fade(map_fade == PVT_MapFadeIn);
