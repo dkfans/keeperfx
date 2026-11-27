@@ -57,6 +57,7 @@ struct PacketSaveHead {
     PlayerBitFlags players_exist;
     PlayerBitFlags players_comp;
     PlayerBitFlags players_seat;
+    PlayerBitFlags players_keeper;
     uint8_t flags; // PacketSaveHeadFlags
     uint32_t action_seed;
     int64_t timestamp;

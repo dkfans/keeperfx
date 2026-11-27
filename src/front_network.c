@@ -282,18 +282,23 @@ static void reserve_lobby_seats(TbBool (*occupies_seat)(NetUserId), const TbBool
     }
 }
 
-void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS])
+static TbBool lobby_seat_available(PlayerNumber colour)
 {
     PlayerNumber level_seats = 0;
     struct LevelInformation *level = get_level_info(get_loaded_level_number());
     if (level) {
         level_seats = min(max(level->players, 2), MAX_NET_USERS);
     }
+    PlayerNumber plyr_idx = net_seat_players[colour];
+    return colour < level_seats || (player_is_keeper(plyr_idx) && thing_exists(find_players_dungeon_heart(plyr_idx)));
+}
+
+void net_resolve_player_colours(int8_t player_colours[MAX_NET_USERS])
+{
     TbBool seat_available[MAX_NET_USERS];
     PlayerNumber seats_left = 0;
     for (PlayerNumber colour = 0; colour < MAX_NET_USERS; colour++) {
-        PlayerNumber plyr_idx = net_seat_players[colour];
-        seat_available[colour] = colour < level_seats || (player_is_keeper(plyr_idx) && thing_exists(find_players_dungeon_heart(plyr_idx)));
+        seat_available[colour] = lobby_seat_available(colour);
         seats_left += seat_available[colour];
     }
     memset(player_colours, -1, MAX_NET_USERS);
@@ -342,8 +347,11 @@ void net_apply_lobby_seats(const int8_t player_slots[MAX_NET_USERS])
     net_lobby_empty_seats = 0;
     for (int8_t seat = 0; seat < MAX_NET_USERS; seat++) {
         PlayerNumber plyr_idx = net_seat_players[seat];
-        if (net_user_with_value(player_slots, seat) < 0) {
+        TbBool occupied = net_user_with_value(player_slots, seat) >= 0;
+        if (!occupied) {
             set_flag(net_lobby_empty_seats, to_flag(plyr_idx));
+        }
+        if (!occupied && !lobby_seat_available(seat)) {
             continue;
         }
         if (player_is_roaming(plyr_idx)) {

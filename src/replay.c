@@ -1538,6 +1538,7 @@ TbBool open_new_packet_file_for_save(void)
     replay.head.players_exist = 0;
     replay.head.players_comp = 0;
     replay.head.players_seat = 0;
+    replay.head.players_keeper = 0;
     replay_long_turn_open = false;
     reset_packet_codec();
     if (packet_wire_size == 0)
@@ -1573,6 +1574,9 @@ TbBool open_new_packet_file_for_save(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
+        if (player_is_keeper(i)) {
+            set_flag(replay.head.players_keeper, to_flag(i));
+        }
         if (player_exists(player))
         {
             set_flag(replay.head.players_exist, to_flag(i));
