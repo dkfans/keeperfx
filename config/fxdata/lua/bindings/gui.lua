@@ -27,7 +27,8 @@ function DisplayInformationWithPos(msg_id,stl_x,stl_y) end
 ---Works like Display_objective, but instead of using a string from translations, allows to type it directly.
 ---@param message string
 ---@param zoom_location? location
-function QuickObjective(message,zoom_location) end
+---@param icon? string|integer A name from an icons.json file or a panel sprite number
+function QuickObjective(message,zoom_location,icon) end
 
 ---Works like Display_objective, but instead of using a string from translations, allows to type it directly.
 ---@param message string
@@ -39,7 +40,8 @@ function QuickObjectiveWithPos(message,stl_x,stl_y) end
 ---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
 ---@param message string
 ---@param zoom_location? location
-function QuickInformation(slot,message,zoom_location) end
+---@param icon? string|integer A name from an icons.json file or a panel sprite number
+function QuickInformation(slot,message,zoom_location,icon) end
 
 ---Works like Display_information, but instead of using a string from translations, allows to type it directly.
 ---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
@@ -64,7 +66,8 @@ function DisplayPlayerInformation(msg_id,player,zoom_location) end
 ---@param message string
 ---@param player Player Target player who receives the message.
 ---@param zoom_location? location
-function QuickPlayerObjective(message,player,zoom_location) end
+---@param icon? string|integer A name from an icons.json file or a panel sprite number
+function QuickPlayerObjective(message,player,zoom_location,icon) end
 
 ---Works like Display_objective, but instead of using a string from translations, allows to type it directly.
 ---@param message string
@@ -78,7 +81,8 @@ function QuickPlayerObjectiveWithPos(message,player,stl_x,stl_y) end
 ---@param player Player Target player who receives the message.
 ---@param message string
 ---@param zoom_location? location
-function QuickPlayerInformation(slot,player,message,zoom_location) end
+---@param icon? string|integer A name from an icons.json file or a panel sprite number
+function QuickPlayerInformation(slot,player,message,zoom_location,icon) end
 
 ---Works like Display_information, but instead of using a string from translations, allows to type it directly.
 ---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
