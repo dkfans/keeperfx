@@ -613,10 +613,13 @@ static int lua_Quick_objective(lua_State *L)
 {
     const char *msg_text = lua_tostring(L, 1);
     TbMapLocation target = luaL_optLocation(L, 2);
+    short id;
+    char type;
+    luaL_checkMessageIcon(L, 3, &type, &id);
 
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        process_objective(msg_text, plyr_idx, target, 0, 0);
+        process_objective_with_icon(msg_text, plyr_idx, target, 0, 0,id);
     }
     return 0;
 }
@@ -627,10 +630,13 @@ static int lua_Quick_information(lua_State *L)
     const char *msg_text = lua_tostring(L, 2);
     TbMapLocation target = luaL_optLocation(L, 3);
     snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
+    short id;
+    char type;
+    luaL_checkMessageIcon(L, 4, &type, &id);
 
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        set_quick_information(slot, plyr_idx, target, 0, 0);
+        set_quick_information_with_icon(slot, plyr_idx, target, 0, 0,id);
     }
     return 0;
 }
@@ -710,8 +716,11 @@ static int lua_Quick_player_objective(lua_State* L)
     const char* msg_text = lua_tostring(L, 1);
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
     TbMapLocation target = luaL_optLocation(L, 3);
+    short id;
+    char type;
+    luaL_checkMessageIcon(L, 4, &type, &id);
 
-    process_objective(msg_text, plyr_idx, target, 0, 0);
+    process_objective_with_icon(msg_text, plyr_idx, target, 0, 0,id);
     return 0;
 }
 
@@ -722,8 +731,11 @@ static int lua_Quick_player_information(lua_State* L)
     const char* msg_text = lua_tostring(L, 3);
     TbMapLocation target = luaL_optLocation(L, 4);
     snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
+    short id;
+    char type;
+    luaL_checkMessageIcon(L, 5, &type, &id);
 
-    set_quick_information(slot, plyr_idx, target, 0, 0);
+    set_quick_information_with_icon(slot,plyr_idx,target,0,0,id);
     return 0;
 }
 
